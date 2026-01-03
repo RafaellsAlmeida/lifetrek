@@ -25,6 +25,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SalesAgentChat } from "@/components/SalesAgentChat";
+import { EnrichedLeadsTable } from "@/components/admin/EnrichedLeadsTable";
+import { useEnrichedLeads, useEnrichedLeadsStats } from "@/hooks/useEnrichedLeads";
 
 interface Lead {
   id: string;
@@ -89,6 +91,10 @@ export default function SalesEngineerDashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch enriched leads
+  const { data: enrichedLeads = [], isLoading: enrichedLoading, refetch: refetchEnriched } = useEnrichedLeads();
+  const { data: enrichedStats } = useEnrichedLeadsStats();
 
   useEffect(() => {
     checkAdminAccess();
@@ -311,12 +317,20 @@ export default function SalesEngineerDashboard() {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
             <CardContent className="p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-blue-600" />
               <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
-              <p className="text-xs text-blue-600">Total de Leads</p>
+              <p className="text-xs text-blue-600">Leads Formulário</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100/50 border-cyan-200">
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-cyan-600" />
+              <p className="text-3xl font-bold text-cyan-700">{enrichedLeads.length}</p>
+              <p className="text-xs text-cyan-600">Leads Enriquecidos</p>
             </CardContent>
           </Card>
 
@@ -339,23 +353,27 @@ export default function SalesEngineerDashboard() {
           <Card className="bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
             <CardContent className="p-4 text-center">
               <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-green-600" />
-              <p className="text-3xl font-bold text-green-700">{stats.last24h}</p>
-              <p className="text-xs text-green-600">Últimas 24h</p>
+              <p className="text-3xl font-bold text-green-700">{enrichedStats?.highQualityLeads || 0}</p>
+              <p className="text-xs text-green-600">Alta Qualidade</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
             <CardContent className="p-4 text-center">
-              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-3xl font-bold text-purple-700">{stats.avgScore}</p>
+              <Star className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+              <p className="text-3xl font-bold text-purple-700">{enrichedStats?.avgScore || "0"}</p>
               <p className="text-xs text-purple-600">Score Médio</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="action" className="space-y-4">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <Tabs defaultValue="enriched" className="space-y-4">
+          <TabsList className="grid w-full max-w-3xl grid-cols-5">
+            <TabsTrigger value="enriched" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Leads Enriquecidos ({enrichedLeads.length})
+            </TabsTrigger>
             <TabsTrigger value="action" className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
               Ação Pendente ({pendingAction.length})
@@ -373,6 +391,14 @@ export default function SalesEngineerDashboard() {
               Assistente IA
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="enriched">
+            <EnrichedLeadsTable
+              leads={enrichedLeads}
+              loading={enrichedLoading}
+              onRefresh={() => refetchEnriched()}
+            />
+          </TabsContent>
 
           <TabsContent value="action">
             <Card>
