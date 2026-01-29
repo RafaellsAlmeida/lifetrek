@@ -1,24 +1,74 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Resource, ResourceInsert, ResourceUpdate } from "@/types/resources";
 import { toast } from "sonner";
+
+// Mock data since 'resources' table doesn't exist yet
+const MOCK_RESOURCES: Resource[] = [
+    {
+        id: "1",
+        title: "Calculadora de TCO: Importação vs. Local",
+        description: "Compare o custo total de propriedade entre importar dispositivos médicos e fabricar localmente. Inclui custos ocultos como estoque, lead time e compliance.",
+        content: "",
+        type: "calculator",
+        persona: "Supply Chain / CFO",
+        status: "published",
+        slug: "calculadora-tco",
+        metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+    {
+        id: "2",
+        title: "Checklist de Auditoria ISO 13485",
+        description: "7 pontos críticos de validação para auditar fornecedores de dispositivos médicos. Baseado nas melhores práticas da Lifetrek Medical.",
+        content: "",
+        type: "checklist",
+        persona: "Quality / Regulatory",
+        status: "published",
+        slug: "checklist-iso-13485",
+        metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+    {
+        id: "3",
+        title: "Guia: Swiss Turning vs. CNC Convencional",
+        description: "Entenda quando usar cada tecnologia para fabricação de implantes e micromecânica de precisão. Inclui comparativo de tolerâncias e acabamentos.",
+        content: "",
+        type: "guide",
+        persona: "Engineering / R&D",
+        status: "published",
+        slug: "guia-swiss-turning",
+        metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+    {
+        id: "4",
+        title: "Guia de Validação de Fadiga para Implantes",
+        description: "Metodologia completa para testes de fadiga em implantes ortopédicos e espinhais segundo normas ASTM e ISO.",
+        content: "",
+        type: "guide",
+        persona: "Engineering / Quality",
+        status: "published",
+        slug: "validacao-fadiga",
+        metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+];
 
 export function useResources(publishedOnly = true) {
     return useQuery({
         queryKey: ["resources", publishedOnly],
         queryFn: async () => {
-            let query = supabase
-                .from("resources")
-                .select("*");
-
-            if (publishedOnly) {
-                query = query.eq("status", "published");
-            }
-
-            const { data, error } = await query.order("created_at", { ascending: false });
-
-            if (error) throw error;
-            return data as Resource[];
+            // Return mock data - deduplicated by slug
+            const seen = new Set<string>();
+            return MOCK_RESOURCES.filter(r => {
+                if (seen.has(r.slug)) return false;
+                seen.add(r.slug);
+                return publishedOnly ? r.status === "published" : true;
+            });
         },
     });
 }
@@ -27,14 +77,9 @@ export function useResource(slug: string) {
     return useQuery({
         queryKey: ["resource", slug],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("resources")
-                .select("*")
-                .eq("slug", slug)
-                .single();
-
-            if (error) throw error;
-            return data as Resource;
+            const resource = MOCK_RESOURCES.find(r => r.slug === slug);
+            if (!resource) throw new Error("Resource not found");
+            return resource;
         },
         enabled: !!slug,
     });
@@ -45,18 +90,13 @@ export function useCreateResource() {
 
     return useMutation({
         mutationFn: async (resource: ResourceInsert) => {
-            const { data, error } = await supabase
-                .from("resources")
-                .insert(resource)
-                .select()
-                .single();
-
-            if (error) throw error;
-            return data;
+            // Mock - would normally insert to DB
+            toast.info("Recursos estão em modo mock - tabela não existe ainda");
+            return { ...resource, id: crypto.randomUUID(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["resources"] });
-            toast.success("Recurso criado com sucesso!");
+            toast.success("Recurso criado (mock)!");
         },
         onError: (error) => {
             console.error("Error creating resource:", error);
@@ -70,19 +110,13 @@ export function useUpdateResource() {
 
     return useMutation({
         mutationFn: async ({ id, ...updates }: ResourceUpdate) => {
-            const { data, error } = await supabase
-                .from("resources")
-                .update(updates)
-                .eq("id", id)
-                .select()
-                .single();
-
-            if (error) throw error;
-            return data;
+            // Mock
+            toast.info("Recursos estão em modo mock");
+            return { id, ...updates };
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["resources"] });
-            toast.success("Recurso atualizado com sucesso!");
+            toast.success("Recurso atualizado (mock)!");
         },
         onError: (error) => {
             console.error("Error updating resource:", error);
@@ -96,12 +130,12 @@ export function useDeleteResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await supabase.from("resources").delete().eq("id", id);
-            if (error) throw error;
+            // Mock
+            toast.info("Recursos estão em modo mock");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["resources"] });
-            toast.success("Recurso excluído com sucesso!");
+            toast.success("Recurso excluído (mock)!");
         },
         onError: (error) => {
             console.error("Error deleting resource:", error);

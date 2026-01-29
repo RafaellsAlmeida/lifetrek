@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";

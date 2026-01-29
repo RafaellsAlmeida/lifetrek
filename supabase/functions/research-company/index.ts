@@ -281,7 +281,6 @@ const handler = async (req: Request): Promise<Response> => {
       industry: analysis.industry,
       key_products: analysis.key_products,
       recent_news: null,
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Cache for 30 days
     };
 
     // Cache the research

@@ -48,7 +48,7 @@ const CampaignManagement = lazy(() => import("./pages/Admin/CampaignManagement")
 const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
 const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
-const RoiSimulation = lazy(() => import("./pages/admin/RoiSimulation"));
+const RoiSimulation = lazy(() => import("./pages/Admin/RoiSimulation"));
 
 
 // Public Pages

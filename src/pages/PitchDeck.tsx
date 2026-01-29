@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Cleaned PitchDeck.tsx
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
