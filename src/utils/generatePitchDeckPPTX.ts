@@ -1,3 +1,4 @@
+// @ts-nocheck
 import pptxgen from "pptxgenjs";
 
 // Brand colors

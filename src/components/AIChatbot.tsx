@@ -202,7 +202,7 @@ export const AIChatbot = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder: "Digite sua dúvida...",
+                placeholder="Digite sua dúvida..."
                 disabled={isLoading}
                 className="flex-1"
               />

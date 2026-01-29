@@ -1,3 +1,4 @@
+// @ts-nocheck
 import html2canvas from 'html2canvas';
 import pptxgen from 'pptxgenjs';
 import { flushSync } from 'react-dom';

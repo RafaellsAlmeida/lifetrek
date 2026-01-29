@@ -44,7 +44,7 @@ export interface CarouselCopy {
 export interface GeneratedImage {
     slide_index: number;
     image_url: string;
-    asset_source: 'real' | 'ai-generated';
+    asset_source: 'real' | 'ai-generated' | 'text-only';
     asset_url?: string;
 }
 
@@ -249,7 +249,6 @@ serve(async (req) => {
             modelName: "google/gemini-2.0-flash-001",
             temperature: 0.7,
             configuration: {
-                blockKeys: ["OPENAI_API_KEY"],
                 baseURL: "https://openrouter.ai/api/v1",
                 apiKey: openRouterKey,
                 defaultHeaders: { "HTTP-Referer": "https://lifetrek.app", "X-Title": "Lifetrek App" }
@@ -436,7 +435,7 @@ serve(async (req) => {
                 topic: topic,
                 status: result.review.overall_score >= 70 ? 'pending_approval' : 'draft',
                 slides: result.copy.slides,
-                image_urls: result.images?.map(i => i.image_url) || [],
+                image_urls: result.images?.map((img: GeneratedImage) => img.image_url) || [],
                 caption: result.copy.caption,
                 quality_score: result.review.overall_score,
                 generation_metadata: { review: result.review, strategy: result.strategy }

@@ -10,6 +10,7 @@ export interface CarouselParams {
   ctaAction?: string;
   profileType?: 'company' | 'salesperson';
   style?: 'visual' | 'text-heavy';
+  format?: 'carousel' | 'single-image';
   researchLevel?: 'none' | 'light' | 'deep'; // Research depth: none=fast (25-30s), light=balanced (40-45s), deep=quality (50-60s)
 }
 
@@ -36,7 +37,7 @@ export interface CarouselCopy {
 export interface GeneratedImage {
   slide_index: number;
   image_url: string;
-  asset_source: 'real' | 'ai-generated';
+  asset_source: 'real' | 'ai-generated' | 'text-only';
   asset_url?: string; // Original asset URL if real
 }
 
