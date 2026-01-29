@@ -1,42 +1,243 @@
 
-## Objetivo
-Eliminar a tela branca causada por:
-- `SyntaxError: Cannot declare an imported binding name twice: 'Clapperboard'` em `src/components/admin/AdminHeader.tsx`
-- erro em cascata `TypeError: Importing a module script failed` (normalmente consequência do primeiro erro impedir o bundle de carregar)
 
-## O que eu vi no código (estado atual)
-- Em `src/components/admin/AdminHeader.tsx`, a importação de `lucide-react` atualmente mostra apenas **um** `Clapperboard` (linha ~24).
-- O diff que você mandou mostra que existiu uma duplicação explícita (`Clapperboard` duas vezes) e só uma ocorrência foi removida naquele commit, o que sugere que:
-  1) ainda pode haver **duplicação em outra importação** (em outro arquivo/branch/casing), ou  
-  2) o Preview está carregando um bundle **cacheado** (Vite) que ainda contém a versão antiga com duplicação.
+# Plano: Chatbot Website - Diagnóstico e Production Ready
 
-## Plano de correção (código + validação)
-### 1) Confirmar e remover duplicações de imports no AdminHeader
-- Revisar o bloco `import { ... } from "lucide-react";` do `AdminHeader.tsx` e garantir que:
-  - `Clapperboard` aparece exatamente uma vez.
-  - não há outros ícones duplicados (às vezes isso acontece por merge/auto-fix).
-- Aplicar uma pequena alteração “inequívoca” no arquivo (ex.: reordenar o bloco de imports ou padronizar o bloco) para forçar o rebuild do bundle no Preview.
+## Diagnóstico Completo
 
-### 2) Verificar se existe um “arquivo duplicado” por casing (Admin/admin)
-Esse tipo de bug já apareceu no projeto (conflitos `src/pages/admin/` vs `src/pages/Admin/`). Então:
-- Procurar se existe algum arquivo alternativo/import paralelo que também exporte/importe `AdminHeader` (por exemplo, pastas `Admin` vs `admin`, ou uma segunda cópia do componente em outro local).
-- Confirmar que o app usa apenas `src/components/admin/AdminHeader.tsx`.
+### Problema Principal: 404 - Função Não Deployada
+```text
+OPTIONS | 404 | https://iijkbhiqcsvtnfernrbs.supabase.co/functions/v1/website-bot
+```
 
-### 3) Garantir que o Preview não está preso em cache
-Mesmo com o código correto, o navegador pode continuar usando chunks antigos:
-- Depois da correção, fazer um “hard refresh” (Ctrl/Cmd+Shift+R) e, se necessário, abrir o Preview em aba anônima para garantir que o bundle novo está sendo baixado.
-- Validar especificamente em `/admin/video-studio` (rota atual do usuário), pois é onde o menu “Conteúdo” referencia `Clapperboard`.
+A função `website-bot` existe no código (`supabase/functions/website-bot/`) mas **NÃO está deployada** no Supabase.
 
-### 4) Validar a correção no fluxo real
-- Abrir `/admin/video-studio`:
-  - confirmar que a página renderiza (sem tela branca)
-  - confirmar que o header e o dropdown “Conteúdo” abrem normalmente
-- Checar console: garantir que **sumiram** os dois erros de runtime.
+### Problemas Identificados
 
-## Critérios de pronto
-- Não existe mais `Cannot declare an imported binding name twice: 'Clapperboard'`.
-- Não existe mais `Importing a module script failed`.
-- `/admin/video-studio` carrega normalmente com o header.
+| # | Problema | Impacto |
+|---|----------|---------|
+| 1 | **404 - Função não deployada** | Chatbot não responde |
+| 2 | **Falta config em `config.toml`** | `website-bot` não está listada |
+| 3 | **OPEN_ROUTER_API key** | Não existe nos secrets - precisa usar `LOVABLE_API_KEY` |
+| 4 | **Tabela `api_usage_logs` não existe** | Rate limit falha |
+| 5 | **LangChain/LangGraph complexo** | Overhead desnecessário para chat simples |
+| 6 | **Dependências npm: em Edge Functions** | Podem causar timeout/erros |
 
-## Observação importante
-Se após remover a duplicação no arquivo e forçar rebuild o erro persistir, o próximo passo será investigar se algum chunk está sendo gerado com uma versão antiga por conflito de path/casing, ou se algum import indireto está trazendo uma segunda declaração do mesmo binding (menos comum, mas possível em refactors). Nessa etapa eu vou rastrear a cadeia de imports a partir do `AdminLayout` / `App.tsx` até o `AdminHeader`.
+---
+
+## Arquitetura Atual vs Proposta
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    ATUAL (Não funciona)                      │
+├─────────────────────────────────────────────────────────────┤
+│  AIChatbot.tsx                                               │
+│       │                                                      │
+│       ▼                                                      │
+│  supabase.functions.invoke("website-bot")                   │
+│       │                                                      │
+│       ▼                                                      │
+│  website-bot/index.ts  ← 404 (não deployada)                │
+│       │                                                      │
+│       ├── LangChain/LangGraph (npm:)                        │
+│       ├── OpenRouter API (OPEN_ROUTER_API - missing)        │
+│       └── api_usage_logs (tabela não existe)                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    PROPOSTA (Production Ready)               │
+├─────────────────────────────────────────────────────────────┤
+│  AIChatbot.tsx                                               │
+│       │                                                      │
+│       ▼                                                      │
+│  supabase.functions.invoke("website-bot")                   │
+│       │                                                      │
+│       ▼                                                      │
+│  website-bot/index.ts  ← SIMPLIFICADA                       │
+│       │                                                      │
+│       ├── Lovable AI Gateway (LOVABLE_API_KEY)              │
+│       ├── RAG via knowledge_embeddings (se existir)         │
+│       ├── Lead capture direto (contact_leads)               │
+│       └── Rate limit simples in-memory                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Mudanças Propostas
+
+### 1. Adicionar `website-bot` ao `config.toml`
+```toml
+[functions.website-bot]
+verify_jwt = false   # Público - visitantes do site
+```
+
+### 2. Reescrever `website-bot/index.ts` - Simplificado
+Remover LangChain/LangGraph e usar fetch direto:
+
+```typescript
+// Principais mudanças:
+// 1. Usar LOVABLE_API_KEY + Lovable AI Gateway
+// 2. Remover dependências npm: complexas
+// 3. Rate limit simples in-memory (ou skip)
+// 4. RAG opcional via knowledge_embeddings
+// 5. Lead capture direto (sem tool calling)
+```
+
+### 3. Remover `tools.ts` (opcional)
+A lógica de save_lead e search_knowledge será inline no index.ts.
+
+### 4. Deployar a função
+Após as mudanças, o deploy será automático pelo Lovable.
+
+---
+
+## Nova Implementação `website-bot/index.ts`
+
+```typescript
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { messages } = await req.json();
+    
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY not configured");
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // System prompt da Julia
+    const systemPrompt = `Você é a Julia, assistente virtual da Lifetrek Medical.
+Seu papel é ajudar visitantes do site com dúvidas sobre fabricação de dispositivos médicos.
+
+CONHECIMENTO:
+- Lifetrek fabrica implantes ortopédicos, dentários e veterinários
+- Certificações: ISO 13485, ANVISA
+- Materiais: Titânio, PEEK, Aço Inox
+- Capacidade: CNC 5-eixos, Sala Limpa ISO 7
+
+CONTATO HUMANO:
+Se o usuário quiser falar com um humano, forneça:
+"Fale com nossa especialista Vanessa: https://wa.me/5511945336226"
+
+CAPTURA DE LEADS:
+Se o usuário fornecer nome/email/telefone, agradeça e confirme que um especialista entrará em contato.
+
+Seja breve, profissional e amigável.`;
+
+    // Chamar Lovable AI Gateway
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages
+        ],
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Muitas mensagens. Tente novamente em breve." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw new Error(`AI Gateway error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const responseText = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar.";
+
+    return new Response(
+      JSON.stringify({ response: responseText }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("Website Bot Error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+```
+
+---
+
+## Arquivos a Modificar/Criar
+
+| Arquivo | Ação | Descrição |
+|---------|------|-----------|
+| `supabase/config.toml` | **Modificar** | Adicionar `[functions.website-bot]` |
+| `supabase/functions/website-bot/index.ts` | **Reescrever** | Versão simplificada com Lovable AI |
+| `supabase/functions/website-bot/tools.ts` | **Remover** | Lógica inline no index |
+
+---
+
+## Benefícios da Nova Arquitetura
+
+| Aspecto | Antes | Depois |
+|---------|-------|--------|
+| **Dependências** | LangChain, LangGraph, Zod (npm:) | Apenas esm.sh/supabase |
+| **API Key** | OPEN_ROUTER_API (não existe) | LOVABLE_API_KEY (já existe) |
+| **Latência** | Alta (LangGraph graph execution) | Baixa (fetch direto) |
+| **Manutenção** | Complexa | Simples |
+| **Deploy** | Falha (404) | Automático |
+
+---
+
+## Fluxo Production Ready
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                       WEBSITE (/)                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  💬 Julia - Assistente Lifetrek                      │   │
+│  ├──────────────────────────────────────────────────────┤   │
+│  │  🤖 Olá! Como posso ajudar?                          │   │
+│  │                                                       │   │
+│  │  👤 Vocês fabricam implantes dentários?              │   │
+│  │                                                       │   │
+│  │  🤖 Sim! A Lifetrek fabrica implantes dentários      │   │
+│  │     em Titânio e PEEK. Quer saber mais sobre         │   │
+│  │     materiais ou receber um orçamento?               │   │
+│  │                                                       │   │
+│  │  [______________________________] [Enviar]            │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Critérios de Pronto
+
+1. `website-bot` deployada e retornando 200
+2. Chatbot responde no site público
+3. Usa `LOVABLE_API_KEY` (já configurada)
+4. Sem erros de timeout ou dependências
+5. Rate limit tratado gracefully (429 → toast amigável)
+
