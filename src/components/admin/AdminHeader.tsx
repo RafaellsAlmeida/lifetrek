@@ -22,7 +22,6 @@ import {
     Search,
     MessageSquare,
     Clapperboard,
-    Clapperboard,
     Eye,
     X,
     Zap,
