@@ -1,227 +1,204 @@
+// supabase/functions/website-bot/index.ts
+// Simplified Website Chatbot - Production Ready
+// Uses Lovable AI Gateway for fast, reliable responses
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { ChatOpenAI } from "npm:@langchain/openai";
-import { HumanMessage, AIMessage, SystemMessage, BaseMessage } from "npm:@langchain/core/messages";
-import { END, StateGraph } from "npm:@langchain/langgraph";
-import {
-    createSearchKnowledgeTool,
-    createSaveLeadTool,
-} from "./tools.ts";
 
 const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Rate limit settings for anonymous public bot
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 10; 
+// Simple in-memory rate limiting (per function instance)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 15;
 
-interface AgentState {
-    messages: BaseMessage[];
+function checkRateLimit(clientId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(clientId);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(clientId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  entry.count++;
+  return true;
 }
 
 serve(async (req) => {
-    if (req.method === "OPTIONS") {
-        return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { messages } = await req.json();
+
+    if (!messages || !Array.isArray(messages)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request: messages array required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || supabaseServiceKey; 
-        const openRouterKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
+    // Rate limit by IP or fallback identifier
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ error: "Muitas mensagens. Aguarde um momento e tente novamente." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-        if (!openRouterKey) {
-            throw new Error("OPEN_ROUTER_API key is missing");
-        }
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY not configured");
+      throw new Error("AI service not configured");
+    }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // --- AUTH & RATE LIMIT ---
-        // Basic protection: Track generic 'website-bot' usage or IP from headers if available (x-forwarded-for)
-        const clientIp = req.headers.get("x-forwarded-for") || "unknown_ip";
-        
-        // Check rate limit table
-        const { count, error: countError } = await supabase
-            .from("api_usage_logs")
-            .select("*", { count: "exact", head: true })
-            .eq("endpoint", "website-bot")
-            .eq("user_id", clientIp) // Storing IP in user_id for anon tracking (schema permitting, or use separate column)
-            .gt("created_at", new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString());
+    // System prompt for Julia - Lifetrek Website Assistant
+    const systemPrompt = `Você é a Julia, assistente virtual da Lifetrek Medical.
+Seu papel é ajudar visitantes do site com dúvidas sobre fabricação de dispositivos médicos.
 
-        // Note: If 'user_id' is UUID type in DB, this insert might fail. 
-        // We will assume for this 'Stress Test' fix we use a valid UUID or skip DB logging for Anon.
-        // Better approach: just simple in-memory check (per instance) or accept risk if specific DB columns aren't set up for text IPs.
-        // SAFETY: Only proceed if under limit.
-        if (count !== null && count >= MAX_REQUESTS_PER_WINDOW) {
-             return new Response(
-                JSON.stringify({ error: "Rate limit exceeded. Try again later." }),
-                { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-            );
-        }
+SOBRE A LIFETREK:
+- Fabricação: Implantes ortopédicos, dentários, veterinários e instrumentais cirúrgicos
+- Certificações: ISO 13485:2016, registro ANVISA, BPF
+- Materiais: Titânio Grau 5 (Ti6Al4V), PEEK, Aço Inox 316L, Cobalto-Cromo
+- Infraestrutura: CNC 5-eixos, tornos Swiss-Type, 2 Salas Limpas ISO 7, CMM ZEISS 3D
+- Capacidades: Tolerâncias de ±0.005mm, tratamento de superfície, passivação, anodização
+- Clientes: OEMs, hospitais, distribuidores B2B
 
-        // Log usage (fire and forget, don't await blocking)
-        // Using a fixed UUID for all "website-guests" to simply cap global throughput if IP tracking isn't easy
-        const ANONYMOUS_BOT_ID = "00000000-0000-0000-0000-000000000000"; 
-        
-        /* 
-           Ideally we log this. Commenting out to avoid UUID parsing errors if user_id is strict UUID.
-           await supabase.from("api_usage_logs").insert({ user_id: ANONYMOUS_BOT_ID, endpoint: "website-bot" });
-        */
-        
-        // --- PARSE REQUEST ---
-        const { messages: rawMessages } = await req.json();
-
-        // Convert raw messages to LangChain format
-        const langchainMessages: BaseMessage[] = rawMessages.map((m: any) => {
-            if (m.role === "user") return new HumanMessage(m.content);
-            if (m.role === "assistant") return new AIMessage(m.content);
-            return new HumanMessage(m.content); // Fallback
-        });
-
-        // --- INITIALIZE MODEL WITH STRICT TOOLS ---
-        const tools = [
-            createSaveLeadTool(supabase), 
-            createSearchKnowledgeTool(supabase, openRouterKey),
-        ];
-
-        // "Nano Banana" or similar low-latency model, or stick to reliable Flash/GPT-4o-mini
-        // User requested "Nano Banana" (likely nickname for a lightweight efficient model or just a persona).
-        // We will use a fast, smart model suitable for public facing chat.
-        const model = new ChatOpenAI({
-            modelName: "google/gemini-2.0-flash-001", // Fast and capable
-            temperature: 0.3, // "Extra careful with temperature" - keep it low for factual consistency
-            configuration: {
-                baseURL: "https://openrouter.ai/api/v1",
-                apiKey: openRouterKey,
-                defaultHeaders: {
-                    "HTTP-Referer": "https://lifetrek.app",
-                    "X-Title": "Lifetrek Website Bot",
-                },
-            },
-        }).bindTools(tools);
-
-        // --- DEFINE GRAPH ---
-        // 1. Agent Node: Decides what to do (call tool or respond)
-        const callAgent = async (state: AgentState): Promise<Partial<AgentState>> => {
-            console.log("🤖 Website Bot Node: Thinking...");
-
-            // CHAIN OF THOUGHT & FEW-SHOT PROMPT
-            const systemPrompt = `[SYSTEM]
-You are "Julia", the specialized AI Assistant for Lifetrek Medical's WEBSITE.
-You talk to prospective clients (B2B: Hospitals, OEMs, Distributors).
-
-YOUR IDENTITY:
-- Name: Julia
-- Tone: Professional, Warm, Intelligent, "Chain of Thought" reasoning.
-- Avatar: Young professional woman.
-- Role: Answer questions about manufacturing, collecting lead info, and routing to humans.
-- DO NOT generate carousels, blogs, or designs. That is NOT your job.
-
-VANESSA'S NUMBER:
-If the user wants to talk to a human IMMEDIATELY, provide this WhatsApp link/number:
+CONTATO HUMANO:
+Se o usuário quiser falar com um especialista ou solicitar orçamento:
 "Você pode falar diretamente com nossa especialista Vanessa no WhatsApp: https://wa.me/5511945336226"
 
-FEW-SHOT EXAMPLES (Follow this style):
-User: "Vocês fazem implantes?"
-Julia: (Thought: User is asking about capabilities. I should check knowledge base for 'implantes'.) "Sim, nós fabricamos implantes ortopédicos e dentários. Posso buscar detalhes específicos sobre nossos materiais (Titânio/PEEK) ou você gostaria de ver nosso catálogo?"
+CAPTURA DE LEADS:
+Se o usuário fornecer informações de contato (nome, email, telefone, empresa):
+- Agradeça cordialmente
+- Confirme que um especialista entrará em contato em breve
+- Se possível, pergunte sobre o tipo de projeto/necessidade
 
-User: "Quero um orçamento."
-Julia: (Thought: Intent is commercial. I need contact info to save a lead.) "Para preparar um orçamento preciso, preciso de alguns detalhes. Qual é o seu nome e e-mail corporativo, por favor?"
+DIRETRIZES:
+1. Seja profissional, breve e amigável
+2. Responda em português brasileiro
+3. Para dúvidas técnicas específicas, ofereça conectar com Vanessa
+4. NÃO gere conteúdo de marketing (posts, carrosséis) - isso não é sua função
+5. NÃO invente especificações técnicas - se não souber, ofereça contato humano
+6. Mantenha respostas concisas (máximo 3-4 frases quando possível)`;
 
-User: "Crie um post para o LinkedIn."
-Julia: (Thought: User is asking for generation content. I DO NOT do that.) "Desculpe, meu foco aqui é atendimento ao cliente e informações sobre nossa fábrica. Não gero conteúdo de mídia social neste chat."
+    // Call Lovable AI Gateway
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.map((m: { role: string; content: string }) => ({
+            role: m.role,
+            content: m.content
+          }))
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
 
-INSTRUCTIONS:
-1. THINK before answering. Briefly reason about the user's intent.
-2. USE 'search_knowledge' for technical questions (ISO, Machines, Tolerances).
-3. USE 'save_lead' if they give contact info.
-4. If uncertain, offer Vanessa's contact.
-[END SYSTEM]`;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI Gateway error:", response.status, errorText);
 
-            const messagesWithSystem = [new SystemMessage(systemPrompt), ...state.messages];
-
-            const response = await model.invoke(messagesWithSystem);
-            return { messages: [response] };
-        };
-
-        // 2. Tool Node: Executes tools
-        const executeTools = async (state: AgentState): Promise<Partial<AgentState>> => {
-            console.log("🛠️ Tool Node: Executing...");
-            const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
-            const toolCalls = lastMessage.tool_calls;
-
-            if (!toolCalls || toolCalls.length === 0) return {};
-
-            const toolResults = await Promise.all(toolCalls.map(async (call) => {
-                const tool = tools.find(t => t.name === call.name);
-                if (tool) {
-                    const result = await tool.invoke(call.args);
-                    return {
-                        tool_call_id: call.id,
-                        name: call.name,
-                        content: result
-                    };
-                }
-                return { tool_call_id: call.id, name: call.name, content: "Tool not found" };
-            }));
-
-            // In LangGraph, we return ToolMessages (simplified here for basic invocation or need explicit ToolMessage class)
-            // For simple graph loop, we just re-invoke agent with tool outputs.
-            // Using standard LangChain ToolMessage:
-            // This is a simplified manual loop. Ideally use ToolNode from prebuilt, but we are manual here.
-            
-            // Fix: Construct proper ToolMessages
-            const toolMessages = toolResults.map(res => ({
-                role: "tool",
-                tool_call_id: res.tool_call_id,
-                name: res.name,
-                content: res.content
-            }));
-            
-            // Only strictly needed for type correctness in model.invoke next pass
-            // We just return them as generic objects that LangChain model understands or cast them.
-            return { messages: toolMessages as any[] };
-        };
-
-        // 3. Conditional Logic
-        const shouldContinue = (state: AgentState) => {
-            const lastMessage = state.messages[state.messages.length - 1];
-            if (lastMessage instanceof AIMessage && lastMessage.tool_calls && lastMessage.tool_calls.length > 0) {
-                return "tools";
-            }
-            return END;
-        };
-
-        // Build Graph
-        const workflow = new StateGraph<AgentState>({
-            channels: { messages: { reducer: (a, b) => [...a, ...b], default: () => [] } }
-        });
-
-        workflow.addNode("agent", callAgent);
-        workflow.addNode("tools", executeTools);
-
-        workflow.setEntryPoint("agent");
-        workflow.addConditionalEdges("agent", shouldContinue);
-        workflow.addEdge("tools", "agent");
-
-        const app = workflow.compile();
-
-        // Run
-        const result = await app.invoke({ messages: langchainMessages });
-        const finalMessage = result.messages[result.messages.length - 1];
-
+      if (response.status === 429) {
         return new Response(
-            JSON.stringify({ response: finalMessage.content }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Serviço temporariamente ocupado. Tente novamente em breve." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
 
-    } catch (error) {
-        console.error("Website Bot Error:", error);
+      if (response.status === 402) {
         return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Serviço indisponível no momento." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+
+      throw new Error(`AI service error: ${response.status}`);
     }
+
+    const data = await response.json();
+    const responseText = data.choices?.[0]?.message?.content || 
+      "Desculpe, não consegui processar sua mensagem. Fale com nossa especialista Vanessa: https://wa.me/5511945336226";
+
+    // Optional: Try to detect and save lead info from conversation
+    await tryExtractAndSaveLead(supabase, messages, responseText);
+
+    return new Response(
+      JSON.stringify({ response: responseText }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("Website Bot Error:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "Desculpe, ocorreu um erro. Fale com nossa especialista Vanessa: https://wa.me/5511945336226" 
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 });
+
+// Helper function to extract potential lead info from conversation
+async function tryExtractAndSaveLead(
+  supabase: any,
+  messages: Array<{ role: string; content: string }>,
+  aiResponse: string
+): Promise<void> {
+  try {
+    // Simple regex patterns for contact info
+    const emailPattern = /[\w.-]+@[\w.-]+\.\w+/i;
+    const phonePattern = /(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?\d{4,5}[-\s]?\d{4}/;
+
+    // Check all user messages for contact info
+    const userMessages = messages.filter(m => m.role === "user").map(m => m.content).join(" ");
+    
+    const emailMatch = userMessages.match(emailPattern);
+    const phoneMatch = userMessages.match(phonePattern);
+
+    // Only save if we found at least email or phone
+    if (emailMatch || phoneMatch) {
+      const leadData: any = {
+        source: "website_chatbot",
+        email: emailMatch?.[0] || "nao_informado@placeholder.com",
+        phone: phoneMatch?.[0] || "Não informado",
+        name: "Lead via Chatbot",
+        project_type: "Consulta via Chat",
+        technical_requirements: userMessages.slice(0, 500),
+      };
+
+      const { error } = await supabase.from("contact_leads").insert(leadData);
+      
+      if (error) {
+        console.warn("Could not save lead (non-blocking):", error.message);
+      } else {
+        console.log("✅ Lead captured from chatbot");
+      }
+    }
+  } catch (e) {
+    // Non-blocking - don't fail the chat if lead capture fails
+    console.warn("Lead extraction failed (non-blocking):", e);
+  }
+}

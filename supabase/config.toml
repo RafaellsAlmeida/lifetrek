@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.agent-orchestrator]
 verify_jwt = false
+
+[functions.website-bot]
+verify_jwt = false
