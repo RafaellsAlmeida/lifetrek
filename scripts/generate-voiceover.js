@@ -20,7 +20,7 @@ if (!apiKey) {
         const envContent = fs.readFileSync(envPath, 'utf8');
         const match = envContent.match(/ELEVENLABS_API_KEY=(.*)/);
         if (match && match[1]) {
-            apiKey = match[1].trim();
+            apiKey = match[1].trim().replace(/['"]/g, '');
             console.log('✅ Found API Key in .env file.');
         }
     }
