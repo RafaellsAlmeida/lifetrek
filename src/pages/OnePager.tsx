@@ -254,18 +254,17 @@ const OnePager = () => {
           <p>
             Lifetrek Medical • Indaiatuba, SP • www.lifetrekmedical.com.br
           </p>
-             <div className="flex items-center gap-1">
-                <Linkedin className="w-4 h-4" />
-                <a href="https://www.linkedin.com/company/lifetrekmedical" target="_blank" rel="noopener noreferrer" className="hover:underline">/lifetrekmedical</a>
-             </div>
-             <div className="flex items-center gap-1">
-                <Instagram className="w-4 h-4" />
-                <a href="https://www.instagram.com/lifetrekmedical/" target="_blank" rel="noopener noreferrer" className="hover:underline">@lifetrekmedical</a>
-             </div>
-             <div className="flex items-center gap-1">
-                <Facebook className="w-4 h-4" />
-                <span>/lifetrek</span>
-             </div>
+          <div className="flex items-center gap-1">
+            <Linkedin className="w-4 h-4" />
+            <a href="https://www.linkedin.com/company/lifetrekmedical" target="_blank" rel="noopener noreferrer" className="hover:underline">/lifetrekmedical</a>
+          </div>
+          <div className="flex items-center gap-1">
+            <Instagram className="w-4 h-4" />
+            <a href="https://www.instagram.com/lifetrekmedical/" target="_blank" rel="noopener noreferrer" className="hover:underline">@lifetrekmedical</a>
+          </div>
+          <div className="flex items-center gap-1">
+            <Facebook className="w-4 h-4" />
+            <span>/lifetrek</span>
           </div>
         </div>
       </div>
@@ -274,4 +273,3 @@ const OnePager = () => {
 };
 
 export default OnePager;
-a
