@@ -66,83 +66,77 @@ const OnePager = () => {
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="mb-10 rounded-xl overflow-hidden shadow-2xl border border-gray-200">
-           <video 
-             src="/remotion/video-final-v2.mp4" 
-             controls 
-             className="w-full"
-             poster="/remotion/thumbnail.png"
-           >
-             Seu navegador não suporta vídeos.
-           </video>
-        </div>
-
         <div className="grid grid-cols-2 gap-8 flex-1">
           {/* Left Column - Why Lifetrek */}
           <div>
-            <h2 className="text-2xl font-bold text-primary mb-4 border-l-4 border-primary pl-3">
+            <h2 className="text-2xl font-bold text-primary mb-6 flex items-center gap-2">
+              <span className="w-1 h-8 bg-primary rounded-full"></span>
               Por que a Lifetrek?
             </h2>
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex-shrink-0 mt-1" />
-                <div>
-                  <div className="font-semibold">Lead Time Reduzido:</div>
-                  <div className="text-sm text-muted-foreground">De 90+ dias para 2-4 semanas</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex-shrink-0 mt-1" />
-                <div>
-                  <div className="font-semibold">Compliance Total:</div>
-                  <div className="text-sm text-muted-foreground">ISO 13485, GMP</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex-shrink-0 mt-1" />
-                <div>
-                  <div className="font-semibold">Nearshoring:</div>
-                  <div className="text-sm text-muted-foreground">
-                    Reduza exposição cambial e riscos logísticos
+              {[
+                { label: "Lead Time Reduzido", desc: "De 90+ dias para 2-4 semanas", icon: "🚀" },
+                { label: "Compliance Total", desc: "ISO 13485:2016 e BPF/ANVISA", icon: "✅" },
+                { label: "Nearshoring", desc: "Redução de riscos cambiais e logísticos", icon: "🇧🇷" },
+                { label: "Metrologia Avançada", desc: "Relatórios dimensionais completos com ZEISS", icon: "📏" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition-shadow">
+                  <div className="text-2xl bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-sm">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <div className="font-bold text-primary text-base">{item.label}</div>
+                    <div className="text-sm text-slate-600 font-medium">{item.desc}</div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex-shrink-0 mt-1" />
-                <div>
-                  <div className="font-semibold">Metrologia Avançada:</div>
-                  <div className="text-sm text-muted-foreground">
-                    ZEISS Contura + validação completa
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Produtos Section */}
-            <h2 className="text-2xl font-bold text-primary mt-8 mb-4 border-l-4 border-primary pl-3">
-              Produtos
+            <h2 className="text-2xl font-bold text-primary mt-8 mb-4 flex items-center gap-2">
+               <span className="w-1 h-8 bg-accent-orange rounded-full"></span>
+               Produtos
             </h2>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>• Implantes ortopédicos e dentais</p>
-              <p>• Instrumentais cirúrgicos</p>
-              <p>• Componentes de alta precisão</p>
+            <div className="bg-slate-900 text-white p-5 rounded-xl shadow-lg">
+                <ul className="space-y-2 text-sm font-medium">
+                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-accent-orange rounded-full"></div> Implantes ortopédicos e dentais</li>
+                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-accent-orange rounded-full"></div> Instrumentais cirúrgicos complexos</li>
+                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-accent-orange rounded-full"></div> Componentes de alta precisão (PEEK/Titânio)</li>
+                </ul>
             </div>
           </div>
 
-          {/* Right Column - Images */}
-          <div className="space-y-4">
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <img src={factoryExterior} alt="Fábrica Própria" className="w-full h-40 object-cover" />
-              <div className="bg-primary text-white px-4 py-2 text-sm font-semibold text-center">
-                Fábrica Própria • Indaiatuba, SP
-              </div>
+          {/* Right Column - Video & Images */}
+          <div className="space-y-6">
+            {/* VIDEO PLAYER - Main Feature */}
+            <div className="rounded-xl overflow-hidden shadow-2xl border border-primary/10 bg-black">
+               <video 
+                 src="/remotion/video-final-v2.mp4" 
+                 controls 
+                 className="w-full h-auto aspect-video"
+                 poster="/remotion/thumbnail.png"
+               >
+                 Seu navegador não suporta vídeos.
+               </video>
+               <div className="bg-primary text-white px-4 py-2 text-sm font-semibold flex justify-between items-center">
+                  <span>🎥 Assista nosso vídeo institucional</span>
+                  <span className="opacity-80 text-xs">01:20</span>
+               </div>
             </div>
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <img src={cleanroomHero} alt="Sala Limpa ISO 7" className="w-full h-40 object-cover" />
-              <div className="bg-green-600 text-white px-4 py-2 text-sm font-semibold text-center">
-                Sala Limpa ISO 7 Certificada
-              </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl overflow-hidden shadow-lg relative group">
+                  <img src={factoryExterior} alt="Fábrica Própria" className="w-full h-32 object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent text-white px-3 py-2 text-xs font-bold text-center">
+                    Fábrica Própria • Indaiatuba, SP
+                  </div>
+                </div>
+                <div className="rounded-xl overflow-hidden shadow-lg relative group">
+                  <img src={cleanroomHero} alt="Sala Limpa ISO 7" className="w-full h-32 object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent text-white px-3 py-2 text-xs font-bold text-center">
+                    Sala Limpa ISO 7
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -254,17 +248,15 @@ const OnePager = () => {
           <p>
             Lifetrek Medical • Indaiatuba, SP • www.lifetrekmedical.com.br
           </p>
-          <div className="flex items-center gap-1">
-            <Linkedin className="w-4 h-4" />
-            <a href="https://www.linkedin.com/company/lifetrekmedical" target="_blank" rel="noopener noreferrer" className="hover:underline">/lifetrekmedical</a>
-          </div>
-          <div className="flex items-center gap-1">
-            <Instagram className="w-4 h-4" />
-            <a href="https://www.instagram.com/lifetrekmedical/" target="_blank" rel="noopener noreferrer" className="hover:underline">@lifetrekmedical</a>
-          </div>
-          <div className="flex items-center gap-1">
-            <Facebook className="w-4 h-4" />
-            <span>/lifetrek</span>
+          <div className="flex gap-4">
+             <div className="flex items-center gap-1">
+                <Linkedin className="w-4 h-4" />
+                <span>/lifetrekmedical</span>
+             </div>
+             <div className="flex items-center gap-1">
+                <Facebook className="w-4 h-4" />
+                <span>/lifetrek</span>
+             </div>
           </div>
         </div>
       </div>

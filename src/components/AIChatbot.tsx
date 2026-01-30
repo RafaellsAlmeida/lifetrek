@@ -116,21 +116,21 @@ export const AIChatbot = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Bottom Right, Larger */}
       {!isOpen && showButton && (
         <Button
           onClick={() => setIsOpen(true)}
           size="lg"
-          className="fixed bottom-28 left-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary"
           aria-label="Abrir chat do Assistente Trek"
         >
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+          <MessageCircle className="h-7 w-7" />
         </Button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Bottom Right */}
       {isOpen && (
-        <div className="fixed bottom-28 left-6 w-96 h-[600px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-50 animate-scale-in">
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-50 animate-scale-in">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
             <div className="flex items-center gap-2">
