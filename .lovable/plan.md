@@ -1,92 +1,167 @@
 
-# Plano: Atualização da Área Veterinária e Adição do Cliente Vetmaker
+# Plano: Correção de Usabilidade do Chatbot
 
-## Resumo
-Atualizar a seção veterinária na página de Produtos com 2 novas fotos de implantes e adicionar o logo do novo cliente Vetmaker Facilities na seção de clientes.
+## Problemas Identificados
 
----
+### 1. Posicionamento Errado (Esquerda em vez de Direita)
+**Código atual:**
+```tsx
+// Linha 123 - Botão flutuante
+className="fixed bottom-28 left-6 ..."
 
-## Arquivos Enviados
+// Linha 132 - Janela do chat  
+<div className="fixed bottom-28 left-6 w-96 h-[600px] ..."
+```
+O chatbot está fixo no **lado esquerdo** (`left-6`), mas o padrão de UX é **lado direito**.
 
-| Arquivo | Tipo | Uso |
-|---------|------|-----|
-| `Placa_T_Y_MIckey_3.5.jpg` | Implante veterinário (roxo) | Catálogo veterinário |
-| `WhatsApp_Image_2025-05-21_at_08.42.35.jpeg` | Implante veterinário (magenta) | Catálogo veterinário |
-| `WhatsApp_Image_2025-05-21_at_10.42.24.jpeg` | Implante veterinário (azul) | Opcional |
-| `WhatsApp_Image_2025-05-21_at_15.20.11_1.jpeg` | Parafuso veterinário (dourado) | Opcional |
-| `WhatsApp_Image_2025-05-21_at_10.42.25_1.jpeg` | Implante veterinário (azul/osso) | Opcional |
-| `logotipo_vetmaker...pdf` | Logo Vetmaker Facilities | Seção clientes |
+### 2. Conflito de Espaço com MobileNav e StickyCTA
+- **MobileNav** (mobile): `fixed bottom-0` com `z-50`
+- **StickyCTA** (desktop): `fixed bottom-0` com `z-50`
+- **Chatbot**: `fixed bottom-28 left-6` com `z-50`
 
----
+O `bottom-28` (112px) foi colocado para "fugir" do MobileNav, mas é um valor arbitrário que não funciona bem.
 
-## Alterações Planejadas
-
-### 1. Substituir 2 Fotos na Área Veterinária
-
-**Arquivo:** `src/pages/Products.tsx`
-
-**Imagens atuais do catálogo veterinário (linhas 131-137):**
-- `veterinaryImplant1` - `veterinary-implant-1.jpg`
-- `veterinaryImplant2` - `veterinary-implant-2.jpg`
-
-**Ação:**
-1. Copiar as 2 novas imagens para `src/assets/products/`:
-   - `user-uploads://Placa_T_Y_MIckey_3.5.jpg` → `src/assets/products/veterinary-implant-1.jpg`
-   - `user-uploads://WhatsApp_Image_2025-05-21_at_08.42.35.jpeg` → `src/assets/products/veterinary-implant-2.jpg`
-2. Atualizar os alt texts para descrever os novos implantes
-
-### 2. Adicionar Logo Vetmaker na Seção de Clientes
-
-**Arquivos:**
-- `src/pages/Clients.tsx` - Grid de logos
-- `src/pages/Home.tsx` - Carrossel de clientes
-
-**Ação:**
-1. Extrair a melhor imagem do logo do PDF (página 1 ou 2)
-2. Copiar para `src/assets/clients/vetmaker-new.png`
-3. Adicionar import e entrada no array `clientLogos` em ambos os arquivos
-
----
-
-## Detalhes Técnicos
-
-### Estrutura Atual do Catálogo Veterinário
-```typescript
-// src/pages/Products.tsx - linhas 131-137
-catalogImages: [{
-  src: veterinaryImplant1,
-  alt: "Implantes Ortopédicos Veterinários - Placas e parafusos para cirurgia veterinária"
-}, {
-  src: veterinaryImplant2,
-  alt: "Sistemas de Fixação Veterinária - Implantes de titânio para ortopedia animal"
-}]
+### 3. Lógica de Scroll Confusa
+```tsx
+// Linhas 36-62
+useEffect(() => {
+  const handleScroll = () => {
+    const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    
+    // Mostra botão só após 20% de scroll
+    if (scrollDepth > 20) {
+      setShowButton(true);
+    }
+    
+    // Auto-abre em 35% de scroll
+    if (scrollDepth > 35 && !hasAutoOpened && !isOpen) {
+      setHasAutoOpened(true);
+      setIsOpen(true);
+    }
+  };
+  ...
+});
 ```
 
-### Estrutura dos Clientes
-```typescript
-// src/pages/Clients.tsx - clientLogos array
-{ src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants" }
+**Problemas:**
+1. O `showButton` é setado para `true` quando `scrollDepth > 20%`, mas **nunca volta para false** (não esconde quando volta ao topo)
+2. O auto-open em 35% pode ser irritante para o usuário
+3. Não há lógica para esconder ao fazer scroll UP (o que o usuário reportou)
 
-// src/pages/Home.tsx - clientLogos array (carrossel)
-{ src: vetmaker, alt: "Vetmaker Facilities" }
+---
+
+## Correções Propostas
+
+### 1. Mover Chatbot para o Lado Direito (Padrão UX)
+```tsx
+// Botão flutuante - ANTES
+className="fixed bottom-28 left-6 ..."
+
+// DEPOIS
+className="fixed bottom-24 right-4 md:bottom-28 md:right-8 ..."
+
+// Janela do chat - ANTES
+<div className="fixed bottom-28 left-6 w-96 h-[600px] ..."
+
+// DEPOIS  
+<div className="fixed bottom-24 right-4 md:bottom-28 md:right-8 w-[calc(100vw-2rem)] md:w-96 h-[70vh] md:h-[600px] ..."
+```
+
+### 2. Corrigir Lógica de Visibilidade
+```tsx
+// Mostrar botão SEMPRE (ou após um delay inicial, não baseado em scroll)
+const [showButton, setShowButton] = useState(false);
+
+useEffect(() => {
+  // Mostrar botão após 2 segundos na página
+  const timer = setTimeout(() => setShowButton(true), 2000);
+  return () => clearTimeout(timer);
+}, []);
+```
+
+### 3. Remover Auto-Open Agressivo
+O auto-open em 35% do scroll é irritante. Remover essa funcionalidade ou fazer opt-in.
+
+### 4. Ajustar z-index para Evitar Conflitos
+```tsx
+// Chatbot deve ter z-index maior que MobileNav/StickyCTA
+className="... z-[60]"  // em vez de z-50
+```
+
+### 5. Responsividade Mobile
+No mobile, a janela do chat deve ocupar quase toda a tela para melhor usabilidade.
+
+---
+
+## Código Final Proposto
+
+```tsx
+export const AIChatbot = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([...]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Mostrar botão após 2s (não depende de scroll)
+  useEffect(() => {
+    const timer = setTimeout(() => setShowButton(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ... resto do código
+
+  return (
+    <>
+      {/* Botão Flutuante - LADO DIREITO */}
+      {!isOpen && showButton && (
+        <Button
+          onClick={() => setIsOpen(true)}
+          size="lg"
+          className="fixed bottom-24 right-4 md:bottom-28 md:right-8 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-[60] bg-primary animate-bounce-subtle"
+          aria-label="Abrir chat do Assistente Trek"
+        >
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:6" />
+        </Button>
+      )}
+
+      {/* Janela do Chat - LADO DIREITO + Responsiva */}
+      {isOpen && (
+        <div className="fixed bottom-24 right-4 md:bottom-28 md:right-8 w-[calc(100vw-2rem)] md:w-96 h-[70vh] md:h-[600px] max-h-[calc(100vh-8rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-[60] animate-scale-in">
+          {/* Header, Messages, Input - sem alterações */}
+        </div>
+      )}
+    </>
+  );
+};
 ```
 
 ---
 
-## Resumo de Arquivos a Modificar
+## Arquivos a Modificar
 
-| Arquivo | Ação |
-|---------|------|
-| `src/assets/products/veterinary-implant-1.jpg` | **Substituir** com nova foto |
-| `src/assets/products/veterinary-implant-2.jpg` | **Substituir** com nova foto |
-| `src/assets/clients/vetmaker-new.png` | **Criar** com logo extraído |
-| `src/pages/Clients.tsx` | **Adicionar** import e logo Vetmaker |
-| `src/pages/Home.tsx` | **Adicionar** import e logo Vetmaker ao carrossel |
+| Arquivo | Alteração |
+|---------|-----------|
+| `src/components/AIChatbot.tsx` | Mover para direita, corrigir lógica de scroll, ajustar z-index, melhorar responsividade |
 
 ---
 
-## Critérios de Sucesso
+## Testes a Realizar
 
-1. Ao abrir `/products` e expandir o catálogo veterinário, as 2 novas fotos de implantes (placa roxa e magenta) aparecem
-2. O logo Vetmaker Facilities aparece no carrossel da Home e na grid de clientes em `/clients`
-3. Todas as imagens carregam corretamente com lazy loading
+1. Verificar que o botão do chatbot aparece no **canto inferior direito**
+2. Verificar que a janela do chat abre no **lado direito**
+3. Fazer scroll UP e DOWN - o chatbot **não deve esconder**
+4. Testar no mobile - verificar que não conflita com MobileNav
+5. Testar envio de mensagem - confirmar que o backend responde
+6. Testar em viewport pequeno (mobile) - janela deve ser responsiva
+
+---
+
+## Critérios de Pronto
+
+1. Chatbot posicionado no lado direito (padrão UX)
+2. Chatbot **não esconde** ao fazer scroll em qualquer direção
+3. Botão aparece após 2s, sem depender de % de scroll
+4. Sem conflito visual com MobileNav ou StickyCTA
+5. Backend responde corretamente às mensagens
