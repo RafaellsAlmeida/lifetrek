@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Download, Linkedin, Facebook } from "lucide-react";
+import { Download, Linkedin, Facebook, Instagram } from "lucide-react";
 import logo from "@/assets/logo-optimized.webp";
 import isoLogo from "@/assets/certifications/iso.webp";
 import factoryExterior from "@/assets/facility/exterior-hero.webp";
@@ -67,6 +67,17 @@ const OnePager = () => {
         </div>
 
         {/* Main Content Grid */}
+        <div className="mb-10 rounded-xl overflow-hidden shadow-2xl border border-gray-200">
+           <video 
+             src="/remotion/video-final-v2.mp4" 
+             controls 
+             className="w-full"
+             poster="/remotion/thumbnail.png"
+           >
+             Seu navegador não suporta vídeos.
+           </video>
+        </div>
+
         <div className="grid grid-cols-2 gap-8 flex-1">
           {/* Left Column - Why Lifetrek */}
           <div>
@@ -243,10 +254,13 @@ const OnePager = () => {
           <p>
             Lifetrek Medical • Indaiatuba, SP • www.lifetrekmedical.com.br
           </p>
-          <div className="flex gap-4">
              <div className="flex items-center gap-1">
                 <Linkedin className="w-4 h-4" />
-                <span>/lifetrekmedical</span>
+                <a href="https://www.linkedin.com/company/lifetrekmedical" target="_blank" rel="noopener noreferrer" className="hover:underline">/lifetrekmedical</a>
+             </div>
+             <div className="flex items-center gap-1">
+                <Instagram className="w-4 h-4" />
+                <a href="https://www.instagram.com/lifetrekmedical/" target="_blank" rel="noopener noreferrer" className="hover:underline">@lifetrekmedical</a>
              </div>
              <div className="flex items-center gap-1">
                 <Facebook className="w-4 h-4" />
@@ -260,3 +274,4 @@ const OnePager = () => {
 };
 
 export default OnePager;
+a
