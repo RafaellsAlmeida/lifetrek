@@ -1,243 +1,92 @@
 
+# Plano: Atualização da Área Veterinária e Adição do Cliente Vetmaker
 
-# Plano: Chatbot Website - Diagnóstico e Production Ready
-
-## Diagnóstico Completo
-
-### Problema Principal: 404 - Função Não Deployada
-```text
-OPTIONS | 404 | https://iijkbhiqcsvtnfernrbs.supabase.co/functions/v1/website-bot
-```
-
-A função `website-bot` existe no código (`supabase/functions/website-bot/`) mas **NÃO está deployada** no Supabase.
-
-### Problemas Identificados
-
-| # | Problema | Impacto |
-|---|----------|---------|
-| 1 | **404 - Função não deployada** | Chatbot não responde |
-| 2 | **Falta config em `config.toml`** | `website-bot` não está listada |
-| 3 | **OPEN_ROUTER_API key** | Não existe nos secrets - precisa usar `LOVABLE_API_KEY` |
-| 4 | **Tabela `api_usage_logs` não existe** | Rate limit falha |
-| 5 | **LangChain/LangGraph complexo** | Overhead desnecessário para chat simples |
-| 6 | **Dependências npm: em Edge Functions** | Podem causar timeout/erros |
+## Resumo
+Atualizar a seção veterinária na página de Produtos com 2 novas fotos de implantes e adicionar o logo do novo cliente Vetmaker Facilities na seção de clientes.
 
 ---
 
-## Arquitetura Atual vs Proposta
+## Arquivos Enviados
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    ATUAL (Não funciona)                      │
-├─────────────────────────────────────────────────────────────┤
-│  AIChatbot.tsx                                               │
-│       │                                                      │
-│       ▼                                                      │
-│  supabase.functions.invoke("website-bot")                   │
-│       │                                                      │
-│       ▼                                                      │
-│  website-bot/index.ts  ← 404 (não deployada)                │
-│       │                                                      │
-│       ├── LangChain/LangGraph (npm:)                        │
-│       ├── OpenRouter API (OPEN_ROUTER_API - missing)        │
-│       └── api_usage_logs (tabela não existe)                │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                    PROPOSTA (Production Ready)               │
-├─────────────────────────────────────────────────────────────┤
-│  AIChatbot.tsx                                               │
-│       │                                                      │
-│       ▼                                                      │
-│  supabase.functions.invoke("website-bot")                   │
-│       │                                                      │
-│       ▼                                                      │
-│  website-bot/index.ts  ← SIMPLIFICADA                       │
-│       │                                                      │
-│       ├── Lovable AI Gateway (LOVABLE_API_KEY)              │
-│       ├── RAG via knowledge_embeddings (se existir)         │
-│       ├── Lead capture direto (contact_leads)               │
-│       └── Rate limit simples in-memory                      │
-└─────────────────────────────────────────────────────────────┘
-```
+| Arquivo | Tipo | Uso |
+|---------|------|-----|
+| `Placa_T_Y_MIckey_3.5.jpg` | Implante veterinário (roxo) | Catálogo veterinário |
+| `WhatsApp_Image_2025-05-21_at_08.42.35.jpeg` | Implante veterinário (magenta) | Catálogo veterinário |
+| `WhatsApp_Image_2025-05-21_at_10.42.24.jpeg` | Implante veterinário (azul) | Opcional |
+| `WhatsApp_Image_2025-05-21_at_15.20.11_1.jpeg` | Parafuso veterinário (dourado) | Opcional |
+| `WhatsApp_Image_2025-05-21_at_10.42.25_1.jpeg` | Implante veterinário (azul/osso) | Opcional |
+| `logotipo_vetmaker...pdf` | Logo Vetmaker Facilities | Seção clientes |
 
 ---
 
-## Mudanças Propostas
+## Alterações Planejadas
 
-### 1. Adicionar `website-bot` ao `config.toml`
-```toml
-[functions.website-bot]
-verify_jwt = false   # Público - visitantes do site
-```
+### 1. Substituir 2 Fotos na Área Veterinária
 
-### 2. Reescrever `website-bot/index.ts` - Simplificado
-Remover LangChain/LangGraph e usar fetch direto:
+**Arquivo:** `src/pages/Products.tsx`
 
+**Imagens atuais do catálogo veterinário (linhas 131-137):**
+- `veterinaryImplant1` - `veterinary-implant-1.jpg`
+- `veterinaryImplant2` - `veterinary-implant-2.jpg`
+
+**Ação:**
+1. Copiar as 2 novas imagens para `src/assets/products/`:
+   - `user-uploads://Placa_T_Y_MIckey_3.5.jpg` → `src/assets/products/veterinary-implant-1.jpg`
+   - `user-uploads://WhatsApp_Image_2025-05-21_at_08.42.35.jpeg` → `src/assets/products/veterinary-implant-2.jpg`
+2. Atualizar os alt texts para descrever os novos implantes
+
+### 2. Adicionar Logo Vetmaker na Seção de Clientes
+
+**Arquivos:**
+- `src/pages/Clients.tsx` - Grid de logos
+- `src/pages/Home.tsx` - Carrossel de clientes
+
+**Ação:**
+1. Extrair a melhor imagem do logo do PDF (página 1 ou 2)
+2. Copiar para `src/assets/clients/vetmaker-new.png`
+3. Adicionar import e entrada no array `clientLogos` em ambos os arquivos
+
+---
+
+## Detalhes Técnicos
+
+### Estrutura Atual do Catálogo Veterinário
 ```typescript
-// Principais mudanças:
-// 1. Usar LOVABLE_API_KEY + Lovable AI Gateway
-// 2. Remover dependências npm: complexas
-// 3. Rate limit simples in-memory (ou skip)
-// 4. RAG opcional via knowledge_embeddings
-// 5. Lead capture direto (sem tool calling)
+// src/pages/Products.tsx - linhas 131-137
+catalogImages: [{
+  src: veterinaryImplant1,
+  alt: "Implantes Ortopédicos Veterinários - Placas e parafusos para cirurgia veterinária"
+}, {
+  src: veterinaryImplant2,
+  alt: "Sistemas de Fixação Veterinária - Implantes de titânio para ortopedia animal"
+}]
 ```
 
-### 3. Remover `tools.ts` (opcional)
-A lógica de save_lead e search_knowledge será inline no index.ts.
-
-### 4. Deployar a função
-Após as mudanças, o deploy será automático pelo Lovable.
-
----
-
-## Nova Implementação `website-bot/index.ts`
-
+### Estrutura dos Clientes
 ```typescript
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// src/pages/Clients.tsx - clientLogos array
+{ src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants" }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    const { messages } = await req.json();
-    
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // System prompt da Julia
-    const systemPrompt = `Você é a Julia, assistente virtual da Lifetrek Medical.
-Seu papel é ajudar visitantes do site com dúvidas sobre fabricação de dispositivos médicos.
-
-CONHECIMENTO:
-- Lifetrek fabrica implantes ortopédicos, dentários e veterinários
-- Certificações: ISO 13485, ANVISA
-- Materiais: Titânio, PEEK, Aço Inox
-- Capacidade: CNC 5-eixos, Sala Limpa ISO 7
-
-CONTATO HUMANO:
-Se o usuário quiser falar com um humano, forneça:
-"Fale com nossa especialista Vanessa: https://wa.me/5511945336226"
-
-CAPTURA DE LEADS:
-Se o usuário fornecer nome/email/telefone, agradeça e confirme que um especialista entrará em contato.
-
-Seja breve, profissional e amigável.`;
-
-    // Chamar Lovable AI Gateway
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages
-        ],
-        temperature: 0.7
-      })
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Muitas mensagens. Tente novamente em breve." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error(`AI Gateway error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const responseText = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar.";
-
-    return new Response(
-      JSON.stringify({ response: responseText }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
-  } catch (error) {
-    console.error("Website Bot Error:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-});
+// src/pages/Home.tsx - clientLogos array (carrossel)
+{ src: vetmaker, alt: "Vetmaker Facilities" }
 ```
 
 ---
 
-## Arquivos a Modificar/Criar
+## Resumo de Arquivos a Modificar
 
-| Arquivo | Ação | Descrição |
-|---------|------|-----------|
-| `supabase/config.toml` | **Modificar** | Adicionar `[functions.website-bot]` |
-| `supabase/functions/website-bot/index.ts` | **Reescrever** | Versão simplificada com Lovable AI |
-| `supabase/functions/website-bot/tools.ts` | **Remover** | Lógica inline no index |
-
----
-
-## Benefícios da Nova Arquitetura
-
-| Aspecto | Antes | Depois |
-|---------|-------|--------|
-| **Dependências** | LangChain, LangGraph, Zod (npm:) | Apenas esm.sh/supabase |
-| **API Key** | OPEN_ROUTER_API (não existe) | LOVABLE_API_KEY (já existe) |
-| **Latência** | Alta (LangGraph graph execution) | Baixa (fetch direto) |
-| **Manutenção** | Complexa | Simples |
-| **Deploy** | Falha (404) | Automático |
+| Arquivo | Ação |
+|---------|------|
+| `src/assets/products/veterinary-implant-1.jpg` | **Substituir** com nova foto |
+| `src/assets/products/veterinary-implant-2.jpg` | **Substituir** com nova foto |
+| `src/assets/clients/vetmaker-new.png` | **Criar** com logo extraído |
+| `src/pages/Clients.tsx` | **Adicionar** import e logo Vetmaker |
+| `src/pages/Home.tsx` | **Adicionar** import e logo Vetmaker ao carrossel |
 
 ---
 
-## Fluxo Production Ready
+## Critérios de Sucesso
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                       WEBSITE (/)                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  💬 Julia - Assistente Lifetrek                      │   │
-│  ├──────────────────────────────────────────────────────┤   │
-│  │  🤖 Olá! Como posso ajudar?                          │   │
-│  │                                                       │   │
-│  │  👤 Vocês fabricam implantes dentários?              │   │
-│  │                                                       │   │
-│  │  🤖 Sim! A Lifetrek fabrica implantes dentários      │   │
-│  │     em Titânio e PEEK. Quer saber mais sobre         │   │
-│  │     materiais ou receber um orçamento?               │   │
-│  │                                                       │   │
-│  │  [______________________________] [Enviar]            │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Critérios de Pronto
-
-1. `website-bot` deployada e retornando 200
-2. Chatbot responde no site público
-3. Usa `LOVABLE_API_KEY` (já configurada)
-4. Sem erros de timeout ou dependências
-5. Rate limit tratado gracefully (429 → toast amigável)
-
+1. Ao abrir `/products` e expandir o catálogo veterinário, as 2 novas fotos de implantes (placa roxa e magenta) aparecem
+2. O logo Vetmaker Facilities aparece no carrossel da Home e na grid de clientes em `/clients`
+3. Todas as imagens carregam corretamente com lazy loading
