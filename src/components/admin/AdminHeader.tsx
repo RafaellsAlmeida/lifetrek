@@ -86,6 +86,7 @@ const navStructure: NavEntry[] = [
         icon: Building2,
         items: [
             { path: "/admin/gallery", label: "Galeria", icon: Images },
+            { path: "/admin/one-pager", label: "One Pager", icon: FileText },
             { path: "/admin/knowledge-base", label: "Knowledge", icon: BookOpen, requiresSuperAdmin: true },
             { path: "/admin/product-assets", label: "Assets", icon: Upload, requiresSuperAdmin: true },
             { path: "/admin/environment-assets", label: "Ambiente", icon: Camera, requiresSuperAdmin: true },
