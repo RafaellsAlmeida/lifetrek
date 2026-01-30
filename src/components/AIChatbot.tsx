@@ -117,16 +117,6 @@ export const AIChatbot = () => {
               </div>
             </div>
             <div className="flex gap-1">
-                 {/* Human Handoff Quick Action */}
-                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-white/20 scale-90"
-                  title="Falar com Humano (Vanessa)"
-                  onClick={() => window.open("https://wa.me/5511945336226", "_blank")}
-                >
-                  <span className="text-xs">👩‍💼</span>
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
