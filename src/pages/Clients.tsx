@@ -24,6 +24,7 @@ import techimport from "@/assets/clients/techimport-new.png";
 import toride from "@/assets/clients/toride-new.png";
 import ultradent from "@/assets/clients/ultradent-new.png";
 import vincula from "@/assets/clients/vincula-new.png";
+import vetmaker from "@/assets/clients/vetmaker-new.png";
 
 export default function Clients() {
   const { t } = useLanguage();
@@ -51,6 +52,7 @@ export default function Clients() {
     { src: toride, alt: "Toride - Medical manufacturing client" },
     { src: ultradent, alt: "Ultradent Products - Dental device manufacturer" },
     { src: vincula, alt: "Vincula - Medical device manufacturer client" },
+    { src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants" },
   ];
 
   const clientTypes = [
