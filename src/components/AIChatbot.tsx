@@ -31,35 +31,11 @@ export const AIChatbot = () => {
     }
   }, [messages]);
 
-  const [hasAutoOpened, setHasAutoOpened] = useState(false);
-
+  // Show button after 2 seconds - NOT based on scroll
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      const isMobile = window.innerWidth < 768;
-      
-      // Show button earlier (e.g. 20%)
-      if (scrollDepth > 20) {
-        setShowButton(true);
-      }
-
-      // Auto-open at 35% if haven't opened yet
-      if (scrollDepth > 35 && !hasAutoOpened && !isOpen) {
-        setHasAutoOpened(true);
-        setIsOpen(true);
-        // Optional: Play sound or vibrate
-        if (navigator.vibrate) navigator.vibrate(200);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [hasAutoOpened, isOpen]);
+    const timer = setTimeout(() => setShowButton(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -115,21 +91,21 @@ export const AIChatbot = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - RIGHT SIDE, z-[60] to stay above MobileNav */}
       {!isOpen && showButton && (
         <Button
           onClick={() => setIsOpen(true)}
           size="lg"
-          className="fixed bottom-28 left-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary"
+          className="fixed bottom-24 right-4 md:bottom-28 md:right-8 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-[60] bg-primary"
           aria-label="Abrir chat do Assistente Trek"
         >
           <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - RIGHT SIDE, responsive, z-[60] */}
       {isOpen && (
-        <div className="fixed bottom-28 left-6 w-96 h-[600px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-50 animate-scale-in">
+        <div className="fixed bottom-24 right-4 md:bottom-28 md:right-8 w-[calc(100vw-2rem)] md:w-96 h-[70vh] md:h-[600px] max-h-[calc(100vh-8rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-[60] animate-scale-in">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
             <div className="flex items-center gap-2">
