@@ -36,8 +36,8 @@ const Blog = lazy(() => import("./pages/Blog"));
 // Admin Pages
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const DashboardOverview = lazy(() => import("./components/admin/DashboardOverview").then(module => ({ default: module.DashboardOverview })));
-const Leads = lazy(() => import("./pages/Admin/Leads"));
-const Gallery = lazy(() => import("./pages/Admin/Gallery"));
+const Leads = lazy(() => import("./pages/AdminLeads"));
+// const Gallery = lazy(() => import("./pages/Admin/Gallery"));
 const ProductAssets = lazy(() => import("./pages/Admin/ProductAssets"));
 const EnvironmentAssets = lazy(() => import("./pages/Admin/EnvironmentAssets"));
 const KnowledgeBase = lazy(() => import("./pages/Admin/KnowledgeBase"));
@@ -126,7 +126,7 @@ const App = () => (
                   <Route path="orchestrator" element={<ContentOrchestrator />} />
                   <Route path="content-approval" element={<ContentApproval />} />
                   <Route path="leads" element={<Leads />} />
-                  <Route path="gallery" element={<Gallery />} />
+                  {/* <Route path="gallery" element={<Gallery />} /> */}
                   <Route path="content-calendar" element={<ContentCalendar />} />
                   <Route path="campaigns" element={<CampaignManagement />} />
                   <Route path="video-studio" element={<VideoStudio />} />
