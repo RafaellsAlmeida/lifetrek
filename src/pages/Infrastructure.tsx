@@ -1,8 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import cleanroom from "@/assets/facility/cleanroom.webp";
-import reception from "@/assets/facility/reception.webp";
-// import citizenL20 from "@/assets/equipment/citizen.webp"; // Replaced by L20X
-// import citizenM32 from "@/assets/equipment/citizen-m32.jpg"; // Replaced by L32
+import cleanroom from "@/assets/facility/clean-room-5.png";
+import reception from "@/assets/facility/office-visit.png";
 import citizenL20X from "@/assets/equipment/citizen-l20-x.png";
 import citizenL32 from "@/assets/equipment/citizen-l32.png";
 import walter from "@/assets/equipment/walter.webp";
@@ -13,6 +11,8 @@ import espritCam from "@/assets/software/esprit-cam.png";
 import robodrill from "@/assets/equipment/fanuc-robodrill.png";
 import laserMarking from "@/assets/facility/laser-marking.png";
 import electropolishLine from "@/assets/facility/electropolish-line-new.jpg";
+import waterTreatment from "@/assets/facility/water-treatment.png";
+import grindingRoom from "@/assets/facility/grinding-room.jpg";
 
 // Metrology Imports
 import zeissContura from "@/assets/metrology/zeiss-contura.png";
@@ -61,6 +61,11 @@ export default function Infrastructure() {
       image: robodrill,
       name: "FANUC Robodrill",
       category: "CNC Machining Center",
+    },
+    {
+      image: grindingRoom,
+      name: "Grinding Center",
+      category: "Sala de Retíficas Precision Grinding",
     },
     {
       image: wireEdm,
@@ -116,6 +121,11 @@ export default function Infrastructure() {
       image: electropolishLine,
       name: "Electropolish Line",
       category: "Surface Treatment System",
+    },
+    {
+      image: waterTreatment,
+      name: "Water Treatment",
+      category: "Industrial Water Filtration",
     },
     {
       image: laserMarking,

@@ -3,19 +3,20 @@ import { Download, Linkedin, Facebook, Instagram, MapPin, Globe, Mail, Phone, Ch
 import logo from "@/assets/logo-optimized.webp";
 import isoLogo from "@/assets/certifications/iso.webp";
 import factoryExterior from "@/assets/facility/exterior-hero.webp";
-import cleanroomHero from "@/assets/facility/cleanroom-hero.webp";
-import receptionHero from "@/assets/facility/reception-hero.webp"; // Need to check if this exists or use fallback
+import cleanroomHero from "@/assets/facility/clean-room-1.png"; // Updated for better visual
+import receptionHero from "@/assets/facility/reception-hero.png"; // Using the high-quality PNG
 import citizenL20 from "@/assets/equipment/citizen-l20.webp";
-import citizenL20X from "@/assets/equipment/citizen-l20-x.png"; // New
-import citizenL32 from "@/assets/equipment/citizen-l32.png"; // New
+import citizenL20X from "@/assets/equipment/citizen-l20-x.png";
+import citizenL32 from "@/assets/equipment/citizen-l32.png";
 import citizenM32 from "@/assets/equipment/citizen-m32-new.png";
-import doosanNew from "@/assets/equipment/doosan-turning.png"; // Updated
-import electropolishLine from "@/assets/facility/electropolish-line-new.jpg"; // Updated
-import fanucRobodrill from "@/assets/equipment/fanuc-robodrill.png"; // New
-import tornosG26 from "@/assets/equipment/tornos-g26.png"; // New
-import zeissContura from "@/assets/metrology/zeiss-contura.png"; // New
-import laserMarking from "@/assets/facility/laser-marking.png"; // New
-import productionFloor from "@/assets/facility/production-floor.jpg"; // New
+import doosanNew from "@/assets/equipment/doosan-turning.png";
+import electropolishLine from "@/assets/facility/electropolish-line-new.jpg";
+import fanucRobodrill from "@/assets/equipment/fanuc-robodrill.png";
+import tornosG26 from "@/assets/equipment/tornos-g26.png";
+import zeissContura from "@/assets/metrology/zeiss-contura.png";
+import laserMarking from "@/assets/facility/laser-marking.png";
+import productionFloor from "@/assets/facility/production-floor.jpg";
+import grindingRoom from "@/assets/facility/grinding-room.jpg"; // New addition
 
 // Products
 import spinalImplants from "@/assets/products/spinal-implants-optimized.webp";
@@ -333,7 +334,7 @@ const OnePager = () => {
                       <MapPin className="w-5 h-5 text-accent-orange mt-1" />
                       <div>
                         <div className="font-bold text-sm">Indaiatuba, São Paulo</div>
-                        <div className="text-xs opacity-70">Rua das Indústrias, 123 (Simulação)</div>
+                        <div className="text-xs opacity-70">Distrito Industrial</div>
                       </div>
                    </div>
                    <div className="flex items-center gap-3">
@@ -344,7 +345,7 @@ const OnePager = () => {
 
                 <div className="lg:col-span-1 flex flex-col justify-end items-end gap-2 text-right">
                     <div className="flex gap-3">
-                         <a href="https://linkedin.com/company/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors">
+                         <a href="https://www.linkedin.com/company/109570674/" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors">
                              <Linkedin className="w-5 h-5" />
                          </a>
                          <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors">
