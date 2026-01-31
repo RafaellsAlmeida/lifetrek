@@ -1,17 +1,24 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import cleanroom from "@/assets/facility/cleanroom.webp";
 import reception from "@/assets/facility/reception.webp";
-import citizenL20 from "@/assets/equipment/citizen.webp";
-import citizenM32 from "@/assets/equipment/citizen-m32.jpg";
-import citizenL20X from "@/assets/equipment/citizen-l20x.png";
+// import citizenL20 from "@/assets/equipment/citizen.webp"; // Replaced by L20X
+// import citizenM32 from "@/assets/equipment/citizen-m32.jpg"; // Replaced by L32
+import citizenL20X from "@/assets/equipment/citizen-l20-x.png";
+import citizenL32 from "@/assets/equipment/citizen-l32.png";
 import walter from "@/assets/equipment/walter.webp";
-import tornosGT26 from "@/assets/equipment/tornos-gt26.webp";
-import tornosGT13 from "@/assets/equipment/tornos-gt13.png";
-import doosanImg from "@/assets/equipment/doosan.jpg";
-import espritCam from "@/assets/equipment/esprit-cam.png";
-import robodrill from "@/assets/equipment/robodrill.webp";
-import laserMarking from "@/assets/equipment/laser-marking.webp";
-import electropolishLine from "@/assets/equipment/electropolish-line.webp";
+import tornosG26 from "@/assets/equipment/tornos-g26.png"; 
+import tornosG13 from "@/assets/equipment/tornos-g13.png";
+import doosanImg from "@/assets/equipment/doosan-turning.png";
+import espritCam from "@/assets/software/esprit-cam.png";
+import robodrill from "@/assets/equipment/fanuc-robodrill.png";
+import laserMarking from "@/assets/facility/laser-marking.png";
+import electropolishLine from "@/assets/facility/electropolish-line-new.jpg";
+
+// Metrology Imports
+import zeissContura from "@/assets/metrology/zeiss-contura.png";
+import hardnessTester from "@/assets/metrology/hardness-tester.png";
+import opticalCnc from "@/assets/metrology/optical-cnc.png";
+import microscope from "@/assets/metrology/metrology-microscope.png";
 
 export default function Infrastructure() {
   const { t } = useLanguage();
@@ -23,23 +30,23 @@ export default function Infrastructure() {
       category: "CNC Turning Center",
     },
     {
-      image: citizenM32,
-      name: "Citizen M32",
-      category: "Swiss-Type CNC Lathe",
+      image: citizenL32,
+      name: "Citizen L32",
+      category: "Swiss-Type CNC Lathe (High Capacity)",
     },
     {
       image: citizenL20X,
       name: "Citizen L20-X",
+      category: "Swiss-Type CNC Lathe (5-Axis)",
+    },
+    {
+      image: tornosG26,
+      name: "Tornos Swiss GT 26",
       category: "Swiss-Type CNC Lathe",
     },
     {
-      image: tornosGT26,
-      name: "Tornos GT-26",
-      category: "Swiss-Type CNC Lathe",
-    },
-    {
-      image: tornosGT13,
-      name: "Tornos GT-13",
+      image: tornosG13,
+      name: "Tornos Swiss GT 13",
       category: "Swiss-Type CNC Lathe",
     },
     {
@@ -52,6 +59,30 @@ export default function Infrastructure() {
       name: "FANUC Robodrill",
       category: "CNC Machining Center",
     },
+  ];
+
+  const metrology = [
+      {
+        image: zeissContura,
+        name: "Zeiss Contura",
+        category: "CMM Bridge Machine",
+      },
+      {
+          image: opticalCnc,
+          name: "Optical Measurement CNC",
+          category: "Vision System",
+      },
+      {
+          image: hardnessTester,
+          name: "Hardness Tester",
+          category: "Material Validation",
+      },
+      {
+          image: microscope,
+          name: "High-Res Microscope",
+          category: "Visual Inspection",
+      },
+  ];
   ];
 
   const software = [
@@ -190,6 +221,32 @@ export default function Infrastructure() {
                 <div className="p-6">
                   <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{machine.name}</h3>
                   <p className="text-sm text-muted-foreground">{machine.category}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Metrology (New Section) */}
+          <h3 className="text-2xl font-bold text-center mb-8">
+            Advanced Metrology & Quality Control
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 max-w-6xl mx-auto">
+            {metrology.map((item, index) => (
+              <div
+                key={index}
+                className="bg-card rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              >
+                <div className="aspect-square bg-secondary/30 flex items-center justify-center p-6">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <h3 className="font-bold text-lg mb-1">{item.name}</h3>
+                  <p className="text-sm text-muted-foreground">{item.category}</p>
                 </div>
               </div>
             ))}
