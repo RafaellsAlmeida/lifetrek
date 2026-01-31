@@ -6,9 +6,16 @@ import factoryExterior from "@/assets/facility/exterior-hero.webp";
 import cleanroomHero from "@/assets/facility/cleanroom-hero.webp";
 import receptionHero from "@/assets/facility/reception-hero.webp"; // Need to check if this exists or use fallback
 import citizenL20 from "@/assets/equipment/citizen-l20.webp";
+import citizenL20X from "@/assets/equipment/citizen-l20-x.png"; // New
+import citizenL32 from "@/assets/equipment/citizen-l32.png"; // New
 import citizenM32 from "@/assets/equipment/citizen-m32-new.png";
-import doosanNew from "@/assets/equipment/doosan-new.png";
-import electropolishLine from "@/assets/equipment/electropolish-line.webp";
+import doosanNew from "@/assets/equipment/doosan-turning.png"; // Updated
+import electropolishLine from "@/assets/facility/electropolish-line-new.jpg"; // Updated
+import fanucRobodrill from "@/assets/equipment/fanuc-robodrill.png"; // New
+import tornosG26 from "@/assets/equipment/tornos-g26.png"; // New
+import zeissContura from "@/assets/metrology/zeiss-contura.png"; // New
+import laserMarking from "@/assets/facility/laser-marking.png"; // New
+import productionFloor from "@/assets/facility/production-floor.jpg"; // New
 
 // Products
 import spinalImplants from "@/assets/products/spinal-implants-optimized.webp";
@@ -205,24 +212,28 @@ const OnePager = () => {
             <h2 className="text-xl font-bold text-primary">Equipamentos & Capacidades</h2>
          </div>
 
-         {/* Machine Park */}
-         <div className="mb-12">
+         {/* Machine Park (Expanded) */}
+         <div className="mb-8">
             <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-primary pl-3">
               Parque de Máquinas (R$ 1.5M+ Investidos)
             </h3>
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-4 gap-4">
               {[
-                { img: citizenL20, title: "Citizen L20/L20X", sub: "Swiss-Type CNC" },
-                { img: citizenM32, title: "Citizen M32", sub: "Multi-Axis CNC" },
-                { img: doosanNew, title: "Doosan LYNX", sub: "CNC Turning" },
-                { img: electropolishLine, title: "Eletropolimento", sub: "Finishing Line" }
+                { img: citizenL20X, title: "Citizen L20-X", sub: "Swiss-Type CNC (5-Axis)" },
+                { img: citizenL32, title: "Citizen L32", sub: "Swiss-Type (High Capacity)" },
+                { img: fanucRobodrill, title: "Fanuc Robodrill", sub: "Vertical Machining Center" },
+                { img: tornosG26, title: "Tornos G26", sub: "Swiss-Type CNC" },
+                { img: doosanNew, title: "Doosan LYNX", sub: "CNC Turning Center" },
+                { img: zeissContura, title: "Zeiss Contura", sub: "CMM Metrology Lab" },
+                { img: laserMarking, title: "Laser Marking", sub: "Rastreabilidade UDI" },
+                { img: electropolishLine, title: "Eletropolimento", sub: "Linha Automatizada" }
               ].map((m, i) => (
-                <div key={i} className="bg-white border rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow">
-                   <div className="h-32 mb-4 flex items-center justify-center p-2 bg-slate-50 rounded-lg">
-                     <img src={m.img} alt={m.title} className="max-h-full object-contain" />
+                <div key={i} className="bg-white border rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center">
+                   <div className="h-28 w-full mb-3 flex items-center justify-center p-2 bg-slate-50 rounded-lg overflow-hidden">
+                     <img src={m.img} alt={m.title} className="w-full h-full object-contain" />
                    </div>
-                   <div className="font-bold text-primary text-sm mb-1">{m.title}</div>
-                   <div className="text-xs text-slate-500 font-medium">{m.sub}</div>
+                   <div className="font-bold text-primary text-xs mb-0.5">{m.title}</div>
+                   <div className="text-[10px] text-slate-500 font-medium">{m.sub}</div>
                 </div>
               ))}
             </div>
