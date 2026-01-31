@@ -158,16 +158,13 @@ const OnePager = () => {
 
           {/* Right Column - Visuals */}
           <div className="flex flex-col gap-6">
-             {/* VIDEO / FACTORY BLOCK */}
+             {/* FACTORY BLOCK */}
              <div className="rounded-xl overflow-hidden shadow-lg border border-primary/20 bg-primary group relative">
-                <video 
-                  src="/remotion/video-final-v2.mp4" 
-                  controls 
-                  className="w-full h-48 object-cover bg-black"
-                  poster="/remotion/thumbnail.png"
-                >
-                  Seu navegador não suporta vídeos.
-                </video>
+                <img 
+                  src={factoryExterior} 
+                  alt="Fábrica Lifetrek" 
+                  className="w-full h-48 object-cover"
+                />
                 <div className="bg-primary text-white py-2 px-4 text-center text-sm font-bold">
                   Fábrica Própria • Indaiatuba, SP
                 </div>
@@ -183,8 +180,7 @@ const OnePager = () => {
 
              {/* RECEPTION */}
              <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100">
-               {/* Using factory exterior as fallback for reception if needed, or specific reception image */}
-               <img src={factoryExterior} alt="Recepção" className="w-full h-full object-cover min-h-[180px]" />
+               <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover min-h-[180px]" />
                <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200">
                   Recepção
                 </div>
