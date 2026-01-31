@@ -19,6 +19,9 @@ import zeissContura from "@/assets/metrology/zeiss-contura.png";
 import hardnessTester from "@/assets/metrology/hardness-tester.png";
 import opticalCnc from "@/assets/metrology/optical-cnc.png";
 import microscope from "@/assets/metrology/metrology-microscope.png";
+import wireEdm from "@/assets/equipment/wire-edm.jpg";
+import cutter from "@/assets/equipment/cutter.png";
+import mountingPress from "@/assets/equipment/mounting-press.png";
 
 export default function Infrastructure() {
   const { t } = useLanguage();
@@ -59,6 +62,11 @@ export default function Infrastructure() {
       name: "FANUC Robodrill",
       category: "CNC Machining Center",
     },
+    {
+      image: wireEdm,
+      name: "Wire EDM",
+      category: "Electrical Discharge Machining",
+    },
   ];
 
   const metrology = [
@@ -81,6 +89,16 @@ export default function Infrastructure() {
           image: microscope,
           name: "High-Res Microscope",
           category: "Visual Inspection",
+      },
+      {
+          image: cutter,
+          name: "Precision Cutter",
+          category: "Metallography Prep",
+      },
+      {
+          image: mountingPress,
+          name: "Mounting Press",
+          category: "Metallography Prep",
       },
   ];
   ];
