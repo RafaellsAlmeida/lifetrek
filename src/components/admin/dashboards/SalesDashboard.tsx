@@ -1,202 +1,539 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, ListTodo, Phone, Mail, Calendar, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import {
+  Loader2,
+  Users,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+  Phone,
+  Building,
+  Calendar,
+  TrendingUp,
+  Star,
+  ArrowRight,
+  RefreshCw,
+  LogOut,
+  Bot,
+  BookOpen,
+  Flame,
+  LayoutGrid,
+  MessageSquare
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SalesAgentChat } from "@/components/SalesAgentChat";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { ContentCalendarPreview } from "@/components/ev/ContentCalendarPreview";
+import { QuickAccessGrid } from "@/components/ev/QuickAccessGrid";
+import UnifiedInbox from "@/pages/UnifiedInbox";
+import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
 
-interface SalesTask {
-    id: string;
-    text: string;
-    completed: boolean;
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string | null;
+  project_type: string;
+  project_types: string[] | null;
+  annual_volume: string | null;
+  technical_requirements: string;
+  message: string | null;
+  status: string;
+  priority: string;
+  lead_score: number | null;
+  score_breakdown: any;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+  source: string | null;
 }
 
-export function SalesDashboard({ userName }: { userName: string }) {
-    const navigate = useNavigate();
-    const [tasks, setTasks] = useState<SalesTask[]>(() => {
-        const saved = localStorage.getItem("sales_daily_tasks");
-        return saved ? JSON.parse(saved) : [
-            { id: "1", text: "Triagem técnica de novos leads (Foco: PME/Outsourcing)", completed: false },
-            { id: "2", text: "Postar os 3 posts fixos no Instagram", completed: false },
-            { id: "3", text: "Follow-up com leads do Sales Navigator", completed: false },
-            { id: "4", text: "Engajamento: Repostar/Curtir posts da Lifetrek", completed: false },
-            { id: "5", text: "Explorar novos serviços: Sala Limpa & Metrologia", completed: false },
-        ];
-    });
+const projectTypeLabels: Record<string, string> = {
+  dental_implants: "Implantes Dentários",
+  orthopedic_implants: "Implantes Ortopédicos",
+  spinal_implants: "Implantes de Coluna",
+  veterinary_implants: "Implantes Veterinários",
+  surgical_instruments: "Instrumentos Cirúrgicos",
+  micro_precision_parts: "Peças de Micro Precisão",
+  custom_tooling: "Ferramentas Customizadas",
+  medical_devices: "Dispositivos Médicos",
+  measurement_tools: "Instrumentos de Medição",
+  other_medical: "Outros Médicos"
+};
 
-    const [myLeads, setMyLeads] = useState<any[]>([]);
+const statusLabels: Record<string, string> = {
+  new: "Novo",
+  contacted: "Contatado",
+  in_progress: "Em Progresso",
+  quoted: "Cotado",
+  closed: "Fechado",
+  rejected: "Rejeitado"
+};
 
-    useEffect(() => {
-        localStorage.setItem("sales_daily_tasks", JSON.stringify(tasks));
-    }, [tasks]);
+const statusColors: Record<string, string> = {
+  new: "bg-blue-100 text-blue-800",
+  contacted: "bg-purple-100 text-purple-800",
+  in_progress: "bg-yellow-100 text-yellow-800",
+  quoted: "bg-orange-100 text-orange-800",
+  closed: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800"
+};
 
-    useEffect(() => {
-        const fetchMyLeads = async () => {
-            // In a real app, filter by assigned_to = user.id. 
-            // For now, showing 'new' leads as a proxy for "inbox".
-            const { data } = await supabase
-                .from("contact_leads")
-                .select("*")
-                .eq("status", "new")
-                .order("created_at", { ascending: false })
-                .limit(5);
-            setMyLeads(data || []);
-        };
-        fetchMyLeads();
-    }, []);
+export function SalesDashboard({ userName }: { userName?: string }) {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-    const toggleTask = (id: string) => {
-        setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  useEffect(() => {
+    fetchLeads();
+    
+    // Set up real-time subscription for new leads
+    const channel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contact_leads' },
+        () => {
+          fetchLeads();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
+  }, []);
 
-    const resetTasks = () => {
-        setTasks(prev => prev.map(t => ({ ...t, completed: false })));
-        toast.success("Checklist diário reiniciado!");
-    };
+  const fetchLeads = async () => {
+    try {
+      setRefreshing(true);
+      const { data, error } = await supabase
+        .from("contact_leads")
+        .select("*, source")
+        .order("created_at", { ascending: false });
 
+      if (error) throw error;
+      setLeads(data || []);
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+      toast.error("Erro ao carregar leads");
+    } finally {
+      setRefreshing(false);
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  // Filter leads for different categories
+  const newLeads = leads.filter(l => l.status === "new");
+  const pendingAction = leads.filter(l => ["new", "contacted"].includes(l.status));
+  const highPriorityLeads = leads.filter(l => l.priority === "high" && l.status !== "closed" && l.status !== "rejected");
+  
+  // Hot leads = leads from website (not imported cold leads)
+  const hotLeadsToday = leads.filter(l => {
+    const isFromWebsite = !l.source || l.source === "website" || l.source === "contact_form";
+    const isToday = new Date(l.created_at).toDateString() === new Date().toDateString();
+    return isFromWebsite && isToday;
+  });
+  
+  const recentLeads = leads.filter(l => {
+    const hoursSince = (Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60);
+    return hoursSince < 24;
+  });
+
+  // Calculate stats
+  const stats = {
+    total: leads.length,
+    new: newLeads.length,
+    highPriority: highPriorityLeads.length,
+    hotToday: hotLeadsToday.length,
+    last24h: recentLeads.length,
+    avgScore: leads.length > 0
+      ? (leads.reduce((sum, l) => sum + (l.lead_score || 0), 0) / leads.length).toFixed(1)
+      : "0"
+  };
+
+  if (loading) {
     return (
-        <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
-            {/* Welcome */}
-            <div className="flex justify-between items-end">
-                <div>
-                    <h2 className="text-2xl font-bold">Painel de Vendas</h2>
-                    <p className="text-muted-foreground">Olá, {userName}. Foco nas metas de hoje!</p>
-                </div>
-                <div className="text-right hidden md:block">
-                    <p className="text-sm font-medium">{new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Daily Checklist - Main Focus */}
-                <Card className="lg:col-span-2 border-none shadow-lg overflow-hidden relative group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-green-500" />
-                    <CardHeader className="pb-3">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle className="flex items-center gap-2">
-                                    <ListTodo className="h-5 w-5 text-green-600" />
-                                    Checklist Industrial
-                                </CardTitle>
-                                <CardDescription>Fluxo de trabalho diário de engenharia de vendas.</CardDescription>
-                            </div>
-                            <Button variant="ghost" size="sm" onClick={resetTasks} className="text-xs h-8 hover:bg-green-50 hover:text-green-700">
-                                Reiniciar Shift
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {/* Progress Ring for Tasks */}
-                        <div className="flex items-center gap-6 mb-8 p-4 bg-muted/30 rounded-2xl">
-                            <div className="relative w-16 h-16 flex items-center justify-center">
-                                <svg className="w-full h-full -rotate-90">
-                                    <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-muted/20" />
-                                    <circle
-                                        cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="6" fill="transparent"
-                                        strokeDasharray={175.9}
-                                        strokeDashoffset={175.9 - (175.9 * tasks.filter(t => t.completed).length / tasks.length)}
-                                        className="text-green-500 transition-all duration-700 ease-out"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                                <span className="absolute text-xs font-black">{Math.round(tasks.filter(t => t.completed).length / tasks.length * 100)}%</span>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm">Progresso Diário</h4>
-                                <p className="text-xs text-muted-foreground">{tasks.filter(t => t.completed).length} de {tasks.length} ações concluídas</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            {tasks.map((task) => (
-                                <div key={task.id} className="flex items-center space-x-3 p-3 rounded-xl hover:bg-muted/50 transition-all border border-transparent hover:border-border/20 group/item">
-                                    <Checkbox
-                                        id={task.id}
-                                        checked={task.completed}
-                                        onCheckedChange={() => toggleTask(task.id)}
-                                        className="h-5 w-5 rounded-md data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                                    />
-                                    <label
-                                        htmlFor={task.id}
-                                        className={`text-sm font-medium leading-normal cursor-pointer flex-1 ${task.completed ? "line-through text-muted-foreground" : ""}`}
-                                    >
-                                        {task.text}
-                                    </label>
-                                    {task.completed && <CheckCircle2 className="h-4 w-4 text-green-500 animate-in zoom-in" />}
-                                </div>
-                            ))}
-                        </div>
-                        {tasks.every(t => t.completed) && (
-                            <div className="mt-6 p-4 bg-green-500 text-white rounded-xl text-center font-bold animate-in slide-in-from-bottom-2 shadow-lg shadow-green-200">
-                                🚀 Shift Completo! Pipeline Saudável.
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Sales Performance & New Leads */}
-                <div className="space-y-6">
-                    {/* Performance Meter */}
-                    <Card className="bg-slate-900 text-white border-none shadow-xl">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-bold opacity-70 uppercase tracking-widest">Performance</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col items-center">
-                            <div className="text-4xl font-black mb-1">22%</div>
-                            <div className="text-[10px] font-bold text-blue-400 mb-4 uppercase">Taxa de Conversão</div>
-                            <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                                <div className="bg-blue-500 h-full w-[22%]" />
-                            </div>
-                            <p className="text-[10px] opacity-40 mt-2">Acima da média industrial (18%)</p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Quick Leads / Inbox */}
-                    <Card className="h-full flex flex-col shadow-lg border-none">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-lg">Novos Leads</CardTitle>
-                            <CardDescription>Entrada de funil</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1 p-0">
-                            <ScrollArea className="h-[250px] px-6">
-                                <div className="space-y-3 pb-6">
-                                    {myLeads.length === 0 ? (
-                                        <p className="text-sm text-muted-foreground text-center py-8">Vazio por agora.</p>
-                                    ) : (
-                                        myLeads.map(lead => (
-                                            <div key={lead.id} className="p-3 rounded-xl border bg-card hover:border-primary/50 transition-all cursor-pointer group shadow-sm" onClick={() => navigate('/admin/leads')}>
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <span className="font-bold text-xs truncate">{lead.name}</span>
-                                                    <Badge className="text-[8px] h-4 bg-blue-50 text-blue-700 border-blue-100 uppercase">{lead.status}</Badge>
-                                                </div>
-                                                <p className="text-[10px] text-muted-foreground truncate mb-3 font-medium uppercase tracking-tighter">{lead.company || "Sem empresa"}</p>
-                                                <div className="flex gap-1">
-                                                    <Button size="icon" variant="secondary" className="h-7 w-7 rounded-lg">
-                                                        <Mail className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button size="icon" variant="secondary" className="h-7 w-7 rounded-lg">
-                                                        <Phone className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button variant="outline" className="h-7 text-[10px] px-2 ml-auto font-bold uppercase">Detail</Button>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </ScrollArea>
-                        </CardContent>
-                        <div className="p-4 border-t mt-auto">
-                            <Button variant="ghost" className="w-full text-xs font-bold uppercase tracking-widest text-primary" onClick={() => navigate('/admin/leads')}>
-                                Ver Todos <ArrowRight className="h-3 w-3 ml-2" />
-                            </Button>
-                        </div>
-                    </Card>
-                </div>
-            </div>
-        </div>
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
+  }
+
+  const LeadCard = ({ lead, showBadges = true }: { lead: Lead; showBadges?: boolean }) => (
+    <Card className="hover:shadow-md transition-all duration-200 border-l-4" style={{
+      borderLeftColor: lead.priority === "high" ? "#ef4444" : lead.priority === "medium" ? "#f59e0b" : "#22c55e"
+    }}>
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h4 className="font-semibold text-lg flex items-center gap-2">
+              {lead.name}
+              {lead.lead_score && lead.lead_score >= 4 && (
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              )}
+            </h4>
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <Building className="h-3 w-3" />
+              {lead.company || "Empresa não informada"}
+            </p>
+          </div>
+          {showBadges && (
+            <div className="flex gap-2">
+              <Badge className={statusColors[lead.status] || "bg-gray-100"}>
+                {statusLabels[lead.status] || lead.status}
+              </Badge>
+              {lead.lead_score !== null && (
+                <Badge variant="outline" className="font-mono">
+                  Score: {lead.lead_score}/5
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Mail className="h-3 w-3" />
+            <span className="truncate">{lead.email}</span>
+          </div>
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Phone className="h-3 w-3" />
+            <span>{lead.phone}</span>
+          </div>
+        </div>
+
+        {lead.project_types && lead.project_types.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {lead.project_types.slice(0, 3).map(type => (
+              <Badge key={type} variant="secondary" className="text-xs">
+                {projectTypeLabels[type] || type}
+              </Badge>
+            ))}
+            {lead.project_types.length > 3 && (
+              <Badge variant="secondary" className="text-xs">
+                +{lead.project_types.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            {new Date(lead.created_at).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(`/admin?lead=${lead.id}`)}
+            className="text-primary"
+          >
+            Ver Detalhes
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        <div className="flex justify-between items-center mb-6">
+           <div>
+             <h1 className="text-2xl font-bold text-primary">Engenharia de Vendas</h1>
+             <p className="text-sm text-muted-foreground">Bem-vindo, {userName || 'Engenheiro'}</p>
+           </div>
+           <div className="flex gap-2">
+             <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchLeads}
+                disabled={refreshing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+                Atualizar
+              </Button>
+           </div>
+        </div>
+
+        {/* Quick Access Grid */}
+        <QuickAccessGrid />
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200">
+            <CardContent className="p-4 text-center">
+              <Flame className="h-6 w-6 mx-auto mb-2 text-orange-600" />
+              <p className="text-3xl font-bold text-orange-700">{stats.hotToday}</p>
+              <p className="text-xs text-orange-600">Quentes Hoje</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
+            <CardContent className="p-4 text-center">
+              <Users className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
+              <p className="text-xs text-blue-600">Total</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-yellow-200">
+            <CardContent className="p-4 text-center">
+              <Clock className="h-6 w-6 mx-auto mb-2 text-yellow-600" />
+              <p className="text-3xl font-bold text-yellow-700">{stats.new}</p>
+              <p className="text-xs text-yellow-600">Novos</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-red-50 to-red-100/50 border-red-200">
+            <CardContent className="p-4 text-center">
+              <AlertCircle className="h-6 w-6 mx-auto mb-2 text-red-600" />
+              <p className="text-3xl font-bold text-red-700">{stats.highPriority}</p>
+              <p className="text-xs text-red-600">Alta Prior.</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
+            <CardContent className="p-4 text-center">
+              <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-green-600" />
+              <p className="text-3xl font-bold text-green-700">{stats.last24h}</p>
+              <p className="text-xs text-green-600">24h</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+              <p className="text-3xl font-bold text-purple-700">{stats.avgScore}</p>
+              <p className="text-xs text-purple-600">Score</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="inbox" className="space-y-4">
+          <TabsList className="grid w-full max-w-5xl grid-cols-8">
+            <TabsTrigger value="hot" className="flex items-center gap-2">
+              <Flame className="h-4 w-4" />
+              <span className="hidden lg:inline">Quentes</span> ({hotLeadsToday.length})
+            </TabsTrigger>
+            <TabsTrigger value="action" className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <span className="hidden lg:inline">Pendente</span> ({pendingAction.length})
+            </TabsTrigger>
+            <TabsTrigger value="inbox" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden lg:inline">Inbox</span>
+            </TabsTrigger>
+             <TabsTrigger value="report" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden lg:inline">Relatório</span>
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden lg:inline">Agenda</span>
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-2">
+              <Bot className="h-4 w-4" />
+              <span className="hidden lg:inline">IA</span>
+            </TabsTrigger>
+            <TabsTrigger value="tools" className="flex items-center gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden lg:inline">Tools</span>
+            </TabsTrigger>
+            <TabsTrigger value="onboarding" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              <span className="hidden lg:inline">Início</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="hot">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-orange-500" />
+                  Leads Quentes de Hoje
+                </CardTitle>
+                <CardDescription>
+                  Leads que chegaram pelo website hoje (não importados)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px] pr-4">
+                  <div className="space-y-4">
+                    {hotLeadsToday.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Flame className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>Nenhum lead quente hoje ainda</p>
+                        <p className="text-sm mt-2">Leads do website aparecerão aqui</p>
+                      </div>
+                    ) : (
+                      hotLeadsToday.map(lead => (
+                        <LeadCard key={lead.id} lead={lead} />
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="action">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-yellow-500" />
+                  Leads Aguardando Ação
+                </CardTitle>
+                <CardDescription>
+                  Leads novos ou contatados que precisam de follow-up
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px] pr-4">
+                  <div className="space-y-4">
+                    {pendingAction.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>Nenhum lead pendente de ação!</p>
+                      </div>
+                    ) : (
+                      pendingAction.map(lead => (
+                        <LeadCard key={lead.id} lead={lead} />
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="inbox" className="h-[800px]">
+             <UnifiedInbox />
+          </TabsContent>
+
+          <TabsContent value="report">
+             <Card>
+                <CardContent className="pt-6">
+                  <WeeklyReportDashboard />
+                </CardContent>
+             </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar">
+            <ContentCalendarPreview />
+          </TabsContent>
+
+          <TabsContent value="assistant">
+            <div className="max-w-4xl mx-auto">
+              <SalesAgentChat />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tools">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/linkedin-carousel")}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-blue-500" />
+                    LinkedIn Carousel Generator
+                  </CardTitle>
+                  <CardDescription>
+                    Crie carrosséis profissionais com IA para LinkedIn
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full">
+                    Abrir LCG
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/campaigns")}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-purple-500" />
+                    Campanhas
+                  </CardTitle>
+                  <CardDescription>
+                    Monitore e gerencie suas campanhas de marketing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    Ver Campanhas
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/knowledge-base")}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-green-500" />
+                    Knowledge Base
+                  </CardTitle>
+                  <CardDescription>
+                    Acesse a base de conhecimento da empresa
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    Explorar Knowledge
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/content-approval")}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-orange-500" />
+                    Aprovação de Conteúdo
+                  </CardTitle>
+                  <CardDescription>
+                    Revise e aprove templates de conteúdo
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    Ver Pendentes
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="onboarding">
+            <div className="max-w-4xl mx-auto">
+              <OnboardingChecklist />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
 }

@@ -58,35 +58,62 @@ serve(async (req) => {
     
     console.log(`Starting weekly report generation... (auth: ${isCronAuth ? 'cron' : 'admin'})`);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Check for test mode and return data only
+    const requestJson = await req.json().catch(() => ({}));
+    const { test_mode, return_data_only } = requestJson;
 
-    // Get date range for last 7 days
-    const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    let newLeads, analyticsEvents;
 
-    // Fetch leads from last week
-    const { data: newLeads, error: leadsError } = await supabase
-      .from("contact_leads")
-      .select("*")
-      .gte("created_at", oneWeekAgo.toISOString())
-      .order("created_at", { ascending: false });
+    if (test_mode) {
+      console.log("Running in TEST MODE with mock data");
+      newLeads = Array.from({ length: 15 }, (_, i) => ({
+        id: `mock-lead-${i}`,
+        name: `Lead Teste ${i + 1}`,
+        email: `test${i}@example.com`,
+        company: `Empresa Mock ${i + 1}`,
+        priority: i % 3 === 0 ? "high" : (i % 3 === 1 ? "medium" : "low"),
+        lead_score: Math.floor(Math.random() * 5) + 1,
+        status: i % 4 === 0 ? "new" : "contacted",
+        project_types: ["medical_devices"],
+        created_at: new Date().toISOString()
+      }));
+      
+      analyticsEvents = Array.from({ length: 50 }, (_, i) => ({
+        event_type: i % 3 === 0 ? "page_view" : (i % 3 === 1 ? "chatbot_interaction" : "form_submission"),
+        company_email: `test${i}@example.com`
+      }));
+    } else {
+      // Mock request for when running via GET/Cron (no body)
+      // Re-initialize logic for standard fetching
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      // ... Existing fetch logic ...
+      // Fetch leads from last week
+      const { data: leadsData, error: leadsError } = await supabase
+        .from("contact_leads")
+        .select("*")
+        .gte("created_at", oneWeekAgo.toISOString())
+        .order("created_at", { ascending: false });
 
-    if (leadsError) {
-      console.error("Error fetching leads:", leadsError);
-      throw leadsError;
-    }
+      if (leadsError) {
+        console.error("Error fetching leads:", leadsError);
+        throw leadsError;
+      }
+      newLeads = leadsData;
 
-    // Fetch analytics events from last week
-    const { data: analyticsEvents, error: analyticsError } = await supabase
-      .from("analytics_events")
-      .select("*")
-      .gte("created_at", oneWeekAgo.toISOString());
+      // Fetch analytics events from last week
+      const { data: analyticsData, error: analyticsError } = await supabase
+        .from("analytics_events")
+        .select("*")
+        .gte("created_at", oneWeekAgo.toISOString());
 
-    if (analyticsError) {
-      console.error("Error fetching analytics:", analyticsError);
-      throw analyticsError;
+      if (analyticsError) {
+        console.error("Error fetching analytics:", analyticsError);
+        throw analyticsError;
+      }
+      analyticsEvents = analyticsData;
     }
 
     // Calculate statistics
@@ -101,7 +128,15 @@ serve(async (req) => {
       pageViews: analyticsEvents?.filter(e => e.event_type === "page_view").length || 0,
       uniqueCompanies: new Set(analyticsEvents?.map(e => e.company_email).filter(Boolean)).size
     };
+    
+    // Check if we just want data return (for Dashboard)
+    if (return_data_only) {
+        return new Response(JSON.stringify({ success: true, stats, leads: newLeads }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+    }
 
+    // ... Project Type, Status, Top Leads logic for Email ...
     // Get leads by project type
     const projectTypeCounts: Record<string, number> = {};
     newLeads?.forEach(lead => {
@@ -159,32 +194,27 @@ serve(async (req) => {
       .join("\n") || "Nenhum lead de alta pontuação esta semana.";
 
     // Get admin users for email recipients
-    const { data: adminUsers, error: adminError } = await supabase
-      .from("admin_users")
-      .select("user_id");
+    // If test mode, use a dummy email or the requester's email if possible, or just log
+    let adminEmails: string[] = [];
 
-    if (adminError) {
-      console.error("Error fetching admin users:", adminError);
-      throw adminError;
+    if (test_mode) {
+        adminEmails = ["test@example.com"]; // Or fetch actual admin email if needed
+    } else {
+        const { data: adminUsers, error: adminError } = await supabase
+          .from("admin_users")
+          .select("user_id");
+
+        if (adminError) throw adminError;
+
+        for (const admin of adminUsers || []) {
+          const { data: userData } = await supabase.auth.admin.getUserById(admin.user_id);
+          if (userData?.user?.email) {
+            adminEmails.push(userData.user.email);
+          }
+        }
     }
-
-    // Get admin emails from auth
-    const adminEmails: string[] = [];
-    for (const admin of adminUsers || []) {
-      const { data: userData } = await supabase.auth.admin.getUserById(admin.user_id);
-      if (userData?.user?.email) {
-        adminEmails.push(userData.user.email);
-      }
-    }
-
-    if (adminEmails.length === 0) {
-      console.log("No admin emails found, skipping email send");
-      return new Response(
-        JSON.stringify({ success: true, message: "No recipients found", stats }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
+    
+    // ... HTML Generation ... 
     // Format date range
     const dateFormatter = new Intl.DateTimeFormat('pt-BR', { 
       day: '2-digit', 
@@ -212,7 +242,6 @@ serve(async (req) => {
     .section { margin: 25px 0; }
     .section-title { font-size: 16px; font-weight: 600; color: #004F8F; margin-bottom: 10px; border-bottom: 2px solid #F07818; padding-bottom: 5px; display: inline-block; }
     .list { background: #f7fafc; padding: 15px; border-radius: 8px; white-space: pre-line; font-size: 14px; }
-    .highlight { background: #1A7A3E; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
     .alert { background: #FEF3C7; border-left: 4px solid #F07818; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
     h1 { margin: 0; font-size: 24px; }
     .subtitle { opacity: 0.9; margin-top: 5px; }
@@ -221,7 +250,7 @@ serve(async (req) => {
 <body>
   <div class="container">
     <div class="header">
-      <h1>📊 Relatório Semanal de Leads</h1>
+      <h1>📊 Relatório Semanal de Leads ${test_mode ? '(TEST)' : ''}</h1>
       <p class="subtitle">Lifetrek Medical CRM - ${dateRangeStr}</p>
     </div>
     
@@ -277,7 +306,6 @@ serve(async (req) => {
     <div class="footer">
       <p style="margin: 0; font-size: 14px; color: #718096;">
         Este relatório é gerado automaticamente pelo sistema Lifetrek Medical CRM.
-        <br>Para mais detalhes, acesse o <a href="https://iijkbhiqcsvtnfernrbs.lovable.app/admin" style="color: #004F8F;">painel administrativo</a>.
       </p>
     </div>
   </div>
@@ -285,30 +313,19 @@ serve(async (req) => {
 </html>
     `;
 
-    // Send email to all admins
-    console.log(`Sending report to ${adminEmails.length} admin(s)`);
+    // Send email to admins
+    if (adminEmails.length === 0) {
+      return new Response(JSON.stringify({ success: true, message: "No recipients found (or test mode logic skipped)", stats }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const emailResponse = await resend.emails.send({
       from: "Lifetrek CRM <onboarding@resend.dev>",
       to: adminEmails,
-      subject: `📊 Relatório Semanal - ${stats.totalNewLeads} Novos Leads (${dateRangeStr})`,
+      subject: `📊 Relatório Semanal ${test_mode ? '[TEST]' : ''} - ${stats.totalNewLeads} Novos Leads`,
       html: emailHtml,
     });
-
-    console.log("Email sent successfully:", emailResponse);
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: `Report sent to ${adminEmails.length} recipient(s)`,
-        stats,
-        recipients: adminEmails.length
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    
+    return new Response(JSON.stringify({ success: true, stats, email: emailResponse }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error: any) {
     console.error("Error in send-weekly-report:", error);
     return new Response(

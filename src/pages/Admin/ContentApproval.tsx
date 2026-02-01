@@ -16,11 +16,14 @@ import {
     useApproveLinkedInPost,
     useRejectLinkedInPost,
     useLinkedInCarouselFull,
+    useApproveResource,
+    useRejectResource,
 } from "@/hooks/useLinkedInPosts";
 import {
     usePublishBlogPost,
     useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
+import { BookOpen, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
     Dialog,
@@ -46,6 +49,8 @@ export default function ContentApproval() {
     const rejectLinkedIn = useRejectLinkedInPost();
     const publishBlog = usePublishBlogPost();
     const updateBlog = useUpdateBlogPost();
+    const approveResource = useApproveResource();
+    const rejectResource = useRejectResource();
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
@@ -141,6 +146,8 @@ export default function ContentApproval() {
                 await publishBlog.mutateAsync(item.id);
             } else if (item.type === 'linkedin') {
                 await approveLinkedIn.mutateAsync(item.id);
+            } else if (item.type === 'resource') {
+                await approveResource.mutateAsync(item.id);
             }
         } catch (error) {
             console.error('Error approving:', error);
@@ -161,6 +168,11 @@ export default function ContentApproval() {
                 });
             } else if (selectedItem.type === 'linkedin') {
                 await rejectLinkedIn.mutateAsync({
+                    id: selectedItem.id,
+                    reason: rejectionReason,
+                });
+            } else if (selectedItem.type === 'resource') {
+                await rejectResource.mutateAsync({
                     id: selectedItem.id,
                     reason: rejectionReason,
                 });
@@ -332,6 +344,35 @@ export default function ContentApproval() {
                     )}
                 </div>
             );
+        } else if (selectedItem.type === 'resource') {
+            const resource = selectedItem.full_data;
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-2xl font-bold mb-2">{resource.title}</h3>
+                        <div className="flex gap-2 items-center">
+                            <Badge variant="secondary">
+                                {resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Recurso'}
+                            </Badge>
+                            <Badge variant="outline">
+                                Persona: {resource.persona || 'N/A'}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-2">Descrição</h4>
+                        <p className="text-muted-foreground">{resource.description}</p>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-2">Conteúdo (Markdown)</h4>
+                        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+                            <pre className="text-xs whitespace-pre-wrap">{resource.content}</pre>
+                        </div>
+                    </div>
+                </div>
+            );
         }
     };
 
@@ -345,6 +386,7 @@ export default function ContentApproval() {
 
     const blogItems = items?.filter(i => i.type === 'blog') || [];
     const linkedInItems = items?.filter(i => i.type === 'linkedin') || [];
+    const resourceItems = items?.filter(i => i.type === 'resource') || [];
     const allPending = items || [];
     const allRejected = rejectedItems || [];
     const allApproved = approvedItems || [];
@@ -371,10 +413,11 @@ export default function ContentApproval() {
             </div>
 
             <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-8">
-                    <TabsTrigger value="all">Pendentes ({allPending.length})</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-6 mb-8">
+                    <TabsTrigger value="all">Todos ({allPending.length})</TabsTrigger>
                     <TabsTrigger value="blogs">Blogs ({blogItems.length})</TabsTrigger>
                     <TabsTrigger value="linkedin">LinkedIn ({linkedInItems.length})</TabsTrigger>
+                    <TabsTrigger value="resources">Recursos ({resourceItems.length})</TabsTrigger>
                     <TabsTrigger value="approved">Aprovados ({allApproved.length})</TabsTrigger>
                     <TabsTrigger value="rejected">Rejeitados ({allRejected.length})</TabsTrigger>
                 </TabsList>
@@ -399,8 +442,10 @@ export default function ContentApproval() {
                                             <div className="flex items-center gap-2">
                                                 {item.type === 'blog' ? (
                                                     <FileText className="h-5 w-5 text-blue-500" />
-                                                ) : (
+                                                ) : item.type === 'linkedin' ? (
                                                     <Linkedin className="h-5 w-5 text-blue-600" />
+                                                ) : (
+                                                    <BookOpen className="h-5 w-5 text-purple-600" />
                                                 )}
                                                 <CardTitle className="text-lg">{item.title}</CardTitle>
                                             </div>
@@ -433,7 +478,7 @@ export default function ContentApproval() {
                                             variant="default"
                                             onClick={() => handleApprove(item)}
                                             className="gap-2 bg-green-600 hover:bg-green-700"
-                                            disabled={approveLinkedIn.isPending || publishBlog.isPending}
+                                            disabled={approveLinkedIn.isPending || publishBlog.isPending || approveResource.isPending}
                                         >
                                             <ThumbsUp className="h-4 w-4" />
                                             Aprovar
@@ -442,7 +487,7 @@ export default function ContentApproval() {
                                             variant="destructive"
                                             onClick={() => openRejectDialog(item)}
                                             className="gap-2"
-                                            disabled={rejectLinkedIn.isPending || updateBlog.isPending}
+                                            disabled={rejectLinkedIn.isPending || updateBlog.isPending || rejectResource.isPending}
                                         >
                                             <ThumbsDown className="h-4 w-4" />
                                             Rejeitar

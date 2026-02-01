@@ -3,6 +3,10 @@ import requests
 import logging
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Set up logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [UNIPILE_SAFE] - %(levelname)s - %(message)s')

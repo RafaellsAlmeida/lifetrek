@@ -238,6 +238,19 @@ export function useContentApprovalItems() {
                 }
                 console.log("[ContentApproval] LinkedIn carousels fetched:", linkedInCarousels?.length || 0);
 
+                // Fetch pending resources
+                const { data: resources, error: resourcesError } = await supabase
+                    .from("resources")
+                    .select("id, title, description, created_at, type, persona, status")
+                    .eq("status", "pending_approval")
+                    .order("created_at", { ascending: false });
+
+                if (resourcesError) {
+                    console.error("[ContentApproval] Error fetching resources:", resourcesError);
+                    throw resourcesError;
+                }
+                console.log("[ContentApproval] Resources fetched:", resources?.length || 0);
+
                 // Combine and format
                 const items = [
                     ...(blogs || []).map((blog: any) => ({
@@ -259,6 +272,16 @@ export function useContentApprovalItems() {
                         created_at: carousel.created_at,
                         ai_generated: true,
                         full_data: carousel,
+                    })),
+                    ...(resources || []).map((resource: any) => ({
+                        id: resource.id,
+                        type: 'resource' as const,
+                        title: resource.title,
+                        content_preview: resource.description || '',
+                        status: resource.status,
+                        created_at: resource.created_at,
+                        ai_generated: false,
+                        full_data: resource,
                     })),
                 ];
 
@@ -402,3 +425,64 @@ export function useApprovedContentItems() {
         },
     });
 }
+
+// Approve Resource
+export function useApproveResource() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data, error } = await supabase
+                .from("resources")
+                .update({
+                    status: "published",
+                })
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            queryClient.invalidateQueries({ queryKey: ["resources"] });
+            toast.success("Recurso publicado com sucesso!");
+        },
+        onError: (error: any) => {
+            console.error("Error approving resource:", error);
+            toast.error("Erro ao aprovar recurso");
+        },
+    });
+}
+
+// Reject Resource
+export function useRejectResource() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+            const { data, error } = await supabase
+                .from("resources")
+                .update({
+                    status: "draft",
+                    metadata: { rejection_reason: reason }
+                })
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            toast.success("Recurso enviado para rascunho");
+        },
+        onError: (error: any) => {
+            console.error("Error rejecting resource:", error);
+            toast.error("Erro ao rejeitar recurso");
+        },
+    });
+}
+
