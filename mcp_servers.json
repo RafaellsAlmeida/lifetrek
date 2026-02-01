@@ -8,5 +8,30 @@
         "env": {
             "PERPLEXITY_API_KEY": "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"
         }
+    },
+    "github": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "@modelcontextprotocol/server-github"
+        ],
+        "env": {
+            "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+        }
+    },
+    "supabase": {
+        "url": "https://mcp.supabase.com/mcp?project_ref=dlflpvmdzkeouhgqwqba&features=database%2Cdocs%2Caccount%2Cdebugging%2Cfunctions%2Cdevelopment%2Cbranching%2Cstorage",
+        "type": "sse",
+        "env": {
+            "SUPABASE_ACCESS_TOKEN": "sbp_1c01dfb9b4acbcf37ee9d05cf135b6fc44dc08cb"
+        }
+    },
+    "redis": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "@modelcontextprotocol/server-redis",
+            "rediss://default:AYn0AAIncDFmNjAwOGFlYWExYTU0MDIwYjNjN2UyNGExMzI1NTA0OHAxMzUzMTY@able-zebra-35316.upstash.io:6379"
+        ]
     }
 }

@@ -26,29 +26,24 @@ if (!RUNWAY_API_KEY) {
 const client = new RunwayML({ apiKey: RUNWAY_API_KEY });
 
 // B-roll prompts using existing images as input
+// B-roll prompts using existing images as input
 const BROLL_PROMPTS = [
   {
-    id: 'broll-04-cnc',
+    id: '3b-cleanroom-entry',
+    imagePath: 'src/assets/facility/cleanroom.webp',
+    prompt: 'Professional engineer putting on a cleanroom mask and hood, close up, slow motion, sterile white environment, bright lighting, high detail eye contact --style realistic',
+    duration: 5,
+  },
+  {
+    id: '4a-cnc-internal',
     imagePath: 'src/assets/equipment/citizen-l32.webp',
-    prompt: 'Cinematic camera movement around CNC Swiss lathe, metal shavings flying, oil coolant mist, precision manufacturing, shallow depth of field, professional lighting, smooth dolly motion',
+    prompt: 'Macro shot inside a CNC machine, cutting titanium metal, cooling fluid spraying, sparks, detailed texture of metal, 4k, slow motion --style cinematic',
     duration: 5,
   },
   {
-    id: 'broll-05-metrology',
-    imagePath: 'src/assets/metrology/zeiss-contura.webp',
-    prompt: 'Slow zoom into precision metrology machine, measuring probe moving, blue LED indicators glowing, clean white laboratory environment, smooth cinematic motion',
-    duration: 5,
-  },
-  {
-    id: 'broll-06-electropolish',
-    imagePath: 'src/assets/equipment/electropolish-line.webp',
-    prompt: 'Gentle camera pan across electropolishing equipment, bubbles rising in chemical bath, reflective metal surfaces, industrial manufacturing process, cinematic lighting',
-    duration: 5,
-  },
-  {
-    id: 'broll-07-laser',
-    imagePath: 'src/assets/equipment/laser-marking.webp',
-    prompt: 'Close-up of laser marking in action, bright beam engraving, smoke wisps rising, precision high-tech manufacturing, shallow depth of field, dramatic lighting',
+    id: '4b-metal-shavings',
+    imagePath: 'src/assets/equipment/citizen-l20.webp',
+    prompt: 'Close up of shiny metal shavings spiraling off a lathe, cooling liquid splashing, glistening metal texture, industrial aesthetic, slow motion',
     duration: 5,
   },
 ];
@@ -103,7 +98,7 @@ async function generateBroll(prompt: typeof BROLL_PROMPTS[0]) {
       const videoResponse = await fetch(videoUrl);
       const videoBuffer = await videoResponse.arrayBuffer();
 
-      const outputPath = path.join(__dirname, `../public/remotion/broll/${prompt.id}.mp4`);
+      const outputPath = path.join(__dirname, `../remotion/assets/runway/${prompt.id}.mp4`);
       fs.writeFileSync(outputPath, Buffer.from(videoBuffer));
 
       console.log(`✅ Saved: ${outputPath}`);

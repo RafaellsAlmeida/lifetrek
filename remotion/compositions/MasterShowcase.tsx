@@ -12,6 +12,8 @@ import {
   useVideoConfig,
   Easing,
 } from "remotion";
+import { KineticText } from "./KineticText";
+import { AnimatedMap } from "./AnimatedMap";
 
 // Brand colors from BRAND_BOOK.md
 const BRAND = {
@@ -69,10 +71,13 @@ import vincula from "../../src/assets/clients/vincula-new.png";
 const VIDEO_FPS = 30;
 
 // B-roll video paths
+// B-roll video paths
 const droneRiseVideo = staticFile("remotion/broll/broll-01-drone-rise.mp4");
 const facadePushVideo = staticFile("remotion/broll/broll-02-facade-push.mp4");
-const cleanroomVideo = staticFile("remotion/broll/broll-03-cleanroom.mp4");
-const cncVideo = staticFile("remotion/broll/broll-04-cnc.mp4");
+const cleanroomVideo = staticFile("remotion/assets/runway/3b-cleanroom-entry.mp4"); // New AI video
+const cncVideo = staticFile("remotion/assets/runway/4a-cnc-internal.mp4"); // New AI video
+const metalShavingsVideo = staticFile("remotion/assets/runway/4b-metal-shavings.mp4"); // New AI video
+const patientContextVideo = staticFile("remotion/assets/runway/1d-patient-context-fixed.mp4"); // User provided manual generation (Fixed)
 const metrologyVideo = staticFile("remotion/broll/broll-05-metrology.mp4");
 const electropolishVideo = staticFile("remotion/broll/broll-06-electropolish.mp4");
 const laserVideo = staticFile("remotion/broll/broll-07-laser.mp4");
@@ -90,7 +95,17 @@ type MasterShowcaseProps = {
 
 type SlideItem = {
   id: string;
-  kind: "image" | "video" | "solid" | "carousel" | "clients" | "stats" | "logo-final" | "cleanroom-carousel";
+  kind: 
+    | "image" 
+    | "video" 
+    | "solid" 
+    | "carousel" 
+    | "clients" 
+    | "stats" 
+    | "logo-final" 
+    | "cleanroom-carousel"
+    | "kinetic-text"
+    | "map";
   src: string;
   title: string;
   subtitle: string;
@@ -100,6 +115,7 @@ type SlideItem = {
   cropVideoBottom?: boolean;
   backgroundColor?: string;
   carouselImages?: string[];
+  textOverride?: string;
 };
 
 // Machine images for carousel
@@ -125,199 +141,244 @@ const CLIENT_LOGOS = [
   implanfix, iol, neoortho, orthometric, traumec, vincula,
 ];
 
-// Premium slide configuration - Storytelling version (~85s)
+// Premium slide configuration - Agile Storytelling version (~118s)
 const createSlides = (useBroll: boolean): SlideItem[] => [
-  // CENA 1 - Drone / Vista aérea (8s)
-  // VO: "Do lado de fora, parece apenas mais uma fábrica..."
+  // ------------------------------------------------------------
+  // 1. INTRO (0:00 - 0:15)
+  // ------------------------------------------------------------
   {
-    id: "scene-1a-drone",
+    id: "1a-drone-approach",
     kind: useBroll ? "video" : "image",
     src: useBroll ? droneRiseVideo : exteriorHero,
-    title: "Cada micrômetro importa",
-    subtitle: "Um desvio mínimo pode significar uma cirurgia de revisão",
-    durationInFrames: VIDEO_FPS * 5,
+    title: "Lifetrek Medical",
+    subtitle: "Manufatura de Precisão",
+    durationInFrames: VIDEO_FPS * 3, // Fast establishing
   },
   {
-    id: "scene-1b-facade",
+    id: "1b-kinetic-safety",
+    kind: "kinetic-text",
+    src: "",
+    title: "SAFETY FIRST",
+    subtitle: "Prioridade Absoluta",
+    durationInFrames: VIDEO_FPS * 2,
+    backgroundColor: BRAND.corporateBlue,
+  },
+  {
+    id: "1c-facade-ground",
     kind: useBroll ? "video" : "image",
     src: useBroll ? facadePushVideo : receptionHero,
     title: "",
     subtitle: "",
-    durationInFrames: VIDEO_FPS * 3,
-  },
-
-  // CENA 2 - Recepção / Stats (7s)
-  // VO: "Há mais de 30 anos, a Lifetrek Medical transforma..."
-  {
-    id: "scene-2a-reception",
-    kind: "image",
-    src: receptionHero,
-    title: "Lifetrek Medical",
-    subtitle: "30+ anos transformando precisão em segurança",
     durationInFrames: VIDEO_FPS * 4,
   },
   {
-    id: "scene-2b-stats",
-    kind: "stats",
-    src: "",
+    id: "1d-patient-context",
+    kind: useBroll ? "video" : "image",
+    src: useBroll ? patientContextVideo : cleanroomEntrance, 
+    title: "Impacto Real",
+    subtitle: "Na vida das pessoas",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  // ... (unchanged slides) ...
+  {
+    id: "3b-cleanroom-entry",
+    kind: useBroll ? "video" : "image",
+    src: useBroll ? cleanroomVideo : cleanroomEntrance,
+    title: "Controle Rigoroso",
+    subtitle: "Normas internacionais",
+    durationInFrames: VIDEO_FPS * 4,
+  },
+  // ... (unchanged slides) ...
+  {
+    id: "4a-cnc-internal",
+    kind: useBroll ? "video" : "image",
+    src: useBroll ? cncVideo : citizenCnc,
+    title: "Usinagem de Elite",
+    subtitle: "Titânio e PEEK",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "4b-metal-shavings",
+    kind: useBroll ? "video" : "image",
+    src: useBroll ? metalShavingsVideo : citizenNew,
     title: "",
     subtitle: "",
     durationInFrames: VIDEO_FPS * 3,
-    backgroundColor: BRAND.corporateBlue,
-  },
-
-  // CENA 3 - Salas limpas (8s)
-  // VO: "Somos certificados ISO 13485 e aprovados pela ANVISA..."
-  {
-    id: "scene-3a-cleanroom",
-    kind: "cleanroom-carousel",
-    src: "",
-    title: "ISO 13485 • ANVISA",
-    subtitle: "Não é só selo em parede",
-    durationInFrames: VIDEO_FPS * 5,
-    badgeSrc: isoBadge,
-    badgeSrc2: anvisaBadge,
-    carouselImages: CLEANROOM_CAROUSEL_IMAGES,
   },
   {
-    id: "scene-3b-cleanroom-detail",
-    kind: "image",
-    src: cleanroomCorridor,
-    title: "Salas limpas ISO 7",
-    subtitle: "Rastreabilidade • Controle • Consistência",
-    durationInFrames: VIDEO_FPS * 3,
-  },
-
-  // CENA 4 - CNC / Máquinas (10s)
-  // VO: "Em células CNC de última geração, usinamos titânio..."
-  {
-    id: "scene-4a-cnc",
-    kind: useBroll ? "video" : "image",
-    src: useBroll ? cncVideo : citizenCnc,
-    title: "Tolerâncias de mícron",
-    subtitle: "Titânio, PEEK e ligas especiais",
-    durationInFrames: VIDEO_FPS * 4,
-  },
-  {
-    id: "scene-4b-carousel",
+    id: "4c-machine-flash",
     kind: "carousel",
     src: "",
-    title: "Tecnologia CNC de última geração",
-    subtitle: "Citizen • Tornos • Doosan • Fanuc",
-    durationInFrames: VIDEO_FPS * 6,
+    title: "Parque Tecnológico",
+    subtitle: "Citizen • Doosan • Fanuc",
+    durationInFrames: VIDEO_FPS * 4,
     backgroundColor: BRAND.backgroundDarkAlt,
     carouselImages: MACHINE_CAROUSEL_IMAGES,
   },
-
-  // CENA 5 - Metrologia (9s)
-  // VO: "Nossa metrologia avançada não 'confere' a peça..."
   {
-    id: "scene-5a-metrology",
+    id: "4d-implant-rotation",
+    kind: useBroll ? "video" : "image",
+    // TODO: RUNWAY PLACEHOLDER: Product hero shot rotating
+    src: useBroll ? electropolishVideo : orthopedicScrews,
+    title: "Milhões de Ciclos",
+    subtitle: "Resistência à fadiga",
+    durationInFrames: VIDEO_FPS * 5,
+  },
+
+  // ------------------------------------------------------------
+  // 5. METROLOGY (1:00 - 1:15)
+  // ------------------------------------------------------------
+  {
+    id: "5a-zeiss-touch",
     kind: useBroll ? "video" : "image",
     src: useBroll ? metrologyVideo : zeissContura,
-    title: "Metrologia avançada",
-    subtitle: "Cada dimensão crítica documentada",
+    title: "Metrologia Zeiss",
+    subtitle: "Conferência dimensional",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "5b-kinetic-micron",
+    kind: "kinetic-text",
+    src: "",
+    title: "±0.001mm",
+    subtitle: "Tolerância Extrema",
+    durationInFrames: VIDEO_FPS * 3,
+    backgroundColor: BRAND.corporateBlueHover,
+  },
+  {
+    id: "5c-laser-scan",
+    kind: useBroll ? "video" : "image",
+    src: useBroll ? laserVideo : laserMarking,
+    title: "Scanning 3D",
+    subtitle: "Verificação de superfícies",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "5d-lab-wide",
+    kind: "image",
+    src: labOverview,
+    title: "Laboratório de Qualidade",
+    subtitle: "Garantia total",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "5e-kinetic-documented",
+    kind: "kinetic-text",
+    src: "",
+    title: "DOCUMENTADO",
+    subtitle: "Registro Anvisa",
+    durationInFrames: VIDEO_FPS * 3,
+    backgroundColor: BRAND.backgroundDark,
+  },
+
+  // ------------------------------------------------------------
+  // 6. CAPABILITIES & PRODUCTS (1:15 - 1:30)
+  // ------------------------------------------------------------
+  {
+    id: "6a-raw-feeder",
+    kind: useBroll ? "video" : "image",
+    // TODO: RUNWAY PLACEHOLDER: Raw bar feeder loading
+    src: useBroll ? cncVideo : citizenL20,
+    title: "Matéria-Prima",
+    subtitle: "Certificada",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "6b-packaging",
+    kind: useBroll ? "video" : "image",
+    // TODO: RUNWAY PLACEHOLDER: Cleanroom packaging sealing
+    src: useBroll ? cleanroomVideo : cleanroomWide,
+    title: "Embalagem Estéril",
+    subtitle: "Segurança biológica",
+    durationInFrames: VIDEO_FPS * 3,
+  },
+  {
+    id: "6c-kinetic-leadtime",
+    kind: "kinetic-text",
+    src: "",
+    title: "LEAD TIME",
+    subtitle: "Reduzido",
+    durationInFrames: VIDEO_FPS * 4,
+    backgroundColor: BRAND.energyOrange,
+  },
+  {
+    id: "6d-inventory",
+    kind: "image",
+    // TODO: RUNWAY PLACEHOLDER: Warehouse/Inventory shelves
+    src: surgicalInstruments,
+    title: "Estoque Otimizado",
+    subtitle: "Libere capital",
+    durationInFrames: VIDEO_FPS * 5,
+  },
+
+  // ------------------------------------------------------------
+  // 7. PARTNERSHIP (1:30 - 1:45)
+  // ------------------------------------------------------------
+  {
+    id: "7a-engineers",
+    kind: "image",
+    // TODO: RUNWAY PLACEHOLDER: Engineers meeting/pointing
+    src: receptionHero,
+    title: "Co-Engenharia",
+    subtitle: "Seu time estendido",
     durationInFrames: VIDEO_FPS * 4,
   },
   {
-    id: "scene-5b-lab",
+    id: "7b-cad-design",
     kind: "image",
-    src: labOverview,
-    title: "Base sólida",
-    subtitle: "Para auditorias e registros regulatórios",
-    durationInFrames: VIDEO_FPS * 2,
-  },
-  {
-    id: "scene-5c-laser",
-    kind: useBroll ? "video" : "image",
-    src: useBroll ? laserVideo : laserMarking,
-    title: "Marcação UDI",
-    subtitle: "Rastreabilidade permanente",
-    durationInFrames: VIDEO_FPS * 3,
-  },
-
-  // CENA 6 - Produtos (11s)
-  // VO: "Da barra de material à embalagem em sala limpa ISO 7..."
-  {
-    id: "scene-6a-surgical",
-    kind: "image",
-    src: surgicalInstruments,
-    title: "Instrumentais cirúrgicos",
-    subtitle: "Performance clínica comprovada",
+    // TODO: RUNWAY PLACEHOLDER: CAD 3D model rotating
+    src: citizenNew, // Placeholder for screen
+    title: "Design for Mfg",
+    subtitle: "Otimização de projeto",
     durationInFrames: VIDEO_FPS * 3,
   },
   {
-    id: "scene-6b-orthopedic",
-    kind: "image",
-    src: orthopedicScrews,
-    title: "Implantes ortopédicos",
-    subtitle: "Milhões de ciclos de carga sem falhar",
-    durationInFrames: VIDEO_FPS * 2.5,
-  },
-  {
-    id: "scene-6c-spinal",
-    kind: "image",
-    src: spinalImplants,
-    title: "Sistemas espinhais",
-    subtitle: "Cages e parafusos pediculares",
-    durationInFrames: VIDEO_FPS * 2.5,
-  },
-  {
-    id: "scene-6d-electropolish",
-    kind: useBroll ? "video" : "image",
-    src: useBroll ? electropolishVideo : electropolishNew,
-    title: "Eletropolimento",
-    subtitle: "Acabamento médico certificado",
-    durationInFrames: VIDEO_FPS * 3,
-  },
-
-  // CENA 7 - Parceria / Clientes (7s)
-  // VO: "Por isso, não nos vemos como simples fornecedores..."
-  {
-    id: "scene-7a-partnership",
-    kind: "image",
-    src: receptionHero,
-    title: "Parceria técnica",
-    subtitle: "Junto com seu P&D e Qualidade",
-    durationInFrames: VIDEO_FPS * 3,
-  },
-  {
-    id: "scene-7b-clients",
+    id: "7c-logo-parade",
     kind: "clients",
     src: "",
     title: "Parceiros que confiam",
     subtitle: "",
-    durationInFrames: VIDEO_FPS * 4,
+    durationInFrames: VIDEO_FPS * 5,
     backgroundColor: "#ffffff",
   },
-
-  // CENA 8 - Fechamento (10s)
-  // VO: "Lifetrek Medical. Precisão, qualidade e parceria..."
   {
-    id: "scene-8a-certifications",
-    kind: "image",
-    src: cleanroomHeroAlt,
-    title: "ISO 13485 • ANVISA",
-    subtitle: "Processos que controlam cada variável",
+    id: "7d-kinetic-partnership",
+    kind: "kinetic-text",
+    src: "",
+    title: "PARCERIA",
+    subtitle: "Técnica",
     durationInFrames: VIDEO_FPS * 3,
-    badgeSrc: isoBadge,
-    badgeSrc2: anvisaBadge,
+    backgroundColor: BRAND.corporateBlue,
   },
+
+  // ------------------------------------------------------------
+  // 8. CLOSING (1:45 - 1:58)
+  // ------------------------------------------------------------
   {
-    id: "scene-8b-exterior",
-    kind: "image",
-    src: exteriorHero,
-    title: "Vamos desenhar o próximo avanço",
-    subtitle: "Em saúde, juntos",
+    id: "8a-sunset",
+    kind: useBroll ? "video" : "image",
+    // TODO: RUNWAY PLACEHOLDER: Cinematic sunset exterior factory
+    src: useBroll ? facadePushVideo : exteriorHero,
+    title: "Lifetrek Medical",
+    subtitle: "Avance com segurança",
     durationInFrames: VIDEO_FPS * 4,
   },
   {
-    id: "scene-8c-logo",
+    id: "8b-kinetic-invite",
+    kind: "kinetic-text",
+    src: "",
+    title: "VAMOS CRIAR?",
+    subtitle: "O futuro juntos",
+    durationInFrames: VIDEO_FPS * 3,
+    backgroundColor: BRAND.backgroundDarkAlt,
+  },
+  {
+    id: "8c-final-reveal",
     kind: "logo-final",
     src: "",
     title: "Lifetrek Medical",
     subtitle: "Precisão que protege vidas",
-    durationInFrames: VIDEO_FPS * 3,
+    durationInFrames: VIDEO_FPS * 6, // End hold
     backgroundColor: BRAND.corporateBlue,
   },
 ];
@@ -1192,6 +1253,20 @@ const Slide: React.FC<SlideItem> = ({
         badgeSrc2={badgeSrc2}
       />
     );
+  }
+
+  if (kind === "kinetic-text") {
+    return (
+      <KineticText 
+        title={title} 
+        subtitle={subtitle} 
+        backgroundColor={backgroundColor} 
+      />
+    );
+  }
+
+  if (kind === "map") {
+    return <AnimatedMap title={title} subtitle={subtitle} />;
   }
 
   if (kind === "carousel" && carouselImages) {

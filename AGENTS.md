@@ -68,3 +68,26 @@ You sit between human intent (directives) and deterministic execution (Python sc
 
 Be pragmatic. Be reliable. Self-anneal.
 
+## Mandatory Local Testing
+
+Before marking any task, story, or change as **complete** or **done**, you MUST verify your changes by testing them on the local development server.
+
+### Local Development Servers
+
+- **Frontend (Vite):** `localhost:8080` — start with `npm run dev`
+- **Backend (Agent Service):** `localhost:8000` — start with `npm run dev:agent`
+
+### Testing Checklist
+
+1. Start the relevant local server(s).
+2. Verify the application builds and runs without errors.
+3. Navigate to the affected pages/features and confirm they work as expected.
+4. Check the browser console and terminal for any warnings or errors.
+5. If the change involves API calls, confirm the backend responds correctly.
+
+### Rules
+
+- **No task is complete until it has been tested locally.** Do not rely solely on passing type checks or linting.
+- If the dev server fails to start or shows errors after your changes, the task is **not done** — fix the issues first.
+- When reporting task completion, include a brief note confirming local testing was performed.
+
