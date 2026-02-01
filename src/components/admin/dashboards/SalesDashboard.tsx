@@ -1,539 +1,360 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Calendar, Phone, Mail, Building, ArrowRight, Save, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  Loader2,
-  Users,
-  Clock,
-  AlertCircle,
-  CheckCircle2,
-  Mail,
-  Phone,
-  Building,
-  Calendar,
-  TrendingUp,
-  Star,
-  ArrowRight,
-  RefreshCw,
-  LogOut,
-  Bot,
-  BookOpen,
-  Flame,
-  LayoutGrid,
-  MessageSquare
-} from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { SalesAgentChat } from "@/components/SalesAgentChat";
-import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-import { ContentCalendarPreview } from "@/components/ev/ContentCalendarPreview";
-import { QuickAccessGrid } from "@/components/ev/QuickAccessGrid";
 import UnifiedInbox from "@/pages/UnifiedInbox";
 import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
 
+// --- Types ---
 interface Lead {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
   company: string | null;
-  project_type: string;
-  project_types: string[] | null;
-  annual_volume: string | null;
-  technical_requirements: string;
-  message: string | null;
-  status: string;
-  priority: string;
-  lead_score: number | null;
-  score_breakdown: any;
-  admin_notes: string | null;
+  status: 'new' | 'contacted' | 'in_progress' | 'quoted' | 'closed' | 'rejected';
+  priority: 'low' | 'medium' | 'high';
+  notes: string | null;
   created_at: string;
-  updated_at: string;
   source: string | null;
 }
 
-const projectTypeLabels: Record<string, string> = {
-  dental_implants: "Implantes Dentários",
-  orthopedic_implants: "Implantes Ortopédicos",
-  spinal_implants: "Implantes de Coluna",
-  veterinary_implants: "Implantes Veterinários",
-  surgical_instruments: "Instrumentos Cirúrgicos",
-  micro_precision_parts: "Peças de Micro Precisão",
-  custom_tooling: "Ferramentas Customizadas",
-  medical_devices: "Dispositivos Médicos",
-  measurement_tools: "Instrumentos de Medição",
-  other_medical: "Outros Médicos"
-};
-
-const statusLabels: Record<string, string> = {
-  new: "Novo",
-  contacted: "Contatado",
-  in_progress: "Em Progresso",
-  quoted: "Cotado",
-  closed: "Fechado",
-  rejected: "Rejeitado"
-};
-
-const statusColors: Record<string, string> = {
-  new: "bg-blue-100 text-blue-800",
-  contacted: "bg-purple-100 text-purple-800",
-  in_progress: "bg-yellow-100 text-yellow-800",
-  quoted: "bg-orange-100 text-orange-800",
-  closed: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800"
+const statusConfig = {
+  new: { label: "Novo", color: "bg-blue-100 text-blue-800 border-blue-200" },
+  contacted: { label: "Contactado", color: "bg-orange-100 text-orange-800 border-orange-200" },
+  in_progress: { label: "Em Progresso", color: "bg-blue-50 text-blue-600 border-blue-200" },
+  quoted: { label: "Proposta", color: "bg-blue-600 text-white border-blue-600" },
+  closed: { label: "Fechado", color: "bg-green-100 text-green-800 border-green-200" },
+  rejected: { label: "Perdido", color: "bg-gray-100 text-gray-500 border-gray-200 decoration-line-through" },
 };
 
 export function SalesDashboard({ userName }: { userName?: string }) {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("leads");
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // New Lead Form State
+  const [newLead, setNewLead] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    status: "new",
+    priority: "medium",
+    notes: ""
+  });
 
   useEffect(() => {
     fetchLeads();
-    
-    // Set up real-time subscription for new leads
-    const channel = supabase
-      .channel('leads-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'contact_leads' },
-        () => {
-          fetchLeads();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchLeads = async () => {
     try {
-      setRefreshing(true);
+      setLoading(true);
       const { data, error } = await supabase
         .from("contact_leads")
-        .select("*, source")
+        .select("*")
         .order("created_at", { ascending: false });
-
+      
       if (error) throw error;
-      setLeads(data || []);
+      setLeads(data as unknown as Lead[] || []);
     } catch (error) {
       console.error("Error fetching leads:", error);
       toast.error("Erro ao carregar leads");
     } finally {
-      setRefreshing(false);
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
+  const handleAddLead = async () => {
+    try {
+      if (!newLead.name) return toast.error("Nome é obrigatório");
+
+      const { data, error } = await supabase
+        .from("contact_leads")
+        .insert([{
+          name: newLead.name,
+          email: newLead.email || null,
+          phone: newLead.phone || null,
+          company: newLead.company || null,
+          status: newLead.status,
+          priority: newLead.priority,
+          metadata: { notes: newLead.notes, manual_entry: true }
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLeads([data as unknown as Lead, ...leads]);
+      setIsAddLeadOpen(false);
+      setNewLead({ name: "", email: "", phone: "", company: "", status: "new", priority: "medium", notes: "" });
+      toast.success("Lead adicionado com sucesso");
+    } catch (error) {
+      console.error("Error adding lead:", error);
+      toast.error("Erro ao adicionar lead");
+    }
   };
 
-  // Filter leads for different categories
-  const newLeads = leads.filter(l => l.status === "new");
-  const pendingAction = leads.filter(l => ["new", "contacted"].includes(l.status));
-  const highPriorityLeads = leads.filter(l => l.priority === "high" && l.status !== "closed" && l.status !== "rejected");
-  
-  // Hot leads = leads from website (not imported cold leads)
-  const hotLeadsToday = leads.filter(l => {
-    const isFromWebsite = !l.source || l.source === "website" || l.source === "contact_form";
-    const isToday = new Date(l.created_at).toDateString() === new Date().toDateString();
-    return isFromWebsite && isToday;
-  });
-  
-  const recentLeads = leads.filter(l => {
-    const hoursSince = (Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60);
-    return hoursSince < 24;
-  });
-
-  // Calculate stats
-  const stats = {
-    total: leads.length,
-    new: newLeads.length,
-    highPriority: highPriorityLeads.length,
-    hotToday: hotLeadsToday.length,
-    last24h: recentLeads.length,
-    avgScore: leads.length > 0
-      ? (leads.reduce((sum, l) => sum + (l.lead_score || 0), 0) / leads.length).toFixed(1)
-      : "0"
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  const LeadCard = ({ lead, showBadges = true }: { lead: Lead; showBadges?: boolean }) => (
-    <Card className="hover:shadow-md transition-all duration-200 border-l-4" style={{
-      borderLeftColor: lead.priority === "high" ? "#ef4444" : lead.priority === "medium" ? "#f59e0b" : "#22c55e"
-    }}>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <h4 className="font-semibold text-lg flex items-center gap-2">
-              {lead.name}
-              {lead.lead_score && lead.lead_score >= 4 && (
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              )}
-            </h4>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Building className="h-3 w-3" />
-              {lead.company || "Empresa não informada"}
-            </p>
-          </div>
-          {showBadges && (
-            <div className="flex gap-2">
-              <Badge className={statusColors[lead.status] || "bg-gray-100"}>
-                {statusLabels[lead.status] || lead.status}
-              </Badge>
-              {lead.lead_score !== null && (
-                <Badge variant="outline" className="font-mono">
-                  Score: {lead.lead_score}/5
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Mail className="h-3 w-3" />
-            <span className="truncate">{lead.email}</span>
-          </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Phone className="h-3 w-3" />
-            <span>{lead.phone}</span>
-          </div>
-        </div>
-
-        {lead.project_types && lead.project_types.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {lead.project_types.slice(0, 3).map(type => (
-              <Badge key={type} variant="secondary" className="text-xs">
-                {projectTypeLabels[type] || type}
-              </Badge>
-            ))}
-            {lead.project_types.length > 3 && (
-              <Badge variant="secondary" className="text-xs">
-                +{lead.project_types.length - 3}
-              </Badge>
-            )}
-          </div>
-        )}
-
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            {new Date(lead.created_at).toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(`/admin?lead=${lead.id}`)}
-            className="text-primary"
-          >
-            Ver Detalhes
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+  const filteredLeads = leads.filter(lead => 
+    lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lead.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lead.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="flex justify-between items-center mb-6">
-           <div>
-             <h1 className="text-2xl font-bold text-primary">Engenharia de Vendas</h1>
-             <p className="text-sm text-muted-foreground">Bem-vindo, {userName || 'Engenheiro'}</p>
-           </div>
-           <div className="flex gap-2">
-             <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchLeads}
-                disabled={refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-                Atualizar
-              </Button>
-           </div>
+    <div className="min-h-screen bg-white text-slate-900 font-inter">
+      {/* --- Top Navigation Bar --- */}
+      <header className="h-14 border-b border-slate-200 flex items-center px-6 sticky top-0 bg-white z-20">
+        <div className="flex items-center gap-2 mr-8">
+           <div className="h-6 w-6 bg-blue-700 rounded-sm flex items-center justify-center text-white font-bold text-xs">LT</div>
+           <span className="font-semibold text-sm tracking-tight">Lifetrek CRM</span>
         </div>
 
-        {/* Quick Access Grid */}
-        <QuickAccessGrid />
+        <nav className="flex items-center gap-1 h-full">
+           <Button 
+             variant={activeTab === "leads" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("leads")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'leads' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Pipeline & Leads
+           </Button>
+           <Button 
+             variant={activeTab === "inbox" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("inbox")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Unified Inbox
+           </Button>
+           <Button 
+             variant={activeTab === "data" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("data")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'data' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Reports & Data
+           </Button>
+        </nav>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200">
-            <CardContent className="p-4 text-center">
-              <Flame className="h-6 w-6 mx-auto mb-2 text-orange-600" />
-              <p className="text-3xl font-bold text-orange-700">{stats.hotToday}</p>
-              <p className="text-xs text-orange-600">Quentes Hoje</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
-            <CardContent className="p-4 text-center">
-              <Users className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-              <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
-              <p className="text-xs text-blue-600">Total</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-yellow-200">
-            <CardContent className="p-4 text-center">
-              <Clock className="h-6 w-6 mx-auto mb-2 text-yellow-600" />
-              <p className="text-3xl font-bold text-yellow-700">{stats.new}</p>
-              <p className="text-xs text-yellow-600">Novos</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-red-50 to-red-100/50 border-red-200">
-            <CardContent className="p-4 text-center">
-              <AlertCircle className="h-6 w-6 mx-auto mb-2 text-red-600" />
-              <p className="text-3xl font-bold text-red-700">{stats.highPriority}</p>
-              <p className="text-xs text-red-600">Alta Prior.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
-            <CardContent className="p-4 text-center">
-              <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-green-600" />
-              <p className="text-3xl font-bold text-green-700">{stats.last24h}</p>
-              <p className="text-xs text-green-600">24h</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-3xl font-bold text-purple-700">{stats.avgScore}</p>
-              <p className="text-xs text-purple-600">Score</p>
-            </CardContent>
-          </Card>
+        <div className="ml-auto flex items-center gap-2">
+           <Input 
+             placeholder="Search global..." 
+             className="h-8 w-64 bg-slate-50 border-slate-200 text-xs focus-visible:ring-blue-600"
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+           />
+           <Button size="sm" className="h-8 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs gap-2" onClick={() => setIsAddLeadOpen(true)}>
+             <Plus className="h-3.5 w-3.5" />
+             Add Lead
+           </Button>
         </div>
+      </header>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="inbox" className="space-y-4">
-          <TabsList className="grid w-full max-w-5xl grid-cols-8">
-            <TabsTrigger value="hot" className="flex items-center gap-2">
-              <Flame className="h-4 w-4" />
-              <span className="hidden lg:inline">Quentes</span> ({hotLeadsToday.length})
-            </TabsTrigger>
-            <TabsTrigger value="action" className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              <span className="hidden lg:inline">Pendente</span> ({pendingAction.length})
-            </TabsTrigger>
-            <TabsTrigger value="inbox" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden lg:inline">Inbox</span>
-            </TabsTrigger>
-             <TabsTrigger value="report" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden lg:inline">Relatório</span>
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden lg:inline">Agenda</span>
-            </TabsTrigger>
-            <TabsTrigger value="assistant" className="flex items-center gap-2">
-              <Bot className="h-4 w-4" />
-              <span className="hidden lg:inline">IA</span>
-            </TabsTrigger>
-            <TabsTrigger value="tools" className="flex items-center gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden lg:inline">Tools</span>
-            </TabsTrigger>
-            <TabsTrigger value="onboarding" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              <span className="hidden lg:inline">Início</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="hot">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Flame className="h-5 w-5 text-orange-500" />
-                  Leads Quentes de Hoje
-                </CardTitle>
-                <CardDescription>
-                  Leads que chegaram pelo website hoje (não importados)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[500px] pr-4">
-                  <div className="space-y-4">
-                    {hotLeadsToday.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <Flame className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>Nenhum lead quente hoje ainda</p>
-                        <p className="text-sm mt-2">Leads do website aparecerão aqui</p>
-                      </div>
+      {/* --- Main Content Area --- */}
+      <main className="p-6 max-w-[1600px] mx-auto">
+        
+        {/* LEADS TAB */}
+        {activeTab === "leads" && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+             <div className="rounded border border-slate-200 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-50">
+                    <TableRow>
+                      <TableHead className="w-[300px] text-xs font-semibold text-slate-600 uppercase tracking-wider">Lead / Company</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Contact Info</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Date Added</TableHead>
+                      <TableHead className="text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Source</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                       <TableRow>
+                         <TableCell colSpan={5} className="h-24 text-center text-xs text-slate-500">Loading pipeline data...</TableCell>
+                       </TableRow>
+                    ) : filteredLeads.length === 0 ? (
+                       <TableRow>
+                         <TableCell colSpan={5} className="h-24 text-center text-xs text-slate-500">No leads found matching your criteria.</TableCell>
+                       </TableRow>
                     ) : (
-                      hotLeadsToday.map(lead => (
-                        <LeadCard key={lead.id} lead={lead} />
+                      filteredLeads.map((lead) => (
+                        <TableRow key={lead.id} className="hover:bg-blue-50/30 cursor-pointer group transition-colors">
+                          <TableCell className="font-medium">
+                            <div className="flex flex-col">
+                              <span className="text-sm text-slate-900 font-semibold">{lead.name}</span>
+                              {lead.company && <span className="text-xs text-slate-500 flex items-center gap-1"><Building className="h-3 w-3" /> {lead.company}</span>}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`rounded-sm font-medium text-[10px] uppercase tracking-wide px-2 py-0.5 ${statusConfig[lead.status]?.color || 'bg-slate-100 text-slate-600'}`}>
+                              {statusConfig[lead.status]?.label || lead.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                             <div className="flex flex-col gap-1 text-xs text-slate-600">
+                               {lead.email && <div className="flex items-center gap-1.5"><Mail className="h-3 w-3 text-slate-400" /> {lead.email}</div>}
+                               {lead.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 text-slate-400" /> {lead.phone}</div>}
+                             </div>
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-500 font-mono">
+                            {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                              {lead.source || 'Manual'}
+                            </span>
+                          </TableCell>
+                        </TableRow>
                       ))
                     )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </TableBody>
+                </Table>
+             </div>
+          </div>
+        )}
 
-          <TabsContent value="action">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-yellow-500" />
-                  Leads Aguardando Ação
-                </CardTitle>
-                <CardDescription>
-                  Leads novos ou contatados que precisam de follow-up
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[500px] pr-4">
-                  <div className="space-y-4">
-                    {pendingAction.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>Nenhum lead pendente de ação!</p>
-                      </div>
-                    ) : (
-                      pendingAction.map(lead => (
-                        <LeadCard key={lead.id} lead={lead} />
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="inbox" className="h-[800px]">
+        {/* INBOX TAB */}
+        {activeTab === "inbox" && (
+          <div className="animate-in fade-in duration-200">
              <UnifiedInbox />
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="report">
-             <Card>
-                <CardContent className="pt-6">
-                  <WeeklyReportDashboard />
-                </CardContent>
-             </Card>
-          </TabsContent>
-
-          <TabsContent value="calendar">
-            <ContentCalendarPreview />
-          </TabsContent>
-
-          <TabsContent value="assistant">
-            <div className="max-w-4xl mx-auto">
-              <SalesAgentChat />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="tools">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/linkedin-carousel")}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-blue-500" />
-                    LinkedIn Carousel Generator
-                  </CardTitle>
-                  <CardDescription>
-                    Crie carrosséis profissionais com IA para LinkedIn
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">
-                    Abrir LCG
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/campaigns")}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-purple-500" />
-                    Campanhas
-                  </CardTitle>
-                  <CardDescription>
-                    Monitore e gerencie suas campanhas de marketing
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    Ver Campanhas
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/knowledge-base")}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-green-500" />
-                    Knowledge Base
-                  </CardTitle>
-                  <CardDescription>
-                    Acesse a base de conhecimento da empresa
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    Explorar Knowledge
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/admin/content-approval")}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-orange-500" />
-                    Aprovação de Conteúdo
-                  </CardTitle>
-                  <CardDescription>
-                    Revise e aprove templates de conteúdo
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    Ver Pendentes
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="onboarding">
-            <div className="max-w-4xl mx-auto">
-              <OnboardingChecklist />
-            </div>
-          </TabsContent>
-        </Tabs>
+        {/* DATA TAB */}
+        {activeTab === "data" && (
+          <div className="animate-in fade-in duration-200">
+             <WeeklyReportDashboard />
+          </div>
+        )}
       </main>
+
+      {/* --- ADD LEAD DIALOG --- */}
+      <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
+        <DialogContent className="sm:max-w-[500px] border-slate-200 shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900 font-semibold">New Lead Entry</DialogTitle>
+            <DialogDescription className="text-slate-500 text-xs">
+              Manually add a prospect to the CRM pipeline.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+             <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                 <Label htmlFor="name" className="text-xs font-semibold text-slate-700">Full Name *</Label>
+                 <Input 
+                   id="name" 
+                   value={newLead.name} 
+                   onChange={(e) => setNewLead({...newLead, name: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="ex: John Doe" 
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="company" className="text-xs font-semibold text-slate-700">Company</Label>
+                 <Input 
+                   id="company" 
+                   value={newLead.company} 
+                   onChange={(e) => setNewLead({...newLead, company: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="ex: Acme Corp" 
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                 <Label htmlFor="email" className="text-xs font-semibold text-slate-700">Email</Label>
+                 <Input 
+                   id="email"
+                   type="email"
+                   value={newLead.email} 
+                   onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="john@example.com" 
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="phone" className="text-xs font-semibold text-slate-700">Phone</Label>
+                 <Input 
+                   id="phone" 
+                   value={newLead.phone} 
+                   onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="+55 11 9..." 
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                   <Label className="text-xs font-semibold text-slate-700">Initial Status</Label>
+                   <Select value={newLead.status} onValueChange={(v) => setNewLead({...newLead, status: v})}>
+                     <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="new">Novo</SelectItem>
+                       <SelectItem value="contacted">Contactado</SelectItem>
+                       <SelectItem value="in_progress">Em Progresso</SelectItem>
+                       <SelectItem value="quoted">Proposta Enviada</SelectItem>
+                     </SelectContent>
+                   </Select>
+                </div>
+                <div className="space-y-2">
+                   <Label className="text-xs font-semibold text-slate-700">Priority</Label>
+                   <Select value={newLead.priority} onValueChange={(v) => setNewLead({...newLead, priority: v})}>
+                     <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="low">Baixa</SelectItem>
+                       <SelectItem value="medium">Média</SelectItem>
+                       <SelectItem value="high">Alta</SelectItem>
+                     </SelectContent>
+                   </Select>
+                </div>
+             </div>
+
+             <div className="space-y-2">
+               <Label htmlFor="notes" className="text-xs font-semibold text-slate-700">Internal Notes</Label>
+               <Input 
+                 id="notes" 
+                 value={newLead.notes} 
+                 onChange={(e) => setNewLead({...newLead, notes: e.target.value})}
+                 className="h-9 text-sm" 
+                 placeholder="Context, source detailing, next steps..." 
+               />
+             </div>
+          </div>
+
+          <DialogFooter>
+             <Button variant="outline" size="sm" onClick={() => setIsAddLeadOpen(false)} className="h-9 text-xs">Cancel</Button>
+             <Button onClick={handleAddLead} className="h-9 text-xs bg-blue-700 hover:bg-blue-800 text-white gap-2">
+               <Save className="h-3.5 w-3.5" /> Save Lead
+             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
