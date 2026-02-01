@@ -73,8 +73,6 @@ const MainLayout = () => (
     </main>
     <Footer />
     <MobileNav />
-    <Footer />
-    <MobileNav />
     <AIChatbot />
   </div>
 );
