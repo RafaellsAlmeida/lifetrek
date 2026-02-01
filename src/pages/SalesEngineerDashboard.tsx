@@ -1,332 +1,363 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Calendar, Phone, Mail, Building, ArrowRight, Save, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  Users,
-  AlertCircle,
-  CheckCircle2,
-  Mail,
-  Phone,
-  Building,
-  Calendar,
-  TrendingUp,
-  ArrowRight,
-  RefreshCw,
-  LogOut,
-  LayoutGrid,
-  MessageSquare,
-  Briefcase,
-  Lightbulb,
-  FileText,
-  Search,
-  ListTodo,
-  Check,
-  Star,
-  BookOpen
-} from "lucide-react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import UnifiedInbox from "@/pages/UnifiedInbox";
 import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
-import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // --- Types ---
 interface Lead {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
   company: string | null;
-  status: string;
-  priority: string;
-  lead_score: number | null;
+  status: 'new' | 'contacted' | 'in_progress' | 'quoted' | 'closed' | 'rejected';
+  priority: 'low' | 'medium' | 'high';
+  notes: string | null;
   created_at: string;
   source: string | null;
 }
 
-interface SalesTask {
-    id: string;
-    text: string;
-    completed: boolean;
-}
-
-// --- Status Config ---
-// Minimalist status colors (Monochrome/Slate focus)
-const statusStyles: Record<string, string> = {
-  new: "bg-slate-100 text-slate-700 border-slate-200",
-  contacted: "bg-white text-slate-600 border-slate-200",
-  in_progress: "bg-slate-900 text-slate-50 border-slate-700", // Dark for active
-  quoted: "bg-slate-50 text-slate-900 border-slate-300 font-medium",
-  closed: "bg-slate-100 text-slate-500 border-slate-200",
-  rejected: "text-slate-400 decoration-line-through decoration-slate-400"
+const statusConfig = {
+  new: { label: "Novo", color: "bg-blue-100 text-blue-800 border-blue-200" },
+  contacted: { label: "Contactado", color: "bg-orange-100 text-orange-800 border-orange-200" },
+  in_progress: { label: "Em Progresso", color: "bg-blue-50 text-blue-600 border-blue-200" },
+  quoted: { label: "Proposta", color: "bg-blue-600 text-white border-blue-600" },
+  closed: { label: "Fechado", color: "bg-green-100 text-green-800 border-green-200" },
+  rejected: { label: "Perdido", color: "bg-gray-100 text-gray-500 border-gray-200 decoration-line-through" },
 };
 
-export function SalesDashboard({ userName }: { userName?: string }) {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("crm");
+export function SalesDashboard() {
+  const [activeTab, setActiveTab] = useState("leads");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState<SalesTask[]>(() => {
-      const saved = localStorage.getItem("sales_daily_tasks");
-      return saved ? JSON.parse(saved) : [
-          { id: "1", text: "Triagem técnica (Novos Leads)", completed: false },
-          { id: "2", text: "Responder mensagens Inbox", completed: false },
-          { id: "3", text: "Follow-up propostas pendentes", completed: false },
-      ];
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // New Lead Form State
+  const [newLead, setNewLead] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    status: "new",
+    priority: "medium",
+    notes: ""
   });
 
   useEffect(() => {
     fetchLeads();
-    // Real-time subscription could go here
-    return () => {}; 
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("sales_daily_tasks", JSON.stringify(tasks));
-  }, [tasks]);
 
   const fetchLeads = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from("contact_leads")
-        .select("id, name, email, phone, company, status, priority, lead_score, created_at, source")
+        .select("*")
         .order("created_at", { ascending: false });
+      
       if (error) throw error;
-      setLeads(data || []);
+      setLeads(data as unknown as Lead[] || []);
     } catch (error) {
       console.error("Error fetching leads:", error);
+      toast.error("Erro ao carregar leads");
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const handleAddLead = async () => {
+    try {
+      if (!newLead.name) return toast.error("Nome é obrigatório");
+
+      const { data, error } = await supabase
+        .from("contact_leads")
+        .insert([{
+          name: newLead.name,
+          email: newLead.email || null,
+          phone: newLead.phone || null,
+          company: newLead.company || null,
+          status: newLead.status,
+          priority: newLead.priority,
+          metadata: { notes: newLead.notes, manual_entry: true }
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLeads([data as unknown as Lead, ...leads]);
+      setIsAddLeadOpen(false);
+      setNewLead({ name: "", email: "", phone: "", company: "", status: "new", priority: "medium", notes: "" });
+      toast.success("Lead adicionado com sucesso");
+    } catch (error) {
+      console.error("Error adding lead:", error);
+      toast.error("Erro ao adicionar lead");
+    }
   };
 
-  // Metrics
-  const newLeadsCount = leads.filter(l => l.status === "new").length;
-  const highPriorityCount = leads.filter(l => l.priority === "high" && l.status !== "closed").length;
+  const filteredLeads = leads.filter(lead => 
+    lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lead.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lead.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
-      {/* --- Minimal Header --- */}
-      <header className="bg-white border-b sticky top-0 z-10 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-           <div className="bg-slate-900 text-white p-1.5 rounded-sm">
-             <Building className="h-4 w-4" />
-           </div>
-           <h1 className="font-medium text-sm tracking-tight text-slate-900">Lifetrek <span className="text-slate-300">/</span> CRM</h1>
+    <div className="min-h-screen bg-white text-slate-900 font-inter">
+      {/* --- Top Navigation Bar --- */}
+      <header className="h-14 border-b border-slate-200 flex items-center px-6 sticky top-0 bg-white z-20">
+        <div className="flex items-center gap-2 mr-8">
+           <div className="h-6 w-6 bg-blue-700 rounded-sm flex items-center justify-center text-white font-bold text-xs">LT</div>
+           <span className="font-semibold text-sm tracking-tight">Lifetrek CRM</span>
         </div>
-        
-        <nav className="flex items-center gap-4">
-          <button 
-            onClick={() => setActiveTab("crm")}
-            className={`text-xs font-medium transition-colors ${activeTab === 'crm' ? 'text-slate-900 border-b-2 border-slate-900 pb-0.5' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Workplace
-          </button>
-          <button 
-            onClick={() => setActiveTab("tools")}
-            className={`text-xs font-medium transition-colors ${activeTab === 'tools' ? 'text-slate-900 border-b-2 border-slate-900 pb-0.5' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-             Tools & Resources
-          </button>
+
+        <nav className="flex items-center gap-1 h-full">
+           <Button 
+             variant={activeTab === "leads" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("leads")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'leads' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Pipeline & Leads
+           </Button>
+           <Button 
+             variant={activeTab === "inbox" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("inbox")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Unified Inbox
+           </Button>
+           <Button 
+             variant={activeTab === "data" ? "secondary" : "ghost"} 
+             onClick={() => setActiveTab("data")}
+             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'data' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
+           >
+             Reports & Data
+           </Button>
         </nav>
 
-        <div className="flex items-center gap-2">
-           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-50">
-             <Search className="h-4 w-4" />
-           </Button>
-           <div className="h-4 w-px bg-slate-200" />
-           <Button variant="ghost" size="sm" className="h-8 text-xs font-medium text-slate-600 hover:bg-slate-50">
-              {userName || "Engenheiro"}
+        <div className="ml-auto flex items-center gap-2">
+           <Input 
+             placeholder="Search global..." 
+             className="h-8 w-64 bg-slate-50 border-slate-200 text-xs focus-visible:ring-blue-600"
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+           />
+           <Button size="sm" className="h-8 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs gap-2" onClick={() => setIsAddLeadOpen(true)}>
+             <Plus className="h-3.5 w-3.5" />
+             Add Lead
            </Button>
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto p-6">
+      {/* --- Main Content Area --- */}
+      <main className="p-6 max-w-[1600px] mx-auto">
         
-        {/* --- CRM WORKPLACE VIEW --- */}
-        {activeTab === "crm" && (
-          <div className="space-y-6">
-            
-            {/* KPI Strip - Monochrome */}
-            <div className="flex items-center gap-8 pl-1">
-               <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Novos Leads</p>
-                  <p className="text-2xl font-light tracking-tight text-slate-900">{newLeadsCount}</p>
-               </div>
-               <div className="h-8 w-px bg-slate-100" />
-               <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Alta Prioridade</p>
-                  <p className="text-2xl font-light tracking-tight text-slate-900">{highPriorityCount}</p>
-               </div>
-               <div className="h-8 w-px bg-slate-100" />
-               <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Tasks Hoje</p>
-                  <p className="text-2xl font-light tracking-tight text-slate-900">{tasks.filter(t => !t.completed).length}</p>
-               </div>
-               <div className="ml-auto">
-                 <Button size="sm" variant="outline" className="h-8 text-xs gap-2 border-slate-200 text-slate-600 hover:bg-slate-50" onClick={fetchLeads}>
-                   <RefreshCw className="h-3 w-3" /> Sync
-                 </Button>
-               </div>
-            </div>
-
-            <Separator className="bg-slate-100" />
-
-            <div className="grid grid-cols-12 gap-6">
-               
-               {/* Left Col: Inbox & Tasks (60%) */}
-               <div className="col-span-12 lg:col-span-7 space-y-6">
-                  
-                  {/* Daily Focus - Simple List */}
-                  <div className="bg-white rounded border border-slate-200">
-                     <div className="py-3 px-4 flex flex-row items-center justify-between border-b border-slate-100">
-                       <h3 className="font-medium text-sm flex items-center gap-2 text-slate-800">
-                         <ListTodo className="h-4 w-4 text-slate-400" />
-                         Daily Focus
-                       </h3>
-                       <span className="text-xs text-slate-400">
-                         {new Date().toLocaleDateString('pt-BR', { weekday: 'long' })}
-                       </span>
-                     </div>
-                     <div className="p-2 space-y-0.5">
-                        {tasks.map(task => (
-                          <div 
-                             key={task.id} 
-                             className={`flex items-center gap-3 p-2 rounded hover:bg-slate-50 cursor-pointer transition-colors group ${task.completed ? 'opacity-40' : ''}`}
-                             onClick={() => toggleTask(task.id)}
-                          >
-                             <div className={`h-4 w-4 rounded-sm border flex items-center justify-center transition-colors ${task.completed ? 'bg-slate-800 border-slate-800' : 'border-slate-300'}`}>
-                               {task.completed && <Check className="h-3 w-3 text-white" />}
+        {/* LEADS TAB */}
+        {activeTab === "leads" && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+             <div className="rounded border border-slate-200 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-50">
+                    <TableRow>
+                      <TableHead className="w-[300px] text-xs font-semibold text-slate-600 uppercase tracking-wider">Lead / Company</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Contact Info</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Date Added</TableHead>
+                      <TableHead className="text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Source</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                       <TableRow>
+                         <TableCell colSpan={5} className="h-24 text-center text-xs text-slate-500">Loading pipeline data...</TableCell>
+                       </TableRow>
+                    ) : filteredLeads.length === 0 ? (
+                       <TableRow>
+                         <TableCell colSpan={5} className="h-24 text-center text-xs text-slate-500">No leads found matching your criteria.</TableCell>
+                       </TableRow>
+                    ) : (
+                      filteredLeads.map((lead) => (
+                        <TableRow key={lead.id} className="hover:bg-blue-50/30 cursor-pointer group transition-colors">
+                          <TableCell className="font-medium">
+                            <div className="flex flex-col">
+                              <span className="text-sm text-slate-900 font-semibold">{lead.name}</span>
+                              {lead.company && <span className="text-xs text-slate-500 flex items-center gap-1"><Building className="h-3 w-3" /> {lead.company}</span>}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`rounded-sm font-medium text-[10px] uppercase tracking-wide px-2 py-0.5 ${statusConfig[lead.status]?.color || 'bg-slate-100 text-slate-600'}`}>
+                              {statusConfig[lead.status]?.label || lead.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                             <div className="flex flex-col gap-1 text-xs text-slate-600">
+                               {lead.email && <div className="flex items-center gap-1.5"><Mail className="h-3 w-3 text-slate-400" /> {lead.email}</div>}
+                               {lead.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 text-slate-400" /> {lead.phone}</div>}
                              </div>
-                             <span className={`text-sm ${task.completed ? 'line-through text-slate-500' : 'text-slate-700'}`}>{task.text}</span>
-                          </div>
-                        ))}
-                     </div>
-                  </div>
-
-                  {/* Unified Inbox Component */}
-                  <div className="bg-white rounded border border-slate-200 overflow-hidden h-[600px]">
-                     <UnifiedInbox />
-                  </div>
-               </div>
-
-               {/* Right Col: Active Leads (40%) */}
-               <div className="col-span-12 lg:col-span-5 space-y-6">
-                  <div className="bg-white rounded border border-slate-200 h-full flex flex-col">
-                     <div className="py-3 px-4 border-b border-slate-100 bg-slate-50/30">
-                       <div className="flex justify-between items-center">
-                         <h3 className="font-medium text-sm text-slate-800">Leads Recentes</h3>
-                         <Button variant="link" size="sm" className="h-auto p-0 text-xs text-slate-500 hover:text-slate-900 decoration-slate-300" onClick={() => navigate('/admin/leads')}>
-                           Ver todos
-                         </Button>
-                       </div>
-                     </div>
-                     <ScrollArea className="flex-1">
-                       <div className="divide-y divide-slate-50">
-                         {leads.slice(0, 15).map(lead => (
-                           <div 
-                             key={lead.id} 
-                             className="p-4 hover:bg-slate-50 transition-colors cursor-pointer group"
-                             onClick={() => navigate(`/admin?lead=${lead.id}`)}
-                           >
-                              <div className="flex justify-between items-start mb-1">
-                                <span className="font-medium text-sm text-slate-800 group-hover:text-slate-900">{lead.name}</span>
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${statusStyles[lead.status] || 'bg-slate-50 border-slate-100 text-slate-500'}`}>
-                                  {lead.status}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
-                                <Building className="h-3 w-3 text-slate-400" />
-                                {lead.company || "Sem empresa"}
-                              </div>
-                              <div className="flex items-center justify-between mt-2">
-                                <span className="text-[10px] text-slate-400">
-                                  {new Date(lead.created_at).toLocaleDateString('pt-BR')}
-                                </span>
-                                {lead.priority === 'high' && (
-                                  <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-1 rounded-sm">
-                                    Alta Prioridade
-                                  </span>
-                                )}
-                              </div>
-                           </div>
-                         ))}
-                       </div>
-                     </ScrollArea>
-                  </div>
-               </div>
-            </div>
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-500 font-mono">
+                            {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                              {lead.source || 'Manual'}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+             </div>
           </div>
         )}
 
-        {/* --- TOOLS & RESOURCES VIEW --- */}
-        {activeTab === "tools" && (
-           <div className="space-y-8">
-              
-              {/* Reports Section */}
-              <section>
-                <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                  <TrendingUp className="h-4 w-4 text-slate-400" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Analytics & Reports</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="bg-white rounded border border-slate-200 p-1">
-                      <WeeklyReportDashboard />
-                   </div>
-                   <div className="bg-white rounded border border-slate-200 hover:border-slate-300 transition-colors cursor-pointer p-6" onClick={() => navigate('/admin/roi-simulation')}>
-                      <h3 className="text-sm font-medium text-slate-900 mb-1">Calculadora ROI</h3>
-                      <p className="text-sm text-slate-500 mb-4">Simulação para propostas comerciais</p>
-                      <div className="h-24 bg-slate-50 rounded border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                         Preview Indisponível
-                      </div>
-                   </div>
-                </div>
-              </section>
-
-              {/* Content Tools - Grid */}
-              <section>
-                 <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                    <LayoutGrid className="h-4 w-4 text-slate-400" />
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Content Operations</h3>
-                 </div>
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { title: "Carousel Generator", icon: Star, path: "/admin/linkedin-carousel", desc: "Criar posts LinkedIn" },
-                      { title: "Knowledge Base", icon: BookOpen, path: "/admin/knowledge-base", desc: "Gerenciar documentos" },
-                      { title: "Aprovação Conteúdo", icon: CheckCircle2, path: "/admin/content-approval", desc: "Revisar pendências" },
-                      { title: "Campanhas", icon: TrendingUp, path: "/admin/campaigns", desc: "Gestão de tráfego" },
-                    ].map((tool) => (
-                      <div 
-                        key={tool.title}
-                        className="bg-white border border-slate-200 rounded p-4 hover:bg-slate-50 transition-colors cursor-pointer group"
-                        onClick={() => navigate(tool.path)}
-                      >
-                         <div className="p-2 rounded-sm bg-slate-100 w-fit mb-3 text-slate-600 group-hover:text-slate-900 group-hover:bg-slate-200 transition-colors">
-                           <tool.icon className="h-4 w-4" />
-                         </div>
-                         <h4 className="font-medium text-sm text-slate-900 mb-1">{tool.title}</h4>
-                         <p className="text-xs text-slate-500">{tool.desc}</p>
-                      </div>
-                    ))}
-                 </div>
-              </section>
-           </div>
+        {/* INBOX TAB */}
+        {activeTab === "inbox" && (
+          <div className="animate-in fade-in duration-200">
+             <UnifiedInbox />
+          </div>
         )}
 
+        {/* DATA TAB */}
+        {activeTab === "data" && (
+          <div className="animate-in fade-in duration-200">
+             <WeeklyReportDashboard />
+          </div>
+        )}
       </main>
+
+      {/* --- ADD LEAD DIALOG --- */}
+      <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
+        <DialogContent className="sm:max-w-[500px] border-slate-200 shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900 font-semibold">New Lead Entry</DialogTitle>
+            <DialogDescription className="text-slate-500 text-xs">
+              Manually add a prospect to the CRM pipeline.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+             <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                 <Label htmlFor="name" className="text-xs font-semibold text-slate-700">Full Name *</Label>
+                 <Input 
+                   id="name" 
+                   value={newLead.name} 
+                   onChange={(e) => setNewLead({...newLead, name: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="ex: John Doe" 
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="company" className="text-xs font-semibold text-slate-700">Company</Label>
+                 <Input 
+                   id="company" 
+                   value={newLead.company} 
+                   onChange={(e) => setNewLead({...newLead, company: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="ex: Acme Corp" 
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                 <Label htmlFor="email" className="text-xs font-semibold text-slate-700">Email</Label>
+                 <Input 
+                   id="email"
+                   type="email"
+                   value={newLead.email} 
+                   onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="john@example.com" 
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="phone" className="text-xs font-semibold text-slate-700">Phone</Label>
+                 <Input 
+                   id="phone" 
+                   value={newLead.phone} 
+                   onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
+                   className="h-9 text-sm" 
+                   placeholder="+55 11 9..." 
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                   <Label className="text-xs font-semibold text-slate-700">Initial Status</Label>
+                   <Select value={newLead.status} onValueChange={(v) => setNewLead({...newLead, status: v})}>
+                     <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="new">Novo</SelectItem>
+                       <SelectItem value="contacted">Contactado</SelectItem>
+                       <SelectItem value="in_progress">Em Progresso</SelectItem>
+                       <SelectItem value="quoted">Proposta Enviada</SelectItem>
+                     </SelectContent>
+                   </Select>
+                </div>
+                <div className="space-y-2">
+                   <Label className="text-xs font-semibold text-slate-700">Priority</Label>
+                   <Select value={newLead.priority} onValueChange={(v) => setNewLead({...newLead, priority: v})}>
+                     <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="low">Baixa</SelectItem>
+                       <SelectItem value="medium">Média</SelectItem>
+                       <SelectItem value="high">Alta</SelectItem>
+                     </SelectContent>
+                   </Select>
+                </div>
+             </div>
+
+             <div className="space-y-2">
+               <Label htmlFor="notes" className="text-xs font-semibold text-slate-700">Internal Notes</Label>
+               <Input 
+                 id="notes" 
+                 value={newLead.notes} 
+                 onChange={(e) => setNewLead({...newLead, notes: e.target.value})}
+                 className="h-9 text-sm" 
+                 placeholder="Context, source detailing, next steps..." 
+               />
+             </div>
+          </div>
+
+          <DialogFooter>
+             <Button variant="outline" size="sm" onClick={() => setIsAddLeadOpen(false)} className="h-9 text-xs">Cancel</Button>
+             <Button onClick={handleAddLead} className="h-9 text-xs bg-blue-700 hover:bg-blue-800 text-white gap-2">
+               <Save className="h-3.5 w-3.5" /> Save Lead
+             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-// Add strict button variant for Shadcn if needed, or use default
-// Assuming 'white' variant doesn't exist, mapped to default/ghost logic in className
