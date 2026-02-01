@@ -106,7 +106,6 @@ export default function Infrastructure() {
           category: "Metallography Prep",
       },
   ];
-  ];
 
   const software = [
     {
