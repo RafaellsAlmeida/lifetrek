@@ -1,5 +1,5 @@
 // supabase/functions/chat/index.ts
-// Chat Agent using Lovable AI Gateway
+// Chat Agent using OpenRouter
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -20,10 +20,10 @@ serve(async (req) => {
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+        const openRouterKey = Deno.env.get("OPEN_ROUTER_API_KEY");
 
-        if (!lovableApiKey) {
-            throw new Error("LOVABLE_API_KEY is missing");
+        if (!openRouterKey) {
+            throw new Error("OPEN_ROUTER_API_KEY is missing");
         }
 
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -56,15 +56,17 @@ DIRETRIZES:
 2. Se não souber a resposta, peça o e-mail para que um especialista entre em contato.
 3. Se o usuário falar "Oi" ou "Ola", apresente-se brevemente e pergunte como pode ajudar na jornada de dispositivos médicos.`;
 
-        // Call Lovable AI Gateway
-        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        // Call OpenRouter
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${lovableApiKey}`,
+                "Authorization": `Bearer ${openRouterKey}`,
+                "HTTP-Referer": "https://lifetrek.app",
+                "X-Title": "Lifetrek App"
             },
             body: JSON.stringify({
-                model: "google/gemini-3-flash-preview",
+                model: "google/gemini-2.0-flash-001",
                 messages: [
                     { role: "system", content: systemPrompt },
                     ...messages.map((msg: { role: string; content: string }) => ({
@@ -77,20 +79,8 @@ DIRETRIZES:
         });
 
         if (!response.ok) {
-            if (response.status === 429) {
-                return new Response(
-                    JSON.stringify({ error: "Rate limits exceeded, please try again later." }),
-                    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-                );
-            }
-            if (response.status === 402) {
-                return new Response(
-                    JSON.stringify({ error: "Payment required, please add funds to your Lovable AI workspace." }),
-                    { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-                );
-            }
             const errorText = await response.text();
-            throw new Error(`Lovable AI error: ${errorText}`);
+            throw new Error(`OpenRouter API error: ${errorText}`);
         }
 
         const data = await response.json();
