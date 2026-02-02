@@ -6,19 +6,14 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-    useEffect(() => {
-        // Apply dark mode to document for Tailwind dark: classes to work
-        document.documentElement.classList.add('dark');
-        return () => {
-            document.documentElement.classList.remove('dark');
-        };
-    }, []);
-
+    // Removed forced dark mode to respect brand book's clean/white aesthetic
+    
     return (
-        <div className="min-h-screen bg-background text-foreground dark">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
             <AdminHeader />
             <main className="flex-1">
-                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                {/* Removed max-w-7xl constraint to allow CRM to breathe */}
+                <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
                     {children}
                 </div>
             </main>

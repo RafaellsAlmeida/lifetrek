@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import UnifiedInbox from "@/pages/UnifiedInbox";
 import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
+import { AnalyticsSection } from "./AnalyticsSection";
 
 // --- Types ---
 interface Lead {
@@ -128,54 +129,86 @@ export function SalesDashboard({ userName }: { userName?: string }) {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-inter">
-      {/* --- Top Navigation Bar --- */}
-      <header className="h-14 border-b border-slate-200 flex items-center px-6 sticky top-0 bg-white z-20">
-        <div className="flex items-center gap-2 mr-8">
-           <div className="h-6 w-6 bg-blue-700 rounded-sm flex items-center justify-center text-white font-bold text-xs">LT</div>
-           <span className="font-semibold text-sm tracking-tight">Lifetrek CRM</span>
+      {/* --- Toolbar / Subheader --- */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">CRM Central</h1>
+          <div className="h-6 w-px bg-slate-200 mx-2"></div>
+          <nav className="flex items-center gap-1">
+             <Button 
+               variant={activeTab === "leads" ? "secondary" : "ghost"} 
+               onClick={() => setActiveTab("leads")}
+               className={`h-8 rounded-md px-3 text-xs font-medium transition-all ${activeTab === 'leads' ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+             >
+               Pipeline
+             </Button>
+             <Button 
+               variant={activeTab === "inbox" ? "secondary" : "ghost"} 
+               onClick={() => setActiveTab("inbox")}
+               className={`h-8 rounded-md px-3 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+             >
+               Unified Inbox
+             </Button>
+             <Button 
+               variant={activeTab === "data" ? "secondary" : "ghost"} 
+               onClick={() => setActiveTab("data")}
+               className={`h-8 rounded-md px-3 text-xs font-medium transition-all ${activeTab === 'data' ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+             >
+               Analytics
+             </Button>
+          </nav>
         </div>
 
-        <nav className="flex items-center gap-1 h-full">
-           <Button 
-             variant={activeTab === "leads" ? "secondary" : "ghost"} 
-             onClick={() => setActiveTab("leads")}
-             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'leads' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
-           >
-             Pipeline & Leads
-           </Button>
-           <Button 
-             variant={activeTab === "inbox" ? "secondary" : "ghost"} 
-             onClick={() => setActiveTab("inbox")}
-             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
-           >
-             Unified Inbox
-           </Button>
-           <Button 
-             variant={activeTab === "data" ? "secondary" : "ghost"} 
-             onClick={() => setActiveTab("data")}
-             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'data' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
-           >
-             Reports & Data
-           </Button>
-        </nav>
-
-        <div className="ml-auto flex items-center gap-2">
-           <Input 
-             placeholder="Search global..." 
-             className="h-8 w-64 bg-slate-50 border-slate-200 text-xs focus-visible:ring-blue-600"
-             value={searchQuery}
-             onChange={(e) => setSearchQuery(e.target.value)}
-           />
-           <Button size="sm" className="h-8 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs gap-2" onClick={() => setIsAddLeadOpen(true)}>
+        <div className="flex items-center gap-3">
+           <div className="relative">
+             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+             <Input 
+               placeholder="Search pipeline..." 
+               className="h-9 w-64 pl-9 bg-white border-slate-200 text-sm focus-visible:ring-blue-600 shadow-sm transition-shadow hover:shadow"
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+             />
+           </div>
+           <Button className="h-9 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs gap-2 shadow-sm" onClick={() => setIsAddLeadOpen(true)}>
              <Plus className="h-3.5 w-3.5" />
              Add Lead
            </Button>
         </div>
-      </header>
+      </div>
 
       {/* --- Main Content Area --- */}
       <main className="p-6 max-w-[1600px] mx-auto">
         
+        {/* --- Stats Row --- */}
+        <div className="grid grid-cols-4 gap-4 mb-8">
+           <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Leads</div>
+              <div className="text-2xl font-bold text-slate-900 mt-1">{leads.length}</div>
+           </div>
+            <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Novos (Essa Semana)</div>
+              <div className="text-2xl font-bold text-blue-600 mt-1">
+                 {leads.filter(l => {
+                    const d = new Date(l.created_at);
+                    const now = new Date();
+                    return (now.getTime() - d.getTime()) / (1000 * 3600 * 24) < 7;
+                 }).length}
+              </div>
+           </div>
+           <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Em Negociação</div>
+              <div className="text-2xl font-bold text-orange-600 mt-1">
+                 {leads.filter(l => ['in_progress', 'quoted'].includes(l.status)).length}
+              </div>
+           </div>
+           <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Taxa de Conversão</div>
+              <div className="text-2xl font-bold text-green-700 mt-1">
+                 {leads.length > 0 ? Math.round((leads.filter(l => l.status === 'closed').length / leads.length) * 100) : 0}%
+              </div>
+           </div>
+        </div>
+
         {/* LEADS TAB */}
         {activeTab === "leads" && (
           <div className="space-y-4 animate-in fade-in duration-200">
@@ -246,7 +279,7 @@ export function SalesDashboard({ userName }: { userName?: string }) {
         {/* DATA TAB */}
         {activeTab === "data" && (
           <div className="animate-in fade-in duration-200">
-             <WeeklyReportDashboard />
+             <AnalyticsSection />
           </div>
         )}
       </main>

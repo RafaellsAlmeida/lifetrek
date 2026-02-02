@@ -37,7 +37,7 @@ const OnePager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 font-sans selection:bg-primary/10">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-primary/10">
       {/* Download Button - Print only */}
       <div className="fixed top-4 right-4 z-50 no-print">
         <Button onClick={handleDownloadPDF} className="bg-primary hover:bg-primary-dark shadow-xl hover:shadow-2xl transition-all">
