@@ -1,59 +1,50 @@
 import os
 import requests
-import json
+from dotenv import load_dotenv
 
-# Project A: Legacy? (Has Service Key)
-PROJ_A = {
-    "name": "Project A (dlfl...)",
-    "url": "https://dlflpvmdzkeouhgqwqba.supabase.co",
-    "key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZmxwdm1kemtlb3VoZ3F3cWJhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNzYwOSwiZXhwIjoyMDgzMzAzNjA5fQ.QT2RDwGP92JhDFb3fGRgMuViKW-AioTIu44x_g0hw5o"
-}
+load_dotenv()
 
-# Project B: Active/Vite? (Has Anon Key)
-PROJ_B = {
-    "name": "Project B (iijk...)",
-    "url": "https://iijkbhiqcsvtnfernrbs.supabase.co",
-    "key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpamtiaGlxY3N2dG5mZXJucmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNTE2MzUsImV4cCI6MjA3NTkyNzYzNX0.HQJ1vRWwn7YXmWDvb9Pf_JgzeyCDOpXdf2NI-76IUbM"
-}
+UNIPILE_KEY = os.environ.get("UNIPILE_API_KEY", "")
 
-def check_project(proj):
-    print(f"\n=== Checking {proj['name']} ===")
-    headers = {
-        "apikey": proj['key'],
-        "Authorization": f"Bearer {proj['key']}",
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-    }
+DSNS_TO_TEST = [
+    "https://3YwYCdzp.unipile.com",
+    "https://api.unipile.com",
+    "https://api1.unipile.com",
+]
 
-    # Check Automation Profiles
-    print("--- Automation Profiles ---")
-    try:
-        url = f"{proj['url']}/rest/v1/automation_profiles?select=*"
-        resp = requests.get(url, headers=headers)
-        if resp.status_code == 200:
-            profiles = resp.json()
-            print(f"Found {len(profiles)} profiles.")
-            for p in profiles:
-                print(f"  User: {p.get('user_id')}, Unipile: {p.get('unipile_account_id', 'NONE')}")
-        else:
-            print(f"  Status: {resp.status_code} - {resp.text.splitlines()[0]}")
-    except Exception as e:
-        print(f"  Error: {e}")
+def format_dsn(dsn):
+    return dsn.rstrip('/')
 
-    # Check Conversations
-    print("--- Conversations ---")
-    try:
-        url = f"{proj['url']}/rest/v1/conversations?select=external_account_id&limit=50"
-        resp = requests.get(url, headers=headers)
-        if resp.status_code == 200:
-            convs = resp.json()
-            ids = set(c.get("external_account_id") for c in convs if c.get("external_account_id"))
-            print(f"  Found {len(ids)} unique IDs: {ids}")
-        else:
-            print(f"  Status: {resp.status_code} - {resp.text.splitlines()[0]}")
-    except Exception as e:
-        print(f"  Error: {e}")
+def check_unipile():
+    if not UNIPILE_KEY:
+        print("Missing UNIPILE_API_KEY in .env")
+        return
+
+    print(f"Testing Unipile with Key: {UNIPILE_KEY[:5]}...")
+
+    for base_url in DSNS_TO_TEST:
+        url = f"{format_dsn(base_url)}/api/v1/accounts"
+        print(f"\n--- Trying {base_url} ---")
+        try:
+            resp = requests.get(url, headers={"X-API-KEY": UNIPILE_KEY})
+            print(f"Status: {resp.status_code}")
+            if resp.status_code == 200:
+                accounts = resp.json()
+                print(f"SUCCESS! Found {len(accounts)} accounts.")
+                if isinstance(accounts, dict) and 'items' in accounts:
+                     accounts = accounts['items'] # Handle pagination structure if present
+                
+                for acc in accounts:
+                    print(f"  ID: {acc.get('id')} | Name: {acc.get('name')} | Provider: {acc.get('provider')}")
+                
+                # If success, update .env with this DSN?
+                if accounts:
+                    print(f"\n[RECOMMENDATION] Update .env UNIPILE_DSN to {base_url}")
+                    break
+            else:
+                print(f"Response: {resp.text[:100]}...")
+        except Exception as e:
+            print(f"Error: {e}")
 
 if __name__ == "__main__":
-    check_project(PROJ_A)
-    check_project(PROJ_B)
+    check_unipile()
