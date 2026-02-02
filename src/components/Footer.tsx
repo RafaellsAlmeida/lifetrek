@@ -33,8 +33,8 @@ export const Footer = () => {
                 </a>
               </div>
               <div>
-                <a href="tel:+551939367193" className="hover:text-primary transition-colors block">
-                  +55 19 3936-7193
+                <a href="tel:+5511945336226" className="hover:text-primary transition-colors block">
+                  +55 11 94533-6226
                 </a>
               </div>
               <div>

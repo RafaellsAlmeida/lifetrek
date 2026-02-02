@@ -74,14 +74,14 @@ const OnePager = () => {
       {/* --- PAGE 1 --- */}
       <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col relative bg-white shadow-2xl my-8 print-page print:shadow-none print:my-0">
         
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10 border-b-2 border-primary pb-6">
+        {/* Header - Reduced MB */}
+        <div className="flex items-center justify-between mb-8 border-b-2 border-primary pb-4">
           <img src={logo} alt="Lifetrek Medical" className="h-14" />
           <img src={isoLogo} alt="ISO 13485:2016" className="h-16" />
         </div>
 
-        {/* Hero Title */}
-        <div className="text-center mb-12">
+        {/* Hero Title - Reduced MB */}
+        <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold text-primary mb-2 tracking-tight">
             Fabricação de Precisão para Dispositivos Médicos
           </h1>
@@ -90,8 +90,8 @@ const OnePager = () => {
           </p>
         </div>
 
-        {/* Stats Row */}
-        <div className="flex justify-between px-10 mb-14">
+        {/* Stats Row - Reduced MB */}
+        <div className="flex justify-between px-10 mb-10">
           <div className="text-center">
             <div className="text-4xl font-extrabold text-primary mb-1">30+</div>
             <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Anos de Experiência</div>
@@ -110,17 +110,17 @@ const OnePager = () => {
           </div>
         </div>
 
-        {/* Main Grid content */}
-        <div className="grid grid-cols-2 gap-12 flex-1">
+        {/* Main Grid content - Reduced Gap */}
+        <div className="grid grid-cols-2 gap-8 flex-1">
           
-          {/* Left Column */}
-          <div className="flex flex-col gap-10">
+          {/* Left Column - Reduced Gap */}
+          <div className="flex flex-col gap-8">
             {/* Por que a Lifetrek? */}
             <div>
-              <h2 className="text-xl font-bold text-primary mb-6 border-l-4 border-primary pl-3">
+              <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-primary pl-3">
                 Por que a Lifetrek?
               </h2>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                  {[
                    { label: "Lead Time Reduzido", text: "De 90+ dias para 2-4 semanas" },
                    { label: "Compliance Total", text: "ISO 13485, GMP, rastreabilidade ANVISA/FDA" },
@@ -140,7 +140,7 @@ const OnePager = () => {
 
             {/* Produtos */}
             <div>
-              <h2 className="text-xl font-bold text-primary mb-6 border-l-4 border-green-600 pl-3">
+              <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-green-600 pl-3">
                 Produtos
               </h2>
               <div className="grid grid-cols-3 gap-4">
@@ -189,14 +189,14 @@ const OnePager = () => {
             </div>
           </div>
 
-          {/* Right Column - Visuals */}
-          <div className="flex flex-col gap-6">
+          {/* Right Column - Visuals - Compacted */}
+          <div className="flex flex-col gap-4">
              {/* FACTORY BLOCK */}
              <div className="rounded-xl overflow-hidden shadow-lg border border-primary/20 bg-primary group relative">
                 <img 
                   src={factoryExterior} 
                   alt="Fábrica Lifetrek" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-40 object-cover"
                 />
                 <div className="bg-primary text-white py-2 px-4 text-center text-sm font-bold">
                   Fábrica Própria • Indaiatuba, SP
@@ -205,16 +205,18 @@ const OnePager = () => {
 
              {/* CLEAN ROOM */}
              <div className="rounded-xl overflow-hidden shadow-lg border border-green-600/20 group">
-                <img src={cleanroomHero} alt="Sala Limpa" className="w-full h-48 object-cover" />
+                <img src={cleanroomHero} alt="Sala Limpa" className="w-full h-40 object-cover" />
                 <div className="bg-green-600 text-white py-2 px-4 text-center text-sm font-bold">
                   Sala Limpa ISO 7 Certificada
                 </div>
              </div>
 
-             {/* RECEPTION */}
-             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100">
-               <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover min-h-[180px]" />
-               <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200">
+             {/* RECEPTION - Fixed height to avoid cut */}
+             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100 flex flex-col h-full min-h-0">
+               <div className="flex-1 relative overflow-hidden">
+                   <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover absolute inset-0" />
+               </div>
+               <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200 z-10 relative">
                   Recepção
                 </div>
              </div>
@@ -229,9 +231,14 @@ const OnePager = () => {
              <span>Página 1/2</span>
         </div>
       </div>
-
-      {/* --- PAGE 2 --- */}
+      
+          {/* --- PAGE 2 --- */}
       <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] h-[297mm] flex flex-col bg-white shadow-2xl mb-8 print-page print:shadow-none print:my-0">
+         {/* ... (Previous Page 2 Header/Content remains same until footer) ... */
+          /* Note: I need to output the full content or matching chunks. I'll use replace_file_content carefully.
+             Actually, splitting this into chunks or replacing large block is safer.
+          */}
+
          {/* Header Page 2 */}
          <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
             <img src={logo} alt="Lifetrek Medical" className="h-10" />
@@ -356,15 +363,18 @@ const OnePager = () => {
                 </div>
 
                 <div className="lg:col-span-1 flex flex-col justify-end items-end gap-2 text-right">
-                    <div className="flex gap-3">
-                         <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors">
-                             <Linkedin className="w-5 h-5" />
+                    <div className="flex flex-col gap-2 items-end">
+                         <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                             <Linkedin className="w-4 h-4" />
+                             <span className="text-xs font-medium group-hover:text-primary">@lifetrek-medical</span>
                          </a>
-                         <a href="https://facebook.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-blue-600 transition-colors">
-                             <Facebook className="w-5 h-5" />
+                         <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                             <Instagram className="w-4 h-4" />
+                             <span className="text-xs font-medium group-hover:text-pink-600">@lifetrekmedical</span>
                          </a>
-                         <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors">
-                             <Instagram className="w-5 h-5" />
+                         <a href="https://facebook.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-blue-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                             <Facebook className="w-4 h-4" />
+                             <span className="text-xs font-medium group-hover:text-blue-600">Lifetrek Medical</span>
                          </a>
                     </div>
                 </div>

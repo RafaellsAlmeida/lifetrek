@@ -323,10 +323,10 @@ export default function Contact() {
                 <div className="border-l-4 border-accent pl-6">
                   <h3 className="font-bold text-lg mb-2">{t("contact.info.phone")}</h3>
                   <a
-                    href="tel:+551939367193"
+                    href="tel:+5511945336226"
                     className="text-muted-foreground text-lg hover:text-primary transition-colors"
                   >
-                    +55 19 3936-7193
+                    +55 11 94533-6226
                   </a>
                 </div>
 

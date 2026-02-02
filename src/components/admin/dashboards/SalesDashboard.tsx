@@ -99,12 +99,15 @@ export function SalesDashboard({ userName }: { userName?: string }) {
         .from("contact_leads")
         .insert([{
           name: newLead.name,
-          email: newLead.email || null,
-          phone: newLead.phone || null,
+          email: newLead.email,
+          phone: newLead.phone,
           company: newLead.company || null,
-          status: newLead.status,
-          priority: newLead.priority,
-          metadata: { notes: newLead.notes, manual_entry: true }
+          status: newLead.status as any,
+          priority: newLead.priority as any,
+          admin_notes: newLead.notes,
+          project_type: 'Manual Entry',
+          technical_requirements: 'Manual Entry',
+          source: 'Manual Entry'
         }])
         .select()
         .single();
