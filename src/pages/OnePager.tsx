@@ -231,7 +231,7 @@ const OnePager = () => {
       </div>
 
       {/* --- PAGE 2 --- */}
-      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col bg-white shadow-2xl mb-8 print-page print:shadow-none print:my-0">
+      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] h-[297mm] flex flex-col bg-white shadow-2xl mb-8 print-page print:shadow-none print:my-0">
          {/* Header Page 2 */}
          <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
             <img src={logo} alt="Lifetrek Medical" className="h-10" />
@@ -338,12 +338,12 @@ const OnePager = () => {
                    <p className="text-primary-foreground/80 text-sm mb-6 max-w-xs">
                      Agende uma conversa técnica e receba uma proposta personalizada.
                    </p>
-                   <div className="space-y-3">
-                      <a href="mailto:vsmartins@lifetrekmedical.com.br" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
+                     <div className="space-y-3">
+                      <a href="mailto:vsmartins@lifetrek-medical.com" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
                         <div className="bg-white/10 p-2 rounded-lg group-hover:bg-accent-orange group-hover:text-white transition-colors">
                             <Mail className="w-4 h-4" />
                         </div>
-                        <span className="font-medium text-sm">vsmartins@lifetrekmedical.com.br</span>
+                        <span className="font-medium text-sm">vsmartins@lifetrek-medical.com</span>
                       </a>
                       <a href="https://wa.me/5511945336226" target="_blank" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
                          <div className="bg-white/10 p-2 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-colors">
@@ -364,14 +364,17 @@ const OnePager = () => {
                    </div>
                    <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-accent-orange" />
-                      <a href="https://www.lifetrekmedical.com.br" target="_blank" className="hover:underline font-bold text-sm">www.lifetrekmedical.com.br</a>
+                      <a href="https://www.lifetrek-medical.com" target="_blank" className="hover:underline font-bold text-sm">www.lifetrek-medical.com</a>
                    </div>
                 </div>
 
                 <div className="lg:col-span-1 flex flex-col justify-end items-end gap-2 text-right">
                     <div className="flex gap-3">
-                         <a href="https://www.linkedin.com/company/109570674/" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors">
+                         <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors">
                              <Linkedin className="w-5 h-5" />
+                         </a>
+                         <a href="https://facebook.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-blue-600 transition-colors">
+                             <Facebook className="w-5 h-5" />
                          </a>
                          <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors">
                              <Instagram className="w-5 h-5" />
@@ -382,7 +385,7 @@ const OnePager = () => {
          </div>
 
          {/* Footer Page 2 */}
-         <div className="mt-8 pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
+         <div className="mt-auto pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
              <span>© 2026 Lifetrek Medical</span>
              <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
              <span>Página 2/2</span>
