@@ -165,25 +165,26 @@ const OnePager = () => {
               </div>
             </div>
 
-             {/* Certificações */}
+             {/* Contato & Redes */}
              <div>
               <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-accent-orange pl-3">
-                Certificações
+                Conecte-se Conosco
               </h2>
-              <div className="flex gap-6">
-                 <div className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 flex-1">
-                    <div className="text-orange-500"><CheckCircle2 className="w-6 h-6" /></div>
-                    <div>
-                      <div className="font-bold text-slate-900 text-sm">ISO 13485:2016</div>
-                      <div className="text-xs text-slate-500">Gestão da Qualidade</div>
-                    </div>
-                 </div>
-                 <div className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 flex-1">
-                    <div className="text-orange-500"><CheckCircle2 className="w-6 h-6" /></div>
-                    <div>
-                      <div className="font-bold text-slate-900 text-sm">ISO 7 Cleanroom</div>
-                      <div className="text-xs text-slate-500">Sala Limpa</div>
-                    </div>
+              <div className="flex flex-col gap-3">
+                 <a href="https://www.lifetrek-medical.com" target="_blank" className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 hover:border-primary/30 transition-colors group no-underline text-slate-800">
+                    <div className="text-accent-orange bg-white p-1.5 rounded-md shadow-sm group-hover:scale-110 transition-transform"><Globe className="w-5 h-5" /></div>
+                    <span className="font-bold text-sm group-hover:text-primary">www.lifetrek-medical.com</span>
+                 </a>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                    <a href="https://instagram.com/lifetrekmedical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition-colors group no-underline text-slate-700">
+                        <div className="text-pink-600 bg-white p-1 rounded shadow-sm"><Instagram className="w-4 h-4" /></div>
+                        <span className="font-bold text-xs group-hover:text-pink-700">@lifetrekmedical</span>
+                    </a>
+                    <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group no-underline text-slate-700">
+                        <div className="text-blue-700 bg-white p-1 rounded shadow-sm"><Linkedin className="w-4 h-4" /></div>
+                        <span className="font-bold text-xs group-hover:text-blue-800">Lifetrek Medical</span>
+                    </a>
                  </div>
               </div>
             </div>
