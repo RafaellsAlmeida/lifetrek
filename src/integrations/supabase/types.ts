@@ -840,6 +840,81 @@ export type Database = {
         }
         Relationships: []
       }
+      instagram_posts: {
+        Row: {
+          admin_user_id: string
+          ai_generated: boolean | null
+          caption: string
+          created_at: string
+          cta_action: string | null
+          desired_outcome: string | null
+          generation_metadata: Json | null
+          hashtags: string[] | null
+          id: string
+          image_urls: Json | null
+          is_favorite: boolean | null
+          pain_point: string | null
+          post_type: string | null
+          quality_score: number | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          scheduled_date: string | null
+          slides: Json | null
+          status: string | null
+          target_audience: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          admin_user_id: string
+          ai_generated?: boolean | null
+          caption: string
+          created_at?: string
+          cta_action?: string | null
+          desired_outcome?: string | null
+          generation_metadata?: Json | null
+          hashtags?: string[] | null
+          id?: string
+          image_urls?: Json | null
+          is_favorite?: boolean | null
+          pain_point?: string | null
+          post_type?: string | null
+          quality_score?: number | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          scheduled_date?: string | null
+          slides?: Json | null
+          status?: string | null
+          target_audience: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          admin_user_id?: string
+          ai_generated?: boolean | null
+          caption?: string
+          created_at?: string
+          cta_action?: string | null
+          desired_outcome?: string | null
+          generation_metadata?: Json | null
+          hashtags?: string[] | null
+          id?: string
+          image_urls?: Json | null
+          is_favorite?: boolean | null
+          pain_point?: string | null
+          post_type?: string | null
+          quality_score?: number | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          scheduled_date?: string | null
+          slides?: Json | null
+          status?: string | null
+          target_audience?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       linkedin_carousels: {
         Row: {
           admin_user_id: string

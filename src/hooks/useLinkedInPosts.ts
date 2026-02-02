@@ -230,6 +230,17 @@ export function useContentApprovalItems() {
 
                 if (linkedInError) throw linkedInError;
 
+                // Fetch pending/draft Instagram posts
+                const { data: instagramPosts, error: instagramError } = await supabase
+                    .from("instagram_posts")
+                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, hashtags, post_type")
+                    .in("status", ["draft", "pending_approval"])
+                    .order("created_at", { ascending: false });
+
+                if (instagramError) {
+                    console.error("[ContentApproval] Error fetching Instagram posts:", instagramError);
+                }
+
                 // Fetch pending resources
                 const { data: resources, error: resourcesError } = await supabase
                     .from("resources")
@@ -263,6 +274,16 @@ export function useContentApprovalItems() {
                         created_at: carousel.created_at,
                         ai_generated: true,
                         full_data: carousel,
+                    })),
+                    ...(instagramPosts || []).map((post: any) => ({
+                        id: post.id,
+                        type: 'instagram' as const,
+                        title: post.topic,
+                        content_preview: post.caption?.substring(0, 100) || '',
+                        status: post.status,
+                        created_at: post.created_at,
+                        ai_generated: true,
+                        full_data: post,
                     })),
                     ...(resources || []).map((resource: any) => ({
                         id: resource.id,
@@ -310,7 +331,15 @@ export function useRejectedContentItems() {
                 .order("rejected_at", { ascending: false });
 
             if (linkedInError) throw linkedInError;
-            
+
+            const { data: instagramPosts, error: instagramError } = await supabase
+                .from("instagram_posts")
+                .select("id, topic, status, created_at, rejected_at, rejection_reason, target_audience, caption, hashtags")
+                .eq("status", "archived")
+                .order("rejected_at", { ascending: false });
+
+            if (instagramError) console.error("[ContentApproval] Error fetching rejected Instagram:", instagramError);
+
              // Fetch rejected resources
              const { data: resources, error: resourcesError } = await supabase
              .from("resources")
