@@ -1,70 +1,75 @@
-/**
- * Generate voiceover using ElevenLabs API (ESM Version)
- * Usage: node scripts/generate-voiceover.js
- */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// ESM compatibility
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Read API Key from process environment or .env file manually
-let apiKey = process.env.ELEVENLABS_API_KEY;
-
-if (!apiKey) {
-  try {
-    const envPath = path.resolve(__dirname, '../.env');
-    if (fs.existsSync(envPath)) {
-        const envContent = fs.readFileSync(envPath, 'utf8');
-        const match = envContent.match(/ELEVENLABS_API_KEY=(.*)/);
-        if (match && match[1]) {
-            apiKey = match[1].trim().replace(/['"]/g, '');
-            console.log('✅ Found API Key in .env file.');
-        }
+function loadEnv() {
+    try {
+        const envPath = path.resolve(process.cwd(), '.env');
+        if (!fs.existsSync(envPath)) return {};
+        const envFile = fs.readFileSync(envPath, 'utf8');
+        const envVars = {};
+        envFile.split('\n').forEach(line => {
+            const trimmedLine = line.trim();
+            if(!trimmedLine || trimmedLine.startsWith('#')) return;
+            const parts = line.split('=');
+            if (parts.length >= 2) {
+                const key = parts[0].trim();
+                let value = parts.slice(1).join('=').trim();
+                if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+                envVars[key] = value;
+            }
+        });
+        return envVars;
+    } catch (e) {
+        return {};
     }
-  } catch (e) {
-    // ignore
-  }
 }
 
-if (!apiKey) {
-    console.error('❌ ELEVENLABS_API_KEY not found in environment or .env');
-    process.exit(1);
+const env = loadEnv();
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || env.ELEVENLABS_API_KEY;
+
+if (!ELEVENLABS_API_KEY) {
+  console.error('❌ ELEVENLABS_API_KEY not found in .env');
+  process.exit(1);
 }
 
+// Portuguese Brazilian voice - professional male
 const VOICE_ID = 'pqHfZKP75CvOlQylNhV4'; // Bill - deep, professional
 
-// Full storytelling script (~80-90s)
+// Full storytelling script (Condensed for 1:30 video)
 const SCRIPT = `
-Do lado de fora, parece apenas mais uma fábrica.
+Do lado de fora, parece apenas uma fábrica.
 Mas aqui dentro, cada micrômetro importa.
-Um desvio mínimo pode significar uma cirurgia de revisão, uma dor a mais para alguém que já sofreu demais.
+Um desvio mínimo pode comprometer uma cirurgia.
 
-Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes e instrumentais usados todos os dias em hospitais no Brasil e no mundo.
+Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes usados no mundo todo.
 
-Somos certificados ISO 13485 e aprovados pela ANVISA.
-Isso não é só selo em parede: é rastreabilidade, controle e consistência em cada lote que entra e sai das nossas salas limpas.
+Somos ISO 13485 e ANVISA.
+Isso significa rastreabilidade total e controle rigoroso em cada lote que sai das nossas salas limpas.
 
-Em células CNC de última geração, usinamos titânio, PEEK e ligas especiais em tolerâncias de mícron.
-Parafusos pediculares, cages, instrumentais… tudo pensado para resistir a milhões de ciclos de carga sem falhar.
+Em células CNC avançadas, usinamos titânio e PEEK com tolerância de mícron.
+Implantes e instrumentais feitos para resistir.
 
-Nossa metrologia avançada não "confere" a peça.
-Ela documenta cada dimensão crítica, para que seus ensaios de fadiga, suas auditorias e registros regulatórios tenham base sólida.
+Nossa metrologia não só confere a peça.
+Ela documenta cada dimensão crítica para seus registros regulatórios.
 
-Da barra de material à embalagem em sala limpa ISO 7, cada etapa foi desenhada para reduzir seu risco, encurtar seu lead time e liberar capital preso em estoque importado.
+Da matéria-prima à embalagem estéril, reduzimos seu risco e seu lead time.
 
-Por isso, não nos vemos como simples fornecedores.
-Trabalhamos junto com seu P&D e sua Qualidade para otimizar desenhos, validar processos e acelerar lançamentos – sem comprometer a segurança do paciente.
+Não somos apenas fornecedores.
+Trabalhamos com seu P&D para validar processos e acelerar lançamentos.
 
 Lifetrek Medical.
-Precisão, qualidade e parceria para quem leva a sério o impacto de cada componente na vida real.
-Fale com nossa equipe e vamos desenhar o próximo avanço em saúde, juntos.
+Precisão e parceria para quem impacta vidas.
+Fale conosco e vamos criar o futuro da saúde.
 `.trim();
 
 async function generateVoiceover() {
-  console.log('🎙️ Generating voiceover with ElevenLabs (ESM)...');
+  console.log('🎙️ Generating voiceover with ElevenLabs...');
   console.log(`📝 Script length: ${SCRIPT.length} characters`);
 
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
@@ -72,7 +77,7 @@ async function generateVoiceover() {
     headers: {
       'Accept': 'audio/mpeg',
       'Content-Type': 'application/json',
-      'xi-api-key': apiKey,
+      'xi-api-key': ELEVENLABS_API_KEY,
     },
     body: JSON.stringify({
       text: SCRIPT,
@@ -88,27 +93,20 @@ async function generateVoiceover() {
 
   if (!response.ok) {
     const error = await response.text();
-    console.error(`❌ API Error: ${response.status} - ${error}`);
     throw new Error(`ElevenLabs API error: ${response.status} - ${error}`);
   }
 
-  const arrayBuffer = await response.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  
+  const audioBuffer = await response.arrayBuffer();
   // Ensure directory exists
   const outputDir = path.join(__dirname, '../public/remotion');
-  if (!fs.existsSync(outputDir)){
+  if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
   }
-
   const outputPath = path.join(outputDir, 'voiceover.mp3');
 
-  fs.writeFileSync(outputPath, buffer);
+  fs.writeFileSync(outputPath, Buffer.from(audioBuffer));
   console.log(`✅ Voiceover saved to: ${outputPath}`);
-  console.log(`📊 File size: ${(buffer.length / 1024 / 1024).toFixed(2)} MB`);
+  console.log(`📊 File size: ${(audioBuffer.byteLength / 1024 / 1024).toFixed(2)} MB`);
 }
 
-generateVoiceover().catch(err => {
-    console.error(err);
-    process.exit(1);
-});
+generateVoiceover().catch(console.error);

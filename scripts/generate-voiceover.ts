@@ -28,29 +28,29 @@ const VOICE_ID = 'pqHfZKP75CvOlQylNhV4'; // Bill - deep, professional
 // Full storytelling script (~80-90s) - Patient risk → Safety with technical proof
 // Structure: Drone → Factory → Cleanroom → Machines → Impact
 const SCRIPT = `
-Do lado de fora, parece apenas mais uma fábrica.
+Do lado de fora, parece apenas uma fábrica.
 Mas aqui dentro, cada micrômetro importa.
-Um desvio mínimo pode significar uma cirurgia de revisão, uma dor a mais para alguém que já sofreu demais.
+Um desvio mínimo pode comprometer uma cirurgia.
 
-Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes e instrumentais usados todos os dias em hospitais no Brasil e no mundo.
+Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes usados no mundo todo.
 
-Somos certificados ISO 13485 e aprovados pela ANVISA.
-Isso não é só selo em parede: é rastreabilidade, controle e consistência em cada lote que entra e sai das nossas salas limpas.
+Somos ISO 13485 e ANVISA.
+Isso significa rastreabilidade total e controle rigoroso em cada lote que sai das nossas salas limpas.
 
-Em células CNC de última geração, usinamos titânio, PEEK e ligas especiais em tolerâncias de mícron.
-Parafusos pediculares, cages, instrumentais… tudo pensado para resistir a milhões de ciclos de carga sem falhar.
+Em células CNC avançadas, usinamos titânio e PEEK com tolerância de mícron.
+Implantes e instrumentais feitos para resistir.
 
-Nossa metrologia avançada não "confere" a peça.
-Ela documenta cada dimensão crítica, para que seus ensaios de fadiga, suas auditorias e registros regulatórios tenham base sólida.
+Nossa metrologia não só confere a peça.
+Ela documenta cada dimensão crítica para seus registros regulatórios.
 
-Da barra de material à embalagem em sala limpa ISO 7, cada etapa foi desenhada para reduzir seu risco, encurtar seu lead time e liberar capital preso em estoque importado.
+Da matéria-prima à embalagem estéril, reduzimos seu risco e seu lead time.
 
-Por isso, não nos vemos como simples fornecedores.
-Trabalhamos junto com seu P&D e sua Qualidade para otimizar desenhos, validar processos e acelerar lançamentos – sem comprometer a segurança do paciente.
+Não somos apenas fornecedores.
+Trabalhamos com seu P&D para validar processos e acelerar lançamentos.
 
 Lifetrek Medical.
-Precisão, qualidade e parceria para quem leva a sério o impacto de cada componente na vida real.
-Fale com nossa equipe e vamos desenhar o próximo avanço em saúde, juntos.
+Precisão e parceria para quem impacta vidas.
+Fale conosco e vamos criar o futuro da saúde.
 `.trim();
 
 async function generateVoiceover() {
