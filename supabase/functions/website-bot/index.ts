@@ -38,7 +38,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, sessionId } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
@@ -141,6 +141,28 @@ DIRETRIZES:
     const data = await response.json();
     const responseText = data.choices?.[0]?.message?.content || 
       "Desculpe, não consegui processar sua mensagem. Fale com nossa especialista Vanessa: https://wa.me/5511945336226";
+
+    // --- LOGGING ---
+    // sessionId is available from request root
+
+    // Save conversation to DB
+    if (sessionId && sessionId !== 'unknown') {
+        const lastUserMessage = messages[messages.length - 1];
+        if (lastUserMessage && lastUserMessage.role === 'user') {
+            await supabase.from('chatbot_conversations').insert({
+                session_id: sessionId,
+                role: 'user',
+                content: lastUserMessage.content,
+                metadata: { client_ip: clientIp }
+            });
+        }
+
+        await supabase.from('chatbot_conversations').insert({
+            session_id: sessionId,
+            role: 'assistant',
+            content: responseText
+        });
+    }
 
     // Optional: Try to detect and save lead info from conversation
     await tryExtractAndSaveLead(supabase, messages, responseText);

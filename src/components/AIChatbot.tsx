@@ -62,6 +62,9 @@ export const AIChatbot = () => {
     };
   }, [hasAutoOpened, isOpen]);
 
+  // Session ID for conversation tracking
+  const [sessionId] = useState(() => crypto.randomUUID());
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -77,13 +80,17 @@ export const AIChatbot = () => {
         message: input,
         conversationDepth: messages.length,
         isFirstMessage: messages.length === 1,
+        sessionId
       },
     });
 
     try {
       // Use the NEW dedicated 'website-bot' function
       const { data, error } = await supabase.functions.invoke("website-bot", {
-        body: { messages: [...messages, userMessage] },
+        body: { 
+          messages: [...messages, userMessage],
+          sessionId 
+        },
       });
 
       if (error) {

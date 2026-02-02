@@ -65,6 +65,7 @@ export default function ContentApproval() {
     const handleSyncResources = async () => {
         setIsSyncing(true);
         try {
+            console.log("Starting sync...");
             const resources = [
                 {
                     title: 'Guia de Precisão: Metrologia 3D e CNC Swiss',
@@ -90,18 +91,40 @@ export default function ContentApproval() {
                 }
             ];
 
+            let successCount = 0;
+            let errorCount = 0;
+
             for (const resource of resources) {
-                const { error } = await supabase
+                console.log(`Upserting ${resource.slug}...`);
+                const { data, error } = await supabase
                     .from('resources')
-                    .upsert(resource, { onConflict: 'slug' });
-                if (error) throw error;
+                    .upsert(resource, { onConflict: 'slug' })
+                    .select();
+                
+                if (error) {
+                    console.error(`Error inserting ${resource.title}:`, error);
+                    toast.error(`Erro ao inserir ${resource.title}: ${error.message}`);
+                    errorCount++;
+                } else {
+                    console.log(`Success ${resource.title}:`, data);
+                    successCount++;
+                }
             }
             
-            toast.success("Recursos sincronizados com sucesso!");
-            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-        } catch (error) {
-            console.error("Error syncing resources:", error);
-            toast.error("Erro ao sincronizar recursos");
+            if (successCount > 0) {
+                toast.success(`${successCount} recursos sincronizados! Atualizando lista...`);
+                // Force strict invalidate
+                await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+                await queryClient.refetchQueries({ queryKey: ["content_approval_items"] });
+            }
+            
+            if (errorCount > 0) {
+                toast.warning(`${errorCount} falharam. Verifique o console.`);
+            }
+
+        } catch (error: any) {
+            console.error("Critical error syncing resources:", error);
+            toast.error(`Erro crítico: ${error.message}`);
         } finally {
             setIsSyncing(false);
         }
