@@ -46,8 +46,33 @@ const OnePager = () => {
         </Button>
       </div>
 
+      <style>
+        {`
+          @media print {
+            @page { margin: 0; size: A4; }
+            body { background: white; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            /* Hide generic admin layout wrapper padding/margins if any */
+            main { padding: 0 !important; margin: 0 !important; }
+            /* Force exact A4 dimensions */
+            .print-page {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 12mm;
+                page-break-after: always;
+                position: relative;
+                overflow: hidden;
+            }
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+          }
+        `}
+      </style>
+
       {/* --- PAGE 1 --- */}
-      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col relative bg-white page-break-after-always shadow-2xl my-8 print:shadow-none print:my-0 print:p-8">
+      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col relative bg-white shadow-2xl my-8 print-page print:shadow-none print:my-0">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-10 border-b-2 border-primary pb-6">
@@ -206,7 +231,7 @@ const OnePager = () => {
       </div>
 
       {/* --- PAGE 2 --- */}
-      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col bg-white page-break-after-always shadow-2xl mb-8 print:shadow-none print:my-0 print:p-8">
+      <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col bg-white shadow-2xl mb-8 print-page print:shadow-none print:my-0">
          {/* Header Page 2 */}
          <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
             <img src={logo} alt="Lifetrek Medical" className="h-10" />
