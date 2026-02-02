@@ -28,25 +28,25 @@ export const videoStudioPlan = {
   linkedinLine:
     "Um desvio mínimo pode significar uma cirurgia de revisão. Por isso há mais de 30 anos transformamos precisão em segurança para implantes e instrumentais.",
   language: "pt-BR",
-  targetDurationSeconds: 85,
+  targetDurationSeconds: 89,
   tone: "storytelling, patient-focused, technical proof, professional",
   script:
-    "Do lado de fora, parece apenas mais uma fábrica.\n" +
+    "Do lado de fora, parece apenas uma fábrica.\n" +
     "Mas aqui dentro, cada micrômetro importa.\n" +
-    "Um desvio mínimo pode significar uma cirurgia de revisão, uma dor a mais para alguém que já sofreu demais.\n\n" +
-    "Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes e instrumentais usados todos os dias em hospitais no Brasil e no mundo.\n\n" +
-    "Somos certificados ISO 13485 e aprovados pela ANVISA.\n" +
-    "Isso não é só selo em parede: é rastreabilidade, controle e consistência em cada lote que entra e sai das nossas salas limpas.\n\n" +
-    "Em células CNC de última geração, usinamos titânio, PEEK e ligas especiais em tolerâncias de mícron.\n" +
-    "Parafusos pediculares, cages, instrumentais… tudo pensado para resistir a milhões de ciclos de carga sem falhar.\n\n" +
-    "Nossa metrologia avançada não 'confere' a peça.\n" +
-    "Ela documenta cada dimensão crítica, para que seus ensaios de fadiga, suas auditorias e registros regulatórios tenham base sólida.\n\n" +
-    "Da barra de material à embalagem em sala limpa ISO 7, cada etapa foi desenhada para reduzir seu risco, encurtar seu lead time e liberar capital preso em estoque importado.\n\n" +
-    "Por isso, não nos vemos como simples fornecedores.\n" +
-    "Trabalhamos junto com seu P&D e sua Qualidade para otimizar desenhos, validar processos e acelerar lançamentos – sem comprometer a segurança do paciente.\n\n" +
+    "Um desvio mínimo pode comprometer uma cirurgia.\n\n" +
+    "Há mais de 30 anos, a Lifetrek Medical transforma engenharia de precisão em segurança para implantes usados no mundo todo.\n\n" +
+    "Somos ISO 13485 e ANVISA.\n" +
+    "Isso significa rastreabilidade total e controle rigoroso em cada lote que sai das nossas salas limpas.\n\n" +
+    "Em células CNC avançadas, usinamos titânio e PEEK com tolerância de mícron.\n" +
+    "Implantes e instrumentais feitos para resistir.\n\n" +
+    "Nossa metrologia não só confere a peça.\n" +
+    "Ela documenta cada dimensão crítica para seus registros regulatórios.\n\n" +
+    "Da matéria-prima à embalagem estéril, reduzimos seu risco e seu lead time.\n\n" +
+    "Não somos apenas fornecedores.\n" +
+    "Trabalhamos com seu P&D para validar processos e acelerar lançamentos.\n\n" +
     "Lifetrek Medical.\n" +
-    "Precisão, qualidade e parceria para quem leva a sério o impacto de cada componente na vida real.\n" +
-    "Fale com nossa equipe e vamos desenhar o próximo avanço em saúde, juntos.",
+    "Precisão e parceria para quem impacta vidas.\n" +
+    "Fale conosco e vamos criar o futuro da saúde.",
 
   // Scenes aligned with storytelling voiceover (~85 seconds total)
   scenes: [

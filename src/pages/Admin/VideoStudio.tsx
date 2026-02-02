@@ -156,13 +156,13 @@ export default function VideoStudio() {
         <CardHeader>
           <CardTitle>Master Showcase Video</CardTitle>
           <CardDescription>
-            Video institucional renderizado - 70 segundos, 1920x1080, 30fps
+            Video institucional renderizado - 89 segundos, 1920x1080, 30fps
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
             <video
-              src="/remotion/master-showcase-v3.mp4"
+              src="/remotion/master-showcase-v4.mp4"
               controls
               className="h-full w-full"
             >
@@ -170,7 +170,7 @@ export default function VideoStudio() {
             </video>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Badge variant="secondary">Duracao: 70s</Badge>
+            <Badge variant="secondary">Duracao: 89s</Badge>
             <Badge variant="secondary">Resolucao: 1920x1080</Badge>
             <Badge variant="secondary">Codec: H.264</Badge>
             <Badge variant="secondary">Tamanho: 37 MB</Badge>
