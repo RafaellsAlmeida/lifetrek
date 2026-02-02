@@ -20,7 +20,9 @@ import electropolishLine from "@/assets/equipment/electropolish-line-new.png";
 import laserMarking from "@/assets/equipment/laser-marking.webp";
 import zeissContura from "@/assets/metrology/zeiss-contura-new.png";
 
-type EquipmentCategory = "Metrology" | "CNC" | "Sample Prep" | "Finishing";
+import cleanRoomHero from "@/assets/facility/cleanroom-hero.webp";
+
+type EquipmentCategory = "Metrology" | "CNC" | "Sample Prep" | "Finishing" | "Clean Room";
 
 interface EquipmentItem {
   image: string;
@@ -207,13 +209,24 @@ const getEquipmentItems = (t: (key: string) => string): EquipmentItem[] => [
       t("equipment.specs.lab.comprehensive")
     ]
   },
+  { 
+    image: cleanRoomHero, 
+    title: "Sala Limpa ISO 7", 
+    subtitle: "Controle de Partículas e Esterilidade",
+    category: "Clean Room",
+    specs: [
+      "Certificação ISO 14644",
+      "Monitoramento Contínuo",
+      "Fluxo Laminar"
+    ]
+  },
 ];
 
 export const EquipmentCarousel = () => {
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<EquipmentCategory>("CNC");
 
-  const categories: EquipmentCategory[] = ["CNC", "Metrology", "Sample Prep", "Finishing"];
+  const categories: EquipmentCategory[] = ["CNC", "Metrology", "Sample Prep", "Finishing", "Clean Room"];
   const equipmentItems = getEquipmentItems(t);
 
   const filteredItems = equipmentItems.filter(item => item.category === selectedCategory);
@@ -223,7 +236,9 @@ export const EquipmentCarousel = () => {
       "Metrology": t("equipment.category.metrology"),
       "CNC": t("equipment.category.cnc"),
       "Sample Prep": t("equipment.category.sampleprep"),
+      "Sample Prep": t("equipment.category.sampleprep"),
       "Finishing": t("equipment.category.finishing"),
+      "Clean Room": "Sala Limpa",
     };
     return labels[category];
   };

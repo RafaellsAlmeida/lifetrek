@@ -204,7 +204,7 @@ export function useDeleteLinkedInPost() {
     });
 }
 
-// Get content approval items (combines blogs and LinkedIn carousels)
+// Get content approval items (combines blogs, LinkedIn carousels, and resources)
 export function useContentApprovalItems() {
     return useQuery({
         queryKey: ["content_approval_items"],
@@ -219,29 +219,28 @@ export function useContentApprovalItems() {
                     .eq("status", "pending_review")
                     .order("created_at", { ascending: false });
 
-                if (blogsError) {
-                    console.error("[ContentApproval] Error fetching blogs:", blogsError);
-                    throw blogsError;
-                }
-                console.log("[ContentApproval] Blogs fetched:", blogs?.length || 0);
+                if (blogsError) throw blogsError;
 
-                // Fetch draft/pending LinkedIn carousels - ONLY metadata, no slides (too large)
+                // Fetch draft/pending LinkedIn carousels
                 const { data: linkedInCarousels, error: linkedInError } = await supabase
                     .from("linkedin_carousels")
                     .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome")
                     .in("status", ["draft", "pending_approval"])
                     .order("created_at", { ascending: false });
 
-                if (linkedInError) {
-                    console.error("[ContentApproval] Error fetching LinkedIn carousels:", linkedInError);
-                    throw linkedInError;
+                if (linkedInError) throw linkedInError;
+
+                // Fetch pending resources
+                const { data: resources, error: resourcesError } = await supabase
+                    .from("resources")
+                    .select("*")
+                    .eq("status", "pending_approval")
+                    .order("created_at", { ascending: false });
+
+                if (resourcesError) {
+                    console.error("[ContentApproval] Error fetching resources:", resourcesError);
+                    // Don't throw here to avoid blocking other content if resources table issues persist
                 }
-                console.log("[ContentApproval] LinkedIn carousels fetched:", linkedInCarousels?.length || 0);
-
-                // Resources table doesn't exist yet - skip for now
-                const resources: any[] = [];
-                console.log("[ContentApproval] Resources skipped (table not implemented)");
-
 
                 // Combine and format
                 const items = [
@@ -280,7 +279,6 @@ export function useContentApprovalItems() {
                 // Sort by created_at
                 items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-                console.log("[ContentApproval] Total items returned:", items.length);
                 return items;
             } catch (error) {
                 console.error("[ContentApproval] Query failed:", error);
@@ -297,7 +295,6 @@ export function useRejectedContentItems() {
     return useQuery({
         queryKey: ["rejected_content_items"],
         queryFn: async () => {
-            // Fetch rejected blogs
             const { data: blogs, error: blogsError } = await supabase
                 .from("blog_posts")
                 .select("*")
@@ -306,7 +303,6 @@ export function useRejectedContentItems() {
 
             if (blogsError) throw blogsError;
 
-            // Fetch archived LinkedIn carousels - ONLY metadata, no slides
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
                 .select("id, topic, status, created_at, rejected_at, rejection_reason, target_audience, caption")
@@ -314,8 +310,14 @@ export function useRejectedContentItems() {
                 .order("rejected_at", { ascending: false });
 
             if (linkedInError) throw linkedInError;
+            
+             // Fetch rejected resources
+             const { data: resources, error: resourcesError } = await supabase
+             .from("resources")
+             .select("*")
+             .eq("status", "rejected")
+             .order("created_at", { ascending: false });
 
-            // Combine and format
             const items = [
                 ...(blogs || []).map((blog: any) => ({
                     id: blog.id,
@@ -341,14 +343,19 @@ export function useRejectedContentItems() {
                     ai_generated: true,
                     full_data: carousel,
                 })),
+                ...(resources || []).map((resource: any) => ({
+                    id: resource.id,
+                    type: 'resource' as const,
+                    title: resource.title,
+                    content_preview: resource.description || '',
+                    status: resource.status,
+                    created_at: resource.created_at,
+                    rejected_at: resource.updated_at,
+                    rejection_reason: "Rejected by admin", // Resources might need a column for reason
+                    ai_generated: false,
+                    full_data: resource,
+                })),
             ];
-
-            // Sort by rejected_at
-            items.sort((a, b) => {
-                const dateA = a.rejected_at ? new Date(a.rejected_at).getTime() : new Date(a.created_at).getTime();
-                const dateB = b.rejected_at ? new Date(b.rejected_at).getTime() : new Date(b.created_at).getTime();
-                return dateB - dateA;
-            });
 
             return items;
         },
@@ -360,8 +367,7 @@ export function useApprovedContentItems() {
     return useQuery({
         queryKey: ["approved_content_items"],
         queryFn: async () => {
-            // Fetch published blogs
-            const { data: blogs, error: blogsError } = await supabase
+             const { data: blogs, error: blogsError } = await supabase
                 .from("blog_posts")
                 .select("*")
                 .eq("status", "published")
@@ -370,7 +376,6 @@ export function useApprovedContentItems() {
 
             if (blogsError) throw blogsError;
 
-            // Fetch approved LinkedIn carousels - ONLY metadata, no slides
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
                 .select("id, topic, status, created_at, updated_at, target_audience, caption")
@@ -379,8 +384,15 @@ export function useApprovedContentItems() {
                 .limit(50);
 
             if (linkedInError) throw linkedInError;
+            
+             // Fetch approved resources
+             const { data: resources, error: resourcesError } = await supabase
+             .from("resources")
+             .select("*")
+             .in("status", ["approved", "published"])
+             .order("updated_at", { ascending: false })
+             .limit(50);
 
-            // Combine and format
             const items = [
                 ...(blogs || []).map((blog: any) => ({
                     id: blog.id,
@@ -404,9 +416,19 @@ export function useApprovedContentItems() {
                     ai_generated: true,
                     full_data: carousel,
                 })),
+                ...(resources || []).map((resource: any) => ({
+                    id: resource.id,
+                    type: 'resource' as const,
+                    title: resource.title,
+                    content_preview: resource.description || '',
+                    status: resource.status,
+                    created_at: resource.created_at,
+                    approved_at: resource.updated_at,
+                    ai_generated: false,
+                    full_data: resource,
+                })),
             ];
 
-            // Sort by approved_at
             items.sort((a, b) => {
                 const dateA = a.approved_at ? new Date(a.approved_at).getTime() : new Date(a.created_at).getTime();
                 const dateB = b.approved_at ? new Date(b.approved_at).getTime() : new Date(b.created_at).getTime();
@@ -424,13 +446,20 @@ export function useApproveResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            // Resources table doesn't exist yet
-            console.warn("Resources table not implemented yet");
-            return { id };
+            const { data, error } = await supabase
+                .from("resources")
+                .update({ status: "published" }) // Or 'approved' if you have an intermediate step
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-            toast.success("Recurso publicado com sucesso!");
+            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+            toast.success("Recurso aprovado e publicado com sucesso!");
         },
         onError: (error: any) => {
             console.error("Error approving resource:", error);
@@ -439,18 +468,25 @@ export function useApproveResource() {
     });
 }
 
-// Reject Resource - placeholder until resources table exists
+// Reject Resource
 export function useRejectResource() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-            // Resources table doesn't exist yet
-            console.warn("Resources table not implemented yet");
-            return { id, reason };
+             const { data, error } = await supabase
+                .from("resources")
+                .update({ status: "rejected" })
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            queryClient.invalidateQueries({ queryKey: ["rejected_content_items"] });
             toast.success("Recurso rejeitado");
         },
         onError: (error: any) => {

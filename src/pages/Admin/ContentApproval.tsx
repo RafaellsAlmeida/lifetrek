@@ -59,6 +59,53 @@ export default function ContentApproval() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
     const [regenerationLogs, setRegenerationLogs] = useState<string[]>([]);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    // Sync missing resources (Manual trigger)
+    const handleSyncResources = async () => {
+        setIsSyncing(true);
+        try {
+            const resources = [
+                {
+                    title: 'Guia de Precisão: Metrologia 3D e CNC Swiss',
+                    description: 'Como a integração entre tornos suíços de alta performance e inspeção tridimensional garante zero falhas em implantes complexos.',
+                    content: '# Guia de Precisão: Metrologia 3D e CNC Swiss\n\nNa manufatura de dispositivos médicos, a precisão não é apenas um diferencial—é um requisito de sobrevivência. Este guia explora a sinergia entre o torneamento suíço e a metrologia avançada.\n\n## 1. O Papel do CNC Swiss\nTornos como o Citizen M32 e L20 permitem a usinagem de peças extremamente esbeltas com tolerâncias na casa dos microns. A tecnologia LFV (Low Frequency Vibration) é essencial para o controle de cavacos em ligas de titânio.\n\n## 2. Metrologia 3D (Zeiss Contura)\nA inspeção não pode ser um gargalo. O uso de máquinas de medir por coordenadas (CMM) com sensores de escaneamento ativo permite:\n- Verificação de perfis complexos.\n- Rastreabilidade total de cada lote.\n- Integração com software de controle estatístico de processo (CEP).\n\n## 3. Benefícios para o Cliente\n- Redução de lead time em 20%.\n- Garantia de montagem perfeita em sistemas modulares.\n- Documentação técnica completa para auditorias ANVISA/FDA.',
+                    type: 'guide',
+                    persona: 'Engenharia/Qualidade',
+                    thumbnail_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
+                    status: 'pending_approval',
+                    slug: 'guia-metrologia-3d-cnc-swiss',
+                    metadata: { "tags": ["cnc", "metrologia", "qualidade", "3d"], "premium": true }
+                },
+                {
+                    title: 'Guia de Validação de Fadiga',
+                    description: 'Fluxograma e checklist para validar a fadiga de implantes médicos conforme normas ASTM.',
+                    content: '# Guia de Validação de Fadiga para Implantes\n\n## Introdução\nA fadiga é a principal causa de falha em implantes metálicos. Este guia cobre os passos essenciais para validação.\n\n## Checklist\n- [ ] Definição de carga cíclica (ASTM F2077)\n- [ ] Seleção do meio de teste (Salina/Soro)\n- [ ] Análise de superfície pós-teste\n\n## Fluxograma\n1. Design Inicial\n2. FEA (Análise de Elementos Finitos)\n3. Prototipagem\n4. Teste de Bancada\n5. Validação Clínica',
+                    type: 'guide',
+                    persona: 'Engenharia',
+                    thumbnail_url: 'https://images.unsplash.com/photo-1530224264768-7ff8c1789d79?q=80&w=2072&auto=format&fit=crop',
+                    status: 'pending_approval',
+                    slug: 'guia-validacao-fadiga',
+                    metadata: { "tags": ["fadiga", "implantes", "validacao", "astm"], "premium": false }
+                }
+            ];
+
+            for (const resource of resources) {
+                const { error } = await supabase
+                    .from('resources')
+                    .upsert(resource, { onConflict: 'slug' });
+                if (error) throw error;
+            }
+            
+            toast.success("Recursos sincronizados com sucesso!");
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+        } catch (error) {
+            console.error("Error syncing resources:", error);
+            toast.error("Erro ao sincronizar recursos");
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     // Lazy load full carousel data when previewing LinkedIn posts
     const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
@@ -410,6 +457,16 @@ export default function ContentApproval() {
                     <Clock className="h-4 w-4 mr-2" />
                     {allPending.length} pendente(s)
                 </Badge>
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleSyncResources} 
+                    disabled={isSyncing}
+                    className="ml-4 gap-2"
+                >
+                    <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                    Sync Resources
+                </Button>
             </div>
 
             <Tabs defaultValue="all" className="w-full">
