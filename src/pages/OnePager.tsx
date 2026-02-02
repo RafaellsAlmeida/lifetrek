@@ -313,20 +313,7 @@ const OnePager = () => {
              </div>
          </div>
 
-         {/* Logos Row */}
-         <div className="mb-auto">
-             <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-accent-orange pl-3">
-               Quem Confia na Lifetrek
-             </h3>
-             <div className="flex justify-between items-center opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-                 <img src={fgmNew} className="h-8 object-contain" alt="FGM" />
-                 <img src={traumecNew2} className="h-8 object-contain" alt="Traumec" />
-                 <img src={iolNew} className="h-8 object-contain" alt="IOL" />
-                 <img src={cpmhNew} className="h-8 object-contain" alt="CPMH" />
-                 <img src={orthometricNew} className="h-8 object-contain" alt="Orthometric" />
-                 <img src={osseaNew} className="h-8 object-contain" alt="Ossea" />
-             </div>
-         </div>
+
 
          {/* Blue Footer CTA */}
          <div className="mt-8 bg-primary rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
