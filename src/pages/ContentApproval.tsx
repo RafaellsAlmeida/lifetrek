@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  Check, X, Eye, FileText, Linkedin, Sparkles, Clock,
+  Check, X, Eye, FileText, Linkedin, Instagram, Sparkles, Clock,
   ThumbsUp, ThumbsDown, ArrowLeft, Loader2, Archive, CheckCircle, Download, RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +22,11 @@ import {
   usePublishBlogPost,
   useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
+import {
+  useApproveInstagramPost,
+  useRejectInstagramPost,
+  useInstagramPost,
+} from "@/hooks/useInstagramPosts";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -55,6 +60,8 @@ export default function ContentApproval() {
   const { data: approvedItems, isLoading: isLoadingApproved } = useApprovedContentItems();
   const approveLinkedIn = useApproveLinkedInPost();
   const rejectLinkedIn = useRejectLinkedInPost();
+  const approveInstagram = useApproveInstagramPost();
+  const rejectInstagram = useRejectInstagramPost();
   const publishBlog = usePublishBlogPost();
   const updateBlog = useUpdateBlogPost();
 
@@ -69,6 +76,10 @@ export default function ContentApproval() {
   // Lazy load full carousel data when previewing LinkedIn posts
   const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
   const { data: fullCarouselData, isLoading: isLoadingCarousel } = useLinkedInCarouselFull(selectedLinkedInId);
+
+  // Lazy load full Instagram post data when previewing
+  const selectedInstagramId = selectedItem?.type === 'instagram' ? selectedItem.id : null;
+  const { data: fullInstagramData, isLoading: isLoadingInstagram } = useInstagramPost(selectedInstagramId);
 
   // Download carousel as ZIP
   const downloadCarouselAsZip = async (carousel: any) => {
@@ -152,6 +163,8 @@ export default function ContentApproval() {
         await publishBlog.mutateAsync(item.id);
       } else if (item.type === 'linkedin') {
         await approveLinkedIn.mutateAsync(item.id);
+      } else if (item.type === 'instagram') {
+        await approveInstagram.mutateAsync(item.id);
       }
     } catch (error) {
       console.error('Error approving:', error);
@@ -172,6 +185,11 @@ export default function ContentApproval() {
         });
       } else if (selectedItem.type === 'linkedin') {
         await rejectLinkedIn.mutateAsync({
+          id: selectedItem.id,
+          reason: rejectionReason,
+        });
+      } else if (selectedItem.type === 'instagram') {
+        await rejectInstagram.mutateAsync({
           id: selectedItem.id,
           reason: rejectionReason,
         });
@@ -261,6 +279,65 @@ export default function ContentApproval() {
               dangerouslySetInnerHTML={{ __html: blog.content.substring(0, 1000) + '...' }}
             />
           </div>
+        </div>
+      );
+    } else if (selectedItem.type === 'instagram') {
+      if (isLoadingInstagram) {
+        return (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <span className="ml-3 text-muted-foreground">Carregando post...</span>
+          </div>
+        );
+      }
+
+      const post = fullInstagramData || selectedItem.full_data;
+      const hashtags = post?.hashtags || [];
+
+      return (
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-2xl font-bold mb-2">{post?.topic || selectedItem.title}</h3>
+            <div className="flex gap-2 items-center">
+              <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                Instagram
+              </Badge>
+              <Badge variant="outline">{post?.post_type || 'carousel'}</Badge>
+              <Badge variant="secondary" className="gap-1">
+                <Sparkles className="h-3 w-3" />
+                IA
+              </Badge>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
+            <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
+            <p className="text-sm"><strong>Outcome Desejado:</strong> {post?.desired_outcome || 'N/A'}</p>
+            <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
+          </div>
+
+          {post?.caption && (
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-2">Caption Instagram</h4>
+              <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded-md">
+                {post.caption}
+              </p>
+            </div>
+          )}
+
+          {hashtags.length > 0 && (
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-2">Hashtags</h4>
+              <div className="flex flex-wrap gap-1">
+                {hashtags.map((tag: string, idx: number) => (
+                  <Badge key={idx} variant="outline" className="text-xs text-blue-600">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     } else if (selectedItem.type === 'linkedin') {
@@ -358,6 +435,7 @@ export default function ContentApproval() {
 
   const blogItems = items?.filter(i => i.type === 'blog') || [];
   const linkedInItems = items?.filter(i => i.type === 'linkedin') || [];
+  const instagramItems = items?.filter(i => i.type === 'instagram') || [];
   const allPending = items || [];
   const allRejected = rejectedItems || [];
   const allApproved = approvedItems || [];
@@ -384,7 +462,7 @@ export default function ContentApproval() {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-8">
+        <TabsList className="grid w-full grid-cols-6 mb-8">
           <TabsTrigger value="all" className="text-base">
             Pendentes ({allPending.length})
           </TabsTrigger>
@@ -395,6 +473,10 @@ export default function ContentApproval() {
           <TabsTrigger value="linkedin" className="text-base">
             <Linkedin className="h-4 w-4 mr-2" />
             LinkedIn ({linkedInItems.length})
+          </TabsTrigger>
+          <TabsTrigger value="instagram" className="text-base">
+            <Instagram className="h-4 w-4 mr-2" />
+            Instagram ({instagramItems.length})
           </TabsTrigger>
           <TabsTrigger value="approved" className="text-base text-green-600">
             <CheckCircle className="h-4 w-4 mr-2" />
@@ -426,6 +508,8 @@ export default function ContentApproval() {
                       <div className="flex items-center gap-2">
                         {item.type === 'blog' ? (
                           <FileText className="h-5 w-5 text-blue-500" />
+                        ) : item.type === 'instagram' ? (
+                          <Instagram className="h-5 w-5 text-pink-500" />
                         ) : (
                           <Linkedin className="h-5 w-5 text-blue-600" />
                         )}
@@ -615,6 +699,73 @@ export default function ContentApproval() {
           )}
         </TabsContent>
 
+        <TabsContent value="instagram" className="space-y-4">
+          {instagramItems.length === 0 ? (
+            <Card>
+              <CardContent className="py-16 text-center text-muted-foreground">
+                Nenhum post do Instagram pendente de aprovação
+              </CardContent>
+            </Card>
+          ) : (
+            instagramItems.map((item) => (
+              <Card key={item.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
+                        <Instagram className="h-5 w-5 text-pink-500" />
+                        <CardTitle className="text-lg">{item.title}</CardTitle>
+                      </div>
+                      <CardDescription>{item.content_preview}</CardDescription>
+                      <div className="flex gap-2 items-center">
+                        <Badge variant="outline">
+                          {format(new Date(item.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </Badge>
+                        {item.ai_generated && (
+                          <Badge variant="secondary" className="gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            Gerado por IA
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handlePreview(item)}
+                      className="gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Visualizar
+                    </Button>
+                    <Button
+                      variant="default"
+                      onClick={() => handleApprove(item)}
+                      className="gap-2 bg-green-600 hover:bg-green-700"
+                      disabled={approveInstagram.isPending}
+                    >
+                      <ThumbsUp className="h-4 w-4" />
+                      Aprovar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => openRejectDialog(item)}
+                      className="gap-2"
+                      disabled={rejectInstagram.isPending}
+                    >
+                      <ThumbsDown className="h-4 w-4" />
+                      Rejeitar
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+
         <TabsContent value="approved" className="space-y-4">
           {allApproved.length === 0 ? (
             <Card>
@@ -631,6 +782,8 @@ export default function ContentApproval() {
                       <div className="flex items-center gap-2">
                         {item.type === 'blog' ? (
                           <FileText className="h-5 w-5 text-blue-500" />
+                        ) : item.type === 'instagram' ? (
+                          <Instagram className="h-5 w-5 text-pink-500" />
                         ) : (
                           <Linkedin className="h-5 w-5 text-blue-600" />
                         )}
@@ -680,6 +833,8 @@ export default function ContentApproval() {
                       <div className="flex items-center gap-2">
                         {item.type === 'blog' ? (
                           <FileText className="h-5 w-5 text-blue-500" />
+                        ) : item.type === 'instagram' ? (
+                          <Instagram className="h-5 w-5 text-pink-500" />
                         ) : (
                           <Linkedin className="h-5 w-5 text-blue-600" />
                         )}
@@ -733,7 +888,11 @@ export default function ContentApproval() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedItem?.type === "blog" ? "Pré-visualização do Blog" : "Pré-visualização do Post LinkedIn"}
+              {selectedItem?.type === "blog"
+                ? "Pré-visualização do Blog"
+                : selectedItem?.type === "instagram"
+                ? "Pré-visualização do Post Instagram"
+                : "Pré-visualização do Post LinkedIn"}
             </DialogTitle>
             <DialogDescription>
               Revise o conteúdo e, se necessário, regenere as imagens. Os logs da regeneração aparecem abaixo.

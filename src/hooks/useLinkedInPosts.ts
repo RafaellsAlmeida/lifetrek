@@ -372,6 +372,18 @@ export function useRejectedContentItems() {
                     ai_generated: true,
                     full_data: carousel,
                 })),
+                ...(instagramPosts || []).map((post: any) => ({
+                    id: post.id,
+                    type: 'instagram' as const,
+                    title: post.topic,
+                    content_preview: post.caption?.substring(0, 100) || '',
+                    status: post.status,
+                    created_at: post.created_at,
+                    rejected_at: post.rejected_at,
+                    rejection_reason: post.rejection_reason,
+                    ai_generated: true,
+                    full_data: post,
+                })),
                 ...(resources || []).map((resource: any) => ({
                     id: resource.id,
                     type: 'resource' as const,
@@ -380,7 +392,7 @@ export function useRejectedContentItems() {
                     status: resource.status,
                     created_at: resource.created_at,
                     rejected_at: resource.updated_at,
-                    rejection_reason: "Rejected by admin", // Resources might need a column for reason
+                    rejection_reason: "Rejected by admin",
                     ai_generated: false,
                     full_data: resource,
                 })),
@@ -413,7 +425,16 @@ export function useApprovedContentItems() {
                 .limit(50);
 
             if (linkedInError) throw linkedInError;
-            
+
+            const { data: instagramPosts, error: instagramError } = await supabase
+                .from("instagram_posts")
+                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags")
+                .in("status", ["approved", "published"])
+                .order("updated_at", { ascending: false })
+                .limit(50);
+
+            if (instagramError) console.error("[ContentApproval] Error fetching approved Instagram:", instagramError);
+
              // Fetch approved resources
              const { data: resources, error: resourcesError } = await supabase
              .from("resources")
@@ -444,6 +465,17 @@ export function useApprovedContentItems() {
                     approved_at: carousel.updated_at,
                     ai_generated: true,
                     full_data: carousel,
+                })),
+                ...(instagramPosts || []).map((post: any) => ({
+                    id: post.id,
+                    type: 'instagram' as const,
+                    title: post.topic,
+                    content_preview: post.caption?.substring(0, 100) || '',
+                    status: post.status,
+                    created_at: post.created_at,
+                    approved_at: post.updated_at,
+                    ai_generated: true,
+                    full_data: post,
                 })),
                 ...(resources || []).map((resource: any) => ({
                     id: resource.id,
