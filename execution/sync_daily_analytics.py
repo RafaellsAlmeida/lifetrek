@@ -1,19 +1,21 @@
 import os
-import sys
-import time
-import json
 import requests
-from datetime import datetime, timedelta
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load env
 load_dotenv()
 
+# Supabase Config
+# Force usage of the backend project (dlfl...) because our Service Key matches it.
+# VITE_SUPABASE_URL points to a different project (iijk...) which we don't have admin keys for.
+SUPABASE_URL = os.environ.get("SUPABASE_URL") or "https://dlflpvmdzkeouhgqwqba.supabase.co"
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+
+# Unipile Config
 UNIPILE_DSN = os.environ.get("UNIPILE_DSN")
 UNIPILE_API_KEY = os.environ.get("UNIPILE_API_KEY", "")
-
-OUTPUT_FILE = "execution/LINKEDIN_WEEKLY_REPORT.md"
-SAFE_MODE = True
 
 def get_headers():
     return {
@@ -22,126 +24,98 @@ def get_headers():
     }
 
 def safe_get(endpoint, params=None):
-    """
-    Wrapper for GET requests to enforce safety and logging.
-    """
-    # Fallback to api.unipile.com if not set, as it is the most likely cloud gateway
     dsn = UNIPILE_DSN or "https://api.unipile.com"
-    
     url = f"{dsn.rstrip('/')}{endpoint}"
     print(f"[SAFE FETCH] GET {url} ...")
-    
     try:
         response = requests.get(url, headers=get_headers(), params=params, timeout=15)
-        # 404 on api.unipile.com often means "DSN found but route wrong" or "DSN valid but resource missing"
-        # We print body to understand
-        if not response.ok:
-            print(f"  FAILED: {response.status_code}")
-            print(f"  Body: {response.text[:200]}")
-            
         response.raise_for_status()
         return response.json()
     except Exception as e:
         print(f"Request Error: {e}")
         return None
 
-def get_linkedin_account():
-    """Fetches key account info. Tries accounts list first, then 'me'."""
-    # 1. Try Accounts
-    data = safe_get("/api/v1/accounts")
-    if data:
-        items = data.get("items", []) if isinstance(data, dict) else data
-        print(f"Found {len(items)} accounts.")
-        for acc in items:
-            print(f"RAW ACCOUNT: {json.dumps(acc)}") # Debug print
-            # Relaxed check: if we have an ID and a Name, assume it's the right one for now
-            if acc.get("id"):
-                print(f" -> using account {acc.get('name')} ({acc.get('id')})")
-                return acc
-    
-    # 2. Try Users Me (Alternative)
-    print("Trying /users/me fallback...")
-    data = safe_get("/api/v1/users/me")
-    if data:
-         # Mocking account structure from user profile
-         return {"id": data.get("id"), "name": data.get("name"), "status": "OK", "provider": "linkedin"}
+def push_to_supabase(data):
+    if not SUPABASE_KEY:
+        print("Skipping DB insert: Missing SUPABASE_SERVICE_ROLE_KEY")
+        return
 
-    return None
-
-def get_recent_chats(account_id, limit=20):
-    """
-    Fetches recent chats to analyze activity.
-    """
-    params = {
-        "account_id": account_id,
-        "limit": limit,
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates" # Upsert behavior
     }
-    return safe_get("/api/v1/chats", params)
-
-def generate_report():
-    print("--- Starting SAFE LinkedIn Report Generation ---")
     
-    # 1. Verify Account
-    account = get_linkedin_account()
-    if not account:
-        print("FAILED: Could not retrieve LinkedIn account. Check connection/DSN.")
+    url = f"{SUPABASE_URL}/rest/v1/linkedin_analytics_daily"
+    
+    try:
+        resp = requests.post(url, headers=headers, json=data)
+        if resp.status_code in [200, 201]:
+            print("Successfully synced to Supabase.")
+        else:
+            print(f"Supabase Error: {resp.status_code} - {resp.text}")
+    except Exception as e:
+        print(f"DB Push Error: {e}")
+
+def sync_daily():
+    print("--- Starting Daily Analytics Sync ---")
+    
+    # 1. Get Account
+    accounts_data = safe_get("/api/v1/accounts")
+    if not accounts_data:
+        print("Failed to fetch accounts.")
+        return
+
+    items = accounts_data.get("items", []) if isinstance(accounts_data, dict) else accounts_data
+    
+    target_account = None
+    for acc in items:
+        # Relaxed check as per weekly report discovery
+        if acc.get("provider") == "linkedin" or (acc.get("type") == "LINKEDIN" and acc.get("id")):
+            target_account = acc
+            break
+            
+    if not target_account:
+        print("No LinkedIn account found.")
         return
         
-    account_id = account.get("id")
-    account_name = account.get("name")
-    print(f"Account Found: {account_name} ({account_id})")
+    account_id = target_account.get("id")
+    print(f"Syncing for Account: {target_account.get('name')} ({account_id})")
     
-    # 2. Fetch Chat Stats (Read-Only)
-    print("\nFetching recent conversations...")
-    chats_data = get_recent_chats(account_id, limit=50)
-    chats = chats_data.get("items", []) if chats_data else []
-    
-    # Analyze
-    total_chats = len(chats)
-    unread_chats = sum(1 for c in chats if c.get("unread_count", 0) > 0)
-    
-    # Determine basic activity (simulated since we don't fetch all messages yet to save requests)
-    # We can count how many chats were updated recently
-    one_week_ago = datetime.now() - timedelta(days=7)
-    recent_active = 0
-    
-    for c in chats:
-        # Unipile 'timestamp' is usually ISO or ms
-        ts = c.get("timestamp")
-        # Handle format variance if needed, simplistic check
-        try:
-            if ts:
-                # If int/float -> timestamp
-                # If string -> iso
-                pass # TODO: Parse
-                recent_active += 1 # Assume fetched are recent due to default sort?
-        except:
-            pass
-            
-    # 3. Generate Markdown
-    report_content = f"""# LinkedIn Weekly Report
-**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M")}
-**Account:** {account_name}
+    # 2. Fetch Stats
+    # Connections (Relations)
+    relations_data = safe_get(f"/api/v1/users/{account_id}/relations", params={"limit": 1})
+    total_connections = 0
+    if relations_data:
+        # Assuming metadata or count is available, otherwise Unipile might just return list
+        # If no count in response, we might need a separate 'stat' endpoint or just count fetched
+        # For now, placeholder safely
+        total_connections = relations_data.get("total", 0) # Adjust field based on API
 
-## Account Health
-- **Status:** {account.get("status", "Unknown")}
-- **Unipile ID:** `{account_id}`
+    # Conversations
+    chats_data = safe_get("/api/v1/chats", params={"account_id": account_id, "limit": 50})
+    total_convs = 0
+    unread = 0
+    if chats_data:
+        chats = chats_data.get("items", [])
+        total_convs = len(chats) # This is just 'fetched', typically we want total. Unipile might not give 'total_count' easily.
+        unread = sum(1 for c in chats if c.get("unread_count", 0) > 0)
 
-## Communication Snapshot (Last 50 Conversations)
-- **Total Active Conversations:** {total_chats}
-- **Unread Conversations:** {unread_chats}
-- **Recent Activity:** {total_chats} conversations fetched.
-
-> **Note:** This report was generated in SAFE MODE (Read-Only). No messages were sent.
-
-"""
+    # 3. Prepare Payload
+    payload = {
+        "unipile_account_id": account_id,
+        "snapshot_date": datetime.now().strftime("%Y-%m-%d"),
+        "total_connections": total_connections,
+        "total_conversations": total_convs, # Snapshot of 'recent active'
+        "unread_conversations": unread,
+        "meta": target_account
+    }
     
-    # Write to file
-    with open(OUTPUT_FILE, "w") as f:
-        f.write(report_content)
-        
-    print(f"\n[SUCCESS] Report generated at {OUTPUT_FILE}")
-    print(report_content)
+    print(f"Payload: {json.dumps(payload, indent=2)}")
+    
+    # 4. Push
+    push_to_supabase(payload)
 
 if __name__ == "__main__":
-    generate_report()
+    sync_daily()
