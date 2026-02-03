@@ -26,6 +26,7 @@ import {
     X,
     Zap,
     TrendingUp,
+    Inbox,
     type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -72,6 +73,7 @@ type NavEntry = NavItem | NavGroup;
 
 const navStructure: NavEntry[] = [
     { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/admin/inbox", label: "Inbox", icon: Inbox },
     {
         label: "Conteúdo",
         icon: FileText,

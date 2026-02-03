@@ -1,20 +1,105 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageSquare, 
   Search, 
   Filter, 
-  Inbox
+  Inbox,
+  Send,
+  Loader2,
+  MoreVertical,
+  Phone,
+  Video
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+
+type Chat = {
+  id: string;
+  name: string;
+  unread_count: number;
+  last_message_at: string;
+  timestamp: string;
+  items: Array<{
+    text: string;
+    sender_id: string;
+  }>;
+  attendees: Array<{
+    id: string;
+    name: string;
+    picture_url?: string;
+    provider_id: string;
+  }>;
+};
+
+type Message = {
+  id: string;
+  text: string;
+  sender_id: string;
+  created_at: string;
+  attachments?: any[];
+};
 
 export default function UnifiedInbox() {
   const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('active');
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [newMessage, setNewMessage] = useState("");
+
+  // Fetch Chats
+  const { data: chats, isLoading: isLoadingChats, error: chatsError } = useQuery({
+    queryKey: ['linkedin-chats'],
+    queryFn: async () => {
+      console.log("Fetching chats...");
+      const { data, error } = await supabase.functions.invoke('fetch-linkedin-inbox', {
+        body: { action: 'list_chats' }
+      });
+      if (error) throw error;
+      return (data?.items || []) as Chat[];
+    },
+    retry: 1
+  });
+
+  // Fetch Messages for selected chat
+  const { data: messages, isLoading: isLoadingMessages } = useQuery({
+    queryKey: ['linkedin-messages', selectedChatId],
+    queryFn: async () => {
+      if (!selectedChatId) return [];
+      console.log("Fetching messages for", selectedChatId);
+      const { data, error } = await supabase.functions.invoke('fetch-linkedin-inbox', {
+        body: { action: 'get_messages', chat_id: selectedChatId }
+      });
+      if (error) throw error;
+      // Messages often come in reverse chronological order
+      return (data?.items || []).reverse() as Message[];
+    },
+    enabled: !!selectedChatId
+  });
+
+  const selectedChat = chats?.find(c => c.id === selectedChatId);
+
+  const getOtherAttendee = (chat: Chat) => {
+    // Usually the other person is the first one who isn't "me" (but we don't know "me" easily without context)
+    // Unipile attendees usually include the account owner. 
+    // For now, take the first one that has a name if possible, or just the first one.
+    return chat.attendees[0]; 
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedChatId) return;
+    // TODO: Implement send message via Edge Function
+    console.log("Sending message:", newMessage);
+    setNewMessage("");
+  };
 
   return (
-    <div className="flex h-[600px] border border-slate-200 rounded-lg bg-white overflow-hidden">
+    <div className="flex h-[600px] border border-slate-200 rounded-lg bg-white overflow-hidden shadow-sm">
       {/* Sidebar - Thread List */}
       <div className="w-1/3 border-r border-slate-200 flex flex-col min-w-[300px] bg-slate-50/50">
         <div className="p-3 border-b border-slate-200 space-y-3">
@@ -44,26 +129,159 @@ export default function UnifiedInbox() {
         
         <ScrollArea className="flex-1 bg-white">
           <div className="flex flex-col">
-            <div className="p-8 text-center text-slate-400 flex flex-col items-center gap-2">
-              <Inbox className="h-8 w-8 opacity-20" />
-              <span className="text-xs">Inbox em desenvolvimento</span>
-              <p className="text-[10px] text-slate-400 max-w-[200px]">
-                A integração com conversas será habilitada em breve.
-              </p>
-            </div>
+            {isLoadingChats ? (
+              <div className="p-4 space-y-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                       <Skeleton className="h-3 w-3/4" />
+                       <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : chatsError ? (
+              <div className="p-8 text-center text-red-500 text-xs">
+                Erro ao carregar chats via Unipile.
+                <br/>Verifique a Edge Function.
+              </div>
+            ) : chats?.length === 0 ? (
+               <div className="p-8 text-center text-slate-400 flex flex-col items-center gap-2">
+                <Inbox className="h-8 w-8 opacity-20" />
+                <span className="text-xs">Nenhuma conversa encontrada</span>
+              </div>
+            ) : (
+              chats?.map(chat => {
+                const attendee = getOtherAttendee(chat);
+                const lastMsg = chat.items?.[0]?.text || "No interactions yet";
+                const time = chat.last_message_at || chat.timestamp;
+                
+                return (
+                  <div 
+                    key={chat.id}
+                    onClick={() => setSelectedChatId(chat.id)}
+                    className={`flex gap-3 p-3 cursor-pointer hover:bg-slate-50 transition-colors border-b border-slate-50 ${selectedChatId === chat.id ? 'bg-indigo-50/50 hover:bg-indigo-50/80' : ''}`}
+                  >
+                    <Avatar className="h-9 w-9 border border-slate-100">
+                      <AvatarImage src={attendee?.picture_url} />
+                      <AvatarFallback className="text-[10px] bg-indigo-100 text-indigo-700">
+                        {attendee?.name?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-baseline mb-0.5">
+                        <span className={`text-xs truncate ${chat.unread_count > 0 ? 'font-semibold text-slate-800' : 'font-medium text-slate-700'}`}>
+                          {attendee?.name || "Unknown User"}
+                        </span>
+                        {time && (
+                          <span className="text-[10px] text-slate-400 shrink-0">
+                            {format(new Date(time), 'MMM d')}
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[11px] truncate ${chat.unread_count > 0 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                        {lastMsg}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </ScrollArea>
       </div>
 
       {/* Main Content - Chat Area */}
       <div className="flex-1 flex flex-col bg-white">
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/30">
-          <div className="p-4 rounded-full bg-slate-100 mb-4 text-slate-300">
-            <MessageSquare className="h-8 w-8" />
+        {selectedChat ? (
+          <>
+            {/* Chat Header */}
+            <div className="h-14 border-b border-slate-200 flex items-center justify-between px-4 bg-white/50 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-8 w-8 border border-slate-100">
+                  <AvatarImage src={getOtherAttendee(selectedChat)?.picture_url} />
+                  <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs">
+                    {getOtherAttendee(selectedChat)?.name?.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-sm font-medium text-slate-700">
+                    {getOtherAttendee(selectedChat)?.name}
+                  </h3>
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                    <span className="text-[10px] text-slate-400">LinkedIn</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                   <Phone className="h-4 w-4" />
+                 </Button>
+                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                   <Video className="h-4 w-4" />
+                 </Button>
+                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                   <MoreVertical className="h-4 w-4" />
+                 </Button>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <ScrollArea className="flex-1 bg-slate-50/30 p-4">
+              <div className="space-y-4">
+                {isLoadingMessages ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
+                  </div>
+                ) : (
+                  messages?.map(msg => {
+                    // Primitive check for "me" vs "them" - in real app, check sender_id against current user's provider_id
+                    // For now, let's assume if it aligns with selectedChat.items[0].sender_id, it might be them? 
+                    // Actually, Unipile usually differentiates. Let's just style them alternating for now or based on ID comparison if we knew "me" ID.
+                    // We'll style all as "received" for safety unless we know for sure.
+                    const isMe = false; // TODO: Determine "me"
+                    
+                    return (
+                      <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[70%] rounded-lg p-3 text-sm ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 shadow-sm text-slate-700 rounded-tl-none'}`}>
+                          <p>{msg.text}</p>
+                          <span className={`text-[9px] mt-1 block ${isMe ? 'text-indigo-200' : 'text-slate-300'}`}>
+                            {format(new Date(msg.created_at), 'HH:mm')}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </ScrollArea>
+
+            {/* Chat Input */}
+            <div className="p-3 border-t border-slate-200 bg-white">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input 
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..." 
+                  className="flex-1 h-9 bg-slate-50 border-slate-200 focus-visible:ring-indigo-500"
+                />
+                <Button type="submit" size="sm" className="h-9 px-3 bg-indigo-600 hover:bg-indigo-700">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/30">
+            <div className="p-4 rounded-full bg-slate-100 mb-4 text-slate-300">
+              <MessageSquare className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-medium text-slate-600">Inbox Unificado</h3>
+            <p className="text-xs text-slate-400 mt-1">Selecione uma conversa para iniciar</p>
           </div>
-          <h3 className="text-sm font-medium text-slate-600">Inbox Unificado</h3>
-          <p className="text-xs text-slate-400 mt-1">Em breve: LinkedIn, WhatsApp, Email</p>
-        </div>
+        )}
       </div>
     </div>
   );
