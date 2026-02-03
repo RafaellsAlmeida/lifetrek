@@ -1,35 +1,49 @@
 // supabase/functions/website-bot/index.ts
-// Simplified Website Chatbot - Production Ready
-// Uses Lovable AI Gateway for fast, reliable responses
+// Website Chatbot with RAG (Vector Search) + Lead Collection
+// Uses OpenRouter with Gemini Flash + text-embedding-3-small
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Simple in-memory rate limiting (per function instance)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 15;
+const rateLimitMap = new Map();
 
-function checkRateLimit(clientId: string): boolean {
+function checkRateLimit(id: string): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(clientId);
-
+  const entry = rateLimitMap.get(id);
   if (!entry || now > entry.resetTime) {
-    rateLimitMap.set(clientId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    rateLimitMap.set(id, { count: 1, resetTime: now + 60000 });
     return true;
   }
-
-  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
-    return false;
-  }
-
+  if (entry.count >= 20) return false;
   entry.count++;
   return true;
+}
+
+function extractContact(text: string) {
+  const result: any = {};
+  const email = text.match(/[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i);
+  if (email) result.email = email[0].toLowerCase();
+  const phone = text.match(/\d{10,11}/);
+  if (phone) result.phone = phone[0];
+  const name = text.match(/(?:chamo|nome|sou)\s+([A-Z][a-z]+)/i);
+  if (name) result.name = name[1];
+  return result;
+}
+
+function detectInterest(text: string): string {
+  const t = text.toLowerCase();
+  if (t.includes('orcamento') || t.includes('preco')) return 'Orcamento';
+  if (t.includes('dental')) return 'Dental';
+  if (t.includes('ortoped')) return 'Ortopedia';
+  if (t.includes('veterinar')) return 'Veterinario';
+  if (t.includes('certificac') || t.includes('iso')) return 'Certificacoes';
+  if (t.includes('material') || t.includes('titanio')) return 'Materiais';
+  return 'Geral';
 }
 
 serve(async (req) => {
@@ -41,186 +55,166 @@ serve(async (req) => {
     const { messages, sessionId } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid request: messages array required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "messages required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    // Rate limit by IP or fallback identifier
-    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
-    if (!checkRateLimit(clientIp)) {
-      return new Response(
-        JSON.stringify({ error: "Muitas mensagens. Aguarde um momento e tente novamente." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const ip = req.headers.get("x-forwarded-for") || "anon";
+    if (!checkRateLimit(ip)) {
+      return new Response(JSON.stringify({ error: "Rate limited" }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY not configured");
-      throw new Error("AI service not configured");
+    const apiKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "API key missing" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    // System prompt for Julia - Lifetrek Website Assistant
-    const systemPrompt = `Você é a Julia, assistente virtual da Lifetrek Medical.
-Seu papel é ajudar visitantes do site com dúvidas sobre fabricação de dispositivos médicos.
+    const allUserText = messages.filter((m: any) => m.role === "user").map((m: any) => m.content).join(" ");
+    const contact = extractContact(allUserText);
+    const interest = detectInterest(allUserText);
+    const msgCount = messages.filter((m: any) => m.role === "user").length;
+    const askContact = msgCount >= 3 && !contact.email && !contact.phone;
 
-SOBRE A LIFETREK:
-- Fabricação: Implantes ortopédicos, dentários, veterinários e instrumentais cirúrgicos
-- Certificações: ISO 13485:2016, registro ANVISA, BPF
-- Materiais: Titânio Grau 5 (Ti6Al4V), PEEK, Aço Inox 316L, Cobalto-Cromo
-- Infraestrutura: CNC 5-eixos, tornos Swiss-Type, 2 Salas Limpas ISO 7, CMM ZEISS 3D
-- Capacidades: Tolerâncias de ±0.005mm, tratamento de superfície, passivação, anodização
-- Clientes: OEMs, hospitais, distribuidores B2B
+    // RAG: Get relevant knowledge base content using vector search
+    let ragContext = "";
+    const lastUserMsg = messages.filter((m: any) => m.role === "user").pop()?.content || "";
 
-CONTATO HUMANO:
-Se o usuário quiser falar com um especialista ou solicitar orçamento:
-"Para falar diretamente com nossa especialista Vanessa, por favor clique no **botão verde com ícone do WhatsApp** que aparece no canto inferior direito, ao lado do botão de enviar."
+    if (lastUserMsg.length > 5) {
+      try {
+        // Generate embedding for user query
+        const embResponse = await fetch("https://openrouter.ai/api/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://lifetrek.com.br"
+          },
+          body: JSON.stringify({
+            model: "openai/text-embedding-3-small",
+            input: lastUserMsg
+          })
+        });
 
-CAPTURA DE LEADS:
-Se o usuário fornecer informações de contato (nome, email, telefone, empresa):
-- Agradeça cordialmente
-- Confirme que um especialista entrará em contato em breve
-- Se possível, pergunte sobre o tipo de projeto/necessidade
+        if (embResponse.ok) {
+          const embData = await embResponse.json();
+          const queryEmbedding = embData.data?.[0]?.embedding;
 
-DIRETRIZES:
-1. Seja profissional, breve e amigável
-2. Responda em português brasileiro
-3. Para dúvidas técnicas específicas, ofereça conectar com Vanessa
-4. NÃO gere conteúdo de marketing (posts, carrosséis) - isso não é sua função
-5. NÃO invente especificações técnicas - se não souber, ofereça contato humano
-6. Mantenha respostas concisas (máximo 3-4 frases quando possível)`;
+          if (queryEmbedding) {
+            // Search knowledge base using vector similarity
+            const { data: kbResults, error: kbError } = await supabase.rpc("match_knowledge_base", {
+              query_embedding: queryEmbedding,
+              match_count: 3,
+              match_threshold: 0.3
+            });
 
-    // Call Lovable AI Gateway
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            if (!kbError && kbResults && kbResults.length > 0) {
+              ragContext = "\n\nInformacoes relevantes da base de conhecimento:\n" +
+                kbResults.map((r: any) => `- [${r.source_type || 'info'}]: ${r.content?.slice(0, 400)}`).join("\n");
+              console.log("RAG context found:", kbResults.length, "results, similarity:", kbResults[0]?.similarity);
+            }
+          }
+        }
+      } catch (ragError) {
+        console.error("RAG error:", ragError);
+      }
+    }
+
+    const system = `Voce e Julia, assistente da Lifetrek Medical.
+
+Lifetrek fabrica implantes ortopedicos, dentarios, veterinarios e instrumentais cirurgicos.
+Certificacoes: ISO 13485, ANVISA, BPF.
+Materiais: Titanio Ti6Al4V, PEEK, Aco Inox 316L, Cobalto-Cromo.
+Infraestrutura: CNC 5-eixos, tornos Swiss-Type, Salas Limpas ISO 7.
+Local: Indaiatuba/SP, Brasil.
+${ragContext}
+
+Regras:
+- Responda em portugues, maximo 3 frases
+- Para orcamentos, indique WhatsApp (botao verde no canto)
+- Nao invente dados tecnicos
+- Use as informacoes da base de conhecimento quando relevantes
+${askContact ? "- Pergunte naturalmente o nome ou contato da pessoa" : ""}`;
+
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json"
+        "Authorization": "Bearer " + apiKey,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://lifetrek.com.br"
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages.map((m: { role: string; content: string }) => ({
-            role: m.role,
-            content: m.content
-          }))
-        ],
+        model: "google/gemini-2.0-flash-001",
+        messages: [{ role: "system", content: system }, ...messages],
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: 300
       })
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
-
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Serviço temporariamente ocupado. Tente novamente em breve." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Serviço indisponível no momento." }),
-          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      throw new Error(`AI service error: ${response.status}`);
+    if (!aiRes.ok) {
+      const err = await aiRes.text();
+      return new Response(JSON.stringify({ error: "AI error", detail: err }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    const data = await response.json();
-    const responseText = data.choices?.[0]?.message?.content || 
-      "Desculpe, não consegui processar sua mensagem. Fale com nossa especialista Vanessa: https://wa.me/5511945336226";
+    const data = await aiRes.json();
+    const reply = data.choices?.[0]?.message?.content || "Desculpe, erro. Use WhatsApp.";
 
-    // --- LOGGING ---
-    // sessionId is available from request root
+    // Save conversation
+    const sid = sessionId || "anon-" + Date.now();
+    const lastMsg = messages[messages.length - 1];
 
-    // Save conversation to DB
-    if (sessionId && sessionId !== 'unknown') {
-        const lastUserMessage = messages[messages.length - 1];
-        if (lastUserMessage && lastUserMessage.role === 'user') {
-            await supabase.from('chatbot_conversations').insert({
-                session_id: sessionId,
-                role: 'user',
-                content: lastUserMessage.content,
-                metadata: { client_ip: clientIp }
-            });
-        }
-
-        await supabase.from('chatbot_conversations').insert({
-            session_id: sessionId,
-            role: 'assistant',
-            content: responseText
-        });
+    if (lastMsg?.role === "user") {
+      supabase.from("chatbot_conversations").insert({
+        session_id: sid,
+        role: "user",
+        content: lastMsg.content,
+        metadata: { ip, source: "chatbot" },
+        detected_name: contact.name,
+        detected_email: contact.email,
+        detected_phone: contact.phone,
+        detected_interest: interest
+      }).then(() => {}).catch((e) => console.error("Save error:", e));
     }
 
-    // Optional: Try to detect and save lead info from conversation
-    await tryExtractAndSaveLead(supabase, messages, responseText);
+    supabase.from("chatbot_conversations").insert({
+      session_id: sid,
+      role: "assistant",
+      content: reply,
+      metadata: { model: "gemini-flash", rag_used: ragContext.length > 0, rag_context_len: ragContext.length }
+    }).then(() => {}).catch((e) => console.error("Save error:", e));
 
-    return new Response(
-      JSON.stringify({ response: responseText }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // Create lead if contact found
+    if (contact.email || contact.phone) {
+      supabase.from("contact_leads").insert({
+        source: "website",
+        name: contact.name || "Lead Chatbot",
+        email: contact.email || "chatbot" + Date.now() + "@placeholder.lifetrek.com.br",
+        phone: contact.phone || "Nao informado",
+        project_type: interest,
+        business_challenges: "Capturado via chatbot do site",
+        message: allUserText.slice(0, 500)
+      }).then(() => console.log("Lead saved:", contact.email))
+        .catch((e) => console.error("Lead error:", e));
+    }
 
-  } catch (error) {
-    console.error("Website Bot Error:", error);
-    return new Response(
-      JSON.stringify({ 
-        error: "Desculpe, ocorreu um erro. Fale com nossa especialista Vanessa: https://wa.me/5511945336226" 
-      }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ response: reply }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: "Internal error", debug: e.message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 });
-
-// Helper function to extract potential lead info from conversation
-async function tryExtractAndSaveLead(
-  supabase: any,
-  messages: Array<{ role: string; content: string }>,
-  aiResponse: string
-): Promise<void> {
-  try {
-    // Simple regex patterns for contact info
-    const emailPattern = /[\w.-]+@[\w.-]+\.\w+/i;
-    const phonePattern = /(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?\d{4,5}[-\s]?\d{4}/;
-
-    // Check all user messages for contact info
-    const userMessages = messages.filter(m => m.role === "user").map(m => m.content).join(" ");
-    
-    const emailMatch = userMessages.match(emailPattern);
-    const phoneMatch = userMessages.match(phonePattern);
-
-    // Only save if we found at least email or phone
-    if (emailMatch || phoneMatch) {
-      const leadData: any = {
-        source: "website_chatbot",
-        email: emailMatch?.[0] || "nao_informado@placeholder.com",
-        phone: phoneMatch?.[0] || "Não informado",
-        name: "Lead via Chatbot",
-        project_type: "Consulta via Chat",
-        technical_requirements: userMessages.slice(0, 500),
-      };
-
-      const { error } = await supabase.from("contact_leads").insert(leadData);
-      
-      if (error) {
-        console.warn("Could not save lead (non-blocking):", error.message);
-      } else {
-        console.log("✅ Lead captured from chatbot");
-      }
-    }
-  } catch (e) {
-    // Non-blocking - don't fail the chat if lead capture fails
-    console.warn("Lead extraction failed (non-blocking):", e);
-  }
-}

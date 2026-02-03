@@ -41,10 +41,10 @@ class UnipileUniqueManager:
             "providers": ["linkedin"],
             "api_url": self.dsn,
             "expiresOn": "2030-01-01T00:00:00.000Z", # Long expiry for convenience
-            "notify_url": "https://lifetrek.medical.com/webhook/unipile_callback", # Placeholder
+            "notify_url": "https://lifetrek-medical.com/webhook/unipile_callback", # Placeholder
             "name": f"Connect LinkedIn for {user_id}",
-            "success_redirect_url": "https://lifetrek.medical.com/admin/settings?success=true",
-            "failure_redirect_url": "https://lifetrek.medical.com/admin/settings?error=true"
+            "success_redirect_url": "https://lifetrek-medical.com/admin/settings?success=true",
+            "failure_redirect_url": "https://lifetrek-medical.com/admin/settings?error=true"
         }
 
         if self.safe_mode:

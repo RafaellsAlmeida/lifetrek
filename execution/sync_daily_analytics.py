@@ -84,14 +84,12 @@ def sync_daily():
     print(f"Syncing for Account: {target_account.get('name')} ({account_id})")
     
     # 2. Fetch Stats
-    # Connections (Relations)
-    relations_data = safe_get(f"/api/v1/users/{account_id}/relations", params={"limit": 1})
+    # Connections (Relations) - CORRECT ENDPOINT PATH
     total_connections = 0
-    if relations_data:
-        # Assuming metadata or count is available, otherwise Unipile might just return list
-        # If no count in response, we might need a separate 'stat' endpoint or just count fetched
-        # For now, placeholder safely
-        total_connections = relations_data.get("total", 0) # Adjust field based on API
+    relations_data = safe_get("/api/v1/users/relations", params={"account_id": account_id, "limit": 500})
+    if relations_data and "items" in relations_data:
+        total_connections = len(relations_data.get("items", []))
+        # Note: If cursor exists, there are more pages. Currently we report first page count.
 
     # Conversations
     chats_data = safe_get("/api/v1/chats", params={"account_id": account_id, "limit": 50})

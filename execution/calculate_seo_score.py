@@ -4,7 +4,7 @@ SEO Score Calculator
 Audits blog posts for SEO optimization and provides actionable recommendations
 
 Usage:
-    python execution/calculate_seo_score.py --url https://lifetrekmedical.com.br/blog/post-slug
+    python execution/calculate_seo_score.py --url https://lifetrek-medical.com/blog/post-slug
     python execution/calculate_seo_score.py --all --output seo_audit.json
 """
 
