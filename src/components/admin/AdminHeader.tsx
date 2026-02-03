@@ -25,6 +25,7 @@ import {
     Eye,
     X,
     Zap,
+    TrendingUp,
     type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -99,6 +100,7 @@ const navStructure: NavEntry[] = [
             { path: "/admin/campaigns", label: "Campanhas", icon: Target, requiresSuperAdmin: true },
             { path: "/admin/rejection-analytics", label: "Rejeições", icon: BarChart3, requiresSuperAdmin: true },
             { path: "/admin/roi-simulation", label: "Simulação ROI (Owner)", icon: Zap, requiresSuperAdmin: true },
+            { path: "/admin/analytics", label: "LinkedIn Analytics", icon: TrendingUp, requiresSuperAdmin: true },
         ]
     },
     { path: "/admin/leads", label: "Leads", icon: Database },

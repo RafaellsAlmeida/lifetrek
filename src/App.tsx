@@ -49,6 +49,7 @@ const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
 const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
 const RoiSimulation = lazy(() => import("./pages/Admin/RoiSimulation"));
+const LinkedInAnalytics = lazy(() => import("./pages/Admin/LinkedInAnalytics"));
 const OnePager = lazy(() => import("./pages/OnePager"));
 
 // Public Pages
@@ -130,6 +131,7 @@ const App = () => (
                   <Route path="video-studio" element={<VideoStudio />} />
                   <Route path="roi-simulation" element={<RoiSimulation />} />
                   <Route path="blog" element={<AdminBlog />} />
+                  <Route path="analytics" element={<LinkedInAnalytics />} />
                   <Route path="one-pager" element={<OnePager />} />
                 </Route>
               </Route>
