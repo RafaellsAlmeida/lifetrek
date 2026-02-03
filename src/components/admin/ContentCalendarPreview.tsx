@@ -22,12 +22,12 @@ export function ContentCalendarPreview() {
 
     const { data: templates, isLoading } = useQuery({
         queryKey: ["content-templates-week"],
-        queryFn: async () => {
-            const { data, error } = await supabase
-                .from("content_templates")
+    queryFn: async () => {
+            const { data, error } = await (supabase
+                .from("content_templates" as any)
                 .select("id, title, category, status, updated_at")
                 .order("updated_at", { ascending: false })
-                .limit(10);
+                .limit(10) as any);
             if (error) throw error;
             return data as ContentItem[];
         }

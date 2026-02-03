@@ -236,7 +236,6 @@ export const EquipmentCarousel = () => {
       "Metrology": t("equipment.category.metrology"),
       "CNC": t("equipment.category.cnc"),
       "Sample Prep": t("equipment.category.sampleprep"),
-      "Sample Prep": t("equipment.category.sampleprep"),
       "Finishing": t("equipment.category.finishing"),
       "Clean Room": "Sala Limpa",
     };

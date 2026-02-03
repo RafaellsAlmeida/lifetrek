@@ -1,19 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Tables } from "@/integrations/supabase/types";
 
-type InstagramPost = Tables<"instagram_posts">;
+interface InstagramPost {
+    id: string;
+    status: string;
+    rejection_reason?: string | null;
+    rejected_at?: string | null;
+    [key: string]: any;
+}
 
 // Fetch all Instagram posts (optionally filter by status)
 export function useInstagramPosts(status?: string) {
     return useQuery({
         queryKey: ["instagram_posts", status],
         queryFn: async () => {
-            let query = supabase
-                .from("instagram_posts")
+            let query = (supabase
+                .from("instagram_posts" as any)
                 .select("*")
-                .order("created_at", { ascending: false });
+                .order("created_at", { ascending: false }) as any);
 
             if (status) {
                 query = query.eq("status", status);
@@ -31,11 +36,11 @@ export function useInstagramPost(id: string | null) {
     return useQuery({
         queryKey: ["instagram_post", id],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("instagram_posts")
+            const { data, error } = await (supabase
+                .from("instagram_posts" as any)
                 .select("*")
                 .eq("id", id!)
-                .maybeSingle();
+                .maybeSingle() as any);
 
             if (error) throw error;
             return data as InstagramPost | null;
@@ -50,12 +55,12 @@ export function useApproveInstagramPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { data, error } = await supabase
-                .from("instagram_posts")
+            const { data, error } = await (supabase
+                .from("instagram_posts" as any)
                 .update({ status: "approved" })
                 .eq("id", id)
                 .select()
-                .single();
+                .single() as any);
 
             if (error) throw error;
             return data as InstagramPost;
@@ -79,8 +84,8 @@ export function useRejectInstagramPost() {
 
     return useMutation({
         mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-            const { data, error } = await supabase
-                .from("instagram_posts")
+            const { data, error } = await (supabase
+                .from("instagram_posts" as any)
                 .update({
                     status: "archived",
                     rejection_reason: reason,
@@ -88,7 +93,7 @@ export function useRejectInstagramPost() {
                 })
                 .eq("id", id)
                 .select()
-                .single();
+                .single() as any);
 
             if (error) throw error;
             return data as InstagramPost;
@@ -112,12 +117,12 @@ export function usePublishInstagramPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { data, error } = await supabase
-                .from("instagram_posts")
+            const { data, error } = await (supabase
+                .from("instagram_posts" as any)
                 .update({ status: "published" })
                 .eq("id", id)
                 .select()
-                .single();
+                .single() as any);
 
             if (error) throw error;
             return data as InstagramPost;
@@ -140,10 +145,10 @@ export function useDeleteInstagramPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await supabase
-                .from("instagram_posts")
+            const { error } = await (supabase
+                .from("instagram_posts" as any)
                 .delete()
-                .eq("id", id);
+                .eq("id", id) as any);
 
             if (error) throw error;
         },
