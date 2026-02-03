@@ -1,167 +1,109 @@
 
-# Plano: Correção de Usabilidade do Chatbot
+# Plano de Correção: Autenticação, Build Errors e Segurança
 
-## Problemas Identificados
+## Resumo dos Problemas Identificados
 
-### 1. Posicionamento Errado (Esquerda em vez de Direita)
-**Código atual:**
-```tsx
-// Linha 123 - Botão flutuante
-className="fixed bottom-28 left-6 ..."
+A investigação revelou **três categorias de problemas críticos**:
 
-// Linha 132 - Janela do chat  
-<div className="fixed bottom-28 left-6 w-96 h-[600px] ..."
+### 1. Bypass de Autenticação (CRÍTICO)
+O arquivo `src/components/admin/ProtectedAdminRoute.tsx` contém um **bypass temporário** na linha 7-8:
+```typescript
+// TEMP: Bypass for screenshot
+return <Outlet />;
 ```
-O chatbot está fixo no **lado esquerdo** (`left-6`), mas o padrão de UX é **lado direito**.
+Isso faz com que **todas as rotas admin sejam acessíveis sem login**, permitindo que qualquer pessoa acesse `/admin`, `/admin/leads`, etc.
 
-### 2. Conflito de Espaço com MobileNav e StickyCTA
-- **MobileNav** (mobile): `fixed bottom-0` com `z-50`
-- **StickyCTA** (desktop): `fixed bottom-0` com `z-50`
-- **Chatbot**: `fixed bottom-28 left-6` com `z-50`
+### 2. Tipos do Supabase Desatualizados
+O arquivo `types.ts` gerado automaticamente está **desatualizado** em relação ao schema real do banco. As tabelas existem no banco (confirmado via queries), mas os tipos TypeScript não as reconhecem:
+- `blog_analytics` - existe no banco, mas TS não reconhece
+- `blog_categories` - existe no banco, mas TS não reconhece  
+- `content_templates` - existe no banco, mas TS não reconhece
+- `content_assets` - existe no banco, mas TS não reconhece
+- `onboarding_progress` - existe no banco, mas TS não reconhece
 
-O `bottom-28` (112px) foi colocado para "fugir" do MobileNav, mas é um valor arbitrário que não funciona bem.
-
-### 3. Lógica de Scroll Confusa
-```tsx
-// Linhas 36-62
-useEffect(() => {
-  const handleScroll = () => {
-    const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-    
-    // Mostra botão só após 20% de scroll
-    if (scrollDepth > 20) {
-      setShowButton(true);
-    }
-    
-    // Auto-abre em 35% de scroll
-    if (scrollDepth > 35 && !hasAutoOpened && !isOpen) {
-      setHasAutoOpened(true);
-      setIsOpen(true);
-    }
-  };
-  ...
-});
+### 3. Erro de Sintaxe (Propriedade Duplicada)
+Em `src/components/EquipmentCarousel.tsx` linha 238-239:
+```typescript
+"Sample Prep": t("equipment.category.sampleprep"),
+"Sample Prep": t("equipment.category.sampleprep"), // DUPLICADO
 ```
-
-**Problemas:**
-1. O `showButton` é setado para `true` quando `scrollDepth > 20%`, mas **nunca volta para false** (não esconde quando volta ao topo)
-2. O auto-open em 35% pode ser irritante para o usuário
-3. Não há lógica para esconder ao fazer scroll UP (o que o usuário reportou)
 
 ---
 
-## Correções Propostas
+## Plano de Ação
 
-### 1. Mover Chatbot para o Lado Direito (Padrão UX)
-```tsx
-// Botão flutuante - ANTES
-className="fixed bottom-28 left-6 ..."
+### Fase 1: Corrigir o Bypass de Autenticação
+**Arquivo:** `src/components/admin/ProtectedAdminRoute.tsx`
 
-// DEPOIS
-className="fixed bottom-24 right-4 md:bottom-28 md:right-8 ..."
-
-// Janela do chat - ANTES
-<div className="fixed bottom-28 left-6 w-96 h-[600px] ..."
-
-// DEPOIS  
-<div className="fixed bottom-24 right-4 md:bottom-28 md:right-8 w-[calc(100vw-2rem)] md:w-96 h-[70vh] md:h-[600px] ..."
+Remover as linhas 7-8 que bypassam a autenticação:
+```typescript
+// REMOVER:
+// TEMP: Bypass for screenshot
+return <Outlet />;
 ```
 
-### 2. Corrigir Lógica de Visibilidade
-```tsx
-// Mostrar botão SEMPRE (ou após um delay inicial, não baseado em scroll)
-const [showButton, setShowButton] = useState(false);
+Isso restaurará o fluxo normal de autenticação que:
+1. Verifica se há sessão ativa
+2. Consulta `admin_permissions` para validar permissão
+3. Redireciona para `/admin/login` se não autorizado
 
-useEffect(() => {
-  // Mostrar botão após 2 segundos na página
-  const timer = setTimeout(() => setShowButton(true), 2000);
-  return () => clearTimeout(timer);
-}, []);
-```
+### Fase 2: Regenerar Tipos do Supabase
+Os tipos TypeScript precisam ser regenerados para refletir o schema atual do banco. Isso será feito automaticamente pelo sistema quando eu fizer uma migração de banco que adiciona um comentário (touch migration).
 
-### 3. Remover Auto-Open Agressivo
-O auto-open em 35% do scroll é irritante. Remover essa funcionalidade ou fazer opt-in.
+### Fase 3: Corrigir Propriedade Duplicada
+**Arquivo:** `src/components/EquipmentCarousel.tsx`
 
-### 4. Ajustar z-index para Evitar Conflitos
-```tsx
-// Chatbot deve ter z-index maior que MobileNav/StickyCTA
-className="... z-[60]"  // em vez de z-50
-```
-
-### 5. Responsividade Mobile
-No mobile, a janela do chat deve ocupar quase toda a tela para melhor usabilidade.
-
----
-
-## Código Final Proposto
-
-```tsx
-export const AIChatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([...]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showButton, setShowButton] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Mostrar botão após 2s (não depende de scroll)
-  useEffect(() => {
-    const timer = setTimeout(() => setShowButton(true), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // ... resto do código
-
-  return (
-    <>
-      {/* Botão Flutuante - LADO DIREITO */}
-      {!isOpen && showButton && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          size="lg"
-          className="fixed bottom-24 right-4 md:bottom-28 md:right-8 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-[60] bg-primary animate-bounce-subtle"
-          aria-label="Abrir chat do Assistente Trek"
-        >
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:6" />
-        </Button>
-      )}
-
-      {/* Janela do Chat - LADO DIREITO + Responsiva */}
-      {isOpen && (
-        <div className="fixed bottom-24 right-4 md:bottom-28 md:right-8 w-[calc(100vw-2rem)] md:w-96 h-[70vh] md:h-[600px] max-h-[calc(100vh-8rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col z-[60] animate-scale-in">
-          {/* Header, Messages, Input - sem alterações */}
-        </div>
-      )}
-    </>
-  );
+Remover a linha duplicada 239:
+```typescript
+const labels: Record<EquipmentCategory, string> = {
+  "Metrology": t("equipment.category.metrology"),
+  "CNC": t("equipment.category.cnc"),
+  "Sample Prep": t("equipment.category.sampleprep"),
+  // REMOVER A LINHA DUPLICADA
+  "Finishing": t("equipment.category.finishing"),
+  "Clean Room": "Sala Limpa",
 };
 ```
 
----
-
-## Arquivos a Modificar
-
-| Arquivo | Alteração |
-|---------|-----------|
-| `src/components/AIChatbot.tsx` | Mover para direita, corrigir lógica de scroll, ajustar z-index, melhorar responsividade |
-
----
-
-## Testes a Realizar
-
-1. Verificar que o botão do chatbot aparece no **canto inferior direito**
-2. Verificar que a janela do chat abre no **lado direito**
-3. Fazer scroll UP e DOWN - o chatbot **não deve esconder**
-4. Testar no mobile - verificar que não conflita com MobileNav
-5. Testar envio de mensagem - confirmar que o backend responde
-6. Testar em viewport pequeno (mobile) - janela deve ser responsiva
+### Fase 4: Aplicar Type Assertions Temporárias
+Enquanto os tipos não são regenerados, aplicar `as any` ou `as unknown` em arquivos afetados para permitir o build:
+- `src/components/OnboardingChecklist.tsx`
+- `src/components/admin/ContentCalendarPreview.tsx`
+- `src/components/admin/dashboards/SalesDashboard.tsx`
+- `src/components/admin/dashboards/SuperAdminDashboard.tsx`
+- `src/components/ev/ContentCalendarPreview.tsx`
+- `src/hooks/useBlogAnalytics.ts`
+- `src/hooks/useBlogPosts.ts`
+- `src/hooks/useLinkedInAnalytics.ts`
+- `src/pages/Admin/EnvironmentAssets.tsx`
 
 ---
 
-## Critérios de Pronto
+## Dados de Autenticação Confirmados
 
-1. Chatbot posicionado no lado direito (padrão UX)
-2. Chatbot **não esconde** ao fazer scroll em qualquer direção
-3. Botão aparece após 2s, sem depender de % de scroll
-4. Sem conflito visual com MobileNav ou StickyCTA
-5. Backend responde corretamente às mensagens
+A investigação do banco confirmou:
+
+**Tabela `admin_permissions` (fonte primária):**
+| Email | Nível | Display Name |
+|-------|-------|--------------|
+| rafacrvg@icloud.com | super_admin | Rafael |
+| vmartins@lifetrek-medical.com | admin | Vanessa Martins |
+| njesus@lifetrek-medical.com | admin | Nelson Jesus |
+| rbianchini@lifetrek-medical.com | admin | Renner Bianchini |
+| erenner@lifetrek-medical.com | admin | Eduardo Renner |
+
+**Funções de Segurança:**
+- `has_role()` - Verifica roles na tabela `user_roles`
+- `is_super_admin()` - Verifica se usuário é super_admin em `admin_permissions`
+
+Ambas são `SECURITY DEFINER` e funcionam corretamente.
+
+---
+
+## Resultado Esperado
+
+Após as correções:
+1. O admin será protegido novamente - requer login para acessar
+2. O build passará sem erros de TypeScript
+3. Usuários na tabela `admin_permissions` poderão fazer login normalmente
+4. A estrutura de RBAC (super_admin vs admin) funcionará conforme esperado
