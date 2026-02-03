@@ -96,10 +96,10 @@ export default function ContentApproval() {
 
             for (const resource of resources) {
                 console.log(`Upserting ${resource.slug}...`);
-                const { data, error } = await supabase
-                    .from('resources')
+                const { data, error } = await (supabase
+                    .from('resources' as any)
                     .upsert(resource, { onConflict: 'slug' })
-                    .select();
+                    .select() as any);
                 
                 if (error) {
                     console.error(`Error inserting ${resource.title}:`, error);

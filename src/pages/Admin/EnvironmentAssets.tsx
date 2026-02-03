@@ -43,10 +43,10 @@ export default function EnvironmentAssets() {
     const { data: assets, isLoading } = useQuery({
         queryKey: ["content-assets"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("content_assets")
+            const { data, error } = await (supabase
+                .from("content_assets" as any)
                 .select("*")
-                .order("created_at", { ascending: false });
+                .order("created_at", { ascending: false }) as any);
 
             if (error) throw error;
             return data as ContentAsset[];

@@ -87,10 +87,10 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
                 .slice(0, 5);
 
             // Fetch pending content approvals
-            const { data: pendingTemplates } = await supabase
-                .from("content_templates")
+            const { data: pendingTemplates } = await (supabase
+                .from("content_templates" as any)
                 .select("id")
-                .eq("status", "pending_approval");
+                .eq("status", "pending_approval") as any);
 
             setStats({
                 totalLeads: leads.length,

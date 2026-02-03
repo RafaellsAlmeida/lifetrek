@@ -231,22 +231,22 @@ export function useContentApprovalItems() {
                 if (linkedInError) throw linkedInError;
 
                 // Fetch pending/draft Instagram posts
-                const { data: instagramPosts, error: instagramError } = await supabase
-                    .from("instagram_posts")
+                const { data: instagramPosts, error: instagramError } = await (supabase
+                    .from("instagram_posts" as any)
                     .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, hashtags, post_type")
                     .in("status", ["draft", "pending_approval"])
-                    .order("created_at", { ascending: false });
+                    .order("created_at", { ascending: false }) as any);
 
                 if (instagramError) {
                     console.error("[ContentApproval] Error fetching Instagram posts:", instagramError);
                 }
 
                 // Fetch pending resources
-                const { data: resources, error: resourcesError } = await supabase
-                    .from("resources")
+                const { data: resources, error: resourcesError } = await (supabase
+                    .from("resources" as any)
                     .select("*")
                     .eq("status", "pending_approval")
-                    .order("created_at", { ascending: false });
+                    .order("created_at", { ascending: false }) as any);
 
                 if (resourcesError) {
                     console.error("[ContentApproval] Error fetching resources:", resourcesError);
@@ -332,20 +332,20 @@ export function useRejectedContentItems() {
 
             if (linkedInError) throw linkedInError;
 
-            const { data: instagramPosts, error: instagramError } = await supabase
-                .from("instagram_posts")
+            const { data: instagramPosts, error: instagramError } = await (supabase
+                .from("instagram_posts" as any)
                 .select("id, topic, status, created_at, rejected_at, rejection_reason, target_audience, caption, hashtags")
                 .eq("status", "archived")
-                .order("rejected_at", { ascending: false });
+                .order("rejected_at", { ascending: false }) as any);
 
             if (instagramError) console.error("[ContentApproval] Error fetching rejected Instagram:", instagramError);
 
              // Fetch rejected resources
-             const { data: resources, error: resourcesError } = await supabase
-             .from("resources")
+             const { data: resources, error: resourcesError } = await (supabase
+             .from("resources" as any)
              .select("*")
              .eq("status", "rejected")
-             .order("created_at", { ascending: false });
+             .order("created_at", { ascending: false }) as any);
 
             const items = [
                 ...(blogs || []).map((blog: any) => ({
@@ -426,22 +426,22 @@ export function useApprovedContentItems() {
 
             if (linkedInError) throw linkedInError;
 
-            const { data: instagramPosts, error: instagramError } = await supabase
-                .from("instagram_posts")
+            const { data: instagramPosts, error: instagramError } = await (supabase
+                .from("instagram_posts" as any)
                 .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags")
                 .in("status", ["approved", "published"])
                 .order("updated_at", { ascending: false })
-                .limit(50);
+                .limit(50) as any);
 
             if (instagramError) console.error("[ContentApproval] Error fetching approved Instagram:", instagramError);
 
              // Fetch approved resources
-             const { data: resources, error: resourcesError } = await supabase
-             .from("resources")
+             const { data: resources, error: resourcesError } = await (supabase
+             .from("resources" as any)
              .select("*")
              .in("status", ["approved", "published"])
              .order("updated_at", { ascending: false })
-             .limit(50);
+             .limit(50) as any);
 
             const items = [
                 ...(blogs || []).map((blog: any) => ({
@@ -507,12 +507,12 @@ export function useApproveResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { data, error } = await supabase
-                .from("resources")
-                .update({ status: "published" }) // Or 'approved' if you have an intermediate step
+            const { data, error } = await (supabase
+                .from("resources" as any)
+                .update({ status: "published" })
                 .eq("id", id)
                 .select()
-                .single();
+                .single() as any);
 
             if (error) throw error;
             return data;
@@ -535,12 +535,12 @@ export function useRejectResource() {
 
     return useMutation({
         mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-             const { data, error } = await supabase
-                .from("resources")
+             const { data, error } = await (supabase
+                .from("resources" as any)
                 .update({ status: "rejected" })
                 .eq("id", id)
                 .select()
-                .single();
+                .single() as any);
 
             if (error) throw error;
             return data;

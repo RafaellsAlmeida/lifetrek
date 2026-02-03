@@ -105,9 +105,9 @@ export function SalesDashboard({ userName }: { userName?: string }) {
           status: newLead.status as any,
           priority: newLead.priority as any,
           admin_notes: newLead.notes,
-          project_type: 'Manual Entry',
+          project_type: 'website',
           technical_requirements: 'Manual Entry',
-          source: 'Manual Entry'
+          source: 'website'
         }])
         .select()
         .single();

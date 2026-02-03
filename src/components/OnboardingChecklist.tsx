@@ -165,15 +165,15 @@ export function OnboardingChecklist() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from("onboarding_progress")
+      const { data, error } = await (supabase
+        .from("onboarding_progress" as any)
         .select("item_key, completed")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id) as any);
 
       if (error) throw error;
 
       const progressMap: Record<string, boolean> = {};
-      data?.forEach((item) => {
+      (data as any[])?.forEach((item: any) => {
         progressMap[item.item_key] = item.completed;
       });
       setProgress(progressMap);
@@ -192,14 +192,14 @@ export function OnboardingChecklist() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
-        .from("onboarding_progress")
+      const { error } = await (supabase
+        .from("onboarding_progress" as any)
         .upsert({
           user_id: user.id,
           item_key: key,
           completed: newValue,
           completed_at: newValue ? new Date().toISOString() : null,
-        }, { onConflict: "user_id,item_key" });
+        }, { onConflict: "user_id,item_key" }) as any);
 
       if (error) throw error;
 

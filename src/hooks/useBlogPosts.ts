@@ -44,10 +44,10 @@ export function useBlogCategories() {
     return useQuery({
         queryKey: ["blog-categories"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("blog_categories")
+            const { data, error } = await (supabase
+                .from("blog_categories" as any)
                 .select("*")
-                .order("name");
+                .order("name") as any);
 
             if (error) throw error;
             return data as BlogCategory[];
