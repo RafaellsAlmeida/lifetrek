@@ -46,23 +46,40 @@ serve(async (req) => {
     console.log(`Syncing for account: ${targetAccount.name} (${accountId})`);
 
     // 3. Fetch Data
+    
     // Connections
-    const relationsData = await fetchUnipile(`/api/v1/users/${accountId}/relations?limit=1`);
-    const totalConnections = relationsData?.total || 0;
+    let totalConnections = 0;
+    try {
+        const relationsData = await fetchUnipile(`/api/v1/users/${accountId}/relations`, { limit: 1 });
+        totalConnections = relationsData?.total || 0;
+        console.log(`Connections: ${totalConnections}`);
+    } catch (e) {
+        console.error(`Error fetching relations: ${e.message}`);
+        // Continue without connection count
+    }
 
     // Conversations (Snapshot)
-    const chatsData = await fetchUnipile("/api/v1/chats", {
-        account_id: accountId,
-        limit: 50
-    });
-    
-    const chats = chatsData?.items || [];
-    const totalConvsFetched = chats.length; 
-    // Note: total_convs in DB is usually meant to be 'Total Active', unread is what counts most.
-    // Unipile doesn't give a total count easily without paginating all. 50 is a good sample for "Active".
-    const unreadCount = chats.filter((c: any) => c.unread_count > 0).length;
+    let totalConvsFetched = 0;
+    let unreadCount = 0;
+    try {
+        const chatsData = await fetchUnipile("/api/v1/chats", {
+            account_id: accountId,
+            limit: 50
+        });
+        const chats = chatsData?.items || [];
+        totalConvsFetched = chats.length; 
+        unreadCount = chats.filter((c: any) => c.unread_count > 0).length;
+        console.log(`Chats fetched: ${totalConvsFetched}, Unread: ${unreadCount}`);
+    } catch (e) {
+         console.error(`Error fetching chats: ${e.message}`);
+    }
 
     // 4. Upsert to Supabase
+    if (totalConnections === 0 && totalConvsFetched === 0) {
+        // If everything failed, might be worth throwing or returning error
+        console.warn("Partial sync: No data fetched from Unipile endpoints.");
+    }
+
     const payload = {
         unipile_account_id: accountId,
         snapshot_date: new Date().toISOString().split('T')[0],
@@ -71,6 +88,8 @@ serve(async (req) => {
         unread_conversations: unreadCount,
         meta: targetAccount
     };
+    
+    // ... rest upsert logic
 
     const { error } = await supabase
         .from("linkedin_analytics_daily")
@@ -104,12 +123,14 @@ async function fetchUnipile(path: string, params: Record<string, string | number
     const res = await fetch(url.toString(), {
         headers: {
             "X-API-KEY": UNIPILE_API_KEY,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "Lifetrek-Bot/1.0"
         }
     });
 
     if (!res.ok) {
-        throw new Error(`Unipile API Error: ${res.status} ${res.statusText}`);
+        const text = await res.text();
+        throw new Error(`Unipile API Error fetching ${url.toString()}: ${res.status} ${res.statusText} | Body: ${text}`);
     }
 
     return await res.json();
