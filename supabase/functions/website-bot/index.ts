@@ -178,37 +178,55 @@ ${askContact ? "- Pergunte nome/contato naturalmente" : ""}`;
     const lastMsg = messages[messages.length - 1];
 
     if (lastMsg?.role === "user") {
-      supabase.from("chatbot_conversations").insert({
-        session_id: sid,
-        role: "user",
-        content: lastMsg.content,
-        metadata: { ip, source: "chatbot" },
-        detected_name: contact.name,
-        detected_email: contact.email,
-        detected_phone: contact.phone,
-        detected_interest: interest
-      }).then(() => {}).catch((e) => console.error("Save error:", e));
+      (async () => {
+        try {
+          await supabase.from("chatbot_conversations").insert({
+            session_id: sid,
+            role: "user",
+            content: lastMsg.content,
+            metadata: { ip, source: "chatbot" },
+            detected_name: contact.name,
+            detected_email: contact.email,
+            detected_phone: contact.phone,
+            detected_interest: interest
+          });
+        } catch (e: unknown) {
+          console.error("Save error:", e);
+        }
+      })();
     }
 
-    supabase.from("chatbot_conversations").insert({
-      session_id: sid,
-      role: "assistant",
-      content: reply,
-      metadata: { model: "gemini-flash", rag_used: ragContext.length > 0, rag_context_len: ragContext.length }
-    }).then(() => {}).catch((e) => console.error("Save error:", e));
+    (async () => {
+      try {
+        await supabase.from("chatbot_conversations").insert({
+          session_id: sid,
+          role: "assistant",
+          content: reply,
+          metadata: { model: "gemini-flash", rag_used: ragContext.length > 0, rag_context_len: ragContext.length }
+        });
+      } catch (e: unknown) {
+        console.error("Save error:", e);
+      }
+    })();
 
     // Create lead if contact found
     if (contact.email || contact.phone) {
-      supabase.from("contact_leads").insert({
-        source: "website",
-        name: contact.name || "Lead Chatbot",
-        email: contact.email || "chatbot" + Date.now() + "@placeholder.lifetrek.com.br",
-        phone: contact.phone || "Nao informado",
-        project_type: interest,
-        business_challenges: "Capturado via chatbot do site",
-        message: allUserText.slice(0, 500)
-      }).then(() => console.log("Lead saved:", contact.email))
-        .catch((e) => console.error("Lead error:", e));
+      (async () => {
+        try {
+          await supabase.from("contact_leads").insert({
+            source: "website",
+            name: contact.name || "Lead Chatbot",
+            email: contact.email || "chatbot" + Date.now() + "@placeholder.lifetrek.com.br",
+            phone: contact.phone || "Nao informado",
+            project_type: interest,
+            business_challenges: "Capturado via chatbot do site",
+            message: allUserText.slice(0, 500)
+          });
+          console.log("Lead saved:", contact.email);
+        } catch (e: unknown) {
+          console.error("Lead error:", e);
+        }
+      })();
     }
 
     return new Response(JSON.stringify({ response: reply }), {
