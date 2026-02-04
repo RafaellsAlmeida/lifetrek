@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUnifiedAnalytics } from "@/hooks/useUnifiedAnalytics";
+import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { WebsiteStatsCards } from "@/components/admin/analytics/WebsiteStatsCards";
 import { TrafficByDayChart } from "@/components/admin/analytics/TrafficByDayChart";
 import { TrafficSourcesChart } from "@/components/admin/analytics/TrafficSourcesChart";
@@ -7,14 +8,16 @@ import { TopPagesTable } from "@/components/admin/analytics/TopPagesTable";
 import { CorrelationChart } from "@/components/admin/analytics/CorrelationChart";
 import { StatsCards } from "@/components/admin/analytics/StatsCards";
 import { ConnectionGrowthChart } from "@/components/admin/analytics/ConnectionGrowthChart";
+import { LeadBehaviorStats } from "@/components/admin/analytics/LeadBehaviorStats";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCcw, Globe, Linkedin, Link2 } from "lucide-react";
+import { RefreshCcw, Globe, Linkedin, Link2, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function UnifiedAnalytics() {
   const [days, setDays] = useState(7);
   const { data, loading, refetch } = useUnifiedAnalytics({ days });
+  const { data: internalData, loading: internalLoading } = useInternalAnalytics({ days });
 
   // Transform LinkedIn data for existing StatsCards component
   const linkedinStats = {
@@ -78,6 +81,10 @@ export default function UnifiedAnalytics() {
           <TabsTrigger value="linkedin" className="gap-2">
             <Linkedin className="h-4 w-4" />
             LinkedIn
+          </TabsTrigger>
+          <TabsTrigger value="leads" className="gap-2">
+            <Users className="h-4 w-4" />
+            Leads
           </TabsTrigger>
         </TabsList>
 
@@ -153,6 +160,11 @@ export default function UnifiedAnalytics() {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        {/* Leads Tab - Internal Behavior */}
+        <TabsContent value="leads" className="space-y-6">
+          <LeadBehaviorStats data={internalData} loading={internalLoading} />
         </TabsContent>
       </Tabs>
     </div>

@@ -8,7 +8,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import Mermaid from "@/components/agents/Mermaid";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { trackResourceView, trackResourceRead, trackResourceDownload } from "@/utils/trackAnalytics";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,17 @@ export default function ResourceDetail() {
         quality: false,
         capital: false
     });
+    
+    const contentRef = useRef<HTMLDivElement>(null);
+    const hasTrackedView = useRef(false);
+
+    // Track resource view on mount
+    useEffect(() => {
+        if (resource && !hasTrackedView.current) {
+            trackResourceView(resource.slug, resource.title);
+            hasTrackedView.current = true;
+        }
+    }, [resource]);
 
     useEffect(() => {
         if (!resource?.slug) return;
