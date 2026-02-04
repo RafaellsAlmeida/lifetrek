@@ -110,7 +110,6 @@ serve(async (req) => {
           const queryEmbedding = embData.data?.[0]?.embedding;
 
           if (queryEmbedding) {
-            // Search knowledge base using vector similarity
             const { data: kbResults, error: kbError } = await supabase.rpc("match_knowledge_base", {
               query_embedding: queryEmbedding,
               match_count: 3,
@@ -120,7 +119,6 @@ serve(async (req) => {
             if (!kbError && kbResults && kbResults.length > 0) {
               ragContext = "\n\nInformacoes relevantes da base de conhecimento:\n" +
                 kbResults.map((r: any) => `- [${r.source_type || 'info'}]: ${r.content?.slice(0, 400)}`).join("\n");
-              console.log("RAG context found:", kbResults.length, "results, similarity:", kbResults[0]?.similarity);
             }
           }
         }
