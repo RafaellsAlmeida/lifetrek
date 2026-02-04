@@ -1,31 +1,4 @@
--- Fix security lints: use security invoker views and enable RLS on automation tables.
-
--- Enable RLS on automation tables.
-ALTER TABLE public.automation_limits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.automation_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.automation_logs ENABLE ROW LEVEL SECURITY;
-
--- Allow service role full access (backend only).
-DROP POLICY IF EXISTS "Allow service role full access" ON public.automation_limits;
-CREATE POLICY "Allow service role full access" ON public.automation_limits
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow service role full access" ON public.automation_profiles;
-CREATE POLICY "Allow service role full access" ON public.automation_profiles
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow service role full access" ON public.automation_logs;
-CREATE POLICY "Allow service role full access" ON public.automation_logs
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+-- Fix security lints: use security invoker views.
 
 -- Recreate views with security_invoker enabled.
 CREATE OR REPLACE VIEW public.lead_analytics_detailed

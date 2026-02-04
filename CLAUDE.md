@@ -87,12 +87,102 @@ The carousel system uses a multi-agent approach:
 
 See `TESTING_GUIDE.md` for manual testing procedures.
 
+## Brand Identity
+
+**Always follow brand guidelines when creating UI or content.**
+
+Key references:
+- `docs/brand/BRAND_BOOK.md` - Complete brand guidelines (colors, typography, voice)
+- `docs/brand/BRAND_QUICK_REFERENCE.md` - Quick reference for developers
+- `docs/brand/COMPANY_CONTEXT.md` - Company background and positioning
+
+### Brand Colors (use CSS variables)
+```css
+bg-primary              /* Corporate Blue #004F8F */
+bg-accent               /* Innovation Green #1A7A3E */
+bg-accent-orange        /* Energy Orange #F07818 */
+```
+
+### Brand Voice
+- Professional, technical, engineer-to-engineer tone
+- Partnership language ("together", "collaborate")
+- Avoid marketing clichés and casual language
+
+## UI Testing & Visual Verification
+
+### Manual Testing Workflow
+1. Start dev server: `npm run dev:web`
+2. Login at `localhost:8080/admin/login` (credentials in AGENTS.md: rafacrvg@icloud.com / Lifetrek2026)
+3. Take screenshots to verify UI changes
+4. See `TESTING_GUIDE.md` for detailed test cases
+
+### Playwright E2E Tests
+```bash
+npm run test:e2e              # Run all E2E tests
+npm run test:e2e:ui           # Interactive UI mode
+TEST_ENV=staging npm run test:e2e   # Against staging
+```
+
+Screenshots captured on failure: `test-results/` directory
+
+### Verification Scripts
+Located in `scripts/`:
+```bash
+deno run --allow-all scripts/verify_login.ts        # Verify auth flow
+deno run --allow-all scripts/verify_rpc.ts          # Verify Supabase RPCs
+deno run --allow-all scripts/utils/verify_storage_assets.ts  # Check storage
+```
+
+## Content Generation Skills
+
+### Social Content Orchestrator
+Generate LinkedIn/Instagram content using multi-agent workflow:
+```bash
+deno run --allow-net --allow-read --allow-env scripts/generate_social_agent.ts "Your Topic"
+```
+See `skills/social_agent/SKILL.md` for details.
+
+### LinkedIn Carousel via Admin UI
+1. Navigate to `/admin/orchestrator`
+2. Fill in topic, audience, pain points
+3. Select "Value Post" or "Commercial Post"
+4. Enable image generation (optional, slower)
+
+### Blog Post Generation
+Uses `generate-blog-post` Edge Function. Triggered from `/admin/blog`.
+
+## Useful Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/generate_social_agent.ts` | CLI social content generation |
+| `scripts/batch-generate-carousels.ts` | Bulk carousel generation |
+| `scripts/ingest_assets.ts` | Import assets to storage |
+| `scripts/ingest_knowledge.ts` | Populate knowledge base |
+| `scripts/verify_login.ts` | Test authentication flow |
+
 ## supabase-js Submodule
 
 The `supabase-js/` directory contains a local copy of the Supabase JS SDK monorepo. See `supabase-js/CLAUDE.md` for its specific documentation. When working there, use Nx commands from that directory.
 
+## Security Warnings
+
+**NEVER expose or commit these keys:**
+- `SUPABASE_SERVICE_ROLE_KEY` - Full database access
+- `UNIPILE_DSN` / `UNIPILE_API_KEY` - LinkedIn automation (rate limits are strict, can ban accounts)
+- `LOVABLE_API_KEY`, `OPENROUTER_API_KEY` - AI API keys
+
+**Unipile**: Do NOT run automated LinkedIn outreach scripts without explicit approval. Use Admin UI only.
+
+## Deprecated
+
+- Direct Unipile scripts in `execution/` - Use Admin UI instead
+- Old automation governor system was removed - do not recreate
+
 ## Notes
 
-- Login for testing: `/admin/login` with test credentials from AGENTS.md
-- Brand guidelines are in `brandbook.md` - follow when creating UI
-- The app uses both shadcn/ui components and custom components
+- **See `AGENTS.md` for test credentials and verification workflow**
+- Always screenshot UI changes for verification before considering work done
+- The app uses shadcn/ui components (`src/components/ui/`) and custom components
+- Onboarding docs: `docs/ONBOARDING.md`
+- Get Supabase env vars from `.env` or `.env.backup`
