@@ -357,7 +357,7 @@ export const EquipmentCarousel = () => {
         <Carousel
           opts={{
             align: "start",
-            loop: true,
+            loop: filteredItems.length > 3,
             dragFree: true,
             containScroll: "trimSnaps",
           }}
