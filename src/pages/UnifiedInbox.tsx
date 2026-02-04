@@ -35,6 +35,8 @@ type Chat = {
     name: string;
     picture_url?: string;
     provider_id: string;
+    company?: string;
+    headline?: string;
   }>;
 };
 
@@ -60,7 +62,18 @@ export default function UnifiedInbox() {
         body: { action: 'list_chats' }
       });
       if (error) throw error;
-      return (data?.items || []) as Chat[];
+      console.log("Chats response:", data);
+      // Handle both { items: [...] } and direct array responses
+      const chatsData = data?.items || (Array.isArray(data) ? data : []);
+      // Debug: log first item structure
+      if (chatsData.length > 0) {
+        console.log("First chat item structure:", JSON.stringify(chatsData[0], null, 2));
+        console.log("First chat keys:", Object.keys(chatsData[0]));
+        if (chatsData[0].attendees) {
+          console.log("First attendee:", JSON.stringify(chatsData[0].attendees[0], null, 2));
+        }
+      }
+      return chatsData as Chat[];
     },
     retry: 1
   });
@@ -75,8 +88,15 @@ export default function UnifiedInbox() {
         body: { action: 'get_messages', chat_id: selectedChatId }
       });
       if (error) throw error;
+      console.log("Messages response:", data);
+      // Handle different response structures
+      const msgItems = data?.items || (Array.isArray(data) ? data : []);
+      // Log first message structure for debugging
+      if (msgItems.length > 0) {
+        console.log("First message keys:", Object.keys(msgItems[0]));
+      }
       // Messages often come in reverse chronological order
-      return (data?.items || []).reverse() as Message[];
+      return msgItems.reverse() as Message[];
     },
     enabled: !!selectedChatId
   });
@@ -84,10 +104,28 @@ export default function UnifiedInbox() {
   const selectedChat = chats?.find(c => c.id === selectedChatId);
 
   const getOtherAttendee = (chat: Chat) => {
-    // Usually the other person is the first one who isn't "me" (but we don't know "me" easily without context)
-    // Unipile attendees usually include the account owner. 
-    // For now, take the first one that has a name if possible, or just the first one.
-    return chat.attendees[0]; 
+    // Try to get attendee info from the enriched response
+    if (chat?.attendees && chat.attendees.length > 0) {
+      const attendee = chat.attendees[0];
+      return {
+        id: attendee.id || 'unknown',
+        name: attendee.name || 'LinkedIn User',
+        picture_url: attendee.picture_url,
+        provider_id: attendee.provider_id || '',
+        company: attendee.company || (attendee as any).headline || '',
+        headline: attendee.headline || ''
+      };
+    }
+    
+    // Fallback for chats without enriched data
+    return { 
+      id: (chat as any).id || 'unknown', 
+      name: 'LinkedIn User', 
+      picture_url: undefined, 
+      provider_id: (chat as any).attendee_provider_id || '',
+      company: '',
+      headline: ''
+    };
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -180,6 +218,11 @@ export default function UnifiedInbox() {
                           </span>
                         )}
                       </div>
+                      {attendee?.company && (
+                        <p className="text-[10px] text-slate-500 truncate mb-0.5">
+                          {attendee.company}
+                        </p>
+                      )}
                       <p className={`text-[11px] truncate ${chat.unread_count > 0 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
                         {lastMsg}
                       </p>
@@ -236,20 +279,24 @@ export default function UnifiedInbox() {
                     <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
                   </div>
                 ) : (
-                  messages?.map(msg => {
-                    // Primitive check for "me" vs "them" - in real app, check sender_id against current user's provider_id
-                    // For now, let's assume if it aligns with selectedChat.items[0].sender_id, it might be them? 
-                    // Actually, Unipile usually differentiates. Let's just style them alternating for now or based on ID comparison if we knew "me" ID.
-                    // We'll style all as "received" for safety unless we know for sure.
+                  messages?.map((msg, idx) => {
+                    // Skip messages without required fields
+                    if (!msg || typeof msg !== 'object') return null;
+                    
+                    const messageText = msg.text || (msg as any).content || (msg as any).body || '';
+                    const messageTime = msg.created_at || (msg as any).timestamp || (msg as any).sent_at;
+                    const messageId = msg.id || `msg-${idx}`;
                     const isMe = false; // TODO: Determine "me"
                     
                     return (
-                      <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                      <div key={messageId} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[70%] rounded-lg p-3 text-sm ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 shadow-sm text-slate-700 rounded-tl-none'}`}>
-                          <p>{msg.text}</p>
-                          <span className={`text-[9px] mt-1 block ${isMe ? 'text-indigo-200' : 'text-slate-300'}`}>
-                            {format(new Date(msg.created_at), 'HH:mm')}
-                          </span>
+                          <p>{messageText || '(No text)'}</p>
+                          {messageTime && (
+                            <span className={`text-[9px] mt-1 block ${isMe ? 'text-indigo-200' : 'text-slate-300'}`}>
+                              {format(new Date(messageTime), 'HH:mm')}
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
