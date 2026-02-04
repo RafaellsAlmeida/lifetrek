@@ -93,6 +93,8 @@ export function useApproveLinkedInPost() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["linkedin_carousels"] });
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
             toast.success("Post aprovado com sucesso!");
         },
         onError: (error: any) => {
@@ -124,6 +126,8 @@ export function useRejectLinkedInPost() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["linkedin_carousels"] });
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            queryClient.invalidateQueries({ queryKey: ["rejected_content_items"] });
             toast.success("Post rejeitado");
         },
         onError: (error: any) => {
