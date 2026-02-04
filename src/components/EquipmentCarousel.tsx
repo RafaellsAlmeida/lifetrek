@@ -21,7 +21,10 @@ import laserMarking from "@/assets/equipment/laser-marking.webp";
 import zeissContura from "@/assets/metrology/zeiss-contura-new.png";
 
 import cleanRoomHero from "@/assets/facility/cleanroom-hero.webp";
+import cleanRoom1 from "@/assets/facility/clean-room-1.png";
 import cleanRoom2 from "@/assets/facility/clean-room-2.png";
+import cleanRoom3 from "@/assets/facility/clean-room-3.png";
+import cleanRoom5 from "@/assets/facility/clean-room-5.png";
 import cleanRoom6 from "@/assets/facility/clean-room-6.png";
 import cleanRoom7 from "@/assets/facility/clean-room-7.png";
 import cleanRoomExterior from "@/assets/facility/clean-room-exterior.jpg";
@@ -266,6 +269,39 @@ const getEquipmentItems = (t: (key: string) => string): EquipmentItem[] => [
       "Pass-through Interlocked",
       "Chuveiro de Ar",
       "Protocolo de Paramentação"
+    ]
+  },
+  {
+    image: cleanRoom1,
+    title: "Isoladores e Pass-Through",
+    subtitle: "Sistemas de Transferência Estéril",
+    category: "Clean Room",
+    specs: [
+      "Isoladores Classe A",
+      "Pass-Through com Intertravamento",
+      "Esterilização por Peróxido"
+    ]
+  },
+  {
+    image: cleanRoom5,
+    title: "Antecâmaras",
+    subtitle: "Sistema de Portas Interlocked",
+    category: "Clean Room",
+    specs: [
+      "Portas com Intertravamento",
+      "Diferencial de Pressão",
+      "Monitoramento Digital"
+    ]
+  },
+  {
+    image: cleanRoom3,
+    title: "Sistema HVAC",
+    subtitle: "Infraestrutura de Climatização",
+    category: "Clean Room",
+    specs: [
+      "Filtros HEPA H14",
+      "20 Trocas de Ar/Hora",
+      "Controle de Umidade"
     ]
   },
 ];
