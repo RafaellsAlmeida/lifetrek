@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send notification email to Lifetrek
     const notificationEmailResponse = await resend.emails.send({
       from: "Formulário de Contato <noreply@lifetrek-medical.com>",
-      to: ["contato@lifetrek-medical.com"],
+      to: ["vsmartins@lifetrek-medical.com"],
       subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -364,7 +364,7 @@ ${companyResearch ? `**Company Research:**
     // Send enhanced notification email to Lifetrek team
     const enhancedNotificationEmail = await resend.emails.send({
       from: "Formulário de Contato <noreply@lifetrek-medical.com>",
-      to: ["contato@lifetrek-medical.com"],
+      to: ["vsmartins@lifetrek-medical.com"],
       subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}${aiSuggestion ? ' [AI Suggestion Available]' : ''}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">

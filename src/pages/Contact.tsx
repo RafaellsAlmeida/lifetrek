@@ -313,10 +313,10 @@ export default function Contact() {
                 <div className="border-l-4 border-primary pl-6">
                   <h3 className="font-bold text-lg mb-2">{t("contact.info.email")}</h3>
                   <a
-                    href="mailto:contato@lifetrek-medical.com"
+                    href="mailto:vsmartins@lifetrek-medical.com"
                     className="text-muted-foreground text-lg hover:text-primary transition-colors"
                   >
-                    contato@lifetrek-medical.com
+                    vsmartins@lifetrek-medical.com
                   </a>
                 </div>
 
