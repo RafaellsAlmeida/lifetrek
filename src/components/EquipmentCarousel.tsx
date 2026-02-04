@@ -21,6 +21,10 @@ import laserMarking from "@/assets/equipment/laser-marking.webp";
 import zeissContura from "@/assets/metrology/zeiss-contura-new.png";
 
 import cleanRoomHero from "@/assets/facility/cleanroom-hero.webp";
+import cleanRoom2 from "@/assets/facility/clean-room-2.png";
+import cleanRoom6 from "@/assets/facility/clean-room-6.png";
+import cleanRoom7 from "@/assets/facility/clean-room-7.png";
+import cleanRoomExterior from "@/assets/facility/clean-room-exterior.jpg";
 
 type EquipmentCategory = "Metrology" | "CNC" | "Sample Prep" | "Finishing" | "Clean Room";
 
@@ -209,15 +213,59 @@ const getEquipmentItems = (t: (key: string) => string): EquipmentItem[] => [
       t("equipment.specs.lab.comprehensive")
     ]
   },
-  { 
-    image: cleanRoomHero, 
-    title: "Sala Limpa ISO 7", 
-    subtitle: "Controle de Partículas e Esterilidade",
+  {
+    image: cleanRoomExterior,
+    title: "Módulos de Sala Limpa",
+    subtitle: "Estrutura Dedicada ISO 7",
+    category: "Clean Room",
+    specs: [
+      "4 Módulos Independentes",
+      "Sistema HVAC Dedicado",
+      "Área Total: 200m²"
+    ]
+  },
+  {
+    image: cleanRoomHero,
+    title: "Sala Limpa ISO 7",
+    subtitle: "Ambiente Controlado Certificado",
     category: "Clean Room",
     specs: [
       "Certificação ISO 14644",
       "Monitoramento Contínuo",
-      "Fluxo Laminar"
+      "Pressão Positiva"
+    ]
+  },
+  {
+    image: cleanRoom2,
+    title: "Corredor de Acesso",
+    subtitle: "Área de Transição Controlada",
+    category: "Clean Room",
+    specs: [
+      "Antecâmara Pressurizada",
+      "Piso Epóxi Antiestático",
+      "Iluminação LED Cleanroom"
+    ]
+  },
+  {
+    image: cleanRoom6,
+    title: "Área de Trabalho",
+    subtitle: "Estações de Embalagem Estéreis",
+    category: "Clean Room",
+    specs: [
+      "Mesas Inox 316L",
+      "Fluxo Laminar Classe 100",
+      "Zona de Embalagem Primária"
+    ]
+  },
+  {
+    image: cleanRoom7,
+    title: "Airlock de Entrada",
+    subtitle: "Sistema de Descontaminação",
+    category: "Clean Room",
+    specs: [
+      "Pass-through Interlocked",
+      "Chuveiro de Ar",
+      "Protocolo de Paramentação"
     ]
   },
 ];
