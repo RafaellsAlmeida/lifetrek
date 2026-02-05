@@ -126,14 +126,14 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
         try {
             const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' : 
-                            schedulingItem.type === 'blog' ? 'blog_posts' : 'resources';
+                            schedulingItem.type === 'blog' ? 'blog_posts' : 'content_templates';
             
-            const { error } = await supabase
-                .from(tableName)
+            const { error } = await (supabase
+                .from(tableName as any)
                 .update({ 
                     scheduled_date: scheduledDate.toISOString(),
                     status: 'scheduled' 
-                } as any)
+                } as any) as any)
                 .eq('id', schedulingItem.id);
 
             if (error) throw error;

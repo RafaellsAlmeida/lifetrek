@@ -5,9 +5,10 @@ import { GA4DailyStats } from "@/hooks/useGA4Analytics";
 interface WebsiteStatsCardsProps {
   stats: GA4DailyStats;
   loading: boolean;
+  minimal?: boolean;
 }
 
-export function WebsiteStatsCards({ stats, loading }: WebsiteStatsCardsProps) {
+export function WebsiteStatsCards({ stats, loading, minimal = false }: WebsiteStatsCardsProps) {
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

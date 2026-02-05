@@ -57,14 +57,14 @@ export function KnowledgeBaseCore({ embedded = false }: KnowledgeBaseCoreProps) 
         tags: ""
     });
 
-    // Fetch KB items
+    // Fetch KB items from knowledge_embeddings table
     const { data: kbItems, isLoading } = useQuery({
         queryKey: ["knowledge-base"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from("knowledge_base")
+            const { data, error } = await (supabase
+                .from("knowledge_embeddings" as any)
                 .select("*")
-                .order("category", { ascending: true });
+                .order("source_type", { ascending: true }) as any);
 
             if (error) throw error;
             return data as KnowledgeItem[];
@@ -95,16 +95,13 @@ export function KnowledgeBaseCore({ embedded = false }: KnowledgeBaseCoreProps) 
     // Add Mutation
     const addMutation = useMutation({
         mutationFn: async () => {
-            const tagsArray = newItem.tags.split(",").map(t => t.trim()).filter(Boolean);
-
-            const { error } = await supabase
-                .from("knowledge_base")
+            const { error } = await (supabase
+                .from("knowledge_embeddings" as any)
                 .insert({
-                    category: newItem.category,
-                    question: newItem.question,
-                    answer: newItem.answer,
-                    tags: tagsArray
-                });
+                    source_type: newItem.category,
+                    content: `Q: ${newItem.question}\nA: ${newItem.answer}`,
+                    metadata: { question: newItem.question, tags: newItem.tags.split(",").map(t => t.trim()).filter(Boolean) }
+                }) as any);
 
             if (error) throw error;
         },
@@ -122,10 +119,10 @@ export function KnowledgeBaseCore({ embedded = false }: KnowledgeBaseCoreProps) 
     // Delete Mutation
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await supabase
-                .from("knowledge_base")
+            const { error } = await (supabase
+                .from("knowledge_embeddings" as any)
                 .delete()
-                .eq("id", id);
+                .eq("id", id) as any);
 
             if (error) throw error;
         },
@@ -143,15 +140,14 @@ export function KnowledgeBaseCore({ embedded = false }: KnowledgeBaseCoreProps) 
         mutationFn: async (id: string) => {
             const tagsArray = editForm.tags.split(",").map(t => t.trim()).filter(Boolean);
 
-            const { error } = await supabase
-                .from("knowledge_base")
+            const { error } = await (supabase
+                .from("knowledge_embeddings" as any)
                 .update({
-                    category: editForm.category,
-                    question: editForm.question,
-                    answer: editForm.answer,
-                    tags: tagsArray
+                    source_type: editForm.category,
+                    content: `Q: ${editForm.question}\nA: ${editForm.answer}`,
+                    metadata: { question: editForm.question, tags: tagsArray }
                 })
-                .eq("id", id);
+                .eq("id", id) as any);
 
             if (error) throw error;
         },

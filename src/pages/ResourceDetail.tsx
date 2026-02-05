@@ -118,7 +118,7 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    business_challenges: `Lead magnet: ${resource.title}`,
+                    technical_requirements: `Lead magnet: ${resource.title}`,
                     message: `Resource slug: ${resource.slug}`,
                 });
 
@@ -181,7 +181,7 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    business_challenges: `Scorecard ${resource.title}: ${scorecardTotal} (${scorecardBand}).`,
+                    technical_requirements: `Scorecard ${resource.title}: ${scorecardTotal} (${scorecardBand}).`,
                     message: `Resource slug: ${resource.slug}. Responses: ${JSON.stringify(payload)}`,
                 });
 
@@ -240,7 +240,7 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    business_challenges: `Checklist producao local: ${productionYesCount} SIM.`,
+                    technical_requirements: `Checklist producao local: ${productionYesCount} SIM.`,
                     message: `Resource slug: ${resource.slug}. Responses: ${JSON.stringify(payload)}`,
                 });
 
