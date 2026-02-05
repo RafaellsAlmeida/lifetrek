@@ -128,7 +128,11 @@ const App = () => (
                   <Route path="orchestrator" element={<ContentOrchestrator />} />
                   <Route path="content-approval" element={<ContentApproval />} />
                   <Route path="leads" element={<Leads />} />
-                  {/* <Route path="gallery" element={<Gallery />} /> */}
+                  <Route path="gallery" element={<ProductAssets />} />
+                  <Route path="knowledge-base" element={<KnowledgeBase />} />
+                  <Route path="product-assets" element={<ProductAssets />} />
+                  <Route path="environment-assets" element={<EnvironmentAssets />} />
+                  <Route path="rejection-analytics" element={<RejectionAnalytics />} />
                   <Route path="content-calendar" element={<ContentCalendar />} />
                   <Route path="campaigns" element={<CampaignManagement />} />
                   <Route path="video-studio" element={<VideoStudio />} />
