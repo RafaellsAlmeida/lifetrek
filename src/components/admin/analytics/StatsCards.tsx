@@ -12,9 +12,10 @@ interface AnalyticsStats {
 interface StatsCardsProps {
   stats: AnalyticsStats;
   loading: boolean;
+  minimal?: boolean;
 }
 
-export function StatsCards({ stats, loading }: StatsCardsProps) {
+export function StatsCards({ stats, loading, minimal = false }: StatsCardsProps) {
   if (loading) {
      return <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-muted/20 animate-pulse rounded-xl" />)}
