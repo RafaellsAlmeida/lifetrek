@@ -415,7 +415,7 @@ export function useApprovedContentItems() {
              const { data: blogs, error: blogsError } = await supabase
                 .from("blog_posts")
                 .select("*")
-                .eq("status", "published")
+                .in("status", ["published", "scheduled"])
                 .order("published_at", { ascending: false })
                 .limit(50);
 
@@ -424,7 +424,7 @@ export function useApprovedContentItems() {
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
                 .select("id, topic, status, created_at, updated_at, target_audience, caption, scheduled_date")
-                .in("status", ["approved", "published"])
+                .in("status", ["approved", "published", "scheduled"])
                 .order("updated_at", { ascending: false })
                 .limit(50);
 
@@ -432,8 +432,8 @@ export function useApprovedContentItems() {
 
             const { data: instagramPosts, error: instagramError } = await (supabase
                 .from("instagram_posts" as any)
-                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags")
-                .in("status", ["approved", "published"])
+                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date")
+                .in("status", ["approved", "published", "scheduled"])
                 .order("updated_at", { ascending: false })
                 .limit(50) as any);
 
@@ -443,7 +443,7 @@ export function useApprovedContentItems() {
              const { data: resources, error: resourcesError } = await (supabase
              .from("resources" as any)
              .select("*")
-             .in("status", ["approved", "published"])
+             .in("status", ["approved", "published", "scheduled"])
              .order("updated_at", { ascending: false })
              .limit(50) as any);
 

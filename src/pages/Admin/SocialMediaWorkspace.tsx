@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
 import { ImageEditorCore } from "@/components/admin/content/ImageEditorCore";
 import { ContentApprovalCore } from "@/components/admin/content/ContentApprovalCore";
+import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,8 @@ import {
   Sparkles,
   LayoutDashboard,
   ChevronRight,
-  Info
+  Info,
+  BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,6 +74,18 @@ const ContextSidebar = ({ activeTab }: { activeTab: string }) => (
               <li className="flex items-start gap-2">
                 <ChevronRight className="w-3 h-3 mt-0.5 text-amber-500" />
                 <span>Arraste posts para agendar</span>
+              </li>
+            </>
+          )}
+          {activeTab === "analytics" && (
+            <>
+              <li className="flex items-start gap-2">
+                <ChevronRight className="w-3 h-3 mt-0.5 text-indigo-500" />
+                <span>Acompanhe o tráfego do site vs LinkedIn</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <ChevronRight className="w-3 h-3 mt-0.5 text-indigo-500" />
+                <span>Identifique seus posts de maior performance</span>
               </li>
             </>
           )}
@@ -158,6 +172,13 @@ export default function SocialMediaWorkspace() {
       color: "amber",
       description: "Planejar publicações"
     },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      color: "indigo",
+      description: "Resultados e Performance"
+    }
   ];
 
   return (
@@ -232,6 +253,12 @@ export default function SocialMediaWorkspace() {
                   <ContentCalendarEmbed />
                 </Suspense>
               </TabsContent>
+
+              <TabsContent value="analytics" className="mt-0 focus-visible:outline-none h-full">
+                <Suspense fallback={<TabLoading />}>
+                  <AnalyticsEmbed />
+                </Suspense>
+              </TabsContent>
             </div>
           </ScrollArea>
         </Tabs>
@@ -270,6 +297,14 @@ function ContentCalendarEmbed() {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
         <ContentScheduler />
+    </div>
+  );
+}
+
+function AnalyticsEmbed() {
+  return (
+    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
+      <AnalyticsDashboardCore />
     </div>
   );
 }

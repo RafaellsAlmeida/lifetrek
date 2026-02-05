@@ -122,10 +122,7 @@ const FatigueValidationGuide = () => {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "orthopedic_implants",
-                    project_types: ["orthopedic_implants"],
-                    technical_requirements: "Lead magnet: Fluxo de Validacao de Fadiga.",
-                    source: "website",
-                    status: 'new',
+                    business_challenges: "Lead magnet: Fluxo de Validacao de Fadiga.",
                 });
 
             if (error) {

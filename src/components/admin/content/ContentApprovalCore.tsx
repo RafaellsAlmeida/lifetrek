@@ -10,6 +10,7 @@ import {
     ThumbsUp, ThumbsDown, Loader2, RefreshCw, CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 import {
     useContentApprovalItems,
     useRejectedContentItems,
@@ -206,7 +207,57 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
              );
         }
 
-        return <div className="p-4">Visualização para {selectedItem.title} pronto para revisão.</div>;
+        if (selectedItem.type === 'resource') {
+            const resource = selectedItem.full_data || {};
+            return (
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <h3 className="text-2xl font-bold">{selectedItem.title}</h3>
+                        {resource.description && (
+                            <p className="text-sm text-slate-600">{resource.description}</p>
+                        )}
+                        <div className="flex flex-wrap gap-2 text-xs">
+                            {resource.type && (
+                                <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                    Tipo: {resource.type}
+                                </Badge>
+                            )}
+                            {resource.persona && (
+                                <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                    Persona: {resource.persona}
+                                </Badge>
+                            )}
+                            {resource.slug && (
+                                <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                    Slug: {resource.slug}
+                                </Badge>
+                            )}
+                            {resource.status && (
+                                <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                    Status: {resource.status}
+                                </Badge>
+                            )}
+                        </div>
+                    </div>
+
+                    {resource.content && (
+                        <div className="rounded-lg border bg-white p-5">
+                            <div className="prose prose-base md:prose-lg max-w-none leading-relaxed">
+                                <ReactMarkdown>{resource.content}</ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
+
+                    {resource.slug && (
+                        <div className="text-xs text-muted-foreground">
+                            Rota pública: <span className="font-medium text-slate-700">/resources/{resource.slug}</span>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        return <div className="p-4">Visualização para {selectedItem.title} pronta para revisão.</div>;
     };
 
     if (isLoading || isLoadingRejected || isLoadingApproved) {
@@ -265,7 +316,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     <div className="flex items-start justify-between">
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                {item.type === 'blog' ? <FileText className="h-4 w-4 text-blue-500" /> : <Linkedin className="h-4 w-4 text-blue-600" />}
+                                                {item.type === 'blog' ? (
+                                                    <FileText className="h-4 w-4 text-blue-500" />
+                                                ) : item.type === 'resource' ? (
+                                                    <BookOpen className="h-4 w-4 text-amber-600" />
+                                                ) : (
+                                                    <Linkedin className="h-4 w-4 text-blue-600" />
+                                                )}
                                                 <CardTitle className="text-base">{item.title}</CardTitle>
                                             </div>
                                             <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
@@ -300,7 +357,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-2">
-                                            {item.type === 'blog' ? <FileText className="h-4 w-4 text-blue-500" /> : <Linkedin className="h-4 w-4 text-blue-600" />}
+                                            {item.type === 'blog' ? (
+                                                <FileText className="h-4 w-4 text-blue-500" />
+                                            ) : item.type === 'resource' ? (
+                                                <BookOpen className="h-4 w-4 text-amber-600" />
+                                            ) : (
+                                                <Linkedin className="h-4 w-4 text-blue-600" />
+                                            )}
                                             <CardTitle className="text-base">{item.title}</CardTitle>
                                         </div>
                                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Aprovado</Badge>
@@ -312,6 +375,43 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     </Button>
                                     <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
                                         <Clock className="h-4 w-4" /> Agendar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
+
+                <TabsContent value="resources" className="space-y-4">
+                    {resourceItems.length === 0 ? (
+                        <div className="text-center py-12">
+                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum recurso pendente</h3>
+                            <p className="text-muted-foreground">Recursos pendentes aparecerão aqui para revisão.</p>
+                        </div>
+                    ) : (
+                        resourceItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <BookOpen className="h-4 w-4 text-amber-600" />
+                                                <CardTitle className="text-base">{item.title}</CardTitle>
+                                            </div>
+                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        <ThumbsUp className="h-4 w-4" /> Aprovar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -352,7 +452,17 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 type="datetime-local" 
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 value={scheduledDate ? format(scheduledDate, "yyyy-MM-dd'T'HH:mm") : ""}
-                                onChange={(e) => setScheduledDate(new Date(e.target.value))}
+                                onChange={(e) => {
+                                    const dateString = e.target.value;
+                                    if (!dateString) {
+                                        setScheduledDate(undefined);
+                                        return;
+                                    }
+                                    const newDate = new Date(dateString);
+                                    if (!isNaN(newDate.getTime())) {
+                                        setScheduledDate(newDate);
+                                    }
+                                }}
                             />
                         </div>
                     </div>

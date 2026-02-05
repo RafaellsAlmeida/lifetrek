@@ -74,11 +74,13 @@ export const trackAnalyticsEvent = async ({
       event_type: eventType,
       company_name: companyName,
       company_email: companyEmail,
-      metadata: metadata || {},
-      session_id: getSessionId(),
-      page_path: pagePath || getPagePath(),
-      referrer: getReferrer(),
-      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+      metadata: {
+        session_id: getSessionId(),
+        page_path: pagePath || getPagePath(),
+        referrer: getReferrer(),
+        user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        ...(metadata || {}),
+      },
     });
 
     if (error) {

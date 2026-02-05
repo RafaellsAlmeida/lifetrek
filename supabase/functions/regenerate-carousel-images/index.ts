@@ -8,50 +8,61 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Capture logs so the UI can show them after a regeneration run
+// Capture logs for UI display
 const __regenLogs: string[] = [];
 const stringify = (v: unknown) => {
   if (typeof v === "string") return v;
-  try {
-    return JSON.stringify(v);
-  } catch {
-    return String(v);
-  }
+  try { return JSON.stringify(v); } catch { return String(v); }
 };
 const record = (level: "info" | "warn" | "error", args: unknown[]) => {
-  const msg = args.map(stringify).join(" ");
-  __regenLogs.push(`[${level}] ${msg}`);
+  __regenLogs.push(`[${level}] ${args.map(stringify).join(" ")}`);
 };
 
 const _log = console.log.bind(console);
 const _warn = console.warn.bind(console);
 const _error = console.error.bind(console);
-console.log = (...args: unknown[]) => {
-  record("info", args);
-  _log(...args);
-};
-console.warn = (...args: unknown[]) => {
-  record("warn", args);
-  _warn(...args);
-};
-console.error = (...args: unknown[]) => {
-  record("error", args);
-  _error(...args);
-};
+console.log = (...args: unknown[]) => { record("info", args); _log(...args); };
+console.warn = (...args: unknown[]) => { record("warn", args); _warn(...args); };
+console.error = (...args: unknown[]) => { record("error", args); _error(...args); };
+
+// ============================================================================
+// NANO BANANA PRO (Gemini 3 Pro Image Preview)
+// - Up to 14 reference images for brand consistency
+// - 4K resolution support
+// - Advanced text rendering
+// - Thinking mode for complex compositions
+// ============================================================================
+
+interface SlideData {
+  headline: string;
+  body: string;
+  type: string;
+  imageUrl?: string;
+  image_url?: string;
+  showLogo?: boolean;
+  showISOBadge?: boolean;
+  logoPosition?: string;
+  logoUrl?: string;
+  isoUrl?: string;
+}
+
+interface ReferenceImage {
+  mimeType: string;
+  data: string; // base64
+  purpose: string;
+}
 
 serve(async (req: Request) => {
-  // reset per request
   __regenLogs.length = 0;
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const IMAGE_MODEL = "google/gemini-3-pro-image-preview";
   const startTime = Date.now();
 
   try {
-    const { carousel_id } = await req.json();
+    const { carousel_id, batch_mode = false } = await req.json();
 
     if (!carousel_id) {
       return new Response(
@@ -60,12 +71,15 @@ serve(async (req: Request) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      throw new Error("Missing configuration keys");
+    if (!GEMINI_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY");
+    }
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("Missing Supabase configuration");
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -88,314 +102,315 @@ serve(async (req: Request) => {
 
     console.log(`[REGEN] ✅ Found carousel: "${carousel.topic}" with ${carousel.slides?.length || 0} slides`);
 
-    // Fetch company assets for logo/ISO overlay
+    // ========================================================================
+    // LOAD REFERENCE IMAGES (Brand Assets)
+    // Nano Banana Pro supports up to 14 reference images
+    // ========================================================================
+    console.log("[REGEN] Loading brand reference images...");
+
     const { data: companyAssets } = await supabase
       .from("company_assets")
-      .select("type, url, name");
+      .select("type, url, name, description")
+      .in("type", ["logo", "iso_badge", "brand_element", "facility_photo", "product_photo"]);
+
+    const referenceImages: ReferenceImage[] = [];
+
+    // Download and convert assets to base64 for Gemini API
+    async function loadImageAsBase64(url: string, purpose: string): Promise<ReferenceImage | null> {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+
+        const buffer = await response.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        const contentType = response.headers.get("content-type") || "image/png";
+
+        return { mimeType: contentType, data: base64, purpose };
+      } catch (e) {
+        console.warn(`[REGEN] Failed to load reference image: ${url}`);
+        return null;
+      }
+    }
+
+    // Load brand assets as references (limit to 6 for objects per Nano Banana docs)
+    const assetPromises = (companyAssets || []).slice(0, 6).map(async (asset: any) => {
+      if (asset.url) {
+        const ref = await loadImageAsBase64(asset.url, asset.type);
+        if (ref) referenceImages.push(ref);
+      }
+    });
+    await Promise.all(assetPromises);
+
+    console.log(`[REGEN] Loaded ${referenceImages.length} reference images for brand consistency`);
 
     const logoAsset = companyAssets?.find((a: any) => a.type === 'logo');
     const isoAsset = companyAssets?.find((a: any) => a.type === 'iso_badge');
-    
-    console.log(`[REGEN] Assets: Logo=${!!logoAsset?.url}, ISO=${!!isoAsset?.url}`);
 
-    let slides = carousel.slides || [];
-    const totalSlides = slides.length;
+    let slides: SlideData[] = carousel.slides || [];
 
     // Limit to 5 slides max
     if (slides.length > 5) {
       console.log(`[REGEN] ⚠️ Truncating ${slides.length} slides to 5`);
-      const hook = slides.find((s: any) => s.type === 'hook') || slides[0];
-      const cta = slides.find((s: any) => s.type === 'cta') || slides[slides.length - 1];
-      const content = slides.filter((s: any) => s.type === 'content').slice(0, 3);
+      const hook = slides.find((s) => s.type === 'hook') || slides[0];
+      const cta = slides.find((s) => s.type === 'cta') || slides[slides.length - 1];
+      const content = slides.filter((s) => s.type === 'content').slice(0, 3);
       slides = [hook, ...content, cta].filter(Boolean).slice(0, 5);
     }
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // ========================================================================
+    // NANO BANANA PRO IMAGE GENERATION
+    // Using gemini-3-pro-image-preview with proper config
+    // ========================================================================
+    async function generateImageWithNanoBanana(
+      prompt: string,
+      references: ReferenceImage[]
+    ): Promise<string | null> {
+      // Nano Banana Pro for professional asset production
+      const MODEL = "gemini-3-pro-image-preview";
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-    // Sanitize prompts to prevent font names, sizes, and labels from being rendered
-    function sanitizePrompt(text: string): string {
-      if (!text) return text;
-      return text
-        .replace(/inter\s*(bold|semibold|regular|medium|light)?/gi, "")
-        .replace(/fonte\s*[a-z]+\s*(bold|semibold)?/gi, "")
-        .replace(/\d+\s*px/gi, "")
-        .replace(/\d+\s*pt/gi, "")
-        .replace(/headline:/gi, "")
-        .replace(/body\s*text:/gi, "")
-        .replace(/visual:/gi, "")
-        .replace(/context:/gi, "")
-        .trim();
-    }
+      // Build content parts: text prompt + reference images
+      const parts: any[] = [{ text: prompt }];
 
-    async function fetchAiWithRetry(payload: any, label: string, maxAttempts = 3) {
-      let lastStatus: number | null = null;
-      let lastBody: string | null = null;
-
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const attemptStart = Date.now();
-        try {
-          const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (res.ok) return res;
-
-          lastStatus = res.status;
-          lastBody = await res.text().catch(() => null);
-          console.warn(
-            `[REGEN] ${label} attempt ${attempt}/${maxAttempts} failed: ${res.status} (${Date.now() - attemptStart}ms)`
-          );
-
-          // Retry only on transient failures
-          if (![429, 500, 502, 503, 504].includes(res.status)) {
-            break;
+      // Add reference images (up to 6 objects with high fidelity per docs)
+      for (const ref of references.slice(0, 6)) {
+        parts.push({
+          inlineData: {
+            mimeType: ref.mimeType,
+            data: ref.data
           }
+        });
+      }
 
-          await sleep(Math.min(2000, 250 * 2 ** (attempt - 1)));
-        } catch (e) {
-          console.warn(`[REGEN] ${label} attempt ${attempt}/${maxAttempts} threw: ${String(e)}`);
-          await sleep(Math.min(2000, 250 * 2 ** (attempt - 1)));
+      const requestBody = {
+        contents: [{ parts }],
+        generationConfig: {
+          responseModalities: ["IMAGE", "TEXT"],
+          // Image config for LinkedIn carousel (portrait 3:4, 2K resolution)
+          imageConfig: {
+            aspectRatio: "3:4",
+            imageSize: "2K"
+          }
         }
-      }
-
-      return {
-        ok: false,
-        status: lastStatus ?? 500,
-        text: async () => lastBody ?? "",
-      } as unknown as Response;
-    }
-
-    // Process slide function - generates image for a single slide
-    async function processSlide(slide: any, index: number): Promise<any> {
-      const slideStart = Date.now();
-      const slideNum = index + 1;
-      const isFirstSlide = index === 0;
-      const isLastSlide = index === slides.length - 1;
-      
-      // Auto-set overlay flags
-      slide.showLogo = isFirstSlide || isLastSlide || slide.showLogo === true;
-      slide.showISOBadge = isLastSlide || slide.type === 'cta' || slide.showISOBadge === true;
-      
-      console.log(`[REGEN] [Slide ${slideNum}/${slides.length}] Starting: ${slide.type} (logo: ${slide.showLogo}, ISO: ${slide.showISOBadge})`);
-
-      const logoPosition = slide.logoPosition || 'top-right';
-      
-      // Sanitize text content
-      const cleanHeadline = sanitizePrompt(slide.headline);
-      const cleanBody = sanitizePrompt(slide.body);
-      const cleanVisual = sanitizePrompt(slide.imageGenerationPrompt || "");
-      
-      // Premium prompt - ALL IN PORTUGUESE, NO FONT NAMES
-      let imagePrompt = `=== LIFETREK MEDICAL - SLIDE PREMIUM ===
-DIMENSÕES: 1080x1350px (retrato)
-CORES: Azul #004F8F (primário), gradiente #0A1628 → #003052, Verde #1A7A3E (acentos), Laranja #F07818 (CTA)
-ESTÉTICA: Glassmorphism premium, estilo editorial revista, precisão médica, high-tech
-
-VISUAL: ${cleanVisual || "Manufatura médica profissional, usinagem CNC de precisão, ambiente de sala limpa"}`;
-
-      if (slide.textPlacement === "burned_in" || cleanHeadline) {
-        imagePrompt += `
-
-TEXTO A RENDERIZAR (PT-BR):
-Título: "${cleanHeadline}"
-${cleanBody ? `Subtexto: "${cleanBody.split(' ').slice(0, 12).join(' ')}"` : ""}`;
-      } else {
-        imagePrompt += `
-
-MODO LIMPO: Apenas fundo premium, sem texto. Texturas médicas abstratas.`;
-      }
-
-      imagePrompt += `
-
-REGRAS ABSOLUTAS:
-- TODO texto em PORTUGUÊS BRASILEIRO
-- NUNCA escrever nomes de fontes (Inter, Arial, etc.)
-- NUNCA escrever tamanhos (px, pt)
-- NUNCA escrever labels como "HEADLINE:", "BODY:"
-- Texto BRANCO com alto contraste
-- Espaço no ${logoPosition} para logo
-- Estilo editorial premium`;
-
-      let imageUrl = "";
+      };
 
       try {
-        // Step 1: Generate base image
-        console.log(`[REGEN] [Slide ${slideNum}] Generating base image...`);
-        const genStart = Date.now();
-        
-         const imgRes = await fetchAiWithRetry(
-           {
-             model: IMAGE_MODEL,
-             messages: [
-               { role: "system", content: "Professional medical device designer. Create premium LinkedIn slides. Inter Bold font. Never include label prefixes." },
-               { role: "user", content: imagePrompt },
-             ],
-             modalities: ["image", "text"],
-           },
-           `[Slide ${slideNum}] base image`
-         );
+        console.log(`[REGEN] Calling Nano Banana Pro API...`);
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
 
-        if (!imgRes.ok) {
-          console.error(`[REGEN] [Slide ${slideNum}] Image gen failed: ${imgRes.status}`);
-          return { ...slide, imageUrl: "" };
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error(`[REGEN] Nano Banana API error: ${response.status} - ${errText}`);
+
+          // Fallback to gemini-2.5-flash-image (faster, simpler)
+          return generateImageWithNanoBananaFlash(prompt);
         }
 
-        const imgData = await imgRes.json();
-        let baseImageUrl = imgData.choices?.[0]?.message?.images?.[0]?.image_url?.url || "";
-        console.log(`[REGEN] [Slide ${slideNum}] Base image generated in ${Date.now() - genStart}ms`);
+        const data = await response.json();
 
-        if (!baseImageUrl) {
-          console.warn(`[REGEN] [Slide ${slideNum}] No image returned from AI`);
-          return { ...slide, imageUrl: "" };
-        }
+        // Extract image from response (skip thought images)
+        const candidate = data.candidates?.[0]?.content?.parts || [];
+        for (const part of candidate) {
+          // Skip thought images (part.thought === true)
+          if (part.thought) continue;
 
-        // Step 2: Overlay logo if needed (only first and last slides typically)
-        if (slide.showLogo && logoAsset?.url) {
-          console.log(`[REGEN] [Slide ${slideNum}] Overlaying logo at ${logoPosition}...`);
-          const logoStart = Date.now();
-          
-          try {
-             const overlayRes = await fetchAiWithRetry(
-               {
-                 model: IMAGE_MODEL,
-                 messages: [
-                   {
-                     role: "user",
-                     content: [
-                       { type: "text", text: `Overlay company logo at ${logoPosition} corner. Size: 8-10% width. Keep EXACT as provided. Don't alter rest of image.` },
-                       { type: "image_url", image_url: { url: baseImageUrl } },
-                       { type: "image_url", image_url: { url: logoAsset.url } },
-                     ],
-                   },
-                 ],
-                 modalities: ["image", "text"],
-               },
-               `[Slide ${slideNum}] logo overlay`
-             );
-            
-            if (overlayRes.ok) {
-              const overlayData = await overlayRes.json();
-              const overlayedUrl = overlayData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-              if (overlayedUrl) {
-                baseImageUrl = overlayedUrl;
-                console.log(`[REGEN] [Slide ${slideNum}] ✅ Logo overlay done in ${Date.now() - logoStart}ms`);
-              }
-            }
-          } catch (e) {
-            console.warn(`[REGEN] [Slide ${slideNum}] Logo overlay failed, continuing`);
+          if (part.inlineData?.mimeType?.startsWith("image/")) {
+            console.log(`[REGEN] ✅ Image generated successfully`);
+            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
           }
         }
 
-        // Step 3: Overlay ISO badge if needed
-        if (slide.showISOBadge && isoAsset?.url) {
-          console.log(`[REGEN] [Slide ${slideNum}] Overlaying ISO badge...`);
-          const isoStart = Date.now();
-          
-          try {
-             const isoRes = await fetchAiWithRetry(
-               {
-                 model: IMAGE_MODEL,
-                 messages: [
-                   {
-                     role: "user",
-                     content: [
-                       { type: "text", text: `Overlay ISO badge at bottom-left corner. Size: 6-8% width. Keep EXACT as provided. Don't alter rest.` },
-                       { type: "image_url", image_url: { url: baseImageUrl } },
-                       { type: "image_url", image_url: { url: isoAsset.url } },
-                     ],
-                   },
-                 ],
-                 modalities: ["image", "text"],
-               },
-               `[Slide ${slideNum}] ISO overlay`
-             );
-            
-            if (isoRes.ok) {
-              const isoData = await isoRes.json();
-              const isoUrl = isoData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-              if (isoUrl) {
-                baseImageUrl = isoUrl;
-                console.log(`[REGEN] [Slide ${slideNum}] ✅ ISO overlay done in ${Date.now() - isoStart}ms`);
-              }
-            }
-          } catch (e) {
-            console.warn(`[REGEN] [Slide ${slideNum}] ISO overlay failed, continuing`);
-          }
-        }
-
-        // Step 4: Upload to Storage
-        if (baseImageUrl && baseImageUrl.startsWith('data:image')) {
-          console.log(`[REGEN] [Slide ${slideNum}] Uploading to Storage...`);
-          const uploadStart = Date.now();
-          
-          try {
-            const base64Data = baseImageUrl.split(',')[1];
-            const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-            const fileName = `regen-${carousel_id.slice(0, 8)}-s${slideNum}-${Date.now()}.png`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('carousel-images')
-              .upload(fileName, imageBytes, { contentType: 'image/png' });
-            
-            if (!uploadError) {
-              const { data: publicUrlData } = supabase.storage
-                .from('carousel-images')
-                .getPublicUrl(fileName);
-              imageUrl = publicUrlData.publicUrl;
-              console.log(`[REGEN] [Slide ${slideNum}] ✅ Uploaded in ${Date.now() - uploadStart}ms`);
-            } else {
-              console.warn(`[REGEN] [Slide ${slideNum}] Upload failed: ${uploadError.message}`);
-              imageUrl = baseImageUrl; // Keep base64 as fallback
-            }
-          } catch (e) {
-            console.warn(`[REGEN] [Slide ${slideNum}] Upload error, keeping base64`);
-            imageUrl = baseImageUrl;
-          }
-        } else {
-          imageUrl = baseImageUrl;
-        }
-
-        console.log(`[REGEN] [Slide ${slideNum}] ✅ COMPLETE in ${Date.now() - slideStart}ms`);
+        console.warn("[REGEN] No image in Nano Banana response");
+        return null;
       } catch (e) {
-        console.error(`[REGEN] [Slide ${slideNum}] ERROR: ${e}`);
-      }
-
-      return { ...slide, imageUrl };
-    }
-
-    // BATCH PROCESSING: Process slides in parallel batches of 3
-    console.log(`[REGEN] Starting batch processing (${slides.length} slides, batch size: 3)...`);
-    const batchSize = 3;
-    const processedSlides: any[] = [];
-
-    for (let i = 0; i < slides.length; i += batchSize) {
-      const batch = slides.slice(i, i + batchSize);
-      const batchNum = Math.floor(i / batchSize) + 1;
-      const totalBatches = Math.ceil(slides.length / batchSize);
-      
-      console.log(`[REGEN] Processing batch ${batchNum}/${totalBatches} (slides ${i + 1}-${Math.min(i + batchSize, slides.length)})...`);
-      const batchStart = Date.now();
-      
-      // Process batch in parallel
-      const batchResults = await Promise.all(
-        batch.map((slide: any, batchIdx: number) => processSlide(slide, i + batchIdx))
-      );
-      
-      processedSlides.push(...batchResults);
-      console.log(`[REGEN] ✅ Batch ${batchNum} complete in ${Date.now() - batchStart}ms`);
-      
-      // Small delay between batches to avoid rate limiting
-      if (i + batchSize < slides.length) {
-        await new Promise(r => setTimeout(r, 500));
+        console.error(`[REGEN] Nano Banana API error: ${e}`);
+        return null;
       }
     }
 
-    // Update carousel in database
-    const imageUrls = processedSlides.map((s: any) => s.imageUrl || "").filter(Boolean);
-    
+    // Fallback to Gemini 2.5 Flash Image (faster)
+    async function generateImageWithNanoBananaFlash(prompt: string): Promise<string | null> {
+      const MODEL = "gemini-2.5-flash-image";
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+      const requestBody = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ["IMAGE", "TEXT"],
+          imageConfig: {
+            aspectRatio: "3:4"
+          }
+        }
+      };
+
+      try {
+        console.log(`[REGEN] Falling back to Nano Banana Flash...`);
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error(`[REGEN] Nano Banana Flash error: ${response.status} - ${errText}`);
+          return null;
+        }
+
+        const data = await response.json();
+        const candidate = data.candidates?.[0]?.content?.parts || [];
+
+        for (const part of candidate) {
+          if (part.inlineData?.mimeType?.startsWith("image/")) {
+            console.log(`[REGEN] ✅ Image generated with Flash`);
+            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          }
+        }
+
+        return null;
+      } catch (e) {
+        console.error(`[REGEN] Nano Banana Flash error: ${e}`);
+        return null;
+      }
+    }
+
+    // ========================================================================
+    // BRAND-COMPLIANT PROMPT BUILDER
+    // ========================================================================
+    function buildBrandPrompt(slide: SlideData, slideNum: number, totalSlides: number): string {
+      const isFirst = slideNum === 1;
+      const isLast = slideNum === totalSlides;
+
+      return `Create a professional LinkedIn carousel slide for Lifetrek Medical.
+
+=== BRAND IDENTITY ===
+Company: Lifetrek Medical - Medical device contract manufacturer
+Industry: Orthopedic implants, dental implants, CNC precision machining
+Location: Indaiatuba, São Paulo, Brazil
+Certifications: ISO 13485, ANVISA registered
+
+=== BRAND COLORS (MUST USE) ===
+Primary Blue: #004F8F (corporate, trust)
+Dark Blue Gradient: #0A1628 → #003052 (backgrounds)
+Innovation Green: #1A7A3E (accents, success indicators)
+Energy Orange: #F07818 (CTAs, highlights)
+White text on dark backgrounds for maximum readability
+
+=== VISUAL STYLE ===
+- Premium glassmorphism effects with subtle transparency
+- Editorial magazine quality, clean and sophisticated
+- High-tech medical manufacturing aesthetic
+- Photorealistic CNC machines, cleanrooms, precision parts
+- Professional studio lighting with soft shadows
+
+=== SLIDE CONTENT ===
+Headline: "${slide.headline}"
+Body Text: "${slide.body}"
+Slide Type: ${slide.type} (${isFirst ? "FIRST/HOOK - grab attention" : isLast ? "LAST/CTA - call to action" : "CONTENT - inform and educate"})
+Position: Slide ${slideNum} of ${totalSlides}
+
+=== COMPOSITION REQUIREMENTS ===
+- Format: Portrait 3:4 ratio for LinkedIn carousel
+- Render the headline text "${slide.headline}" prominently in large, bold white text
+- Render the body text below in smaller white text
+- Text must be in PORTUGUESE (Brazilian Portuguese)
+- Background: Medical manufacturing environment (CNC machines, cleanroom, titanium parts)
+${isFirst || isLast ? "- Reserve space in top-right corner for company logo overlay" : ""}
+${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" : ""}
+
+=== CRITICAL RULES ===
+1. USE Lifetrek brand colors exactly as specified
+2. Text must be READABLE - white text with high contrast on dark background
+3. Professional, technical aesthetic - not generic stock photo look
+4. Show REAL medical manufacturing context (not abstract graphics)
+5. Text must be perfectly rendered in Portuguese
+6. Do NOT include any placeholder text, font names, or technical labels`;
+    }
+
+    // ========================================================================
+    // PROCESS SLIDES
+    // ========================================================================
+    async function processSlide(slide: SlideData, index: number): Promise<SlideData> {
+      const slideNum = index + 1;
+      const isFirst = index === 0;
+      const isLast = index === slides.length - 1;
+
+      console.log(`[REGEN] [Slide ${slideNum}/${slides.length}] Processing: "${slide.headline}"`);
+      const slideStart = Date.now();
+
+      // Set overlay metadata
+      slide.showLogo = isFirst || isLast;
+      slide.showISOBadge = isLast || slide.type === 'cta';
+      if (logoAsset?.url) slide.logoUrl = logoAsset.url;
+      if (isoAsset?.url) slide.isoUrl = isoAsset.url;
+
+      // Build brand-compliant prompt
+      const prompt = buildBrandPrompt(slide, slideNum, slides.length);
+
+      // Generate image with reference images for brand consistency
+      const imageUrl = await generateImageWithNanoBanana(prompt, referenceImages);
+
+      if (imageUrl) {
+        // Upload to Supabase Storage
+        try {
+          const base64Data = imageUrl.split(",")[1];
+          const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          const fileName = `regen-${carousel_id.slice(0, 8)}-s${slideNum}-${Date.now()}.png`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("carousel-images")
+            .upload(fileName, imageBytes, { contentType: "image/png", upsert: true });
+
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from("carousel-images")
+              .getPublicUrl(fileName);
+
+            slide.imageUrl = publicUrlData.publicUrl;
+            slide.image_url = publicUrlData.publicUrl;
+            console.log(`[REGEN] [Slide ${slideNum}] ✅ Generated and uploaded in ${Date.now() - slideStart}ms`);
+          } else {
+            console.warn(`[REGEN] [Slide ${slideNum}] Upload failed: ${uploadError.message}`);
+          }
+        } catch (e) {
+          console.error(`[REGEN] [Slide ${slideNum}] Upload error: ${e}`);
+        }
+      } else {
+        console.error(`[REGEN] [Slide ${slideNum}] ❌ Image generation failed`);
+      }
+
+      return slide;
+    }
+
+    // ========================================================================
+    // PROCESS ALL SLIDES (Sequential to avoid rate limits)
+    // ========================================================================
+    console.log(`[REGEN] Starting image generation for ${slides.length} slides...`);
+
+    const processedSlides: SlideData[] = [];
+    for (let i = 0; i < slides.length; i++) {
+      const processed = await processSlide(slides[i], i);
+      processedSlides.push(processed);
+
+      // Delay between slides to respect rate limits
+      if (i < slides.length - 1) {
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    // ========================================================================
+    // UPDATE DATABASE
+    // ========================================================================
+    const imageUrls = processedSlides
+      .map((s) => s.imageUrl || s.image_url || "")
+      .filter(Boolean);
+
     console.log(`[REGEN] Updating database with ${imageUrls.length} images...`);
+
     const { error: updateError } = await supabase
       .from("linkedin_carousels")
       .update({
@@ -422,8 +437,9 @@ REGRAS ABSOLUTAS:
         carousel_id,
         slides_regenerated: processedSlides.length,
         images_generated: imageUrls.length,
+        reference_images_used: referenceImages.length,
         duration_ms: totalTime,
-        logs: __regenLogs,
+        logs: __regenLogs
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -431,7 +447,7 @@ REGRAS ABSOLUTAS:
   } catch (error) {
     console.error(`[REGEN] FATAL ERROR: ${error}`);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error", logs: __regenLogs }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

@@ -22,7 +22,9 @@ export default function ResourceDetail() {
     const { toast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasAccess, setHasAccess] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUnlocking, setIsUnlocking] = useState(false);
+    const [isSavingScorecard, setIsSavingScorecard] = useState(false);
+    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -42,6 +44,20 @@ export default function ResourceDetail() {
         quality: false,
         capital: false
     });
+    const [scorecardStatus, setScorecardStatus] = useState<string | null>(null);
+    const [checklistStatus, setChecklistStatus] = useState<string | null>(null);
+    const saveLeadBackup = (payload: Record<string, unknown>) => {
+        if (typeof window === "undefined") return;
+        const key = "lifetrek_lead_backups";
+        try {
+            const existing = JSON.parse(localStorage.getItem(key) || "[]");
+            const next = Array.isArray(existing) ? existing : [];
+            next.push({ ...payload, created_at: new Date().toISOString() });
+            localStorage.setItem(key, JSON.stringify(next));
+        } catch (err) {
+            console.warn("Failed to store lead backup:", err);
+        }
+    };
     
     const contentRef = useRef<HTMLDivElement>(null);
     const hasTrackedView = useRef(false);
@@ -92,7 +108,7 @@ export default function ResourceDetail() {
             return;
         }
 
-        setIsSubmitting(true);
+        setIsUnlocking(true);
         try {
             const { error: insertError } = await supabase
                 .from("contact_leads")
@@ -102,11 +118,8 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    project_types: ["other_medical"],
-                    technical_requirements: `Lead magnet: ${resource.title}`,
+                    business_challenges: `Lead magnet: ${resource.title}`,
                     message: `Resource slug: ${resource.slug}`,
-                    source: "website",
-                    status: "new"
                 });
 
             if (insertError) throw insertError;
@@ -120,13 +133,21 @@ export default function ResourceDetail() {
             });
         } catch (err) {
             console.error("Error saving lead:", err);
+            saveLeadBackup({
+                type: "resource_unlock",
+                resource_slug: resource.slug,
+                resource_title: resource.title,
+                formData
+            });
+            localStorage.setItem(`lifetrek_resource_unlocked_${resource.slug}`, "true");
+            setHasAccess(true);
+            setIsModalOpen(false);
             toast({
-                variant: "destructive",
-                title: "Erro",
-                description: "Nao foi possivel liberar o recurso. Tente novamente."
+                title: "Acesso liberado!",
+                description: "CRM indisponivel. Dados salvos localmente."
             });
         } finally {
-            setIsSubmitting(false);
+            setIsUnlocking(false);
         }
     };
 
@@ -142,13 +163,15 @@ export default function ResourceDetail() {
             return;
         }
 
-        setIsSubmitting(true);
+        const payload = {
+            scorecard,
+            total: scorecardTotal,
+            band: scorecardBand
+        };
+
+        setScorecardStatus(null);
+        setIsSavingScorecard(true);
         try {
-            const payload = {
-                scorecard,
-                total: scorecardTotal,
-                band: scorecardBand
-            };
 
             const { error: insertError } = await supabase
                 .from("contact_leads")
@@ -158,11 +181,8 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    project_types: ["other_medical"],
-                    technical_requirements: `Scorecard ${resource.title}: ${scorecardTotal} (${scorecardBand}).`,
+                    business_challenges: `Scorecard ${resource.title}: ${scorecardTotal} (${scorecardBand}).`,
                     message: `Resource slug: ${resource.slug}. Responses: ${JSON.stringify(payload)}`,
-                    source: "website",
-                    status: "new"
                 });
 
             if (insertError) throw insertError;
@@ -171,15 +191,23 @@ export default function ResourceDetail() {
                 title: "Scorecard salvo",
                 description: "Respostas registradas no CRM interno."
             });
+            setScorecardStatus("Scorecard salvo");
         } catch (err) {
             console.error("Error saving scorecard:", err);
-            toast({
-                variant: "destructive",
-                title: "Erro",
-                description: "Nao foi possivel salvar o scorecard."
+            saveLeadBackup({
+                type: "scorecard_response",
+                resource_slug: resource.slug,
+                resource_title: resource.title,
+                formData,
+                payload
             });
+            toast({
+                title: "Scorecard salvo",
+                description: "CRM indisponivel. Respostas salvas localmente."
+            });
+            setScorecardStatus("Scorecard salvo");
         } finally {
-            setIsSubmitting(false);
+            setIsSavingScorecard(false);
         }
     };
 
@@ -195,12 +223,14 @@ export default function ResourceDetail() {
             return;
         }
 
-        setIsSubmitting(true);
+        const payload = {
+            checklist: productionChecklist,
+            yesCount: productionYesCount
+        };
+
+        setChecklistStatus(null);
+        setIsSavingChecklist(true);
         try {
-            const payload = {
-                checklist: productionChecklist,
-                yesCount: productionYesCount
-            };
 
             const { error: insertError } = await supabase
                 .from("contact_leads")
@@ -210,11 +240,8 @@ export default function ResourceDetail() {
                     company: formData.company,
                     phone: "Nao informado",
                     project_type: "other_medical",
-                    project_types: ["other_medical"],
-                    technical_requirements: `Checklist producao local: ${productionYesCount} SIM.`,
+                    business_challenges: `Checklist producao local: ${productionYesCount} SIM.`,
                     message: `Resource slug: ${resource.slug}. Responses: ${JSON.stringify(payload)}`,
-                    source: "website",
-                    status: "new"
                 });
 
             if (insertError) throw insertError;
@@ -223,15 +250,23 @@ export default function ResourceDetail() {
                 title: "Checklist salvo",
                 description: "Respostas registradas no CRM interno."
             });
+            setChecklistStatus("Checklist salvo");
         } catch (err) {
             console.error("Error saving checklist:", err);
-            toast({
-                variant: "destructive",
-                title: "Erro",
-                description: "Nao foi possivel salvar o checklist."
+            saveLeadBackup({
+                type: "checklist_response",
+                resource_slug: resource.slug,
+                resource_title: resource.title,
+                formData,
+                payload
             });
+            toast({
+                title: "Checklist salvo",
+                description: "CRM indisponivel. Respostas salvas localmente."
+            });
+            setChecklistStatus("Checklist salvo");
         } finally {
-            setIsSubmitting(false);
+            setIsSavingChecklist(false);
         }
     };
 
@@ -412,9 +447,12 @@ export default function ResourceDetail() {
                                 </div>
 
                                 <div className="mt-4">
-                                    <Button onClick={handleScorecardSave} disabled={isSubmitting}>
-                                        {isSubmitting ? "Salvando..." : "Salvar respostas no CRM"}
+                                    <Button onClick={handleScorecardSave} disabled={isSavingScorecard}>
+                                        {isSavingScorecard ? "Salvando..." : "Salvar respostas no CRM"}
                                     </Button>
+                                    {scorecardStatus && (
+                                        <p className="mt-3 text-sm text-slate-600">{scorecardStatus}</p>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -456,9 +494,12 @@ export default function ResourceDetail() {
                                 </div>
 
                                 <div className="mt-4">
-                                    <Button onClick={handleProductionChecklistSave} disabled={isSubmitting}>
-                                        {isSubmitting ? "Salvando..." : "Salvar checklist no CRM"}
+                                    <Button onClick={handleProductionChecklistSave} disabled={isSavingChecklist}>
+                                        {isSavingChecklist ? "Salvando..." : "Salvar checklist no CRM"}
                                     </Button>
+                                    {checklistStatus && (
+                                        <p className="mt-3 text-sm text-slate-600">{checklistStatus}</p>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -525,8 +566,8 @@ export default function ResourceDetail() {
                             />
                         </div>
                         <DialogFooter className="pt-4">
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting ? "Liberando..." : "Desbloquear recurso"}
+                            <Button type="submit" className="w-full" disabled={isUnlocking}>
+                                {isUnlocking ? "Liberando..." : "Desbloquear recurso"}
                             </Button>
                         </DialogFooter>
                     </form>
