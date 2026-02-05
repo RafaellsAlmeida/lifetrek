@@ -76,15 +76,20 @@ export function useLinkedInAnalytics() {
 
       setHistoryData(chartData);
       
-      // Mock Data for message volume until we accumulate history
-      setMessageData([
-          { date: "Jan 28", sent: 12, received: 5 },
-          { date: "Jan 29", sent: 18, received: 8 },
-          { date: "Jan 30", sent: 5, received: 12 },
-          { date: "Jan 31", sent: 20, received: 15 },
-          { date: "Feb 01", sent: 15, received: 10 },
-          { date: "Feb 02", sent: 8, received: 22 },
-      ]);
+      // Fetch real message data from linkedin_analytics_daily
+      const { data: messageHistory } = await (supabase
+        .from("linkedin_analytics_daily" as any)
+        .select("snapshot_date, messages_sent_today, messages_received_today")
+        .gte("snapshot_date", thirtyDaysAgo.toISOString().split("T")[0])
+        .order("snapshot_date", { ascending: true }) as any);
+
+      const messageChartData = (messageHistory || []).map((d: any) => ({
+        date: new Date(d.snapshot_date).toLocaleDateString("pt-BR", { month: "short", day: "numeric" }),
+        sent: d.messages_sent_today || 0,
+        received: d.messages_received_today || 0
+      }));
+      
+      setMessageData(messageChartData);
 
     } catch (error) {
       console.error("Error loading analytics:", error);

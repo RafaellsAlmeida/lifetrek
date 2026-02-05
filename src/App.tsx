@@ -52,6 +52,8 @@ const RoiSimulation = lazy(() => import("./pages/Admin/RoiSimulation"));
 const UnifiedAnalytics = lazy(() => import("./pages/Admin/UnifiedAnalytics"));
 const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox"));
 const OnePager = lazy(() => import("./pages/OnePager"));
+const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
+const ImageEditor = lazy(() => import("./pages/Admin/ImageEditor"));
 
 // Public Pages
 const ProductCatalog = lazy(() => import("./pages/ProductCatalog"));
@@ -135,6 +137,8 @@ const App = () => (
                   <Route path="analytics" element={<UnifiedAnalytics />} />
                   <Route path="inbox" element={<UnifiedInbox />} />
                   <Route path="one-pager" element={<OnePager />} />
+                  <Route path="content-manager" element={<ContentManager />} />
+                  <Route path="image-editor" element={<ImageEditor />} />
                 </Route>
               </Route>
             </Routes>

@@ -79,6 +79,7 @@ const navStructure: NavEntry[] = [
         icon: FileText,
         items: [
             { path: "/admin/orchestrator", label: "Orchestrator", icon: MessageSquare },
+            { path: "/admin/content-manager", label: "Gestor Conteúdo", icon: FileText },
             { path: "/admin/content-approval", label: "Aprovação", icon: CheckCircle },
             { path: "/admin/content-calendar", label: "Calendário", icon: Target },
             { path: "/admin/video-studio", label: "Video Studio", icon: Clapperboard },

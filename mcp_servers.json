@@ -23,7 +23,7 @@
         "url": "https://mcp.supabase.com/mcp?project_ref=dlflpvmdzkeouhgqwqba&features=database%2Cdocs%2Caccount%2Cdebugging%2Cfunctions%2Cdevelopment%2Cbranching%2Cstorage",
         "type": "sse",
         "env": {
-            "SUPABASE_ACCESS_TOKEN": "sbp_1c01dfb9b4acbcf37ee9d05cf135b6fc44dc08cb"
+            "SUPABASE_ACCESS_TOKEN": "sbp_305d9fd932ba7dc87bae06caa3700e4aeacd8ab0"
         }
     },
     "redis": {

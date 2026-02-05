@@ -28,17 +28,6 @@ export default function UnifiedAnalytics() {
     connectionGrowth: data.linkedin.connectionGrowth,
   };
 
-  // Mock message data for correlation chart
-  const messageData = [
-    { date: "Seg", sent: 12, received: 5 },
-    { date: "Ter", sent: 18, received: 8 },
-    { date: "Qua", sent: 5, received: 12 },
-    { date: "Qui", sent: 20, received: 15 },
-    { date: "Sex", sent: 15, received: 10 },
-    { date: "Sáb", sent: 8, received: 22 },
-    { date: "Dom", sent: 3, received: 4 },
-  ];
-
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
@@ -115,7 +104,7 @@ export default function UnifiedAnalytics() {
               Correlação LinkedIn → Website
             </h2>
             <CorrelationChart
-              linkedinMessages={messageData}
+              linkedinMessages={data.linkedin.messageData}
               linkedinTraffic={data.correlation.linkedinTraffic}
               correlationScore={data.correlation.correlationScore}
             />

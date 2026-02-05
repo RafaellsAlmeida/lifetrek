@@ -21,6 +21,7 @@ export interface UnifiedAnalyticsData {
     messagesReceived: number;
     responseRate: number;
     history: Array<{ date: string; connections: number }>;
+    messageData: Array<{ date: string; sent: number; received: number }>;
   };
   // Correlation data
   correlation: {
@@ -117,8 +118,13 @@ export function useUnifiedAnalytics(options: UseUnifiedAnalyticsOptions = {}) {
       unreadConversations: linkedin.stats.unreadConversations,
       messagesSent: linkedin.messageData.reduce((s: number, d: any) => s + (d.sent || 0), 0),
       messagesReceived: linkedin.messageData.reduce((s: number, d: any) => s + (d.received || 0), 0),
-      responseRate: 65, // Placeholder - calculate from actual message data when available
+      responseRate: (() => {
+        const sent = linkedin.messageData.reduce((s: number, d: any) => s + (d.sent || 0), 0);
+        const received = linkedin.messageData.reduce((s: number, d: any) => s + (d.received || 0), 0);
+        return sent > 0 ? Math.round((received / sent) * 100) : 0;
+      })(),
       history: linkedin.historyData,
+      messageData: linkedin.messageData,
     },
     correlation: correlationData,
   }), [ga4, linkedin, correlationData]);
