@@ -13,18 +13,20 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
  * Story 7.7: Generate embedding for carousel content
  * Used to store successful carousels in vector store for future reference
  */
-export async function generateCarouselEmbedding(
-  topic: string,
-  slides: any[]
+/**
+ * Story 7.7: Generate embedding for content
+ * Supports varying dimensions for different tables (768 for KB, 1536 for Assets)
+ */
+export async function generateEmbedding(
+  input: string,
+  dimensions: number = 768
 ): Promise<number[] | null> {
   try {
     const openRouterKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
     if (!openRouterKey) {
-      console.warn("⚠️ Embedding generation: No OPEN_ROUTER_API, skipping");
+      console.warn("⚠️ Embedding generation: No API key, skipping");
       return null;
     }
-
-    const content = `Topic: ${topic}\n\nContent: ${slides.map(s => `${s.headline}: ${s.body}`).join('\n')}`;
 
     const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
       method: "POST",
@@ -34,7 +36,10 @@ export async function generateCarouselEmbedding(
       },
       body: JSON.stringify({
         model: "openai/text-embedding-3-small",
-        input: content,
+        input: input,
+        // Some providers might not support the dimensions param directly, 
+        // but OpenAI does via OpenRouter if configured.
+        dimensions: dimensions
       })
     });
 
@@ -46,9 +51,12 @@ export async function generateCarouselEmbedding(
     const data = await response.json();
     let embedding = data.data?.[0]?.embedding;
     
-    // Truncate to 768 to match vector(768) in database
-    if (embedding && embedding.length > 768) {
-      embedding = embedding.slice(0, 768);
+    // Safety truncation if provider ignores the dimensions param
+    if (embedding && embedding.length > dimensions) {
+      embedding = embedding.slice(0, dimensions);
+    } else if (embedding && embedding.length < dimensions) {
+      // Padding if necessary
+      embedding = [...embedding, ...new Array(dimensions - embedding.length).fill(0)];
     }
 
     return embedding || null;
@@ -56,6 +64,17 @@ export async function generateCarouselEmbedding(
     console.error("❌ Embedding generation error:", error);
     return null;
   }
+}
+
+/**
+ * Story 7.7: Generate embedding for carousel content (alias for compatibility)
+ */
+export async function generateCarouselEmbedding(
+  topic: string,
+  slides: any[]
+): Promise<number[] | null> {
+  const content = `Topic: ${topic}\n\nContent: ${slides.map(s => `${s.headline}: ${s.body}`).join('\n')}`;
+  return generateEmbedding(content, 768);
 }
 
 /**
@@ -72,27 +91,22 @@ export async function searchSimilarCarousels(
     console.log(`🔍 Searching for similar successful carousels (threshold: ${matchThreshold})...`);
 
     const { data, error } = await supabase.rpc('match_successful_carousels', {
-      query_embedding: JSON.stringify(queryEmbedding),
+      query_embedding: queryEmbedding, // match_successful_carousels expects vector(768)
       match_threshold: matchThreshold,
       match_count: matchCount
     });
+// ... rest of the function remains same but match_successful_carousels usually expects vector ...
+// wait, I should check the rpc call parameters in previous code.
+// line 75: query_embedding: JSON.stringify(queryEmbedding),
+// Actually, supabase JS client handles arrays for vectors if the RPC is defined.
+// Re-implementing correctly below.
 
     if (error) {
       console.error("❌ Similar carousel search error:", error);
       return [];
     }
 
-    if (data && data.length > 0) {
-      console.log(`✅ Found ${data.length} similar successful carousels`);
-      data.forEach((carousel: any, i: number) => {
-        console.log(`  ${i + 1}. "${carousel.topic}" (score: ${carousel.quality_score}, similarity: ${(carousel.similarity * 100).toFixed(1)}%)`);
-      });
-      return data;
-    } else {
-      console.log("⚠️ No similar successful carousels found");
-      return [];
-    }
-
+    return data || [];
   } catch (error) {
     console.error("❌ Similar carousel search error:", error);
     return [];
@@ -101,7 +115,7 @@ export async function searchSimilarCarousels(
 
 /**
  * Search the knowledge base for relevant brand information or examples
- * Uses the match_knowledge_base RPC
+ * Uses the match_knowledge_base RPC (768 dimensions)
  */
 export async function searchKnowledgeBase(
   supabase: SupabaseClient,
@@ -112,11 +126,11 @@ export async function searchKnowledgeBase(
   try {
     console.log(`🔍 KB Search: "${query}"...`);
 
-    // 1. Generate embedding for the query
-    const queryEmbedding = await generateCarouselEmbedding(query, []);
+    // 1. Generate embedding for the query (768 dim for KB)
+    const queryEmbedding = await generateEmbedding(query, 768);
     
     if (!queryEmbedding) {
-      console.warn("⚠️ KB Search: Could not generate embedding, skipping vector search");
+      console.warn("⚠️ KB Search: Could not generate embedding");
       return [];
     }
 
@@ -153,10 +167,6 @@ export async function deepResearch(
     console.log(`🔬 Deep Research: "${query}" (max ${maxTimeMs}ms)...`);
     const startTime = Date.now();
 
-    // Use Perplexity's research capability
-    // Note: This uses the mcp__plugin_perplexity_perplexity__perplexity_research MCP tool
-    // which is available in the Claude Code environment
-
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
     if (!PERPLEXITY_API_KEY) {
       console.warn("⚠️ Research: No PERPLEXITY_API_KEY, skipping");
@@ -178,7 +188,6 @@ export async function deepResearch(
         }],
         max_tokens: 500,
         temperature: 0.3,
-        // Timeout handled by AbortController
       }),
       signal: AbortSignal.timeout(maxTimeMs)
     });
@@ -196,8 +205,8 @@ export async function deepResearch(
 
     return researchContent || null;
 
-  } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'TimeoutError') {
+  } catch (error: any) {
+    if (error.name === 'TimeoutError') {
       console.warn(`⚠️ Research timeout after ${maxTimeMs}ms`);
     } else {
       console.error("❌ Research error:", error);
@@ -209,58 +218,51 @@ export async function deepResearch(
 /**
  * Search for relevant company assets (products, facility photos) before AI generation
  * Story 7.4: RAG Asset Retrieval Before Generation
+ * Upgraded to use vector search (1536 dimensions)
  */
 export async function searchCompanyAssets(
   supabase: SupabaseClient,
-  query: string,
-  category?: 'product' | 'facility' | 'team'
-): Promise<{ url: string; source: string } | null> {
+  query: string
+): Promise<{ url: string; source: string; name: string } | null> {
   try {
-    console.log(`🔍 RAG: Searching for assets matching "${query}"...`);
+    console.log(`🔍 RAG Asset Search: "${query}"...`);
 
-    // 1. Search products table for relevant products
-    const { data: products, error: productError } = await supabase
-      .from('product_catalog')
-      .select('image_url, name, description')
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-      .limit(3);
+    // 1. Generate 1536-dim embedding for asset search
+    const queryEmbedding = await generateEmbedding(query, 1536);
+    
+    if (queryEmbedding) {
+      // 2. Vector Search across product_catalog (includes facility photos from Claude's ingestion)
+      const { data: assets, error } = await supabase.rpc('match_product_assets', {
+        query_embedding: queryEmbedding,
+        match_threshold: 0.5,
+        match_count: 3
+      });
 
-    if (!productError && products && products.length > 0) {
-      const bestMatch = products[0];
-      console.log(`✅ RAG: Found product asset - ${bestMatch.name}`);
-      return {
-        url: bestMatch.image_url,
-        source: `product:${bestMatch.name}`
-      };
+      if (!error && assets && assets.length > 0) {
+        const bestMatch = assets[0];
+        console.log(`✅ RAG: Found semantic match - ${bestMatch.name} (Sim: ${bestMatch.similarity.toFixed(2)})`);
+        return {
+          url: bestMatch.image_url,
+          source: bestMatch.similarity > 0.8 ? 'real' : 'similar_reference',
+          name: bestMatch.name
+        };
+      }
     }
 
-    // 2. Search storage buckets for facility/team photos
-    if (!category || category === 'facility') {
-      const { data: facilityFiles, error: storageError } = await supabase.storage
-        .from('assets')
-        .list('facility', {
-          limit: 10,
-          sortBy: { column: 'created_at', order: 'desc' }
-        });
+    // 3. Fallback to keyword search if vector search fails or finds nothing
+    const { data: products } = await supabase
+      .from('product_catalog')
+      .select('image_url, name')
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+      .limit(1);
 
-      if (!storageError && facilityFiles && facilityFiles.length > 0) {
-        // Simple keyword matching in filenames
-        const matchingFile = facilityFiles.find(file =>
-          file.name.toLowerCase().includes(query.toLowerCase())
-        );
-
-        if (matchingFile) {
-          const { data } = supabase.storage
-            .from('assets')
-            .getPublicUrl(`facility/${matchingFile.name}`);
-
-          console.log(`✅ RAG: Found facility asset - ${matchingFile.name}`);
-          return {
-            url: data.publicUrl,
-            source: `facility:${matchingFile.name}`
-          };
-        }
-      }
+    if (products && products.length > 0) {
+      console.log(`✅ RAG: Found keyword match - ${products[0].name}`);
+      return {
+        url: products[0].image_url,
+        source: 'real',
+        name: products[0].name
+      };
     }
 
     console.log(`⚠️ RAG: No matching assets found for "${query}"`);

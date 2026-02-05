@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
     Check, Eye, FileText, Linkedin, Sparkles, Clock,
-    ThumbsUp, ThumbsDown, Loader2, RefreshCw
+    ThumbsUp, ThumbsDown, Loader2, RefreshCw, CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -57,6 +57,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
+    const [schedulingItem, setSchedulingItem] = useState<any | null>(null);
+    const [scheduledDate, setScheduledDate] = useState<Date | undefined>(new Date());
+    const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
 
     const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
@@ -111,15 +114,99 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             setRejectDialogOpen(false);
             setRejectionReason("");
             setSelectedItem(null);
+            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error) {
             console.error('Error rejecting:', error);
         }
     };
 
+    const handleSchedule = async () => {
+        if (!schedulingItem || !scheduledDate) return;
+
+        try {
+            const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' : 
+                            schedulingItem.type === 'blog' ? 'blog_posts' : 'resources';
+            
+            const { error } = await supabase
+                .from(tableName)
+                .update({ 
+                    scheduled_date: scheduledDate.toISOString(),
+                    status: 'scheduled' 
+                } as any)
+                .eq('id', schedulingItem.id);
+
+            if (error) throw error;
+
+            toast.success("Post agendado com sucesso!");
+            setIsSchedulingOpen(false);
+            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            await queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+        } catch (error: any) {
+            toast.error(`Erro ao agendar: ${error.message}`);
+        }
+    };
+
     const renderPreview = () => {
         if (!selectedItem) return null;
-        // ... (render logic moved from ContentApproval.tsx)
-        return <div className="p-4">Visualização para {selectedItem.title}</div>;
+
+        if (selectedItem.type === 'linkedin') {
+            const carousel = selectedItem.full_data;
+            const slides = carousel.slides || [];
+
+            return (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {slides.map((slide: any, idx: number) => (
+                            <Card key={idx} className="overflow-hidden border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="aspect-square bg-slate-100 relative">
+                                    {slide.image_url ? (
+                                        <img 
+                                            src={slide.image_url} 
+                                            alt={slide.headline} 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-slate-200">
+                                            <Sparkles className="h-8 w-8 text-slate-400" />
+                                        </div>
+                                    )}
+                                    <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                        SLIDE {idx + 1}
+                                    </div>
+                                </div>
+                                <CardContent className="p-3 space-y-2">
+                                    <h5 className="font-bold text-sm line-clamp-2">{slide.headline}</h5>
+                                    <p className="text-xs text-slate-600 line-clamp-3">{slide.copy}</p>
+                                    {slide.asset_source && (
+                                        <Badge variant="outline" className={`text-[10px] ${slide.asset_source === 'real' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                                            {slide.asset_source === 'real' ? 'Ativo Real' : 'IA Placeholder'}
+                                        </Badge>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                    
+                    <div className="p-4 bg-muted rounded-lg border border-primary/5">
+                        <h4 className="font-semibold text-sm mb-2">Legenda Final</h4>
+                        <p className="text-xs whitespace-pre-wrap text-slate-700">{carousel.caption}</p>
+                    </div>
+                </div>
+            );
+        }
+
+        if (selectedItem.type === 'blog') {
+             return (
+                <div className="space-y-4">
+                    <h3 className="text-xl font-bold">{selectedItem.title}</h3>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                        {selectedItem.full_data.content}
+                    </div>
+                </div>
+             );
+        }
+
+        return <div className="p-4">Visualização para {selectedItem.title} pronto para revisão.</div>;
     };
 
     if (isLoading || isLoadingRejected || isLoadingApproved) {
@@ -200,7 +287,37 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         ))
                     )}
                 </TabsContent>
-                {/* ... (other TabsContent for approved/rejected kept simple for now) */}
+                <TabsContent value="approved" className="space-y-4">
+                    {(!approvedItems || approvedItems.length === 0) ? (
+                        <div className="text-center py-12">
+                            <Clock className="h-12 w-12 mx-auto text-blue-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum item aprovado</h3>
+                            <p className="text-muted-foreground">Itens aprovados aparecerão aqui para agendamento.</p>
+                        </div>
+                    ) : (
+                        approvedItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {item.type === 'blog' ? <FileText className="h-4 w-4 text-blue-500" /> : <Linkedin className="h-4 w-4 text-blue-600" />}
+                                            <CardTitle className="text-base">{item.title}</CardTitle>
+                                        </div>
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Aprovado</Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
+                                        <Clock className="h-4 w-4" /> Agendar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
             </Tabs>
 
             <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
@@ -222,6 +339,26 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancelar</Button>
                         <Button variant="destructive" onClick={handleReject}>Confirmar Rejeição</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isSchedulingOpen} onOpenChange={setIsSchedulingOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Agendar Publicação</DialogTitle></DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <p className="text-sm text-muted-foreground">Selecione a data e hora para a publicação automática.</p>
+                        <div className="flex justify-center border rounded-md p-2">
+                            <input 
+                                type="datetime-local" 
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={scheduledDate ? format(scheduledDate, "yyyy-MM-dd'T'HH:mm") : ""}
+                                onChange={(e) => setScheduledDate(new Date(e.target.value))}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsSchedulingOpen(false)}>Cancelar</Button>
+                        <Button onClick={handleSchedule} className="bg-blue-600 hover:bg-blue-700">Confirmar Agendamento</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -122,103 +122,65 @@ export async function strategistAgent(
   console.log("🎯 Strategist Agent: Planning carousel strategy...");
 
   const brand = getBrandGuidelines(params.profileType);
+  let kbContext = "";
+  let researchContext = "";
 
-  // Story 7.7: Search for similar successful carousels
-  let similarCarouselsContext = "";
+  // 1. Knowledge Base Search (RAG)
   if (supabase) {
-    try {
-      const queryEmbedding = await generateCarouselEmbedding(
-        params.topic,
-        [{ headline: params.topic, body: params.painPoint || "" }]
-      );
-
-      if (queryEmbedding) {
-        const similarCarousels = await searchSimilarCarousels(supabase, queryEmbedding, 0.70, 3);
-
-        if (similarCarousels && similarCarousels.length > 0) {
-          similarCarouselsContext = `\n\n**Similar Successful Carousels** (for inspiration only - create something new):
-${similarCarousels.map((c: any, i: number) => `${i + 1}. "${c.topic}" (Quality: ${c.quality_score}/100, ${JSON.parse(c.slides).length} slides)`).join('\n')}
-
-Learn from their structure and quality, but create fresh content for "${params.topic}".`;
-        }
-      }
-    } catch (error) {
-      console.warn("⚠️ Could not search similar carousels:", error);
-    }
-
-    // Story 7.2: Search for high-performance examples and brand rules in knowledge base
     try {
       console.log(`🔍 Strategist: Searching knowledge base for "${params.topic}"...`);
       const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3);
-      
       if (kbResults && kbResults.length > 0) {
-        const kbContext = kbResults.map((item: any, i: number) => 
-          `[${item.category || 'Knowledge'}] ${item.question || 'Reference'}: ${item.content}`
-        ).join('\n---\n');
-        
-        // SimilarCarouselsContext already exists, we append to it or create a new block
-        similarCarouselsContext += `\n\n**Reference Material from Knowledge Base**:
-${kbContext}
-
-Use these examples and brand rules to ensure content follows high-performance patterns and brand guidelines.`;
+        kbContext = `\n\n**Reference Material from Knowledge Base**:\n${kbResults.map(item => `[${item.category}] ${item.question}: ${item.content}`).join('\n---\n')}`;
       }
     } catch (error) {
-      console.warn("⚠️ Could not search knowledge base:", error);
+      console.warn("⚠️ KB Search failed:", error);
     }
   }
 
+  // 2. Industry Research (Perplexity)
   const researchLevel = params.researchLevel || 'light';
-  let researchContext = "";
-
   if (researchLevel !== 'none') {
     try {
       const researchQuery = `${params.topic} trends and statistics for ${params.targetAudience} in medical device manufacturing ${new Date().getFullYear()}`;
-      const maxResearchTime = researchLevel === 'deep' ? 15000 : 10000;
-      const researchResults = await deepResearch(researchQuery, maxResearchTime);
-
-      if (researchResults) {
-        researchContext = `\n\n**Current Industry Research** (use to inform strategy):
-${researchResults}
-
-Use these insights to create a timely, relevant carousel that addresses current trends.`;
+      console.log(`🔍 Strategist: Running ${researchLevel} research...`);
+      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000);
+      if (research) {
+        researchContext = `\n\n**Industry Research Findings**:\n${research}`;
       }
     } catch (error) {
-      console.warn("⚠️ Could not complete research:", error);
+      console.warn("⚠️ Research failed:", error);
     }
   }
 
   const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
-${similarCarouselsContext}${researchContext}
+${kbContext}
+${researchContext}
 
 **Task**: Create a strategic plan for a LinkedIn carousel about "${params.topic}".
 **Target Audience**: ${params.targetAudience}
-**Pain Point**: ${params.painPoint || 'Not specified'}
-**Desired Outcome**: ${params.desiredOutcome || 'Engagement and thought leadership'}
 **Brand Tone**: ${brand.tone}
 
-**Requirements**:
-- Plan 5-7 slides total (including hook and CTA)
-- Create a compelling narrative arc
-- Identify key messages for maximum impact
-- Follow proven LinkedIn carousel structure: Hook → Value → Value → Value → CTA
-- Output ONLY valid JSON.`;
+**Instructions**:
+- Use Reference Material (if any) to mimic successful post patterns or follow brand guidelines.
+- Use Research Findings (if any) to ground the content in facts and current trends.
+- Plan 5-7 slides total following: Hook → Value → Value → Value → CTA.
+
+Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 5, "key_messages": [] }`;
 
   try {
     const response = await callOpenRouter([
       { role: "system", content: systemPrompt },
-      { role: "user", content: `Create strategy for topic: ${params.topic}` }
+      { role: "user", content: `Create strategy for: ${params.topic}` }
     ]);
 
-    // Sometimes models wrap JSON in markdown blocks
-    const cleanResponse = response.replace(/```json/g, '').replace(/```/g, '');
-    const strategy = extractJSON(cleanResponse);
-
-    console.log(`✅ Strategist: Planned ${strategy.slide_count}-slide carousel in ${Date.now() - startTime}ms`);
+    const strategy = extractJSON(response);
+    console.log(`✅ Strategist: Planned ${strategy.slide_count} slides in ${Date.now() - startTime}ms`);
     return strategy;
 
-  } catch (error: unknown) {
-    console.error("❌ Strategist Agent Error:", error);
-    throw new Error(`Strategist failed: ${error instanceof Error ? error.message : String(error)}`);
+  } catch (error) {
+    console.error("❌ Strategist Error:", error);
+    throw error;
   }
 }
 
@@ -236,60 +198,23 @@ export async function copywriterAgent(
   const brand = getBrandGuidelines(params.profileType);
 
   const prompt = `You are an expert LinkedIn copywriter for ${brand.companyName}.
+Topic: ${params.topic}
+Strategy: ${JSON.stringify(strategy)}
+Brand Tone: ${brand.tone}
 
-**Task**: Write compelling copy for a ${strategy.slide_count}-slide LinkedIn carousel.
-**Topic**: ${params.topic}
-**Target Audience**: ${params.targetAudience}
-**Narrative Arc**: ${strategy.narrative_arc}
-**Key Messages**: ${(strategy.key_messages || []).join(', ')}
-**Brand Tone**: ${brand.tone}
-**CTA Action**: ${params.ctaAction || 'Contact us to learn more'}
+Write compelling copy for ${strategy.slide_count} slides.
+Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "headline": "...", "body": "..." }] }`;
 
-**Slide Structure**:
-1. **Hook Slide** (type: "hook"): Attention-grabbing opening
-   - Headline: Short, punchy (max 60 chars)
-   - Body: Compelling value proposition (max 120 chars)
-
-2-${strategy.slide_count - 1}. **Content Slides** (type: "content"): Value delivery
-   - Headline: Clear, benefit-focused (max 70 chars)
-   - Body: Specific, actionable insight (max 140 chars)
-
-${strategy.slide_count}. **CTA Slide** (type: "cta"): Clear call to action
-   - Headline: Action-oriented (max 60 chars)
-   - Body: Clear next step (max 120 chars)
-
-**Output Format** (JSON only):
-{
-  "topic": "${params.topic}",
-  "caption": "LinkedIn post caption (2-3 sentences, engaging, with 3-5 relevant hashtags)",
-  "slides": [
-    { "type": "hook", "headline": "...", "body": "..." },
-    { "type": "content", "headline": "...", "body": "..." },
-    { "type": "cta", "headline": "...", "body": "..." }
-  ]
-}`;
-
-  try {
-    const response = await callOpenRouter([
-      { role: "user", content: prompt }
-    ]);
-
-    const cleanResponse = response.replace(/```json/g, '').replace(/```/g, '');
-    const copy: CarouselCopy = extractJSON(cleanResponse);
-
-    console.log(`✅ Copywriter: Created ${copy.slides.length} slides in ${Date.now() - startTime}ms`);
-    return copy;
-
-  } catch (error: unknown) {
-    console.error("❌ Copywriter Agent Error:", error);
-    throw new Error(`Copywriter failed: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  const response = await callOpenRouter([{ role: "user", content: prompt }]);
+  const copy = extractJSON(response);
+  console.log(`✅ Copywriter: Created ${copy.slides.length} slides in ${Date.now() - startTime}ms`);
+  return copy;
 }
 
 /**
  * Agent 3: Designer
- * Searches for real assets first, generates AI images as fallback
- * MODIFIED: Uses OpenRouter (Stable Diffusion) for image generation.
+ * Searches for real assets (products, facilities) first using vector RAG, 
+ * generates AI images only as fallback.
  */
 export async function designerAgent(
   supabase: SupabaseClient,
@@ -297,74 +222,64 @@ export async function designerAgent(
   copy: CarouselCopy
 ): Promise<GeneratedImage[]> {
   const startTime = Date.now();
-  console.log("🎨 Designer Agent: Creating visual assets via OpenRouter...");
+  console.log("🎨 Designer Agent: Creating visual assets...");
+
+  const brand = getBrandGuidelines(params.profileType);
+  
+  // RAG for Design Rules
+  let designRules = "";
+  try {
+    const kbDesign = await searchKnowledgeBase(supabase, "design rules colors visual style", 0.4, 2);
+    if (kbDesign && kbDesign.length > 0) {
+      designRules = `\n\n**Visual Style Guidelines**:\n${kbDesign.map(item => item.content).join("\n")}`;
+    }
+  } catch (e) {
+    console.warn("⚠️ Design RAG failed", e);
+  }
 
   const images: GeneratedImage[] = [];
+  
+  // Decide which slides get images (Hook and last slide always, middle one if long)
+  const middleIndex = Math.floor(copy.slides.length / 2);
+  
+  for (let i = 0; i < copy.slides.length; i++) {
+    const slide = copy.slides[i];
+    const shouldHaveImage = i === 0 || i === middleIndex || i === copy.slides.length - 1;
 
-  const isSingleImage = params.format === 'single-image';
-  const middleSlideIndex = Math.floor(copy.slides.length / 2);
-  const lastSlideIndex = copy.slides.length - 1;
-
-  const imagePromises = copy.slides.map(async (slide, i) => {
-    // Story 7.8: Selective Visualization for Cost Optimization
-    // Only generate visuals for Hook, Middle, and CTA slides in carousels
-    // Always generate for single-image format
-    const shouldHaveVisual = isSingleImage || i === 0 || i === middleSlideIndex || i === lastSlideIndex;
-
-    if (!shouldHaveVisual) {
-      console.log(`ℹ️ Designer: Skipping visual for non-critical slide ${i + 1} (Text-only background).`);
-      return {
-        slide_index: i,
-        image_url: "",
-        asset_source: 'text-only' as const
-      };
+    if (!shouldHaveImage) {
+      images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
+      continue;
     }
 
-    // 1. Search for real assets
+    // 1. Try real asset with semantic search
+    // Combine headline and visual_description for better matching
+    const assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
+    const realAsset = await searchCompanyAssets(supabase, assetQuery);
+    
+    if (realAsset) {
+      console.log(`🖼️ Designer: Using real asset "${realAsset.name}" for slide ${i}`);
+      images.push({ 
+        slide_index: i, 
+        image_url: realAsset.url, 
+        asset_source: realAsset.source as 'real', 
+        asset_url: realAsset.url 
+      });
+      continue;
+    }
+
+    // 2. Fallback to AI Generation
+    console.log(`🤖 Designer: Fallback to AI generation for slide ${i}`);
+    const prompt = `Medical device manufacturing context, ${slide.headline}. ${designRules}. Professional, photorealistic, 4k. High-end lighting.`;
     try {
-      const assetQuery = slide.headline.split(' ').slice(0, 3).join(' ');
-      const realAsset = await searchCompanyAssets(supabase, assetQuery);
-
-      if (realAsset) {
-        console.log(`✅ Designer: Using real asset for slide ${i + 1}`);
-        return {
-          slide_index: i,
-          image_url: realAsset.url,
-          asset_source: 'real' as const,
-          asset_url: realAsset.url
-        };
-      }
+      const url = await callOpenRouterImage(prompt);
+      images.push({ slide_index: i, image_url: url || "", asset_source: url ? 'ai-generated' : 'text-only' });
     } catch (e) {
-      console.warn("Asset search failed", e);
+      console.warn(`⚠️ Design generation failed for slide ${i}`, e);
+      images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
     }
+  }
 
-    // 2. Generate AI Image via OpenRouter
-    const imagePrompt = `Professional high-end corporate illustration, medical device manufacturing context. ${slide.headline} - ${slide.body}. High quality, clean modern B2B aesthetic, photorealistic, 4k.`;
-
-    console.log(`🎨 Designer: Generating image for slide ${i + 1} with ${IMAGE_MODEL}...`);
-    const imageUrl = await callOpenRouterImage(imagePrompt);
-
-    if (imageUrl) {
-      console.log(`✅ Designer: Generated AI image for slide ${i + 1}`);
-      return {
-        slide_index: i,
-        image_url: imageUrl,
-        asset_source: 'ai-generated' as const
-      };
-    } else {
-      console.warn(`⚠️ Designer: Failed to generate image for slide ${i + 1}, fallback to text-only.`);
-      return {
-        slide_index: i,
-        image_url: "",
-        asset_source: 'text-only' as const
-      };
-    }
-  });
-
-  const results = await Promise.all(imagePromises);
-  results.sort((a, b) => a.slide_index - b.slide_index);
-  return results;
-
+  console.log(`✅ Designer: Created assets in ${Date.now() - startTime}ms`);
   return images;
 }
 
@@ -379,50 +294,17 @@ export async function brandAnalystAgent(
   const startTime = Date.now();
   console.log("🔍 Brand Analyst: Reviewing carousel quality...");
 
-  const brand = getBrandGuidelines();
+  const prompt = `Review this LinkedIn carousel.
+Slides: ${JSON.stringify(copy.slides)}
+Image Sources: ${images.map(img => img.asset_source).join(", ")}
 
-  const prompt = `You are a strict brand quality analyst for ${brand.companyName}.
+Provide a quality score (0-100) and feedback in JSON.
+Output JSON: { "overall_score": 85, "feedback": "...", "needs_regeneration": false }`;
 
-**Task**: Review this LinkedIn carousel.
-**Content**: ${copy.topic} / ${copy.caption}
-**Slides**: ${copy.slides.map(s => `[${s.type}] ${s.headline}`).join(', ')}
-
-**Criteria**:
-- Clarity & Value
-- Engagement Potential
-- Brand Alignment
-
-**Output JSON**:
-{
-  "overall_score": 85,
-  "feedback": "Assessment...",
-  "needs_regeneration": false,
-  "issues": [],
-  "strengths": []
-}`;
-
-  try {
-    const response = await callOpenRouter([
-      { role: "user", content: prompt }
-    ]);
-
-    const cleanResponse = response.replace(/```json/g, '').replace(/```/g, '');
-    const review: QualityReview = extractJSON(cleanResponse);
-
-    if (typeof review.overall_score !== 'number') review.overall_score = 75;
-    review.needs_regeneration = review.overall_score < 70;
-
-    console.log(`✅ Brand Analyst: Score ${review.overall_score}/100 in ${Date.now() - startTime}ms`);
-    return review;
-
-  } catch (error: unknown) {
-    console.error("❌ Brand Analyst Error:", error);
-    return {
-      overall_score: 75,
-      feedback: "Review failed, defaulting to passing score.",
-      needs_regeneration: false,
-      issues: ["Reviewer error"],
-      strengths: ["Content generated"]
-    };
-  }
+  const response = await callOpenRouter([{ role: "user", content: prompt }]);
+  const review = extractJSON(response);
+  
+  review.needs_regeneration = review.overall_score < 70;
+  console.log(`✅ Brand Analyst: Score ${review.overall_score}/100 in ${Date.now() - startTime}ms`);
+  return review;
 }

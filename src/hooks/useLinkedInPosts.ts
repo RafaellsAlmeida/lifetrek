@@ -228,7 +228,7 @@ export function useContentApprovalItems() {
                 // Fetch draft/pending LinkedIn carousels
                 const { data: linkedInCarousels, error: linkedInError } = await supabase
                     .from("linkedin_carousels")
-                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome")
+                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, slides")
                     .in("status", ["draft", "pending_approval"])
                     .order("created_at", { ascending: false });
 
@@ -423,7 +423,7 @@ export function useApprovedContentItems() {
 
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
-                .select("id, topic, status, created_at, updated_at, target_audience, caption")
+                .select("id, topic, status, created_at, updated_at, target_audience, caption, scheduled_date")
                 .in("status", ["approved", "published"])
                 .order("updated_at", { ascending: false })
                 .limit(50);

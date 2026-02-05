@@ -17,14 +17,23 @@ interface Message {
 
 interface ContentOrchestratorCoreProps {
     embedded?: boolean;
+    onGenerate?: (topic: string) => void;
 }
 
-export function ContentOrchestratorCore({ embedded = false }: ContentOrchestratorCoreProps) {
+export function ContentOrchestratorCore({ embedded = false, onGenerate }: ContentOrchestratorCoreProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [lastRequestTime, setLastRequestTime] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Helper to find the last topic mentioned in conversation
+    const currentTopic = messages
+        .filter(m => m.role === "assistant")
+        .reverse()
+        .find(m => m.content.toLowerCase().includes("tema") || m.content.toLowerCase().includes("tópico") || m.content.length < 100)
+        ?.content.split("\n")[0].replace(/[#*]/g, "").trim() || (messages.length > 0 ? messages[messages.length - 1].content : "");
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -84,6 +93,18 @@ export function ContentOrchestratorCore({ embedded = false }: ContentOrchestrato
         }
     };
 
+    const handleGenerateClick = async () => {
+        if (!onGenerate) return;
+        setIsGenerating(true);
+        try {
+            await onGenerate(currentTopic);
+        } catch (error) {
+            console.error("Generation trigger failed", error);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className={`flex flex-col ${embedded ? 'h-full' : 'h-[calc(100vh-12rem)]'} max-w-4xl mx-auto w-full`}>
             {!embedded && (
@@ -99,7 +120,7 @@ export function ContentOrchestratorCore({ embedded = false }: ContentOrchestrato
                 <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center gap-2">
                     <ShieldAlert className="h-4 w-4 text-amber-600" />
                     <span className="text-xs font-medium text-amber-700">
-                        Modo Seguro: Geração automática de jobs desativada para controle de custos.
+                        Clique em "Gere este post!" para iniciar a criação automática com agentes.
                     </span>
                 </div>
 
@@ -136,6 +157,20 @@ export function ContentOrchestratorCore({ embedded = false }: ContentOrchestrato
                                     >
                                         {m.content}
                                     </ReactMarkdown>
+                                    
+                                    {m.role === "assistant" && i === messages.length - 1 && onGenerate && (
+                                        <div className="mt-4 pt-3 border-t border-primary/10">
+                                            <Button 
+                                                onClick={handleGenerateClick}
+                                                disabled={isGenerating}
+                                                size="sm"
+                                                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg"
+                                            >
+                                                <Sparkles className="w-4 h-4 mr-2" />
+                                                {isGenerating ? "Gerando..." : "✨ Gere este post!"}
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
