@@ -700,8 +700,10 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
           language: string
           niche: string | null
+          pillar: string | null
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
@@ -716,8 +718,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           language?: string
           niche?: string | null
+          pillar?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -732,8 +736,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           language?: string
           niche?: string | null
+          pillar?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -803,6 +809,114 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ga4_analytics_daily: {
+        Row: {
+          avg_session_duration_seconds: number | null
+          bounce_rate: number | null
+          created_at: string
+          engaged_sessions: number | null
+          engagement_rate: number | null
+          id: string
+          new_users: number | null
+          page_views: number | null
+          sessions: number | null
+          snapshot_date: string
+          total_users: number | null
+        }
+        Insert: {
+          avg_session_duration_seconds?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          engaged_sessions?: number | null
+          engagement_rate?: number | null
+          id?: string
+          new_users?: number | null
+          page_views?: number | null
+          sessions?: number | null
+          snapshot_date: string
+          total_users?: number | null
+        }
+        Update: {
+          avg_session_duration_seconds?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          engaged_sessions?: number | null
+          engagement_rate?: number | null
+          id?: string
+          new_users?: number | null
+          page_views?: number | null
+          sessions?: number | null
+          snapshot_date?: string
+          total_users?: number | null
+        }
+        Relationships: []
+      }
+      ga4_page_analytics: {
+        Row: {
+          avg_time_on_page_seconds: number | null
+          bounce_rate: number | null
+          created_at: string
+          id: string
+          page_path: string
+          page_title: string | null
+          page_views: number | null
+          snapshot_date: string
+        }
+        Insert: {
+          avg_time_on_page_seconds?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          id?: string
+          page_path: string
+          page_title?: string | null
+          page_views?: number | null
+          snapshot_date: string
+        }
+        Update: {
+          avg_time_on_page_seconds?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          id?: string
+          page_path?: string
+          page_title?: string | null
+          page_views?: number | null
+          snapshot_date?: string
+        }
+        Relationships: []
+      }
+      ga4_traffic_sources: {
+        Row: {
+          created_at: string
+          engagement_rate: number | null
+          id: string
+          medium: string | null
+          sessions: number | null
+          snapshot_date: string
+          source: string
+          users: number | null
+        }
+        Insert: {
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          medium?: string | null
+          sessions?: number | null
+          snapshot_date: string
+          source: string
+          users?: number | null
+        }
+        Update: {
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          medium?: string | null
+          sessions?: number | null
+          snapshot_date?: string
+          source?: string
+          users?: number | null
+        }
+        Relationships: []
       }
       knowledge_embeddings: {
         Row: {
