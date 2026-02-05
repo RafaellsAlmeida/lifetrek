@@ -9,12 +9,53 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
  * Story 7.7: Generate embedding for carousel content
  * Used to store successful carousels in vector store for future reference
  */
+/**
+ * Story 7.7: Generate embedding for carousel content
+ * Used to store successful carousels in vector store for future reference
+ */
 export async function generateCarouselEmbedding(
   topic: string,
   slides: any[]
 ): Promise<number[] | null> {
-  console.warn("⚠️ Embedding generation disabled to remove Google dependencies.");
-  return null;
+  try {
+    const openRouterKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
+    if (!openRouterKey) {
+      console.warn("⚠️ Embedding generation: No OPEN_ROUTER_API, skipping");
+      return null;
+    }
+
+    const content = `Topic: ${topic}\n\nContent: ${slides.map(s => `${s.headline}: ${s.body}`).join('\n')}`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openRouterKey}`,
+      },
+      body: JSON.stringify({
+        model: "openai/text-embedding-3-small",
+        input: content,
+      })
+    });
+
+    if (!response.ok) {
+      console.error("OpenRouter Embedding Error:", await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    let embedding = data.data?.[0]?.embedding;
+    
+    // Truncate to 768 to match vector(768) in database
+    if (embedding && embedding.length > 768) {
+      embedding = embedding.slice(0, 768);
+    }
+
+    return embedding || null;
+  } catch (error) {
+    console.error("❌ Embedding generation error:", error);
+    return null;
+  }
 }
 
 /**
@@ -54,6 +95,48 @@ export async function searchSimilarCarousels(
 
   } catch (error) {
     console.error("❌ Similar carousel search error:", error);
+    return [];
+  }
+}
+
+/**
+ * Search the knowledge base for relevant brand information or examples
+ * Uses the match_knowledge_base RPC
+ */
+export async function searchKnowledgeBase(
+  supabase: SupabaseClient,
+  query: string,
+  matchThreshold: number = 0.5,
+  matchCount: number = 3
+): Promise<any[]> {
+  try {
+    console.log(`🔍 KB Search: "${query}"...`);
+
+    // 1. Generate embedding for the query
+    const queryEmbedding = await generateCarouselEmbedding(query, []);
+    
+    if (!queryEmbedding) {
+      console.warn("⚠️ KB Search: Could not generate embedding, skipping vector search");
+      return [];
+    }
+
+    // 2. Search using RPC
+    const { data, error } = await supabase.rpc('match_knowledge_base', {
+      query_embedding: queryEmbedding,
+      match_threshold: matchThreshold,
+      match_count: matchCount
+    });
+
+    if (error) {
+      console.error("❌ KB Search error:", error);
+      return [];
+    }
+
+    console.log(`✅ KB Search: Found ${data?.length || 0} matches`);
+    return data || [];
+
+  } catch (error) {
+    console.error("❌ KB Search error:", error);
     return [];
   }
 }

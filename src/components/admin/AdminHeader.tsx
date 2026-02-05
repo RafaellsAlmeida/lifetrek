@@ -27,6 +27,7 @@ import {
     Zap,
     TrendingUp,
     Inbox,
+    Sparkles,
     type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -78,6 +79,7 @@ const navStructure: NavEntry[] = [
         label: "Conteúdo",
         icon: FileText,
         items: [
+            { path: "/admin/social", label: "Social Workspace", icon: Sparkles },
             { path: "/admin/orchestrator", label: "Orchestrator", icon: MessageSquare },
             { path: "/admin/content-manager", label: "Gestor Conteúdo", icon: FileText },
             { path: "/admin/content-approval", label: "Aprovação", icon: CheckCircle },

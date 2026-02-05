@@ -54,6 +54,7 @@ const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox"));
 const OnePager = lazy(() => import("./pages/OnePager"));
 const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
 const ImageEditor = lazy(() => import("./pages/Admin/ImageEditor"));
+const SocialMediaWorkspace = lazy(() => import("./pages/Admin/SocialMediaWorkspace"));
 
 // Public Pages
 const ProductCatalog = lazy(() => import("./pages/ProductCatalog"));
@@ -143,6 +144,7 @@ const App = () => (
                   <Route path="one-pager" element={<OnePager />} />
                   <Route path="content-manager" element={<ContentManager />} />
                   <Route path="image-editor" element={<ImageEditor />} />
+                  <Route path="social" element={<SocialMediaWorkspace />} />
                 </Route>
               </Route>
             </Routes>

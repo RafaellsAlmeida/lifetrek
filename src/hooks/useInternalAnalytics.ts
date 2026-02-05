@@ -132,9 +132,9 @@ export function useInternalAnalytics(options: UseInternalAnalyticsOptions = {}) 
       const resourceMap = new Map<string, ResourceAnalytics>();
       
       resourceEvents.forEach(event => {
-        const meta = event.metadata as Record<string, unknown> | null;
-        const slug = (meta?.resource_slug as string) || "unknown";
-        const title = (meta?.resource_title as string) || slug;
+        const metadata = event.metadata as Record<string, unknown> | null;
+        const slug = (metadata?.resource_slug as string) || "unknown";
+        const title = (metadata?.resource_title as string) || slug;
         
         if (!resourceMap.has(slug)) {
           resourceMap.set(slug, { slug, title, views: 0, reads: 0, downloads: 0, avgReadPercentage: 0 });
@@ -144,7 +144,7 @@ export function useInternalAnalytics(options: UseInternalAnalyticsOptions = {}) 
         if (event.event_type === "resource_view") res.views++;
         if (event.event_type === "resource_read") {
           res.reads++;
-          const readPct = (meta?.read_percentage as number) || 0;
+          const readPct = (metadata?.read_percentage as number) || 0;
           res.avgReadPercentage = (res.avgReadPercentage + readPct) / res.reads;
         }
         if (event.event_type === "resource_download") res.downloads++;

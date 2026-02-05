@@ -35,18 +35,23 @@ await loadEnv();
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.OPEN_ROUTER_API_KEY; // Fallback to OpenRouter if OpenAI is missing
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY;
 const BUCKET_NAME = 'content_assets'; // Ensure this bucket exists and is public
+
+// Determine which provider to use (prefer OpenRouter if OpenAI quota issues)
+const USE_OPENROUTER = process.env.USE_OPENROUTER === 'true' || process.argv.includes('--openrouter');
+const API_KEY = USE_OPENROUTER ? OPENROUTER_API_KEY : OPENAI_API_KEY;
+const BASE_URL = USE_OPENROUTER ? 'https://openrouter.ai/api/v1' : undefined;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error('❌ Missing Supabase Environment Variables!');
     process.exit(1);
 }
 
-if (!OPENAI_API_KEY || OPENAI_API_KEY.includes('placeholder')) {
-    console.error('❌ Missing or Placeholder OpenAI API Key in .env!');
-    console.warn('   Please update OPENAI_API_KEY in your .env file with a valid key.');
-    // We can't proceed without an embedding provider
+if (!API_KEY || API_KEY.includes('placeholder')) {
+    console.error(`❌ Missing API Key for ${USE_OPENROUTER ? 'OpenRouter' : 'OpenAI'}!`);
+    console.warn('   Run with --openrouter flag to use OpenRouter instead.');
     process.exit(1);
 }
 
@@ -57,7 +62,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     }
 });
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+// Configure OpenAI client (works with OpenRouter via baseURL)
+const openai = new OpenAI({
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    defaultHeaders: USE_OPENROUTER ? {
+        'HTTP-Referer': 'https://lifetrek.com.br',
+        'X-Title': 'LifeTrek Content Factory'
+    } : undefined
+});
+
+console.log(`🔧 Using ${USE_OPENROUTER ? 'OpenRouter' : 'OpenAI'} for AI services`);
 
 // --- Helper Functions ---
 
@@ -71,9 +86,12 @@ async function getFiles(dir) {
 }
 
 async function analyzeImage(imageUrl) {
+    // Use different models for OpenRouter vs OpenAI
+    const visionModel = USE_OPENROUTER ? "google/gemini-flash-1.5" : "gpt-4o";
+
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: visionModel,
             messages: [
                 {
                     role: "user",
@@ -87,7 +105,7 @@ async function analyzeImage(imageUrl) {
         });
         return response.choices[0].message.content;
     } catch (e) {
-        console.error("   ❌ Vision Analysis Failed:", e.message);
+        console.error(`   ❌ Vision Analysis Failed (${visionModel}):`, e.message);
         return null;
     }
 }
@@ -146,23 +164,42 @@ async function processAsset(filePath) {
 
         // 4. Generate Embedding for Description
         // IMPORTANT: using default 1536 dim to match product_catalog schema
+        // OpenRouter uses "openai/" prefix for OpenAI models
+        const embeddingModel = USE_OPENROUTER ? "openai/text-embedding-3-small" : "text-embedding-3-small";
         const embeddingResponse = await openai.embeddings.create({
-            model: "text-embedding-3-small", 
+            model: embeddingModel,
             input: description,
         });
         const embedding = embeddingResponse.data[0].embedding;
 
         // 5. Upsert to product_catalog
-        // Schema: id, name, description, image_url, metadata, embedding
+        // Schema: id, name, description, category, image_url, metadata, embedding
+        // Detect category from folder path (facility, equipment, product, etc.)
+        const folderName = path.dirname(filePath).split(path.sep).pop().toLowerCase();
+        const categoryMap = {
+            'facility': 'facility',
+            'equipment': 'equipment',
+            'products': 'product',
+            'product': 'product',
+            'metrology': 'equipment',
+            'certifications': 'asset',
+            'branding': 'asset',
+            'clients': 'asset'
+        };
+        const category = categoryMap[folderName] || 'asset';
+
         const { error: dbError } = await supabase.from('product_catalog').upsert({
-            id: crypto.randomUUID(), 
+            id: crypto.randomUUID(),
             name: fileName,
             description: description,
+            category: category,
             image_url: publicUrl,
             metadata: {
                 original_path: filePath,
                 ingested_at: new Date().toISOString(),
-                vision_model: "gpt-4o"
+                vision_model: USE_OPENROUTER ? "google/gemini-flash-1.5" : "gpt-4o",
+                provider: USE_OPENROUTER ? "openrouter" : "openai",
+                source_folder: folderName
             },
             embedding: embedding,
         });

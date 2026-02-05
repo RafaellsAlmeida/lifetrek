@@ -16,6 +16,7 @@ import {
   searchCompanyAssets,
   generateCarouselEmbedding,
   searchSimilarCarousels,
+  searchKnowledgeBase,
   deepResearch
 } from "./agent_tools.ts";
 
@@ -143,6 +144,26 @@ Learn from their structure and quality, but create fresh content for "${params.t
       }
     } catch (error) {
       console.warn("⚠️ Could not search similar carousels:", error);
+    }
+
+    // Story 7.2: Search for high-performance examples and brand rules in knowledge base
+    try {
+      console.log(`🔍 Strategist: Searching knowledge base for "${params.topic}"...`);
+      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3);
+      
+      if (kbResults && kbResults.length > 0) {
+        const kbContext = kbResults.map((item: any, i: number) => 
+          `[${item.category || 'Knowledge'}] ${item.question || 'Reference'}: ${item.content}`
+        ).join('\n---\n');
+        
+        // SimilarCarouselsContext already exists, we append to it or create a new block
+        similarCarouselsContext += `\n\n**Reference Material from Knowledge Base**:
+${kbContext}
+
+Use these examples and brand rules to ensure content follows high-performance patterns and brand guidelines.`;
+      }
+    } catch (error) {
+      console.warn("⚠️ Could not search knowledge base:", error);
     }
   }
 
