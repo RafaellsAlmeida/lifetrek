@@ -83,76 +83,78 @@ const MainLayout = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LanguageProvider>
-        <ImpersonationProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Routes>
-              {/* Public Routes with Main Layout */}
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/what-we-do" element={<WhatWeDo />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/capabilities" element={<Capabilities />} />
-                <Route path="/calc" element={<TCOCalculator />} />
-                <Route path="/clients" element={<Clients />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/assessment" element={<Assessment />} />
-                <Route path="/calculator" element={<Calculator />} />
-                <Route path="/product-catalog" element={<ProductCatalog />} />
-                <Route path="/pitch-deck" element={<PitchDeck />} />
-                <Route path="/blog" element={<Blog />} />
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <LanguageProvider>
+          <ImpersonationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <Routes>
+                {/* Public Routes with Main Layout */}
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/what-we-do" element={<WhatWeDo />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/capabilities" element={<Capabilities />} />
+                  <Route path="/calc" element={<TCOCalculator />} />
+                  <Route path="/clients" element={<Clients />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/assessment" element={<Assessment />} />
+                  <Route path="/calculator" element={<Calculator />} />
+                  <Route path="/product-catalog" element={<ProductCatalog />} />
+                  <Route path="/pitch-deck" element={<PitchDeck />} />
+                  <Route path="/blog" element={<Blog />} />
 
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/resources/fatigue-validation-guide" element={<FatigueValidationGuide />} />
-                <Route path="/resources/:slug" element={<ResourceDetail />} />
-                <Route path="/blog/:slug" element={<BlogPostDetails />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-
-              {/* Admin Routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-
-              <Route element={<ProtectedAdminRoute />}>
-                <Route path="/admin" element={
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <AdminLayout>
-                      <Outlet />
-                    </AdminLayout>
-                  </Suspense>
-                }>
-                  <Route index element={<DashboardOverview />} />
-                  <Route path="orchestrator" element={<ContentOrchestrator />} />
-                  <Route path="content-approval" element={<ContentApproval />} />
-                  <Route path="leads" element={<Leads />} />
-                  <Route path="gallery" element={<ProductAssets />} />
-                  <Route path="knowledge-base" element={<KnowledgeBase />} />
-                  <Route path="product-assets" element={<ProductAssets />} />
-                  <Route path="environment-assets" element={<EnvironmentAssets />} />
-                  <Route path="rejection-analytics" element={<RejectionAnalytics />} />
-                  <Route path="content-calendar" element={<ContentCalendar />} />
-                  <Route path="campaigns" element={<CampaignManagement />} />
-                  <Route path="video-studio" element={<VideoStudio />} />
-                  <Route path="roi-simulation" element={<RoiSimulation />} />
-                  <Route path="blog" element={<AdminBlog />} />
-                  <Route path="analytics" element={<UnifiedAnalytics />} />
-                  <Route path="inbox" element={<UnifiedInbox />} />
-                  <Route path="one-pager" element={<OnePager />} />
-                  <Route path="content-manager" element={<ContentManager />} />
-                  <Route path="image-editor" element={<ImageEditor />} />
-                  <Route path="social" element={<SocialMediaWorkspace />} />
+                  <Route path="/resources" element={<Resources />} />
+                  <Route path="/resources/fatigue-validation-guide" element={<FatigueValidationGuide />} />
+                  <Route path="/resources/:slug" element={<ResourceDetail />} />
+                  <Route path="/blog/:slug" element={<BlogPostDetails />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </ImpersonationProvider>
-      </LanguageProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+
+                {/* Admin Routes */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+
+                <Route element={<ProtectedAdminRoute />}>
+                  <Route path="/admin" element={
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <AdminLayout>
+                        <Outlet />
+                      </AdminLayout>
+                    </Suspense>
+                  }>
+                    <Route index element={<DashboardOverview />} />
+                    <Route path="orchestrator" element={<ContentOrchestrator />} />
+                    <Route path="content-approval" element={<ContentApproval />} />
+                    <Route path="leads" element={<Leads />} />
+                    <Route path="gallery" element={<ProductAssets />} />
+                    <Route path="knowledge-base" element={<KnowledgeBase />} />
+                    <Route path="product-assets" element={<ProductAssets />} />
+                    <Route path="environment-assets" element={<EnvironmentAssets />} />
+                    <Route path="rejection-analytics" element={<RejectionAnalytics />} />
+                    <Route path="content-calendar" element={<ContentCalendar />} />
+                    <Route path="campaigns" element={<CampaignManagement />} />
+                    <Route path="video-studio" element={<VideoStudio />} />
+                    <Route path="roi-simulation" element={<RoiSimulation />} />
+                    <Route path="blog" element={<AdminBlog />} />
+                    <Route path="analytics" element={<UnifiedAnalytics />} />
+                    <Route path="inbox" element={<UnifiedInbox />} />
+                    <Route path="one-pager" element={<OnePager />} />
+                    <Route path="content-manager" element={<ContentManager />} />
+                    <Route path="image-editor" element={<ImageEditor />} />
+                    <Route path="social" element={<SocialMediaWorkspace />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </ImpersonationProvider>
+        </LanguageProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;
