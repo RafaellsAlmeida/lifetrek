@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    Check, Eye, FileText, Linkedin, Sparkles, Clock,
+    Check, Eye, FileText, Linkedin, Instagram, Sparkles, Clock,
     ThumbsUp, ThumbsDown, Loader2, RefreshCw, CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +25,11 @@ import {
     usePublishBlogPost,
     useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
+import {
+    useApproveInstagramPost,
+    useRejectInstagramPost,
+    useInstagramPost,
+} from "@/hooks/useInstagramPosts";
 import { BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -53,6 +58,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const updateBlog = useUpdateBlogPost();
     const approveResource = useApproveResource();
     const rejectResource = useRejectResource();
+    const approveInstagram = useApproveInstagramPost();
+    const rejectInstagram = useRejectInstagramPost();
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
@@ -65,6 +72,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
     const { data: fullCarouselData, isLoading: isLoadingCarousel } = useLinkedInCarouselFull(selectedLinkedInId);
+
+    const selectedInstagramId = selectedItem?.type === 'instagram' ? selectedItem.id : null;
+    const { data: fullInstagramData, isLoading: isLoadingInstagram } = useInstagramPost(selectedInstagramId);
 
     const handleSyncResources = async () => {
         setIsSyncing(true);
@@ -90,6 +100,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 await publishBlog.mutateAsync(item.id);
             } else if (item.type === 'linkedin') {
                 await approveLinkedIn.mutateAsync(item.id);
+            } else if (item.type === 'instagram') {
+                await approveInstagram.mutateAsync(item.id);
             } else if (item.type === 'resource') {
                 await approveResource.mutateAsync(item.id);
             }
@@ -109,6 +121,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 await updateBlog.mutateAsync({ id: selectedItem.id, status: 'rejected' });
             } else if (selectedItem.type === 'linkedin') {
                 await rejectLinkedIn.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
+            } else if (selectedItem.type === 'instagram') {
+                await rejectInstagram.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
             } else if (selectedItem.type === 'resource') {
                 await rejectResource.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
             }
@@ -125,8 +139,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (!schedulingItem || !scheduledDate) return;
 
         try {
-            const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' : 
-                            schedulingItem.type === 'blog' ? 'blog_posts' : 'content_templates';
+            const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' :
+                            schedulingItem.type === 'blog' ? 'blog_posts' :
+                            schedulingItem.type === 'instagram' ? 'instagram_posts' : 'content_templates';
             
             const { error } = await (supabase
                 .from(tableName as any)
@@ -207,6 +222,67 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
              );
         }
 
+        if (selectedItem.type === 'instagram') {
+            if (isLoadingInstagram) {
+                return (
+                    <div className="flex items-center justify-center py-16">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <span className="ml-3 text-muted-foreground">Carregando post...</span>
+                    </div>
+                );
+            }
+
+            const post = fullInstagramData || selectedItem.full_data;
+            const hashtags = post?.hashtags || [];
+
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-2xl font-bold mb-2">{post?.topic || selectedItem.title}</h3>
+                        <div className="flex gap-2 items-center">
+                            <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                Instagram
+                            </Badge>
+                            <Badge variant="outline">{post?.post_type || 'carousel'}</Badge>
+                            <Badge variant="secondary" className="gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                IA
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
+                        <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
+                        <p className="text-sm"><strong>Outcome Desejado:</strong> {post?.desired_outcome || 'N/A'}</p>
+                        <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
+                    </div>
+
+                    {post?.caption && (
+                        <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-2">Caption Instagram</h4>
+                            <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded-md">
+                                {post.caption}
+                            </p>
+                        </div>
+                    )}
+
+                    {hashtags.length > 0 && (
+                        <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-2">Hashtags</h4>
+                            <div className="flex flex-wrap gap-1">
+                                {hashtags.map((tag: string, idx: number) => (
+                                    <Badge key={idx} variant="outline" className="text-xs text-blue-600">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         if (selectedItem.type === 'resource') {
             const resource = selectedItem.full_data || {};
             return (
@@ -271,6 +347,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const allPending = items || [];
     const blogItems = allPending.filter(i => i.type === 'blog');
     const linkedInItems = allPending.filter(i => i.type === 'linkedin');
+    const instagramItems = allPending.filter(i => i.type === 'instagram');
     const resourceItems = allPending.filter(i => i.type === 'resource');
 
     return (
@@ -289,12 +366,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             )}
 
             <Tabs defaultValue="all" className="w-full">
-                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-6'} mb-6`}>
+                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6`}>
                     <TabsTrigger value="all">Pendentes ({allPending.length})</TabsTrigger>
                     {!embedded && (
                         <>
                             <TabsTrigger value="blogs">Blogs ({blogItems.length})</TabsTrigger>
                             <TabsTrigger value="linkedin">LinkedIn ({linkedInItems.length})</TabsTrigger>
+                            <TabsTrigger value="instagram">Instagram ({instagramItems.length})</TabsTrigger>
                             <TabsTrigger value="resources">Recursos ({resourceItems.length})</TabsTrigger>
                         </>
                     )}
@@ -320,6 +398,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                                     <FileText className="h-4 w-4 text-blue-500" />
                                                 ) : item.type === 'resource' ? (
                                                     <BookOpen className="h-4 w-4 text-amber-600" />
+                                                ) : item.type === 'instagram' ? (
+                                                    <Instagram className="h-4 w-4 text-pink-500" />
                                                 ) : (
                                                     <Linkedin className="h-4 w-4 text-blue-600" />
                                                 )}
@@ -361,6 +441,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                                 <FileText className="h-4 w-4 text-blue-500" />
                                             ) : item.type === 'resource' ? (
                                                 <BookOpen className="h-4 w-4 text-amber-600" />
+                                            ) : item.type === 'instagram' ? (
+                                                <Instagram className="h-4 w-4 text-pink-500" />
                                             ) : (
                                                 <Linkedin className="h-4 w-4 text-blue-600" />
                                             )}
@@ -375,6 +457,43 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     </Button>
                                     <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
                                         <Clock className="h-4 w-4" /> Agendar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
+
+                <TabsContent value="instagram" className="space-y-4">
+                    {instagramItems.length === 0 ? (
+                        <div className="text-center py-12">
+                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum post Instagram pendente</h3>
+                            <p className="text-muted-foreground">Posts do Instagram pendentes aparecerão aqui para revisão.</p>
+                        </div>
+                    ) : (
+                        instagramItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Instagram className="h-4 w-4 text-pink-500" />
+                                                <CardTitle className="text-base">{item.title}</CardTitle>
+                                            </div>
+                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        <ThumbsUp className="h-4 w-4" /> Aprovar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
                                     </Button>
                                 </CardContent>
                             </Card>
