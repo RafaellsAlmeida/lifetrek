@@ -51,6 +51,38 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         }
     };
 
+    const handleIAAssist = async () => {
+        if (!bgUrl || bgUrl.includes('placehold.co')) {
+            toast.info("Selecione um fundo real ou asset para melhorar com IA.");
+            return;
+        }
+
+        setIsEnhancing(true);
+        const toastId = toast.loading("O Nano Banana Pro está processando sua imagem...");
+
+        try {
+            const { data, error } = await supabase.functions.invoke('enhance-product-image', {
+                body: {
+                    imageData: bgUrl,
+                    prompt: `Melhore esta imagem para um catálogo médico premium da Lifetrek. 
+                        Mantenha o produto central mas adicione iluminação dramática e ambiente de cleanroom de alta tecnologia.
+                        Texto da Imagem: ${text}`
+                }
+            });
+
+            if (error) throw error;
+            if (data?.enhancedImage) {
+                setBgUrl(data.enhancedImage);
+                toast.success("Imagem aprimorada com Nano Banana Pro!");
+            }
+        } catch (e: any) {
+            toast.error(`Erro IA: ${e.message}`);
+        } finally {
+            setIsEnhancing(false);
+            toast.dismiss(toastId);
+        }
+    };
+
     const handleDownload = () => {
         const uri = stageRef.current.toDataURL();
         const link = document.createElement("a");
@@ -94,38 +126,6 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         }
     };
 
-    const handleIAAssist = async () => {
-        if (!bgUrl || bgUrl.includes('placehold.co')) {
-            toast.info("Selecione um fundo real ou asset para melhorar com IA.");
-            return;
-        }
-
-        setIsEnhancing(true);
-        const toastId = toast.loading("O Nano Banana Pro está processando sua imagem...");
-
-        try {
-            const { data, error } = await supabase.functions.invoke('enhance-product-image', {
-                body: {
-                    imageData: bgUrl,
-                    prompt: `Melhore esta imagem para um catálogo médico premium da Lifetrek.
-                    Mantenha o produto central mas adicione iluminação dramática e ambiente de cleanroom de alta tecnologia.
-                    Prompt Adicional: ${text}`,
-                },
-            });
-
-            if (error) throw error;
-            if (data?.enhancedImage) {
-                setBgUrl(data.enhancedImage);
-                toast.success("Imagem aprimorada com Nano Banana Pro!");
-            }
-        } catch (e: any) {
-            toast.error(`Erro IA: ${e.message}`);
-        } finally {
-            setIsEnhancing(false);
-            toast.dismiss(toastId);
-        }
-    };
-
     return (
         <div className={`flex ${embedded ? 'h-full bg-transparent' : 'h-screen bg-background'}`}>
             {/* Sidebar Controls */}
@@ -139,23 +139,35 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                     <h2 className="font-bold text-lg">Editor de Imagem</h2>
                 </div>
 
-                <div className="pt-4 flex flex-col gap-2">
-                    <Button className="w-full gap-2" onClick={handleSave}>
-                        <Save className="w-4 h-4" /> Salvar no Post
-                    </Button>
-                    <div className="flex gap-2">
-                        <Button variant="outline" className="flex-1 gap-2" onClick={handleDownload}>
-                            <Download className="w-4 h-4" /> PNG
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label>Texto da Headline</Label>
+                        <Input value={text} onChange={(e) => setText(e.target.value)} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>URL do Fundo</Label>
+                        <Input value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} />
+                    </div>
+
+                    <div className="pt-4 flex flex-col gap-2">
+                        <Button className="w-full gap-2" onClick={handleSave}>
+                            <Save className="w-4 h-4" /> Salvar no Post
                         </Button>
-                        <Button
-                            variant="secondary"
-                            className="flex-1 gap-2 bg-purple-600 hover:bg-purple-700 text-white"
-                            onClick={handleIAAssist}
-                            disabled={isEnhancing}
-                        >
-                            {isEnhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                            IA Assist
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="flex-1 gap-2" onClick={handleDownload}>
+                                <Download className="w-4 h-4" /> PNG
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                className="flex-1 gap-2 bg-purple-600 hover:bg-purple-700 text-white"
+                                onClick={handleIAAssist}
+                                disabled={isEnhancing}
+                            >
+                                {isEnhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                IA Assist
+                            </Button>
+                        </div>
                     </div>
                 </div>
 

@@ -39,11 +39,14 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
                         className="w-full h-full object-cover"
                     />
                 ) : (
-                    <div className="text-center p-8 space-y-4">
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm">
+                    <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-slate-50">
+                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
                             <Instagram className="h-8 w-8 text-pink-500" />
                         </div>
-                        <p className="text-sm font-medium text-slate-500">Visual do Post</p>
+                        <h3 className="text-sm font-semibold text-slate-900 mb-1">Imagem Ausente</h3>
+                        <p className="text-xs text-slate-500 max-w-[200px]">
+                            A imagem deste post ainda não foi gerada ou falhou.
+                        </p>
                     </div>
                 )}
 

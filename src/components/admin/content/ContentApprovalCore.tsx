@@ -635,6 +635,80 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     )}
                 </TabsContent>
 
+                <TabsContent value="blogs" className="space-y-4">
+                    {blogItems.length === 0 ? (
+                        <div className="text-center py-12">
+                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum blog pendente</h3>
+                            <p className="text-muted-foreground">Blogs pendentes aparecerão aqui para revisão.</p>
+                        </div>
+                    ) : (
+                        blogItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-blue-500" />
+                                                <CardTitle className="text-base">{item.title}</CardTitle>
+                                            </div>
+                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        <ThumbsUp className="h-4 w-4" /> Aprovar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
+
+                <TabsContent value="linkedin" className="space-y-4">
+                    {linkedInItems.length === 0 ? (
+                        <div className="text-center py-12">
+                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum post LinkedIn pendente</h3>
+                            <p className="text-muted-foreground">Posts do LinkedIn pendentes aparecerão aqui para revisão.</p>
+                        </div>
+                    ) : (
+                        linkedInItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Linkedin className="h-4 w-4 text-blue-600" />
+                                                <CardTitle className="text-base">{item.title}</CardTitle>
+                                            </div>
+                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        <ThumbsUp className="h-4 w-4" /> Aprovar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
+
                 <TabsContent value="instagram" className="space-y-4">
                     {instagramItems.length === 0 ? (
                         <div className="text-center py-12">
