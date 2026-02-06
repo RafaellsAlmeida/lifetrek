@@ -16,12 +16,18 @@ mermaid.initialize({
         lineColor: '#004F8F',
         secondaryColor: '#F8FAFC',
         tertiaryColor: '#E2E8F0',
-        edgeLabelBackground: '#F1F5F9'
+        edgeLabelBackground: '#F1F5F9',
+        fontSize: '14px',
+        fontFamily: 'Inter, system-ui, sans-serif'
     },
     flowchart: {
-        useMaxWidth: true,
+        useMaxWidth: false,
         htmlLabels: true,
-        curve: 'basis'
+        curve: 'basis',
+        nodeSpacing: 60,
+        rankSpacing: 80,
+        padding: 20,
+        wrappingWidth: 200
     },
     securityLevel: 'loose'
 });
@@ -67,7 +73,8 @@ export default function Mermaid({ chart }: MermaidProps) {
     return (
         <div
             ref={containerRef}
-            className="mermaid-container"
+            className="mermaid-container w-full overflow-x-auto"
+            style={{ minHeight: '400px' }}
             dangerouslySetInnerHTML={{ __html: svg }}
         />
     );

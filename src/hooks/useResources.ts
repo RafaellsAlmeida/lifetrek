@@ -7,9 +7,9 @@ export function useResources(publishedOnly = true) {
     return useQuery({
         queryKey: ["resources", publishedOnly],
         queryFn: async () => {
-            let query = (supabase
-                .from("resources" as any)
-                .select("*") as any);
+            let query = supabase
+                .from("resources")
+                .select("*");
 
             if (publishedOnly) {
                 query = query.eq("status", "published");
@@ -27,12 +27,12 @@ export function useResource(slug: string) {
     return useQuery({
         queryKey: ["resource", slug],
         queryFn: async () => {
-            const { data, error } = await (supabase
-                .from("resources" as any)
+            const { data, error } = await supabase
+                .from("resources")
                 .select("*")
                 .eq("slug", slug)
                 .eq("status", "published")
-                .single() as any);
+                .single();
 
             if (error) throw error;
             return data as Resource;
@@ -46,11 +46,11 @@ export function useCreateResource() {
 
     return useMutation({
         mutationFn: async (resource: ResourceInsert) => {
-            const { data, error } = await (supabase
-                .from("resources" as any)
-                .insert(resource)
+            const { data, error } = await supabase
+                .from("resources")
+                .insert(resource as any)
                 .select()
-                .single() as any);
+                .single();
 
             if (error) throw error;
             return data as Resource;
@@ -71,12 +71,12 @@ export function useUpdateResource() {
 
     return useMutation({
         mutationFn: async ({ id, ...updates }: ResourceUpdate) => {
-            const { data, error } = await (supabase
-                .from("resources" as any)
-                .update(updates)
+            const { data, error } = await supabase
+                .from("resources")
+                .update(updates as any)
                 .eq("id", id)
                 .select()
-                .single() as any);
+                .single();
 
             if (error) throw error;
             return data as Resource;
@@ -97,10 +97,10 @@ export function useDeleteResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await (supabase
-                .from("resources" as any)
+            const { error } = await supabase
+                .from("resources")
                 .delete()
-                .eq("id", id) as any);
+                .eq("id", id);
 
             if (error) throw error;
         },

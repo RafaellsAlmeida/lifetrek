@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,9 @@ interface Message {
 }
 
 export const AIChatbot = () => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+  
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -34,33 +38,42 @@ export const AIChatbot = () => {
 
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
+  // Auto-open on landing page for 3 seconds only
   useEffect(() => {
+    if (isLandingPage && !hasAutoOpened) {
+      // Small delay before showing
+      const showTimer = setTimeout(() => {
+        setShowButton(true);
+        setIsOpen(true);
+        setHasAutoOpened(true);
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          setIsOpen(false);
+        }, 3000);
+      }, 2000);
+      
+      return () => clearTimeout(showTimer);
+    }
+  }, [isLandingPage, hasAutoOpened]);
+
+  // Show button on scroll (only on landing page)
+  useEffect(() => {
+    if (!isLandingPage) {
+      setShowButton(true); // Always show button on other pages (but opaque/disabled style)
+      return;
+    }
+    
     const handleScroll = () => {
       const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      const isMobile = window.innerWidth < 768;
-
-      // Show button earlier (e.g. 20%)
       if (scrollDepth > 20) {
         setShowButton(true);
-      }
-
-      // Auto-open at 35% if haven't opened yet
-      if (scrollDepth > 35 && !hasAutoOpened && !isOpen) {
-        setHasAutoOpened(true);
-        setIsOpen(true);
-        // Optional: Play sound or vibrate
-        if (navigator.vibrate) navigator.vibrate(200);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [hasAutoOpened, isOpen]);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLandingPage]);
 
   // Session ID for conversation tracking
   const [sessionId] = useState(() => crypto.randomUUID());
@@ -120,6 +133,20 @@ export const AIChatbot = () => {
       handleSend();
     }
   };
+
+  // Don't render chat window on non-landing pages
+  if (!isLandingPage) {
+    return (
+      <Button
+        onClick={() => toast.info("Chat disponível apenas na página inicial")}
+        size="lg"
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg transition-all duration-300 z-50 bg-primary/50 cursor-not-allowed opacity-60"
+        aria-label="Chat disponível na página inicial"
+      >
+        <MessageCircle className="h-7 w-7" />
+      </Button>
+    );
+  }
 
   return (
     <>
