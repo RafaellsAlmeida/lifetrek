@@ -21,7 +21,7 @@ import {
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
-const IMAGE_MODEL = "black-forest-labs/flux-1-schnell";
+const IMAGE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0";
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],

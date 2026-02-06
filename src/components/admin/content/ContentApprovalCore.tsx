@@ -36,6 +36,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogDescription,
 } from "@/components/ui/dialog";
 import { InstagramPostPreview } from "./InstagramPostPreview";
 import { format } from "date-fns";
@@ -862,14 +863,24 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
             <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader><DialogTitle>Pré-visualização</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>Pré-visualização</DialogTitle>
+                        <DialogDescription>
+                            Visualize o conteúdo gerado antes de aprovar ou rejeitar.
+                        </DialogDescription>
+                    </DialogHeader>
                     {renderPreview()}
                 </DialogContent>
             </Dialog>
 
             <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Rejeitar Conteúdo</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>Rejeitar Conteúdo</DialogTitle>
+                        <DialogDescription>
+                            Explique o motivo da rejeição para que o sistema ou o autor possa ajustar o conteúdo.
+                        </DialogDescription>
+                    </DialogHeader>
                     <textarea
                         className="w-full h-32 p-3 rounded-md border text-sm"
                         placeholder="Por que este conteúdo foi rejeitado?"
@@ -884,9 +895,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             </Dialog>
             <Dialog open={isSchedulingOpen} onOpenChange={setIsSchedulingOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Agendar Publicação</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>Agendar Publicação</DialogTitle>
+                        <DialogDescription>
+                            Selecione a data e hora para a publicação automática nas redes sociais.
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="py-4 space-y-4">
-                        <p className="text-sm text-muted-foreground">Selecione a data e hora para a publicação automática.</p>
                         <div className="flex justify-center border rounded-md p-2">
                             <input
                                 type="datetime-local"

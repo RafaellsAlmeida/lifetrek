@@ -22,7 +22,7 @@ import {
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
-const IMAGE_MODEL = "black-forest-labs/flux-schnell";
+const IMAGE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0";
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],
@@ -254,25 +254,39 @@ export async function designerAgent(
     }
 
     // 2. Fallback to AI Generation with Brand Infusion (Story 7.2)
-    console.log(`🤖 Designer: Fallback to Gemini (Nano Banana Pro) for slide ${i}`);
-    const prompt = `
-      Medical device manufacturing context: ${slide.headline}.
-      ${designRules}.
-      
-      ACCEPTANCE CRITERIA:
-      - Premium, photorealistic, high-end studio lighting.
-      - Brand: Lifetrek (Engineering Excellence).
-      - Logo: Include Lifetrek logo discrete in corner or no logo if not perfect.
-      - NO spelling errors in the image.
-      - Environment: CLEANROOM, Lab, or High-Tech factory.
-    `.trim();
+    console.log(`🤖 Designer: Fallback to AI Image Generation for slide ${i}`);
+    const prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Topic: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k.`.trim();
 
     try {
-      const b64Data = await callGeminiImage(prompt);
+      // Re-implementing with OpenRouter for consistency and better error handling
+      console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
+      const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${Deno.env.get("OPEN_ROUTER_API")}`,
+          "HTTP-Referer": "https://lifetrek.app",
+          "X-Title": "Lifetrek App",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: IMAGE_MODEL,
+          prompt: prompt,
+          n: 1,
+          size: "1024x1024"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter Image Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const imageUrl = data.data?.[0]?.url || "";
+
       images.push({
         slide_index: i,
-        image_url: b64Data || "",
-        asset_source: b64Data ? 'ai-generated' : 'text-only'
+        image_url: imageUrl,
+        asset_source: imageUrl ? 'ai-generated' : 'text-only'
       });
     } catch (e) {
       console.warn(`⚠️ Design generation failed for slide ${i}`, e);
