@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Stage, Layer, Text, Image as KonvaImage } from "react-konva";
 import useImage from "use-image";
@@ -32,6 +31,7 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
     const [text, setText] = useState("Headline Goes Here");
     const [canvasSize] = useState({ width: 1080, height: 1080 });
     const [bgUrl, setBgUrl] = useState("https://placehold.co/1080x1080/1a1a1a/FFF?text=Background");
+    const [isEnhancing, setIsEnhancing] = useState(false);
 
     useEffect(() => {
         if (postId) loadPost();
@@ -94,6 +94,38 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         }
     };
 
+    const handleIAAssist = async () => {
+        if (!bgUrl || bgUrl.includes('placehold.co')) {
+            toast.info("Selecione um fundo real ou asset para melhorar com IA.");
+            return;
+        }
+
+        setIsEnhancing(true);
+        const toastId = toast.loading("O Nano Banana Pro está processando sua imagem...");
+
+        try {
+            const { data, error } = await supabase.functions.invoke('enhance-product-image', {
+                body: {
+                    imageData: bgUrl,
+                    prompt: `Melhore esta imagem para um catálogo médico premium da Lifetrek.
+                    Mantenha o produto central mas adicione iluminação dramática e ambiente de cleanroom de alta tecnologia.
+                    Prompt Adicional: ${text}`,
+                },
+            });
+
+            if (error) throw error;
+            if (data?.enhancedImage) {
+                setBgUrl(data.enhancedImage);
+                toast.success("Imagem aprimorada com Nano Banana Pro!");
+            }
+        } catch (e: any) {
+            toast.error(`Erro IA: ${e.message}`);
+        } finally {
+            setIsEnhancing(false);
+            toast.dismiss(toastId);
+        }
+    };
+
     return (
         <div className={`flex ${embedded ? 'h-full bg-transparent' : 'h-screen bg-background'}`}>
             {/* Sidebar Controls */}
@@ -107,48 +139,6 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                     <h2 className="font-bold text-lg">Editor de Imagem</h2>
                 </div>
 
-                const [isEnhancing, setIsEnhancing] = useState(false);
-
-  const handleIAAssist = async () => {
-    if (!bgUrl || bgUrl.includes('placehold.co')) {
-                    toast.info("Selecione um fundo real ou asset para melhorar com IA.");
-                return;
-    }
-
-                setIsEnhancing(true);
-                const toastId = toast.loading("O Nano Banana Pro está processando sua imagem...");
-
-                try {
-        const {data, error} = await supabase.functions.invoke('enhance-product-image', {
-                    body: {
-                    imageData: bgUrl,
-                prompt: `Melhore esta imagem para um catálogo médico premium da Lifetrek.
-                Mantenha o produto central mas adicione iluminação dramática e ambiente de cleanroom de alta tecnologia.
-                Prompt Adicional: ${text}`
-            }
-        });
-
-                if (error) throw error;
-                if (data?.enhancedImage) {
-                    setBgUrl(data.enhancedImage);
-                toast.success("Imagem aprimorada com Nano Banana Pro!");
-        }
-    } catch (e: any) {
-                    toast.error(`Erro IA: ${e.message}`);
-    } finally {
-                    setIsEnhancing(false);
-                toast.dismiss(toastId);
-    }
-  };
-
-  const handleDownload = () => {
-// ... existing handleDownload ...
-    const uri = stageRef.current.toDataURL();
-                const link = document.createElement("a");
-// ... 
-  };
-
-                // ... 
                 <div className="pt-4 flex flex-col gap-2">
                     <Button className="w-full gap-2" onClick={handleSave}>
                         <Save className="w-4 h-4" /> Salvar no Post
@@ -168,67 +158,66 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                         </Button>
                     </div>
                 </div>
+
+                {post && (
+                    <div className="mt-8 p-4 bg-muted/20 rounded-lg text-xs space-y-2">
+                        <h3 className="font-semibold uppercase tracking-wider text-muted-foreground">Contexto</h3>
+                        <p><strong>Pilar:</strong> {post.pillar || 'N/A'}</p>
+                        <p><strong>Título:</strong> {post.title}</p>
+                    </div>
+                )}
+
+                <div className="mt-auto pt-8">
+                    <h3 className="text-xs font-semibold mb-3 uppercase tracking-wider text-muted-foreground">Templates Rápidos</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(FILTER_TEMPLATES).map(([name, tmpl]) => (
+                            <button
+                                key={name}
+                                onClick={() => setBgUrl(tmpl.bg)}
+                                className="h-16 rounded border bg-muted flex items-center justify-center text-[10px] font-medium hover:border-primary transition-colors"
+                            >
+                                {name.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            {post && (
-                <div className="mt-8 p-4 bg-muted/20 rounded-lg text-xs space-y-2">
-                    <h3 className="font-semibold uppercase tracking-wider text-muted-foreground">Contexto</h3>
-                    <p><strong>Pilar:</strong> {post.pillar || 'N/A'}</p>
-                    <p><strong>Título:</strong> {post.title}</p>
-                </div>
-            )}
+            {/* Canvas Area */}
+            <div className="flex-1 flex items-center justify-center bg-zinc-900/50 overflow-auto p-4 lg:p-12">
+                <div className="shadow-2xl border-4 border-zinc-800 rounded-lg overflow-hidden bg-white">
+                    <Stage width={canvasSize.width * 0.5} height={canvasSize.height * 0.5} scaleX={0.5} scaleY={0.5} ref={stageRef}>
+                        <Layer>
+                            <URLImage src={bgUrl} x={0} y={0} width={canvasSize.width} height={canvasSize.height} />
 
-            <div className="mt-auto pt-8">
-                <h3 className="text-xs font-semibold mb-3 uppercase tracking-wider text-muted-foreground">Templates Rápidos</h3>
-                <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(FILTER_TEMPLATES).map(([name, tmpl]) => (
-                        <button
-                            key={name}
-                            onClick={() => setBgUrl(tmpl.bg)}
-                            className="h-16 rounded border bg-muted flex items-center justify-center text-[10px] font-medium hover:border-primary transition-colors"
-                        >
-                            {name.toUpperCase()}
-                        </button>
-                    ))}
+                            <Text
+                                text={text}
+                                x={100}
+                                y={300}
+                                width={880}
+                                fontSize={80}
+                                fontFamily="Arial"
+                                fontStyle="bold"
+                                fill="white"
+                                align="center"
+                                draggable
+                            />
+
+                            <Text
+                                text="Lifetrek Medical"
+                                x={100}
+                                y={900}
+                                width={880}
+                                fontSize={40}
+                                fontFamily="Arial"
+                                fill="white"
+                                opacity={0.8}
+                                align="center"
+                            />
+                        </Layer>
+                    </Stage>
                 </div>
             </div>
         </div>
-
-      {/* Canvas Area */ }
-    <div className="flex-1 flex items-center justify-center bg-zinc-900/50 overflow-auto p-4 lg:p-12">
-        <div className="shadow-2xl border-4 border-zinc-800 rounded-lg overflow-hidden bg-white">
-            <Stage width={canvasSize.width * 0.5} height={canvasSize.height * 0.5} scaleX={0.5} scaleY={0.5} ref={stageRef}>
-                <Layer>
-                    <URLImage src={bgUrl} x={0} y={0} width={canvasSize.width} height={canvasSize.height} />
-
-                    <Text
-                        text={text}
-                        x={100}
-                        y={300}
-                        width={880}
-                        fontSize={80}
-                        fontFamily="Arial"
-                        fontStyle="bold"
-                        fill="white"
-                        align="center"
-                        draggable
-                    />
-
-                    <Text
-                        text="Lifetrek Medical"
-                        x={100}
-                        y={900}
-                        width={880}
-                        fontSize={40}
-                        fontFamily="Arial"
-                        fill="white"
-                        opacity={0.8}
-                        align="center"
-                    />
-                </Layer>
-            </Stage>
-        </div>
-    </div>
-    </div >
-  );
+    );
 }
