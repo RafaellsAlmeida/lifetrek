@@ -1,3 +1,10 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
 # Logs
 logs
 *.log
@@ -7,12 +14,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-playwright-report
-test-results
+# Environment variables (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# Lock files (keep only one - using package-lock.json for npm)
+bun.lockb
+
+# Python virtual environment
+.venv/
+
+# Temp / working files
+.tmp/
+_cleanup_*/
+
+# Generated content & large media (should use cloud storage or LFS)
+execution/generated_carousels/
 
 # Editor directories and files
 .vscode/*
@@ -24,5 +42,12 @@ test-results
 *.njsproj
 *.sln
 *.sw?
+
+# Test output
+playwright-report
+test-results
+*.local
+
+# Sensitive / project-specific
 unipile-node-sdk
 cacao-ai-07483356a7e4.json
