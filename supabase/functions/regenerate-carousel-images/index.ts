@@ -412,7 +412,7 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
     console.log(`[REGEN] Updating database with ${imageUrls.length} images...`);
 
     const { error: updateError } = await supabase
-      .from("linkedin_carousels")
+      .from(table_name)
       .update({
         slides: processedSlides,
         image_urls: imageUrls,
