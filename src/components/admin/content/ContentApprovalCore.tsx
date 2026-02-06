@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    Check, Eye, FileText, Linkedin, Sparkles, Clock,
+    Check, Eye, FileText, Linkedin, Instagram, Sparkles, Clock,
     ThumbsUp, ThumbsDown, Loader2, RefreshCw, CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +25,11 @@ import {
     usePublishBlogPost,
     useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
+import {
+    useApproveInstagramPost,
+    useRejectInstagramPost,
+    useInstagramPost,
+} from "@/hooks/useInstagramPosts";
 import { BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -53,6 +58,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const updateBlog = useUpdateBlogPost();
     const approveResource = useApproveResource();
     const rejectResource = useRejectResource();
+    const approveInstagram = useApproveInstagramPost();
+    const rejectInstagram = useRejectInstagramPost();
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
@@ -65,6 +72,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
     const { data: fullCarouselData, isLoading: isLoadingCarousel } = useLinkedInCarouselFull(selectedLinkedInId);
+
+    const selectedInstagramId = selectedItem?.type === 'instagram' ? selectedItem.id : null;
+    const { data: fullInstagramData, isLoading: isLoadingInstagram } = useInstagramPost(selectedInstagramId);
 
     const handleSyncResources = async () => {
         setIsSyncing(true);
@@ -90,6 +100,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 await publishBlog.mutateAsync(item.id);
             } else if (item.type === 'linkedin') {
                 await approveLinkedIn.mutateAsync(item.id);
+            } else if (item.type === 'instagram') {
+                await approveInstagram.mutateAsync(item.id);
             } else if (item.type === 'resource') {
                 await approveResource.mutateAsync(item.id);
             }
@@ -109,6 +121,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 await updateBlog.mutateAsync({ id: selectedItem.id, status: 'rejected' });
             } else if (selectedItem.type === 'linkedin') {
                 await rejectLinkedIn.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
+            } else if (selectedItem.type === 'instagram') {
+                await rejectInstagram.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
             } else if (selectedItem.type === 'resource') {
                 await rejectResource.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
             }
@@ -125,8 +139,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (!schedulingItem || !scheduledDate) return;
 
         try {
-            const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' : 
-                            schedulingItem.type === 'blog' ? 'blog_posts' : 'content_templates';
+            const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' :
+                            schedulingItem.type === 'blog' ? 'blog_posts' :
+                            schedulingItem.type === 'instagram' ? 'instagram_posts' : 'content_templates';
             
             const { error } = await (supabase
                 .from(tableName as any)
@@ -151,60 +166,192 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (!selectedItem) return null;
 
         if (selectedItem.type === 'linkedin') {
-            const carousel = selectedItem.full_data;
-            const slides = carousel.slides || [];
+            if (isLoadingCarousel) {
+                return (
+                    <div className="flex items-center justify-center py-16">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <span className="ml-3 text-muted-foreground">Carregando slides...</span>
+                    </div>
+                );
+            }
+
+            const carousel = fullCarouselData || selectedItem.full_data;
+            const rawSlides = carousel?.slides;
+            const slides = Array.isArray(rawSlides)
+                ? rawSlides
+                : (Array.isArray(rawSlides?.slides) ? rawSlides.slides : []);
 
             return (
                 <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {slides.map((slide: any, idx: number) => (
-                            <Card key={idx} className="overflow-hidden border-primary/10 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="aspect-square bg-slate-100 relative">
-                                    {slide.image_url ? (
-                                        <img 
-                                            src={slide.image_url} 
-                                            alt={slide.headline} 
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-slate-200">
-                                            <Sparkles className="h-8 w-8 text-slate-400" />
+                    <div>
+                        <h3 className="text-2xl font-bold mb-2">{carousel?.topic || selectedItem.title}</h3>
+                        <div className="flex gap-2 items-center">
+                            <Badge variant="secondary">LinkedIn Carousel</Badge>
+                            <Badge variant="secondary" className="gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                IA
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-sm"><strong>Público-alvo:</strong> {carousel?.target_audience || selectedItem.full_data?.target_audience || 'N/A'}</p>
+                        <p className="text-sm"><strong>Pain Point:</strong> {carousel?.pain_point || selectedItem.full_data?.pain_point || 'N/A'}</p>
+                        <p className="text-sm"><strong>Outcome Desejado:</strong> {carousel?.desired_outcome || 'N/A'}</p>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-3">Slides ({slides.length})</h4>
+                        {slides.length === 0 ? (
+                            <p className="text-muted-foreground text-sm">Nenhum slide disponível</p>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {slides.map((slide: any, idx: number) => (
+                                    <Card key={idx} className="overflow-hidden border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="aspect-square bg-slate-100 relative">
+                                            {(slide.image_url || slide.imageUrl) ? (
+                                                <img
+                                                    src={slide.image_url || slide.imageUrl}
+                                                    alt={slide.headline}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-slate-200">
+                                                    <Sparkles className="h-8 w-8 text-slate-400" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                                SLIDE {idx + 1}
+                                            </div>
                                         </div>
-                                    )}
-                                    <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-[10px] font-bold">
-                                        SLIDE {idx + 1}
-                                    </div>
-                                </div>
-                                <CardContent className="p-3 space-y-2">
-                                    <h5 className="font-bold text-sm line-clamp-2">{slide.headline}</h5>
-                                    <p className="text-xs text-slate-600 line-clamp-3">{slide.copy}</p>
-                                    {slide.asset_source && (
-                                        <Badge variant="outline" className={`text-[10px] ${slide.asset_source === 'real' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-                                            {slide.asset_source === 'real' ? 'Ativo Real' : 'IA Placeholder'}
-                                        </Badge>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        ))}
+                                        <CardContent className="p-3 space-y-2">
+                                            <h5 className="font-bold text-sm line-clamp-2">{slide.headline}</h5>
+                                            <p className="text-xs text-slate-600 line-clamp-3">{slide.body || slide.copy}</p>
+                                            {slide.asset_source && (
+                                                <Badge variant="outline" className={`text-[10px] ${slide.asset_source === 'real' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                                                    {slide.asset_source === 'real' ? 'Ativo Real' : 'IA Placeholder'}
+                                                </Badge>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    
-                    <div className="p-4 bg-muted rounded-lg border border-primary/5">
-                        <h4 className="font-semibold text-sm mb-2">Legenda Final</h4>
-                        <p className="text-xs whitespace-pre-wrap text-slate-700">{carousel.caption}</p>
-                    </div>
+
+                    {carousel?.caption && (
+                        <div className="p-4 bg-muted rounded-lg border border-primary/5">
+                            <h4 className="font-semibold text-sm mb-2">Legenda Final</h4>
+                            <p className="text-sm whitespace-pre-wrap text-slate-700">
+                                {carousel.caption.replace(/\*\*/g, '').replace(/\*/g, '').replace(/__/g, '').replace(/_/g, '')}
+                            </p>
+                        </div>
+                    )}
                 </div>
             );
         }
 
         if (selectedItem.type === 'blog') {
-             return (
+            const blog = selectedItem.full_data;
+            return (
                 <div className="space-y-4">
-                    <h3 className="text-xl font-bold">{selectedItem.title}</h3>
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                        {selectedItem.full_data.content}
+                    <div>
+                        <h3 className="text-2xl font-bold mb-2">{blog.title}</h3>
+                        {blog.excerpt && (
+                            <p className="text-muted-foreground italic">{blog.excerpt}</p>
+                        )}
+                        <div className="flex gap-2 items-center mt-2">
+                            <Badge variant="secondary">Blog</Badge>
+                            {blog.ai_generated && (
+                                <Badge variant="secondary" className="gap-1">
+                                    <Sparkles className="h-3 w-3" />
+                                    IA
+                                </Badge>
+                            )}
+                        </div>
+                    </div>
+
+                    {(blog.seo_title || blog.seo_description || blog.keywords?.length > 0) && (
+                        <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-2">SEO</h4>
+                            <div className="space-y-1 text-sm">
+                                {blog.seo_title && <p><strong>Título SEO:</strong> {blog.seo_title}</p>}
+                                {blog.seo_description && <p><strong>Descrição:</strong> {blog.seo_description}</p>}
+                                {blog.keywords?.length > 0 && <p><strong>Keywords:</strong> {blog.keywords.join(', ')}</p>}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-2">Conteúdo</h4>
+                        <div
+                            className="prose prose-sm max-w-none dark:prose-invert"
+                            dangerouslySetInnerHTML={{ __html: blog.content?.substring(0, 2000) + (blog.content?.length > 2000 ? '...' : '') }}
+                        />
                     </div>
                 </div>
-             );
+            );
+        }
+
+        if (selectedItem.type === 'instagram') {
+            if (isLoadingInstagram) {
+                return (
+                    <div className="flex items-center justify-center py-16">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <span className="ml-3 text-muted-foreground">Carregando post...</span>
+                    </div>
+                );
+            }
+
+            const post = fullInstagramData || selectedItem.full_data;
+            const hashtags = post?.hashtags || [];
+
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-2xl font-bold mb-2">{post?.topic || selectedItem.title}</h3>
+                        <div className="flex gap-2 items-center">
+                            <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                Instagram
+                            </Badge>
+                            <Badge variant="outline">{post?.post_type || 'carousel'}</Badge>
+                            <Badge variant="secondary" className="gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                IA
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
+                        <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
+                        <p className="text-sm"><strong>Outcome Desejado:</strong> {post?.desired_outcome || 'N/A'}</p>
+                        <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
+                    </div>
+
+                    {post?.caption && (
+                        <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-2">Caption Instagram</h4>
+                            <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded-md">
+                                {post.caption}
+                            </p>
+                        </div>
+                    )}
+
+                    {hashtags.length > 0 && (
+                        <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-2">Hashtags</h4>
+                            <div className="flex flex-wrap gap-1">
+                                {hashtags.map((tag: string, idx: number) => (
+                                    <Badge key={idx} variant="outline" className="text-xs text-blue-600">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         }
 
         if (selectedItem.type === 'resource') {
@@ -271,6 +418,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const allPending = items || [];
     const blogItems = allPending.filter(i => i.type === 'blog');
     const linkedInItems = allPending.filter(i => i.type === 'linkedin');
+    const instagramItems = allPending.filter(i => i.type === 'instagram');
     const resourceItems = allPending.filter(i => i.type === 'resource');
 
     return (
@@ -289,12 +437,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             )}
 
             <Tabs defaultValue="all" className="w-full">
-                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-6'} mb-6`}>
+                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6`}>
                     <TabsTrigger value="all">Pendentes ({allPending.length})</TabsTrigger>
                     {!embedded && (
                         <>
                             <TabsTrigger value="blogs">Blogs ({blogItems.length})</TabsTrigger>
                             <TabsTrigger value="linkedin">LinkedIn ({linkedInItems.length})</TabsTrigger>
+                            <TabsTrigger value="instagram">Instagram ({instagramItems.length})</TabsTrigger>
                             <TabsTrigger value="resources">Recursos ({resourceItems.length})</TabsTrigger>
                         </>
                     )}
@@ -320,6 +469,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                                     <FileText className="h-4 w-4 text-blue-500" />
                                                 ) : item.type === 'resource' ? (
                                                     <BookOpen className="h-4 w-4 text-amber-600" />
+                                                ) : item.type === 'instagram' ? (
+                                                    <Instagram className="h-4 w-4 text-pink-500" />
                                                 ) : (
                                                     <Linkedin className="h-4 w-4 text-blue-600" />
                                                 )}
@@ -361,6 +512,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                                 <FileText className="h-4 w-4 text-blue-500" />
                                             ) : item.type === 'resource' ? (
                                                 <BookOpen className="h-4 w-4 text-amber-600" />
+                                            ) : item.type === 'instagram' ? (
+                                                <Instagram className="h-4 w-4 text-pink-500" />
                                             ) : (
                                                 <Linkedin className="h-4 w-4 text-blue-600" />
                                             )}
@@ -375,6 +528,43 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     </Button>
                                     <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
                                         <Clock className="h-4 w-4" /> Agendar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </TabsContent>
+
+                <TabsContent value="instagram" className="space-y-4">
+                    {instagramItems.length === 0 ? (
+                        <div className="text-center py-12">
+                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
+                            <h3 className="text-lg font-medium">Nenhum post Instagram pendente</h3>
+                            <p className="text-muted-foreground">Posts do Instagram pendentes aparecerão aqui para revisão.</p>
+                        </div>
+                    ) : (
+                        instagramItems.map((item) => (
+                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Instagram className="h-4 w-4 text-pink-500" />
+                                                <CardTitle className="text-base">{item.title}</CardTitle>
+                                            </div>
+                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                        <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        <ThumbsUp className="h-4 w-4" /> Aprovar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
                                     </Button>
                                 </CardContent>
                             </Card>
