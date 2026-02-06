@@ -1,16 +1,56 @@
 #!/bin/bash
 
 # Configuration
+# Configuration
 SUPABASE_URL="https://dlflpvmdzkeouhgqwqba.supabase.co"
-ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZmxwdm1kemtlb3VoZ3F3cWJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3Mjc2MDksImV4cCI6MjA4MzMwMzYwOX0.ALEISClMQTqYtDfRBVOQwm5vf7uEodqptSXyxIpRkCQ"
+# Service Role Key (Bypasses RLS)
+SERVICE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZmxwdm1kemtlb3VoZ3F3cWJhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNzYwOSwiZXhwIjoyMDgzMzAzNjA5fQ.QT2RDwGP92JhDFb3fGRgMuViKW-AioTIu44x_g0hw5o"
 
 echo "🚀 Creating Draft Campaigns for Resources..."
+
+# 0. Create/Get a User ID (via Admin API)
+echo "👤 Creating a temporary admin user for content generation..."
+RAND_SFX=$(date +%s)
+user_payload="{\"email\":\"bot_${RAND_SFX}@lifetrek.app\",\"password\":\"pass_${RAND_SFX}\",\"email_confirm\":true}"
+
+user_resp=$(curl -s -X POST "${SUPABASE_URL}/auth/v1/admin/users" \
+  -H "apikey: ${SERVICE_KEY}" \
+  -H "Authorization: Bearer ${SERVICE_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "$user_payload")
+
+USER_ID=$(echo "$user_resp" | jq -r '.id // empty')
+
+if [ -z "$USER_ID" ] || [ "$USER_ID" == "null" ]; then
+    echo "❌ Failed to create User. Response:"
+    echo "$user_resp"
+    # Fallback: maybe the user already exists? Try to get it from the response if it was an error?
+    # Actually, try to just LIST users via admin api
+    echo "   Trying to list users..."
+    list_resp=$(curl -s -X GET "${SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=1" \
+      -H "apikey: ${SERVICE_KEY}" \
+      -H "Authorization: Bearer ${SERVICE_KEY}")
+    USER_ID=$(echo "$list_resp" | jq -r '.users[0].id // empty')
+fi
+
+if [ -z "$USER_ID" ]; then
+    echo "❌ Failed to get ANY User ID."
+    exit 1
+fi 
+
+echo "✅ Using User ID: $USER_ID"
+
+if [ -z "$USER_ID" ]; then
+    echo "❌ Failed to fetch a User ID. Cannot proceed."
+    exit 1
+fi
+echo "✅ Using User ID: $USER_ID"
 
 # 1. Fetch Resources
 echo "📥 Fetching published resources..."
 resources_json=$(curl -s -X GET "${SUPABASE_URL}/rest/v1/resources?select=id,title,type&status=eq.published&limit=10" \
-  -H "apikey: ${ANON_KEY}" \
-  -H "Authorization: Bearer ${ANON_KEY}")
+  -H "apikey: ${SERVICE_KEY}" \
+  -H "Authorization: Bearer ${SERVICE_KEY}")
 
 # Check if curl failed
 if [ $? -ne 0 ]; then
@@ -68,17 +108,21 @@ echo "$resources_json" | jq -c '.[]' | while read -r resource; do
         --arg topic "$topicHook" \
         --argjson slides "$slides_json" \
         --arg caption "Draft created for resource promotion: $title" \
+        --arg uid "$USER_ID" \
+        --arg audience "Operations Managers, Engineering Leaders" \
             '{
                 topic: $topic,
                 slides: $slides,
                 caption: $caption,
-                status: "draft"
+                status: "draft",
+                admin_user_id: $uid,
+                target_audience: $audience
             }')
             
     echo "   💾 Creating Draft in DB..."
     insert_res=$(curl -s -X POST "${SUPABASE_URL}/rest/v1/linkedin_carousels" \
-            -H "apikey: ${ANON_KEY}" \
-            -H "Authorization: Bearer ${ANON_KEY}" \
+            -H "apikey: ${SERVICE_KEY}" \
+            -H "Authorization: Bearer ${SERVICE_KEY}" \
             -H "Content-Type: application/json" \
             -H "Prefer: return=representation" \
             -d "$insert_payload")

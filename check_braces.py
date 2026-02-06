@@ -28,7 +28,7 @@ def check_balance(filepath):
         
     return errors
 
-rootDir = 'src/components/admin/content'
+rootDir = 'src'
 for dirName, subdirList, fileList in os.walk(rootDir):
     for fname in fileList:
         if fname.endswith('.tsx'):
