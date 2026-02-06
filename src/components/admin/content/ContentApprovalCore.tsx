@@ -657,32 +657,46 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <p className="text-muted-foreground">Blogs pendentes aparecerão aqui para revisão.</p>
                         </div>
                     ) : (
-                        blogItems.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <FileText className="h-4 w-4 text-blue-500" />
-                                                <CardTitle className="text-base">{item.title}</CardTitle>
-                                            </div>
-                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                        blogItems.map((item) => {
+                            const imageUrl = item.image_urls?.[0] || item.full_data?.cover_image || item.full_data?.image;
+                            return (
+                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
+                                    {imageUrl && (
+                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
+                                            <img
+                                                src={imageUrl}
+                                                alt={item.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
                                         </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-blue-500" />
+                                                        <CardTitle className="text-base">{item.title}</CardTitle>
+                                                    </div>
+                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                                <Eye className="h-4 w-4" /> Ver
+                                            </Button>
+                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                                <ThumbsUp className="h-4 w-4" /> Aprovar
+                                            </Button>
+                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
+                                            </Button>
+                                        </CardContent>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
-                                    </Button>
-                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                        <ThumbsUp className="h-4 w-4" /> Aprovar
-                                    </Button>
-                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
+                                </Card>
+                            );
+                        })
                     )}
                 </TabsContent>
 
@@ -694,32 +708,46 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <p className="text-muted-foreground">Posts do LinkedIn pendentes aparecerão aqui para revisão.</p>
                         </div>
                     ) : (
-                        linkedInItems.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <Linkedin className="h-4 w-4 text-blue-600" />
-                                                <CardTitle className="text-base">{item.title}</CardTitle>
-                                            </div>
-                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                        linkedInItems.map((item) => {
+                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
+                            return (
+                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
+                                    {imageUrl && (
+                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
+                                            <img
+                                                src={imageUrl}
+                                                alt={item.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
                                         </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <Linkedin className="h-4 w-4 text-blue-600" />
+                                                        <CardTitle className="text-base">{item.title}</CardTitle>
+                                                    </div>
+                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                                <Eye className="h-4 w-4" /> Ver
+                                            </Button>
+                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                                <ThumbsUp className="h-4 w-4" /> Aprovar
+                                            </Button>
+                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
+                                            </Button>
+                                        </CardContent>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
-                                    </Button>
-                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                        <ThumbsUp className="h-4 w-4" /> Aprovar
-                                    </Button>
-                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
+                                </Card>
+                            );
+                        })
                     )}
                 </TabsContent>
 
@@ -731,32 +759,46 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <p className="text-muted-foreground">Posts do Instagram pendentes aparecerão aqui para revisão.</p>
                         </div>
                     ) : (
-                        instagramItems.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <Instagram className="h-4 w-4 text-pink-500" />
-                                                <CardTitle className="text-base">{item.title}</CardTitle>
-                                            </div>
-                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                        instagramItems.map((item) => {
+                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
+                            return (
+                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
+                                    {imageUrl && (
+                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
+                                            <img
+                                                src={imageUrl}
+                                                alt={item.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
                                         </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <Instagram className="h-4 w-4 text-pink-500" />
+                                                        <CardTitle className="text-base">{item.title}</CardTitle>
+                                                    </div>
+                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                                <Eye className="h-4 w-4" /> Ver
+                                            </Button>
+                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
+                                                <ThumbsUp className="h-4 w-4" /> Aprovar
+                                            </Button>
+                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
+                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
+                                            </Button>
+                                        </CardContent>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
-                                    </Button>
-                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                        <ThumbsUp className="h-4 w-4" /> Aprovar
-                                    </Button>
-                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
+                                </Card>
+                            );
+                        })
                     )}
                 </TabsContent>
 
