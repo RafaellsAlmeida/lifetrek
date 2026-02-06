@@ -62,7 +62,7 @@ serve(async (req: Request) => {
   const startTime = Date.now();
 
   try {
-    const { carousel_id, batch_mode = false } = await req.json();
+    const { carousel_id, batch_mode = false, table_name = "linkedin_carousels" } = await req.json();
 
     if (!carousel_id) {
       return new Response(
@@ -84,23 +84,23 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Fetch carousel
-    console.log(`[REGEN] Fetching carousel ${carousel_id}...`);
+    // Fetch carousel/post
+    console.log(`[REGEN] Fetching ${table_name} item ${carousel_id}...`);
     const { data: carousel, error: carouselError } = await supabase
-      .from("linkedin_carousels")
+      .from(table_name)
       .select("*")
       .eq("id", carousel_id)
       .single();
 
     if (carouselError || !carousel) {
-      console.error(`[REGEN] Carousel not found: ${carouselError?.message}`);
+      console.error(`[REGEN] Item not found: ${carouselError?.message}`);
       return new Response(
-        JSON.stringify({ error: "Carousel not found" }),
+        JSON.stringify({ error: "Item not found" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
       );
     }
 
-    console.log(`[REGEN] ✅ Found carousel: "${carousel.topic}" with ${carousel.slides?.length || 0} slides`);
+    console.log(`[REGEN] ✅ Found item: "${carousel.topic}" with ${carousel.slides?.length || 0} slides`);
 
     // ========================================================================
     // LOAD REFERENCE IMAGES (Brand Assets)

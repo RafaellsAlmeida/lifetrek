@@ -603,35 +603,49 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <p className="text-muted-foreground">Itens aprovados aparecerão aqui para agendamento.</p>
                         </div>
                     ) : (
-                        approvedItems.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-2">
-                                            {item.type === 'blog' ? (
-                                                <FileText className="h-4 w-4 text-blue-500" />
-                                            ) : item.type === 'resource' ? (
-                                                <BookOpen className="h-4 w-4 text-amber-600" />
-                                            ) : item.type === 'instagram' ? (
-                                                <Instagram className="h-4 w-4 text-pink-500" />
-                                            ) : (
-                                                <Linkedin className="h-4 w-4 text-blue-600" />
-                                            )}
-                                            <CardTitle className="text-base">{item.title}</CardTitle>
+                        approvedItems.map((item) => {
+                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
+                            return (
+                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 flex overflow-hidden">
+                                    {imageUrl && (
+                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
+                                            <img
+                                                src={imageUrl}
+                                                alt={item.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
                                         </div>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Aprovado</Badge>
+                                    )}
+                                    <div className="flex-1">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    {item.type === 'blog' ? (
+                                                        <FileText className="h-4 w-4 text-blue-500" />
+                                                    ) : item.type === 'resource' ? (
+                                                        <BookOpen className="h-4 w-4 text-amber-600" />
+                                                    ) : item.type === 'instagram' ? (
+                                                        <Instagram className="h-4 w-4 text-pink-500" />
+                                                    ) : (
+                                                        <Linkedin className="h-4 w-4 text-blue-600" />
+                                                    )}
+                                                    <CardTitle className="text-base">{item.title}</CardTitle>
+                                                </div>
+                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Aprovado</Badge>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
+                                                <Eye className="h-4 w-4" /> Ver
+                                            </Button>
+                                            <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
+                                                <Clock className="h-4 w-4" /> Agendar
+                                            </Button>
+                                        </CardContent>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
-                                    </Button>
-                                    <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
-                                        <Clock className="h-4 w-4" /> Agendar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
+                                </Card>
+                            );
+                        })
                     )}
                 </TabsContent>
 
