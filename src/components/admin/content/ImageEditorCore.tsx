@@ -243,4 +243,3 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         </div>
     );
 }
-```
