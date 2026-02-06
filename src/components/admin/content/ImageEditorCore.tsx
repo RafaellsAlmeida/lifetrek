@@ -152,12 +152,13 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                     </div>
 
                     <div className="pt-4 flex flex-col gap-2">
-                        <Button className="w-full gap-2" onClick={handleSave}>
-                            <Save className="w-4 h-4" /> Salvar no Post
-                        </Button>
                         <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1 gap-2" onClick={handleDownload}>
-                                <Download className="w-4 h-4" /> PNG
+                            <Button
+                                className="flex-1 gap-2"
+                                onClick={handleSave}
+                            >
+                                <Save className="w-4 h-4" />
+                                Salvar
                             </Button>
                             <Button
                                 variant="secondary"
@@ -169,6 +170,15 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                                 IA Assist
                             </Button>
                         </div>
+
+                        <Button
+                            variant="outline"
+                            className="w-full gap-2"
+                            onClick={handleDownload}
+                        >
+                            <Download className="w-4 h-4" />
+                            Baixar PNG
+                        </Button>
                     </div>
                 </div>
 
@@ -234,3 +244,4 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         </div>
     );
 }
+```
