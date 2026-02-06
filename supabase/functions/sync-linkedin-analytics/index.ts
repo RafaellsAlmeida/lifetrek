@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "https://api28.unipile.com:15814"; // Defaulting to the working DSN
+const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "https://api28.unipile.com:15814";
 const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -47,18 +47,24 @@ serve(async (req) => {
 
     // 3. Fetch Data
     
-    // Connections
+    // Connections - try multiple approaches to get accurate count
     let totalConnections = 0;
     try {
         const relationsData = await fetchUnipile(`/api/v1/users/${accountId}/relations`, { limit: 1 });
-        totalConnections = relationsData?.total || 0;
+        // Unipile may return total in different fields depending on version
+        totalConnections = relationsData?.total || relationsData?.total_items || 0;
+        // If no total field, count from items array length (capped at limit)
+        if (totalConnections === 0 && relationsData?.items) {
+            // Fetch a larger batch to get a better count
+            const fullRelations = await fetchUnipile(`/api/v1/users/${accountId}/relations`, { limit: 100 });
+            totalConnections = fullRelations?.total || fullRelations?.total_items || (fullRelations?.items?.length || 0);
+        }
         console.log(`Connections: ${totalConnections}`);
     } catch (e) {
         console.error(`Error fetching relations: ${e.message}`);
-        // Continue without connection count
     }
 
-    // Conversations (Snapshot)
+    // Conversations (Snapshot) - use API total if available, otherwise count items
     let totalConvsFetched = 0;
     let unreadCount = 0;
     try {
@@ -67,9 +73,10 @@ serve(async (req) => {
             limit: 50
         });
         const chats = chatsData?.items || [];
-        totalConvsFetched = chats.length; 
+        // Use API-provided total if available, otherwise fall back to items length
+        totalConvsFetched = chatsData?.total || chatsData?.total_items || chats.length;
         unreadCount = chats.filter((c: any) => c.unread_count > 0).length;
-        console.log(`Chats fetched: ${totalConvsFetched}, Unread: ${unreadCount}`);
+        console.log(`Chats total: ${totalConvsFetched}, Fetched: ${chats.length}, Unread: ${unreadCount}`);
     } catch (e) {
          console.error(`Error fetching chats: ${e.message}`);
     }
