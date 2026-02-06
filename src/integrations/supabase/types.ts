@@ -1226,6 +1226,54 @@ export type Database = {
         }
         Relationships: []
       }
+      resources: {
+        Row: {
+          content: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          persona: string | null
+          slug: string
+          status: string
+          thumbnail_url: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          persona?: string | null
+          slug: string
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          persona?: string | null
+          slug?: string
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

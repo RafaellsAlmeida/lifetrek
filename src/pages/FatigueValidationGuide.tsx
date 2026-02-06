@@ -168,6 +168,23 @@ const FatigueValidationGuide = () => {
                     fill: #1F2937;
                     font-weight: 600;
                 }
+                .mermaid-container svg {
+                    min-width: 900px;
+                    max-width: 100%;
+                }
+                .mermaid-container .node rect,
+                .mermaid-container .node polygon {
+                    rx: 8px;
+                    ry: 8px;
+                }
+                .mermaid-container .nodeLabel {
+                    font-size: 13px;
+                    padding: 8px 12px;
+                }
+                .mermaid-container .cluster-label {
+                    font-size: 14px;
+                    font-weight: 600;
+                }
             `}</style>
             {/* Header / CTA Bar */}
             <div className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center print:hidden gap-4">
