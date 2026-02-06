@@ -106,12 +106,21 @@ serve(async (req: Request) => {
     // LOAD REFERENCE IMAGES (Brand Assets)
     // Nano Banana Pro supports up to 14 reference images
     // ========================================================================
-    console.log("[REGEN] Loading brand reference images...");
+    console.log("[REGEN] Loading brand reference images from product_catalog...");
 
-    const { data: companyAssets } = await supabase
-      .from("company_assets")
-      .select("type, url, name, description")
-      .in("type", ["logo", "iso_badge", "brand_element", "facility_photo", "product_photo"]);
+    // @ts-ignore
+    const { data: catalogAssets } = await supabase
+      .from("product_catalog")
+      .select("category, image_url, name, description")
+      .in("category", ["facility", "equipment", "product", "asset"]);
+
+    // Map to expected format
+    const companyAssets = (catalogAssets || []).map((a: any) => ({
+      type: a.category,
+      url: a.image_url,
+      name: a.name,
+      description: a.description
+    }));
 
     const referenceImages: ReferenceImage[] = [];
 
@@ -143,8 +152,9 @@ serve(async (req: Request) => {
 
     console.log(`[REGEN] Loaded ${referenceImages.length} reference images for brand consistency`);
 
-    const logoAsset = companyAssets?.find((a: any) => a.type === 'logo');
-    const isoAsset = companyAssets?.find((a: any) => a.type === 'iso_badge');
+    // Basic heuristic for specific assets
+    const logoAsset = companyAssets?.find((a: any) => a.name?.toLowerCase().includes('logo')) || companyAssets?.[0];
+    const isoAsset = companyAssets?.find((a: any) => a.name?.toLowerCase().includes('iso') || a.description?.includes('ISO'));
 
     let slides: SlideData[] = carousel.slides || [];
 
@@ -156,6 +166,11 @@ serve(async (req: Request) => {
       const content = slides.filter((s) => s.type === 'content').slice(0, 3);
       slides = [hook, ...content, cta].filter(Boolean).slice(0, 5);
     }
+
+    // Determine platform and aspect ratio
+    const isInstagram = table_name === 'instagram_posts';
+    const aspectRatio = isInstagram ? "4:5" : "3:4";
+    const platformName = isInstagram ? "Instagram" : "LinkedIn";
 
     // ========================================================================
     // NANO BANANA PRO IMAGE GENERATION
@@ -186,9 +201,9 @@ serve(async (req: Request) => {
         contents: [{ parts }],
         generationConfig: {
           responseModalities: ["IMAGE", "TEXT"],
-          // Image config for LinkedIn carousel (portrait 3:4, 2K resolution)
+          // Dynamic aspect ratio
           imageConfig: {
-            aspectRatio: "3:4",
+            aspectRatio: aspectRatio,
             imageSize: "2K"
           }
         }
@@ -242,7 +257,7 @@ serve(async (req: Request) => {
         generationConfig: {
           responseModalities: ["IMAGE", "TEXT"],
           imageConfig: {
-            aspectRatio: "3:4"
+            aspectRatio: aspectRatio
           }
         }
       };
@@ -285,7 +300,7 @@ serve(async (req: Request) => {
       const isFirst = slideNum === 1;
       const isLast = slideNum === totalSlides;
 
-      return `Create a professional LinkedIn carousel slide for Lifetrek Medical.
+      return `Create a professional ${platformName} carousel slide for Lifetrek Medical.
 
 === BRAND IDENTITY ===
 Company: Lifetrek Medical - Medical device contract manufacturer
@@ -314,7 +329,7 @@ Slide Type: ${slide.type} (${isFirst ? "FIRST/HOOK - grab attention" : isLast ? 
 Position: Slide ${slideNum} of ${totalSlides}
 
 === COMPOSITION REQUIREMENTS ===
-- Format: Portrait 3:4 ratio for LinkedIn carousel
+- Format: Portrait ${aspectRatio} ratio for ${platformName} carousel
 - Render the headline text "${slide.headline}" prominently in large, bold white text
 - Render the body text below in smaller white text
 - Text must be in PORTUGUESE (Brazilian Portuguese)

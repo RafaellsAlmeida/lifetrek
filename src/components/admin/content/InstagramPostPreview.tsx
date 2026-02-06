@@ -2,7 +2,7 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Instagram } from "lucide-react";
 
 interface InstagramPostPreviewProps {
     post: any;
@@ -97,4 +97,4 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
     );
 }
 
-import { Instagram } from "lucide-react";
+
