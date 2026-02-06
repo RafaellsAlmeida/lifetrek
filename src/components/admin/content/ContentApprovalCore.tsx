@@ -501,62 +501,62 @@ const renderPreview = () => {
                     </Button>
                 </div>
             </div>
-                </div >
-            );
-        }
 
-if (selectedItem.type === 'resource') {
-    const resource = selectedItem.full_data || {};
-    return (
-        <div className="space-y-6">
-            <div className="space-y-2">
-                <h3 className="text-2xl font-bold">{selectedItem.title}</h3>
-                {resource.description && (
-                    <p className="text-sm text-slate-600">{resource.description}</p>
-                )}
-                <div className="flex flex-wrap gap-2 text-xs">
-                    {resource.type && (
-                        <Badge variant="outline" className="bg-slate-50 text-slate-700">
-                            Tipo: {resource.type}
-                        </Badge>
-                    )}
-                    {resource.persona && (
-                        <Badge variant="outline" className="bg-slate-50 text-slate-700">
-                            Persona: {resource.persona}
-                        </Badge>
-                    )}
-                    {resource.slug && (
-                        <Badge variant="outline" className="bg-slate-50 text-slate-700">
-                            Slug: {resource.slug}
-                        </Badge>
-                    )}
-                    {resource.status && (
-                        <Badge variant="outline" className="bg-slate-50 text-slate-700">
-                            Status: {resource.status}
-                        </Badge>
-                    )}
-                </div>
-            </div>
+        );
+    }
 
-            {resource.content && (
-                <div className="rounded-lg border bg-white p-5">
-                    <div className="prose prose-base md:prose-lg max-w-none leading-relaxed">
-                        <ReactMarkdown>{resource.content}</ReactMarkdown>
+    if (selectedItem.type === 'resource') {
+        const resource = selectedItem.full_data || {};
+        return (
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <h3 className="text-2xl font-bold">{selectedItem.title}</h3>
+                    {resource.description && (
+                        <p className="text-sm text-slate-600">{resource.description}</p>
+                    )}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                        {resource.type && (
+                            <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                Tipo: {resource.type}
+                            </Badge>
+                        )}
+                        {resource.persona && (
+                            <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                Persona: {resource.persona}
+                            </Badge>
+                        )}
+                        {resource.slug && (
+                            <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                Slug: {resource.slug}
+                            </Badge>
+                        )}
+                        {resource.status && (
+                            <Badge variant="outline" className="bg-slate-50 text-slate-700">
+                                Status: {resource.status}
+                            </Badge>
+                        )}
                     </div>
                 </div>
-            )}
 
-            {resource.slug && (
-                <div className="text-xs text-muted-foreground">
-                    Rota pública: <span className="font-medium text-slate-700">/resources/{resource.slug}</span>
-                </div>
-            )}
-        </div>
-    );
-}
+                {resource.content && (
+                    <div className="rounded-lg border bg-white p-5">
+                        <div className="prose prose-base md:prose-lg max-w-none leading-relaxed">
+                            <ReactMarkdown>{resource.content}</ReactMarkdown>
+                        </div>
+                    </div>
+                )}
 
-return <div className="p-4">Visualização para {selectedItem.title} pronta para revisão.</div>;
-    };
+                {resource.slug && (
+                    <div className="text-xs text-muted-foreground">
+                        Rota pública: <span className="font-medium text-slate-700">/resources/{resource.slug}</span>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    return <div className="p-4">Visualização para {selectedItem.title} pronta para revisão.</div>;
+};
 
 if (isLoading || isLoadingRejected || isLoadingApproved) {
     return (
