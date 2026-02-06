@@ -13,7 +13,7 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Unipile Config
-const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "https://api.unipile.com"; // User updated this in .env, ensure it's propagated
+const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "https://api28.unipile.com:15814";
 const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY")!;
 
 serve(async (req) => {

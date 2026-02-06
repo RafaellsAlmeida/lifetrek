@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "http://api1.unipile.com:13200";
+    const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN") || "https://api28.unipile.com:15814";
     const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY");
 
     if (!UNIPILE_API_KEY) {

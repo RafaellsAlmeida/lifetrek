@@ -55,6 +55,7 @@ const OnePager = lazy(() => import("./pages/OnePager"));
 const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
 const ImageEditor = lazy(() => import("./pages/Admin/ImageEditor"));
 const SocialMediaWorkspace = lazy(() => import("./pages/Admin/SocialMediaWorkspace"));
+const ChatbotInbox = lazy(() => import("./pages/Admin/ChatbotInbox"));
 
 // Public Pages
 const ProductCatalog = lazy(() => import("./pages/ProductCatalog"));
@@ -146,6 +147,7 @@ const App = () => (
                     <Route path="content-manager" element={<ContentManager />} />
                     <Route path="image-editor" element={<ImageEditor />} />
                     <Route path="social" element={<SocialMediaWorkspace />} />
+                    <Route path="chatbot-inbox" element={<ChatbotInbox />} />
                   </Route>
                 </Route>
               </Routes>

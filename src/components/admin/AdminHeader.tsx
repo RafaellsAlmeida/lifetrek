@@ -75,6 +75,7 @@ type NavEntry = NavItem | NavGroup;
 const navStructure: NavEntry[] = [
     { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { path: "/admin/inbox", label: "Inbox", icon: Inbox },
+    { path: "/admin/chatbot-inbox", label: "Chatbot", icon: MessageSquare },
     {
         label: "Conteúdo",
         icon: FileText,
