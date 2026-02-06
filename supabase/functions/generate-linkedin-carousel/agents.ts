@@ -52,60 +52,46 @@ async function callOpenRouter(
   return data.choices?.[0]?.message?.content || "";
 }
 
-async function callOpenRouterImage(prompt: string): Promise<string | null> {
+async function callGeminiImage(prompt: string): Promise<string | null> {
   try {
-    // OpenRouter uses the chat completions endpoint for image generation
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPEN_ROUTER_API}`,
-        "HTTP-Referer": "https://lifetrek.app",
-        "X-Title": "Lifetrek App",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: IMAGE_MODEL,
-        messages: [{
-          role: "user",
-          content: prompt
-        }]
-      })
-    });
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY not set in environment");
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseModalities: ["IMAGE"],
+            imageConfig: {
+              aspectRatio: "1:1",
+              imageSize: "1K"
+            }
+          }
+        })
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorDetail = errorText;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorDetail = errorJson.error?.message || errorJson.message || errorText;
-      } catch (e) { }
-      throw new Error(`OpenRouter Image Error (${response.status}): ${errorDetail}`);
+      throw new Error(`Gemini Image Error (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
+    const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
 
-    // OpenRouter returns images in message.images array
-    const images = data.choices?.[0]?.message?.images;
-    if (!images || !Array.isArray(images) || images.length === 0) {
-      throw new Error(`OpenRouter Image Success but no images in response: ${JSON.stringify(data)}`);
+    if (!imagePart) {
+      throw new Error("No image generated in Gemini response");
     }
 
-    // Images can be returned in various formats (URL string, or object with url property)
-    // The Gemini model via OpenRouter often returns { type: "image_url", image_url: { url: "..." } }
-    const firstImage = images[0];
-    const imageUrl =
-      (typeof firstImage === 'string' ? firstImage : null) ||
-      firstImage?.image_url?.url ||
-      firstImage?.imageUrl?.url ||
-      firstImage?.url;
-
-    if (!imageUrl) {
-      throw new Error(`OpenRouter Image Success but no URL in image object: ${JSON.stringify(firstImage)}`);
-    }
-
-    return imageUrl;
+    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
-    console.error("OpenRouter Image Call Failed:", error);
+    console.error("Gemini Image Call Failed:", error);
     throw error;
   }
 }
@@ -225,7 +211,7 @@ export async function designerAgent(
   console.log("🎨 Designer Agent: Creating visual assets...");
 
   const brand = getBrandGuidelines(params.profileType);
-  
+
   // RAG for Design Rules
   let designRules = "";
   try {
@@ -238,10 +224,10 @@ export async function designerAgent(
   }
 
   const images: GeneratedImage[] = [];
-  
+
   // Decide which slides get images (Hook and last slide always, middle one if long)
   const middleIndex = Math.floor(copy.slides.length / 2);
-  
+
   for (let i = 0; i < copy.slides.length; i++) {
     const slide = copy.slides[i];
     const shouldHaveImage = i === 0 || i === middleIndex || i === copy.slides.length - 1;
@@ -255,24 +241,39 @@ export async function designerAgent(
     // Combine headline and visual_description for better matching
     const assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
     const realAsset = await searchCompanyAssets(supabase, assetQuery);
-    
+
     if (realAsset) {
       console.log(`🖼️ Designer: Using real asset "${realAsset.name}" for slide ${i}`);
-      images.push({ 
-        slide_index: i, 
-        image_url: realAsset.url, 
-        asset_source: realAsset.source as 'real', 
-        asset_url: realAsset.url 
+      images.push({
+        slide_index: i,
+        image_url: realAsset.url,
+        asset_source: realAsset.source as 'real',
+        asset_url: realAsset.url
       });
       continue;
     }
 
-    // 2. Fallback to AI Generation
-    console.log(`🤖 Designer: Fallback to AI generation for slide ${i}`);
-    const prompt = `Medical device manufacturing context, ${slide.headline}. ${designRules}. Professional, photorealistic, 4k. High-end lighting.`;
+    // 2. Fallback to AI Generation with Brand Infusion (Story 7.2)
+    console.log(`🤖 Designer: Fallback to Gemini (Nano Banana Pro) for slide ${i}`);
+    const prompt = `
+      Medical device manufacturing context: ${slide.headline}.
+      ${designRules}.
+      
+      ACCEPTANCE CRITERIA:
+      - Premium, photorealistic, high-end studio lighting.
+      - Brand: Lifetrek (Engineering Excellence).
+      - Logo: Include Lifetrek logo discrete in corner or no logo if not perfect.
+      - NO spelling errors in the image.
+      - Environment: CLEANROOM, Lab, or High-Tech factory.
+    `.trim();
+
     try {
-      const url = await callOpenRouterImage(prompt);
-      images.push({ slide_index: i, image_url: url || "", asset_source: url ? 'ai-generated' : 'text-only' });
+      const b64Data = await callGeminiImage(prompt);
+      images.push({
+        slide_index: i,
+        image_url: b64Data || "",
+        asset_source: b64Data ? 'ai-generated' : 'text-only'
+      });
     } catch (e) {
       console.warn(`⚠️ Design generation failed for slide ${i}`, e);
       images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
@@ -303,7 +304,7 @@ Output JSON: { "overall_score": 85, "feedback": "...", "needs_regeneration": fal
 
   const response = await callOpenRouter([{ role: "user", content: prompt }]);
   const review = extractJSON(response);
-  
+
   review.needs_regeneration = review.overall_score < 70;
   console.log(`✅ Brand Analyst: Score ${review.overall_score}/100 in ${Date.now() - startTime}ms`);
   return review;

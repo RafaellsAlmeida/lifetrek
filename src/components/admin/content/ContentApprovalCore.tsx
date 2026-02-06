@@ -39,8 +39,16 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import { InstagramPostPreview } from "./InstagramPostPreview";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import {
+    AlertCircle,
+    Trash2,
+    ChevronRight,
+    ShieldCheck,
+    Image as ImageIcon
+} from "lucide-react";
 
 interface ContentApprovalCoreProps {
     embedded?: boolean;
@@ -69,6 +77,15 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const [scheduledDate, setScheduledDate] = useState<Date | undefined>(new Date());
     const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isCleaning, setIsCleaning] = useState(false);
+    const [acceptanceCriteria, setAcceptanceCriteria] = useState({
+        correctLogo: false,
+        brandIdentity: false,
+        noWordingMistakes: false,
+        hasAssets: false
+    });
+
+    const isAccepted = Object.values(acceptanceCriteria).every(v => v);
 
     const selectedLinkedInId = selectedItem?.type === 'linkedin' ? selectedItem.id : null;
     const { data: fullCarouselData, isLoading: isLoadingCarousel } = useLinkedInCarouselFull(selectedLinkedInId);
@@ -79,13 +96,47 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const handleSyncResources = async () => {
         setIsSyncing(true);
         try {
-            // ... (sync logic kept as is)
             toast.info("Sincronizando recursos...");
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error: any) {
             toast.error(`Erro: ${error.message}`);
         } finally {
             setIsSyncing(false);
+        }
+    };
+
+    const handleCleanDuplicates = async () => {
+        setIsCleaning(true);
+        try {
+            // Logic to find duplicates in allPending
+            // We'll dedupe by title/type for now
+            const seen = new Set();
+            const duplicates = allPending.filter(item => {
+                const key = `${item.type}-${item.title}`;
+                if (seen.has(key)) return true;
+                seen.add(key);
+                return false;
+            });
+
+            if (duplicates.length === 0) {
+                toast.success("Nenhum duplicado encontrado.");
+                return;
+            }
+
+            for (const dup of duplicates) {
+                const tableName = dup.type === 'linkedin' ? 'linkedin_carousels' :
+                    dup.type === 'blog' ? 'blog_posts' :
+                        dup.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+
+                await supabase.from(tableName as any).delete().eq('id', dup.id);
+            }
+
+            toast.success(`${duplicates.length} duplicados removidos.`);
+            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+        } catch (error: any) {
+            toast.error(`Erro ao limpar: ${error.message}`);
+        } finally {
+            setIsCleaning(false);
         }
     };
 
@@ -140,14 +191,14 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
         try {
             const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' :
-                            schedulingItem.type === 'blog' ? 'blog_posts' :
-                            schedulingItem.type === 'instagram' ? 'instagram_posts' : 'content_templates';
-            
+                schedulingItem.type === 'blog' ? 'blog_posts' :
+                    schedulingItem.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+
             const { error } = await (supabase
                 .from(tableName as any)
-                .update({ 
+                .update({
                     scheduled_date: scheduledDate.toISOString(),
-                    status: 'scheduled' 
+                    status: 'scheduled'
                 } as any) as any)
                 .eq('id', schedulingItem.id);
 
@@ -260,6 +311,18 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         {blog.excerpt && (
                             <p className="text-muted-foreground italic">{blog.excerpt}</p>
                         )}
+                        <Button
+                            onClick={() => handleApprove(selectedItem)}
+                            disabled={approveLinkedIn.isPending || publishBlog.isPending || approveInstagram.isPending || (selectedItem.type === 'instagram' && !isAccepted)}
+                            className="gap-2"
+                        >
+                            {(approveLinkedIn.isPending || publishBlog.isPending || approveInstagram.isPending) ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Check className="h-4 w-4" />
+                            )}
+                            {selectedItem.type === 'instagram' && !isAccepted ? "Aprovação Bloqueada" : "Aprovar Conteúdo"}
+                        </Button>
                         <div className="flex gap-2 items-center mt-2">
                             <Badge variant="secondary">Blog</Badge>
                             {blog.ai_generated && (
@@ -304,52 +367,71 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             }
 
             const post = fullInstagramData || selectedItem.full_data;
-            const hashtags = post?.hashtags || [];
 
             return (
-                <div className="space-y-4">
-                    <div>
-                        <h3 className="text-2xl font-bold mb-2">{post?.topic || selectedItem.title}</h3>
-                        <div className="flex gap-2 items-center">
-                            <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                                Instagram
-                            </Badge>
-                            <Badge variant="outline">{post?.post_type || 'carousel'}</Badge>
-                            <Badge variant="secondary" className="gap-1">
-                                <Sparkles className="h-3 w-3" />
-                                IA
-                            </Badge>
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 className="text-sm font-semibold text-muted-foreground border-b pb-2 mb-4">
+                                Prévia do Instagram
+                            </h4>
+                            <InstagramPostPreview post={post} />
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
-                        <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
-                        <p className="text-sm"><strong>Outcome Desejado:</strong> {post?.desired_outcome || 'N/A'}</p>
-                        <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
-                    </div>
+                        <div className="space-y-6">
+                            <h4 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+                                Detalhes e Raciocínio
+                            </h4>
+                            <div className="space-y-3">
+                                <p className="text-sm"><strong>Público:</strong> {post?.target_audience || 'N/A'}</p>
+                                <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
+                                <p className="text-sm"><strong>Resultado:</strong> {post?.desired_outcome || 'N/A'}</p>
+                                <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
+                            </div>
 
-                    {post?.caption && (
-                        <div className="border-t pt-4">
-                            <h4 className="font-semibold mb-2">Caption Instagram</h4>
-                            <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded-md">
-                                {post.caption}
-                            </p>
-                        </div>
-                    )}
-
-                    {hashtags.length > 0 && (
-                        <div className="border-t pt-4">
-                            <h4 className="font-semibold mb-2">Hashtags</h4>
-                            <div className="flex flex-wrap gap-1">
-                                {hashtags.map((tag: string, idx: number) => (
-                                    <Badge key={idx} variant="outline" className="text-xs text-blue-600">
-                                        {tag}
-                                    </Badge>
-                                ))}
+                            <div className="bg-muted/30 p-4 rounded-lg border border-primary/5">
+                                <h5 className="text-xs font-bold uppercase text-muted-foreground mb-2">Critérios de Aceitação</h5>
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={acceptanceCriteria.correctLogo}
+                                            onChange={(e) => setAcceptanceCriteria({ ...acceptanceCriteria, correctLogo: e.target.checked })}
+                                            className="rounded border-slate-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm group-hover:text-primary transition-colors">Logo correto ou ausente</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={acceptanceCriteria.brandIdentity}
+                                            onChange={(e) => setAcceptanceCriteria({ ...acceptanceCriteria, brandIdentity: e.target.checked })}
+                                            className="rounded border-slate-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm group-hover:text-primary transition-colors">Identidade visual Lifetrek</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={acceptanceCriteria.noWordingMistakes}
+                                            onChange={(e) => setAcceptanceCriteria({ ...acceptanceCriteria, noWordingMistakes: e.target.checked })}
+                                            className="rounded border-slate-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm group-hover:text-primary transition-colors">Sem erros de português/wording</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={acceptanceCriteria.hasAssets}
+                                            onChange={(e) => setAcceptanceCriteria({ ...acceptanceCriteria, hasAssets: e.target.checked })}
+                                            className="rounded border-slate-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm group-hover:text-primary transition-colors">Contém assets reais (fotos/equipe)</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             );
         }
@@ -429,10 +511,28 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         <h1 className="text-3xl font-bold tracking-tight">Aprovação de Conteúdo</h1>
                         <p className="text-muted-foreground">Revise o conteúdo gerado por IA antes da publicação</p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleSyncResources} disabled={isSyncing} className="gap-2">
-                        <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                        Sincronizar
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCleanDuplicates}
+                            disabled={isCleaning}
+                            className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            {isCleaning ? "Limpando..." : "Limpar Duplicados"}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSyncResources}
+                            disabled={isSyncing}
+                            className="gap-2"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                            {isSyncing ? "Sincronizando..." : "Sincronizar"}
+                        </Button>
+                    </div>
                 </div>
             )}
 
@@ -620,8 +720,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Rejeitar Conteúdo</DialogTitle></DialogHeader>
-                    <textarea 
-                        className="w-full h-32 p-3 rounded-md border text-sm" 
+                    <textarea
+                        className="w-full h-32 p-3 rounded-md border text-sm"
                         placeholder="Por que este conteúdo foi rejeitado?"
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
@@ -638,8 +738,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     <div className="py-4 space-y-4">
                         <p className="text-sm text-muted-foreground">Selecione a data e hora para a publicação automática.</p>
                         <div className="flex justify-center border rounded-md p-2">
-                            <input 
-                                type="datetime-local" 
+                            <input
+                                type="datetime-local"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 value={scheduledDate ? format(scheduledDate, "yyyy-MM-dd'T'HH:mm") : ""}
                                 onChange={(e) => {
