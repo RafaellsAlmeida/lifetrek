@@ -40,9 +40,9 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isSubmitting) return;
-    
+
     // Basic validation
     if (!formData.name || !formData.email || !formData.phone || formData.projectTypes.length === 0 || !formData.technicalRequirements) {
       toast({
@@ -65,7 +65,7 @@ export default function Contact() {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Send email via edge function
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
@@ -83,7 +83,7 @@ export default function Contact() {
 
       if (error) {
         console.error('Error sending email:', error);
-        
+
         // Check for rate limit error
         const errorMessage = error.message || '';
         if (errorMessage.includes('429') || errorMessage.includes('rate limit')) {
@@ -101,7 +101,7 @@ export default function Contact() {
         }
         return;
       }
-      
+
       // Check if the response indicates success
       if (!data || (data as any).error) {
         console.error('Email function returned error:', data);
@@ -118,8 +118,8 @@ export default function Contact() {
         eventType: "form_submission",
         companyName: formData.company,
         companyEmail: formData.email,
-        metadata: { 
-          formType: "contact_quote", 
+        metadata: {
+          formType: "contact_quote",
           name: formData.name,
           projectTypes: formData.projectTypes
         }
@@ -130,15 +130,15 @@ export default function Contact() {
         description: "Entraremos em contato em breve com uma proposta personalizada.",
       });
 
-      setFormData({ 
-        name: "", 
-        email: "", 
-        company: "", 
-        phone: "", 
-        projectTypes: [], 
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        phone: "",
+        projectTypes: [],
         annualVolume: "",
-        technicalRequirements: "", 
-        message: "" 
+        technicalRequirements: "",
+        message: ""
       });
     } catch (error) {
       console.error('Error:', error);
@@ -175,7 +175,7 @@ export default function Contact() {
               <p className="text-muted-foreground mb-6">
                 {t("contact.form.description")}
               </p>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
@@ -313,10 +313,10 @@ export default function Contact() {
                 <div className="border-l-4 border-primary pl-6">
                   <h3 className="font-bold text-lg mb-2">{t("contact.info.email")}</h3>
                   <a
-                    href="mailto:vsmartins@lifetrek-medical.com"
+                    href="mailto:vmartin@lifetrek-medical.com"
                     className="text-muted-foreground text-lg hover:text-primary transition-colors"
                   >
-                    vsmartins@lifetrek-medical.com
+                    vmartin@lifetrek-medical.com
                   </a>
                 </div>
 

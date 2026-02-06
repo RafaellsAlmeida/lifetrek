@@ -46,7 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   // Initialize clients inside handler to prevent cold-start crashes
   console.log("DEBUG: Available Env Keys:", Object.keys(Deno.env.toObject()));
-  
+
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -56,14 +56,14 @@ const handler = async (req: Request): Promise<Response> => {
 
   if (!finalResendKey) {
     console.error("Missing RESEND_API_KEY");
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: "Configuration Error: Missing RESEND_API_KEY",
       availableKeys: Object.keys(Deno.env.toObject())
     }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
   if (!supabaseUrl || !supabaseKey) {
-     console.error("Missing SUPABASE credentials");
-     return new Response(JSON.stringify({ error: "Configuration Error: Missing Supabase Credentials" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    console.error("Missing SUPABASE credentials");
+    return new Response(JSON.stringify({ error: "Configuration Error: Missing Supabase Credentials" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   const resend = new Resend(finalResendKey);
@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send notification email to Lifetrek
     const notificationEmailResponse = await resend.emails.send({
       from: "Formulário de Contato <noreply@lifetrek-medical.com>",
-      to: ["vsmartins@lifetrek-medical.com"],
+      to: ["vmartin@lifetrek-medical.com"],
       subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -240,7 +240,7 @@ const handler = async (req: Request): Promise<Response> => {
           const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
           if (geminiApiKey) {
             console.log('Generating AI response suggestion...');
-            
+
             const systemPrompt = `You are a senior B2B sales consultant for Lifetrek Medical, a precision medical device manufacturing company specializing in dental implants, orthopedic components, surgical instruments, and custom medical parts.
 
 Your role is to analyze incoming leads and suggest professional, compelling email responses that:
@@ -285,14 +285,14 @@ ${companyResearch ? `**Company Research:**
               },
               body: JSON.stringify({
                 contents: [{
-                    role: "user",
-                    parts: [{ text: userPrompt }]
+                  role: "user",
+                  parts: [{ text: userPrompt }]
                 }],
                 system_instruction: {
-                    parts: [{ text: systemPrompt }]
+                  parts: [{ text: systemPrompt }]
                 },
                 generation_config: {
-                    response_mime_type: "application/json"
+                  response_mime_type: "application/json"
                 }
               }),
             });
@@ -300,30 +300,30 @@ ${companyResearch ? `**Company Research:**
             if (aiResponse.ok) {
               const aiData = await aiResponse.json();
               const responseText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
-              
+
               if (responseText) {
                 try {
-                    const suggestion = JSON.parse(responseText);
-                    console.log('AI suggestion generated');
+                  const suggestion = JSON.parse(responseText);
+                  console.log('AI suggestion generated');
 
-                    // Save AI suggestion to database
-                    const { data: savedSuggestion } = await supabase
+                  // Save AI suggestion to database
+                  const { data: savedSuggestion } = await supabase
                     .from('ai_response_suggestions')
                     .insert({
-                        lead_id: leadId,
-                        subject_line: suggestion.subject_line,
-                        email_body: suggestion.email_body,
-                        key_points: suggestion.key_points,
-                        follow_up_date: suggestion.follow_up_date,
-                        priority_level: suggestion.priority_level,
-                        company_research_id: companyResearch?.id
+                      lead_id: leadId,
+                      subject_line: suggestion.subject_line,
+                      email_body: suggestion.email_body,
+                      key_points: suggestion.key_points,
+                      follow_up_date: suggestion.follow_up_date,
+                      priority_level: suggestion.priority_level,
+                      company_research_id: companyResearch?.id
                     })
                     .select()
                     .single();
 
-                    aiSuggestion = savedSuggestion || suggestion;
+                  aiSuggestion = savedSuggestion || suggestion;
                 } catch (e) {
-                    console.error("Failed to parse AI suggestion JSON", e);
+                  console.error("Failed to parse AI suggestion JSON", e);
                 }
               }
             }
@@ -364,7 +364,7 @@ ${companyResearch ? `**Company Research:**
     // Send enhanced notification email to Lifetrek team
     const enhancedNotificationEmail = await resend.emails.send({
       from: "Formulário de Contato <noreply@lifetrek-medical.com>",
-      to: ["vsmartins@lifetrek-medical.com"],
+      to: ["vmartin@lifetrek-medical.com"],
       subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}${aiSuggestion ? ' [AI Suggestion Available]' : ''}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
@@ -467,8 +467,8 @@ ${companyResearch ? `**Company Research:**
 
     console.log("Enhanced notification email sent successfully");
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    return new Response(JSON.stringify({
+      success: true,
       customerEmail: customerEmailResponse,
       notificationEmail: enhancedNotificationEmail,
       leadId,

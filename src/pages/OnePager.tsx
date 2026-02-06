@@ -73,7 +73,7 @@ const OnePager = () => {
 
       {/* --- PAGE 1 --- */}
       <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] flex flex-col relative bg-white shadow-2xl my-8 print-page print:shadow-none print:my-0">
-        
+
         {/* Header - Reduced MB */}
         <div className="flex items-center justify-between mb-8 border-b-2 border-primary pb-4">
           <img src={logo} alt="Lifetrek Medical" className="h-14" />
@@ -112,7 +112,7 @@ const OnePager = () => {
 
         {/* Main Grid content - Reduced Gap */}
         <div className="grid grid-cols-2 gap-8 flex-1">
-          
+
           {/* Left Column - Reduced Gap */}
           <div className="flex flex-col gap-8">
             {/* Por que a Lifetrek? */}
@@ -121,20 +121,20 @@ const OnePager = () => {
                 Por que a Lifetrek?
               </h2>
               <ul className="space-y-3">
-                 {[
-                   { label: "Lead Time Reduzido", text: "De 90+ dias para 2-4 semanas" },
-                   { label: "Compliance Total", text: "ISO 13485, GMP, rastreabilidade ANVISA/FDA" },
-                   { label: "Nearshoring", text: "Reduza exposição cambial e riscos logísticos" },
-                   { label: "Metrologia Avançada", text: "ZEISS Contura + validação completa" }
-                 ].map((item, idx) => (
-                   <li key={idx} className="flex gap-3 items-start">
-                     <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                     <div>
-                       <strong className="text-slate-900 block">{item.label}:</strong>
-                       <span className="text-slate-600 text-sm leading-tight block">{item.text}</span>
-                     </div>
-                   </li>
-                 ))}
+                {[
+                  { label: "Lead Time Reduzido", text: "De 90+ dias para 2-4 semanas" },
+                  { label: "Compliance Total", text: "ISO 13485, GMP, rastreabilidade ANVISA/FDA" },
+                  { label: "Nearshoring", text: "Reduza exposição cambial e riscos logísticos" },
+                  { label: "Metrologia Avançada", text: "ZEISS Contura + validação completa" }
+                ].map((item, idx) => (
+                  <li key={idx} className="flex gap-3 items-start">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <strong className="text-slate-900 block">{item.label}:</strong>
+                      <span className="text-slate-600 text-sm leading-tight block">{item.text}</span>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -144,249 +144,249 @@ const OnePager = () => {
                 Produtos
               </h2>
               <div className="grid grid-cols-3 gap-4">
-                 <div className="text-center group">
-                    <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                      <img src={spinalImplants} alt="Espinhal" className="max-h-full max-w-full object-contain mix-blend-multiply" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">Espinhal</span>
-                 </div>
-                 <div className="text-center group">
-                    <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                      <img src={dentalImplants} alt="Dental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">Dental</span>
-                 </div>
-                 <div className="text-center group">
-                    <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                      <img src={instrumental} alt="Instrumental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">Instrumental</span>
-                 </div>
+                <div className="text-center group">
+                  <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
+                    <img src={spinalImplants} alt="Espinhal" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">Espinhal</span>
+                </div>
+                <div className="text-center group">
+                  <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
+                    <img src={dentalImplants} alt="Dental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">Dental</span>
+                </div>
+                <div className="text-center group">
+                  <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
+                    <img src={instrumental} alt="Instrumental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">Instrumental</span>
+                </div>
               </div>
             </div>
 
-             {/* Contato & Redes */}
-             <div>
+            {/* Contato & Redes */}
+            <div>
               <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-accent-orange pl-3">
                 Conecte-se Conosco
               </h2>
               <div className="flex flex-col gap-3">
-                 <a href="https://www.lifetrek-medical.com" target="_blank" className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 hover:border-primary/30 transition-colors group no-underline text-slate-800">
-                    <div className="text-accent-orange bg-white p-1.5 rounded-md shadow-sm group-hover:scale-110 transition-transform"><Globe className="w-5 h-5" /></div>
-                    <span className="font-bold text-sm group-hover:text-primary">www.lifetrek-medical.com</span>
-                 </a>
-                 
-                 <div className="grid grid-cols-2 gap-3">
-                    <a href="https://instagram.com/lifetrekmedical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition-colors group no-underline text-slate-700">
-                        <div className="text-pink-600 bg-white p-1 rounded shadow-sm"><Instagram className="w-4 h-4" /></div>
-                        <span className="font-bold text-xs group-hover:text-pink-700">@lifetrekmedical</span>
-                    </a>
-                    <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group no-underline text-slate-700">
-                        <div className="text-blue-700 bg-white p-1 rounded shadow-sm"><Linkedin className="w-4 h-4" /></div>
-                        <span className="font-bold text-xs group-hover:text-blue-800">Lifetrek Medical</span>
-                    </a>
-                 </div>
+                <a href="https://www.lifetrek-medical.com" target="_blank" className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 hover:border-primary/30 transition-colors group no-underline text-slate-800">
+                  <div className="text-accent-orange bg-white p-1.5 rounded-md shadow-sm group-hover:scale-110 transition-transform"><Globe className="w-5 h-5" /></div>
+                  <span className="font-bold text-sm group-hover:text-primary">www.lifetrek-medical.com</span>
+                </a>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <a href="https://instagram.com/lifetrekmedical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition-colors group no-underline text-slate-700">
+                    <div className="text-pink-600 bg-white p-1 rounded shadow-sm"><Instagram className="w-4 h-4" /></div>
+                    <span className="font-bold text-xs group-hover:text-pink-700">@lifetrekmedical</span>
+                  </a>
+                  <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="flex items-center gap-2 bg-slate-50 px-3 py-3 rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group no-underline text-slate-700">
+                    <div className="text-blue-700 bg-white p-1 rounded shadow-sm"><Linkedin className="w-4 h-4" /></div>
+                    <span className="font-bold text-xs group-hover:text-blue-800">Lifetrek Medical</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Column - Visuals - Compacted */}
           <div className="flex flex-col gap-4">
-             {/* FACTORY BLOCK */}
-             <div className="rounded-xl overflow-hidden shadow-lg border border-primary/20 bg-primary group relative">
-                <img 
-                  src={factoryExterior} 
-                  alt="Fábrica Lifetrek" 
-                  className="w-full h-40 object-cover"
-                />
-                <div className="bg-primary text-white py-2 px-4 text-center text-sm font-bold">
-                  Fábrica Própria • Indaiatuba, SP
-                </div>
-             </div>
+            {/* FACTORY BLOCK */}
+            <div className="rounded-xl overflow-hidden shadow-lg border border-primary/20 bg-primary group relative">
+              <img
+                src={factoryExterior}
+                alt="Fábrica Lifetrek"
+                className="w-full h-40 object-cover"
+              />
+              <div className="bg-primary text-white py-2 px-4 text-center text-sm font-bold">
+                Fábrica Própria • Indaiatuba, SP
+              </div>
+            </div>
 
-             {/* CLEAN ROOM */}
-             <div className="rounded-xl overflow-hidden shadow-lg border border-green-600/20 group">
-                <img src={cleanroomHero} alt="Sala Limpa" className="w-full h-40 object-cover" />
-                <div className="bg-green-600 text-white py-2 px-4 text-center text-sm font-bold">
-                  Sala Limpa ISO 7 Certificada
-                </div>
-             </div>
+            {/* CLEAN ROOM */}
+            <div className="rounded-xl overflow-hidden shadow-lg border border-green-600/20 group">
+              <img src={cleanroomHero} alt="Sala Limpa" className="w-full h-40 object-cover" />
+              <div className="bg-green-600 text-white py-2 px-4 text-center text-sm font-bold">
+                Sala Limpa ISO 7 Certificada
+              </div>
+            </div>
 
-             {/* RECEPTION - Fixed height to avoid cut */}
-             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100 flex flex-col h-full min-h-0">
-               <div className="flex-1 relative overflow-hidden">
-                   <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover absolute inset-0" />
-               </div>
-               <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200 z-10 relative">
-                  Recepção
-                </div>
-             </div>
+            {/* RECEPTION - Fixed height to avoid cut */}
+            <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100 flex flex-col h-full min-h-0">
+              <div className="flex-1 relative overflow-hidden">
+                <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover absolute inset-0" />
+              </div>
+              <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200 z-10 relative">
+                Recepção
+              </div>
+            </div>
           </div>
 
         </div>
 
         {/* Footer Page 1 */}
         <div className="mt-auto pt-8 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
-             <span>© 2026 Lifetrek Medical</span>
-             <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
-             <span>Página 1/2</span>
+          <span>© 2026 Lifetrek Medical</span>
+          <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
+          <span>Página 1/2</span>
         </div>
       </div>
-      
-          {/* --- PAGE 2 --- */}
+
+      {/* --- PAGE 2 --- */}
       <div className="max-w-[210mm] mx-auto p-12 min-h-[297mm] h-[297mm] flex flex-col bg-white shadow-2xl mb-8 print-page print:shadow-none print:my-0">
-         {/* ... (Previous Page 2 Header/Content remains same until footer) ... */
+        {/* ... (Previous Page 2 Header/Content remains same until footer) ... */
           /* Note: I need to output the full content or matching chunks. I'll use replace_file_content carefully.
              Actually, splitting this into chunks or replacing large block is safer.
           */}
 
-         {/* Header Page 2 */}
-         <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
-            <img src={logo} alt="Lifetrek Medical" className="h-10" />
-            <h2 className="text-xl font-bold text-primary">Equipamentos & Capacidades</h2>
-         </div>
+        {/* Header Page 2 */}
+        <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
+          <img src={logo} alt="Lifetrek Medical" className="h-10" />
+          <h2 className="text-xl font-bold text-primary">Equipamentos & Capacidades</h2>
+        </div>
 
-         {/* Machine Park (Expanded) */}
-         <div className="mb-8">
-            <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-primary pl-3">
-              Parque de Máquinas (R$ 1.5M+ Investidos)
-            </h3>
-            <div className="grid grid-cols-4 gap-4">
-              {[
-                { img: citizenL20X, title: "Citizen L20-X", sub: "Swiss-Type CNC (5-Axis)" },
-                { img: citizenL32, title: "Citizen L32", sub: "Swiss-Type (High Capacity)" },
-                { img: fanucRobodrill, title: "Fanuc Robodrill", sub: "Vertical Machining Center" },
-                { img: tornosG26, title: "Tornos G26", sub: "Swiss-Type CNC" },
-                { img: doosanNew, title: "Doosan LYNX", sub: "CNC Turning Center" },
-                { img: zeissContura, title: "Zeiss Contura", sub: "CMM Metrology Lab" },
-                { img: laserMarking, title: "Laser Marking", sub: "Rastreabilidade UDI" },
-                { img: electropolishLine, title: "Eletropolimento", sub: "Linha Automatizada" }
-              ].map((m, i) => (
-                <div key={i} className="bg-white border rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center">
-                   <div className="h-28 w-full mb-3 flex items-center justify-center p-2 bg-slate-50 rounded-lg overflow-hidden">
-                     <img src={m.img} alt={m.title} className="w-full h-full object-contain" />
-                   </div>
-                   <div className="font-bold text-primary text-xs mb-0.5">{m.title}</div>
-                   <div className="text-[10px] text-slate-500 font-medium">{m.sub}</div>
+        {/* Machine Park (Expanded) */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-primary pl-3">
+            Parque de Máquinas (R$ 1.5M+ Investidos)
+          </h3>
+          <div className="grid grid-cols-4 gap-4">
+            {[
+              { img: citizenL20X, title: "Citizen L20-X", sub: "Swiss-Type CNC (5-Axis)" },
+              { img: citizenL32, title: "Citizen L32", sub: "Swiss-Type (High Capacity)" },
+              { img: fanucRobodrill, title: "Fanuc Robodrill", sub: "Vertical Machining Center" },
+              { img: tornosG26, title: "Tornos G26", sub: "Swiss-Type CNC" },
+              { img: doosanNew, title: "Doosan LYNX", sub: "CNC Turning Center" },
+              { img: zeissContura, title: "Zeiss Contura", sub: "CMM Metrology Lab" },
+              { img: laserMarking, title: "Laser Marking", sub: "Rastreabilidade UDI" },
+              { img: electropolishLine, title: "Eletropolimento", sub: "Linha Automatizada" }
+            ].map((m, i) => (
+              <div key={i} className="bg-white border rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center">
+                <div className="h-28 w-full mb-3 flex items-center justify-center p-2 bg-slate-50 rounded-lg overflow-hidden">
+                  <img src={m.img} alt={m.title} className="w-full h-full object-contain" />
                 </div>
-              ))}
+                <div className="font-bold text-primary text-xs mb-0.5">{m.title}</div>
+                <div className="text-[10px] text-slate-500 font-medium">{m.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Capacidades Técnicas */}
+        <div className="mb-12">
+          <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-green-600 pl-3">
+            Capacidades Técnicas
+          </h3>
+          <div className="grid grid-cols-3 gap-10">
+            <div>
+              <h4 className="text-lg font-bold text-green-600 mb-4">Usinagem</h4>
+              <ul className="text-sm space-y-2 text-slate-600 font-medium">
+                <li>• Swiss-Type (Citizen L20, L20X)</li>
+                <li>• Multi-Axis (Citizen M32)</li>
+                <li>• CNC Turning (Doosan)</li>
+                <li>• Tecnologia LFV Citizen</li>
+              </ul>
             </div>
-         </div>
-
-         {/* Capacidades Técnicas */}
-         <div className="mb-12">
-            <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-green-600 pl-3">
-              Capacidades Técnicas
-            </h3>
-            <div className="grid grid-cols-3 gap-10">
-               <div>
-                  <h4 className="text-lg font-bold text-green-600 mb-4">Usinagem</h4>
-                  <ul className="text-sm space-y-2 text-slate-600 font-medium">
-                     <li>• Swiss-Type (Citizen L20, L20X)</li>
-                     <li>• Multi-Axis (Citizen M32)</li>
-                     <li>• CNC Turning (Doosan)</li>
-                     <li>• Tecnologia LFV Citizen</li>
-                  </ul>
-               </div>
-               <div>
-                  <h4 className="text-lg font-bold text-green-600 mb-4">Acabamento</h4>
-                  <ul className="text-sm space-y-2 text-slate-600 font-medium">
-                     <li>• Eletropolimento automatizado</li>
-                     <li>• Passivação & Anodização</li>
-                     <li>• Marcação a laser & Jateamento</li>
-                     <li>• Limpeza Ultrassônica</li>
-                  </ul>
-               </div>
-               <div>
-                  <h4 className="text-lg font-bold text-green-600 mb-4">Metrologia</h4>
-                  <ul className="text-sm space-y-2 text-slate-600 font-medium">
-                     <li>• CMM ZEISS Contura</li>
-                     <li>• Comparador óptico</li>
-                     <li>• Microscopia Olympus</li>
-                     <li>• Dureza Vickers/Rockwell</li>
-                  </ul>
-               </div>
+            <div>
+              <h4 className="text-lg font-bold text-green-600 mb-4">Acabamento</h4>
+              <ul className="text-sm space-y-2 text-slate-600 font-medium">
+                <li>• Eletropolimento automatizado</li>
+                <li>• Passivação & Anodização</li>
+                <li>• Marcação a laser & Jateamento</li>
+                <li>• Limpeza Ultrassônica</li>
+              </ul>
             </div>
-         </div>
+            <div>
+              <h4 className="text-lg font-bold text-green-600 mb-4">Metrologia</h4>
+              <ul className="text-sm space-y-2 text-slate-600 font-medium">
+                <li>• CMM ZEISS Contura</li>
+                <li>• Comparador óptico</li>
+                <li>• Microscopia Olympus</li>
+                <li>• Dureza Vickers/Rockwell</li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
-         {/* Materials Row */}
-         <div className="mb-12 bg-slate-50 p-6 rounded-xl border border-slate-100">
-             <h4 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">Materiais Processados</h4>
-             <div className="flex flex-wrap gap-3">
-                {["Ti-6Al-4V (Grau 5)", "Ti CP (Grau 1-4)", "Aço Inox 316L/316LVM", "CoCrMo", "PEEK", "UHMWPE"].map((mat, i) => (
-                  <span key={i} className="px-4 py-1.5 bg-white border border-slate-200 rounded text-xs font-bold text-slate-700 shadow-sm">
-                    {mat}
-                  </span>
-                ))}
-             </div>
-         </div>
+        {/* Materials Row */}
+        <div className="mb-12 bg-slate-50 p-6 rounded-xl border border-slate-100">
+          <h4 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">Materiais Processados</h4>
+          <div className="flex flex-wrap gap-3">
+            {["Ti-6Al-4V (Grau 5)", "Ti CP (Grau 1-4)", "Aço Inox 316L/316LVM", "CoCrMo", "PEEK", "UHMWPE"].map((mat, i) => (
+              <span key={i} className="px-4 py-1.5 bg-white border border-slate-200 rounded text-xs font-bold text-slate-700 shadow-sm">
+                {mat}
+              </span>
+            ))}
+          </div>
+        </div>
 
 
 
-         {/* Blue Footer CTA */}
-         <div className="mt-8 bg-primary rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-             
-             <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-                <div className="lg:col-span-1">
-                   <h3 className="text-2xl font-bold mb-2">Pronto para Começar?</h3>
-                   <p className="text-primary-foreground/80 text-sm mb-6 max-w-xs">
-                     Agende uma conversa técnica e receba uma proposta personalizada.
-                   </p>
-                     <div className="space-y-3">
-                      <a href="mailto:vsmartins@lifetrek-medical.com" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
-                        <div className="bg-white/10 p-2 rounded-lg group-hover:bg-accent-orange group-hover:text-white transition-colors">
-                            <Mail className="w-4 h-4" />
-                        </div>
-                        <span className="font-medium text-sm">vsmartins@lifetrek-medical.com</span>
-                      </a>
-                      <a href="https://wa.me/5511945336226" target="_blank" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
-                         <div className="bg-white/10 p-2 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-colors">
-                            <Phone className="w-4 h-4" />
-                        </div>
-                        <span className="font-medium text-sm">+55 (11) 94533-6226</span>
-                      </a>
-                   </div>
+        {/* Blue Footer CTA */}
+        <div className="mt-8 bg-primary rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+            <div className="lg:col-span-1">
+              <h3 className="text-2xl font-bold mb-2">Pronto para Começar?</h3>
+              <p className="text-primary-foreground/80 text-sm mb-6 max-w-xs">
+                Agende uma conversa técnica e receba uma proposta personalizada.
+              </p>
+              <div className="space-y-3">
+                <a href="mailto:vmartin@lifetrek-medical.com" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
+                  <div className="bg-white/10 p-2 rounded-lg group-hover:bg-accent-orange group-hover:text-white transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium text-sm">vmartin@lifetrek-medical.com</span>
+                </a>
+                <a href="https://wa.me/5511945336226" target="_blank" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
+                  <div className="bg-white/10 p-2 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-colors">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium text-sm">+55 (11) 94533-6226</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-1 flex flex-col justify-center pl-8 border-l border-white/10">
+              <div className="flex items-start gap-3 mb-4">
+                <MapPin className="w-5 h-5 text-accent-orange mt-1" />
+                <div>
+                  <div className="font-bold text-sm">Indaiatuba, São Paulo</div>
+                  <div className="text-xs opacity-70">Distrito Industrial</div>
                 </div>
-                
-                <div className="lg:col-span-1 flex flex-col justify-center pl-8 border-l border-white/10">
-                   <div className="flex items-start gap-3 mb-4">
-                      <MapPin className="w-5 h-5 text-accent-orange mt-1" />
-                      <div>
-                        <div className="font-bold text-sm">Indaiatuba, São Paulo</div>
-                        <div className="text-xs opacity-70">Distrito Industrial</div>
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-3">
-                      <Globe className="w-5 h-5 text-accent-orange" />
-                      <a href="https://www.lifetrek-medical.com" target="_blank" className="hover:underline font-bold text-sm">www.lifetrek-medical.com</a>
-                   </div>
-                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Globe className="w-5 h-5 text-accent-orange" />
+                <a href="https://www.lifetrek-medical.com" target="_blank" className="hover:underline font-bold text-sm">www.lifetrek-medical.com</a>
+              </div>
+            </div>
 
-                <div className="lg:col-span-1 flex flex-col justify-end items-end gap-2 text-right">
-                    <div className="flex flex-col gap-2 items-end">
-                         <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors flex items-center gap-2 text-white no-underline group w-fit">
-                             <Linkedin className="w-4 h-4" />
-                             <span className="text-xs font-medium group-hover:text-primary">@lifetrek-medical</span>
-                         </a>
-                         <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
-                             <Instagram className="w-4 h-4" />
-                             <span className="text-xs font-medium group-hover:text-pink-600">@lifetrekmedical</span>
-                         </a>
-                         <a href="https://facebook.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-blue-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
-                             <Facebook className="w-4 h-4" />
-                             <span className="text-xs font-medium group-hover:text-blue-600">Lifetrek Medical</span>
-                         </a>
-                    </div>
-                </div>
-             </div>
-         </div>
+            <div className="lg:col-span-1 flex flex-col justify-end items-end gap-2 text-right">
+              <div className="flex flex-col gap-2 items-end">
+                <a href="https://www.linkedin.com/company/lifetrek-medical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-primary transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                  <Linkedin className="w-4 h-4" />
+                  <span className="text-xs font-medium group-hover:text-primary">@lifetrek-medical</span>
+                </a>
+                <a href="https://instagram.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-pink-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                  <Instagram className="w-4 h-4" />
+                  <span className="text-xs font-medium group-hover:text-pink-600">@lifetrekmedical</span>
+                </a>
+                <a href="https://facebook.com/lifetrekmedical" target="_blank" className="bg-white/10 p-2 rounded hover:bg-white hover:text-blue-600 transition-colors flex items-center gap-2 text-white no-underline group w-fit">
+                  <Facebook className="w-4 h-4" />
+                  <span className="text-xs font-medium group-hover:text-blue-600">Lifetrek Medical</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-         {/* Footer Page 2 */}
-         <div className="mt-auto pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
-             <span>© 2026 Lifetrek Medical</span>
-             <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
-             <span>Página 2/2</span>
+        {/* Footer Page 2 */}
+        <div className="mt-auto pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>© 2026 Lifetrek Medical</span>
+          <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
+          <span>Página 2/2</span>
         </div>
 
       </div>
