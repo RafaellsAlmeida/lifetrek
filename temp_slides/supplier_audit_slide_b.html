@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 1024px;
+            height: 1024px;
+            position: relative;
+            background-image: url('/Users/rafaelalmeida/.gemini/antigravity/brain/9b69d090-b767-4e7a-b0b0-477b0356526c/supplier_audit_concept_ai_1770642192281.png');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        /* Subtle overlay */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 60px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo-pill {
+            background: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-pill img {
+            height: 28px;
+        }
+
+        .resource-tag {
+            background: rgba(26, 122, 62, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+        }
+
+        .content-card {
+            position: absolute;
+            bottom: 80px;
+            left: 60px;
+            right: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            padding: 50px;
+            color: white;
+            z-index: 10;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 48px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 24px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+
+        .accent-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #004F8F, #1A7A3E);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="slide">
+        <div class="top-bar">
+            <div class="resource-tag">RECURSO GRATUITO</div>
+            <div class="logo-pill">
+                <img src="https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/assets/logo.png"
+                    alt="Lifetrek Medical" />
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h1>O risco invisível na sua cadeia de suprimentos.</h1>
+            <p>Certificado não é garantia. Baixe o checklist de 39 pontos para validar fornecedores na prática.</p>
+        </div>
+
+        <div class="accent-bar"></div>
+    </div>
+</body>
+
+</html>

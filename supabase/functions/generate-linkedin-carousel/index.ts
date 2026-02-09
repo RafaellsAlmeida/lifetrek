@@ -23,8 +23,6 @@ serve(async (req) => {
             proofPoints = [],
             ctaAction,
             profileType = "company",
-            ctaAction,
-            profileType = "company",
             format = "carousel",
             researchLevel = "light",
             style_mode = "ai-native" // Default to old behavior if not specified, or "hybrid-composite" if user prefers
@@ -45,7 +43,6 @@ serve(async (req) => {
             desiredOutcome,
             proofPoints,
             ctaAction,
-            profileType,
             profileType,
             format,
             researchLevel,

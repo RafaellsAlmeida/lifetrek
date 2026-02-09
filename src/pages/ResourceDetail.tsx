@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 // import remarkGfm from 'remark-gfm';
 import { supabase } from "@/integrations/supabase/client";
+import SupplierAuditCalculator from "@/components/resources/SupplierAuditCalculator";
 
 export default function ResourceDetail() {
     const { slug } = useParams();
@@ -503,6 +504,14 @@ export default function ResourceDetail() {
                                     )}
                                 </div>
                             </div>
+                        )}
+
+                        {/* Supplier Audit Checklist - Interactive Scoring Calculator */}
+                        {(resource.slug === "checklist-auditoria-iso-13485" || resource.slug === "checklist-auditoria-fornecedores") && (
+                            <SupplierAuditCalculator
+                                formData={formData}
+                                setIsModalOpen={setIsModalOpen}
+                            />
                         )}
 
                         {/* CTA Footer */}

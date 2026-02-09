@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Ensure the body can accommodate the large slide */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .slide {
+            width: 4096px;
+            height: 4096px;
+            /* Flex shrink 0 to prevent squishing */
+            flex-shrink: 0;
+            position: relative;
+            background-image: url('/images/slide-background.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Dark overlay for better text readability */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 200px;
+            right: 200px;
+            background: white;
+            padding: 60px 120px;
+            border-radius: 200px;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .logo-container img {
+            height: 140px;
+        }
+
+        .iso-badge-container {
+            position: absolute;
+            bottom: 200px;
+            left: 200px;
+            z-index: 10;
+        }
+
+        .iso-badge {
+            height: 250px;
+            background: white;
+            padding: 20px;
+            border-radius: 40px;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-card {
+            position: absolute;
+            left: 550px;
+            /* Adjusted to not overlap with badge */
+            bottom: 400px;
+            width: 2400px;
+            background: rgba(0, 79, 143, 0.92);
+            border-radius: 96px;
+            padding: 160px;
+            color: white;
+            z-index: 10;
+            box-shadow: 0 80px 240px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(40px);
+        }
+
+        .eyebrow {
+            font-size: 56px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            color: #F07818;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 144px;
+            margin-bottom: 64px;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 72px;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        .brand-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #004F8F 0%, #1A7A3E 50%, #F07818 100%);
+            z-index: 10;
+        }
+
+        .checklist-icon {
+            position: absolute;
+            top: 200px;
+            left: 200px;
+            background: rgba(26, 122, 62, 0.9);
+            padding: 60px 80px;
+            border-radius: 48px;
+            color: white;
+            font-weight: 700;
+            font-size: 72px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .check-icon {
+            font-size: 96px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="slide">
+        <div class="checklist-icon">
+            <span class="check-icon">✓</span>
+            CHECKLIST GRATUITO
+        </div>
+        <div class="logo-container">
+            <img src="/images/lifetrek-logo-full.png" alt="Lifetrek Medical" />
+        </div>
+
+        <div class="iso-badge-container">
+            <!-- Using the placeholder or downloaded image, fallback to text if broken -->
+            <img src="/images/bsi-iso-13485.png" class="iso-badge" alt="ISO 13485 Certified" />
+        </div>
+
+        <div class="glass-card">
+            <div class="eyebrow">Auditoria ISO 13485</div>
+            <h1>Seu fornecedor passa na auditoria... mas passa na prática?</h1>
+            <p>7 processos críticos para validar fornecedores de dispositivos médicos além do certificado.</p>
+        </div>
+        <div class="brand-line"></div>
+    </div>
+</body>
+
+</html>
