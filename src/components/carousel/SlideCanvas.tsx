@@ -96,26 +96,7 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
 
         // If image exists, render ONLY the image without any text/badges/overlays
         // Nano Banana generates images with text burned-in, no overlay needed
-        if (hasGeneratedImage) {
-            return (
-                <div
-                    ref={ref}
-                    className={containerClasses}
-                    style={{
-                        width: isExport ? "1080px" : "100%",
-                        height: isExport ? "1080px" : "auto",
-                        backgroundColor: currentTheme.background,
-                    }}
-                >
-                    <img
-                        src={slide.imageUrl}
-                        alt={slide.headline}
-                        className="w-full h-full object-contain"
-                        crossOrigin="anonymous"
-                    />
-                </div>
-            );
-        }
+
 
         // Brand type labels
         const typeLabels: Record<string, string> = {
@@ -126,26 +107,26 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
 
         const getAccentColor = (type: string) => {
             if (type === "cta") return currentTheme.accentSecondary;
-            return currentTheme.accent; 
+            return currentTheme.accent;
         }
 
         // --- Layout Content Renderers ---
 
         const renderStandardLayout = () => (
-             <div className="flex flex-col gap-5 mt-auto mb-auto">
+            <div className="flex flex-col gap-5 mt-auto mb-auto">
                 <h2
                     className={cn(
                         "font-bold leading-tight tracking-tight",
                         slide.type === "hook" ? "text-5xl" : "text-4xl"
                     )}
-                    style={{ 
+                    style={{
                         textShadow: theme === "modern" ? "none" : "0 2px 12px rgba(0,0,0,0.5)",
                         color: currentTheme.text
                     }}
                 >
                     {slide.headline}
                 </h2>
-                <div 
+                <div
                     className="w-16 h-1.5 rounded-full"
                     style={{ backgroundColor: getAccentColor(slide.type) }}
                 />
@@ -154,10 +135,10 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                         "font-medium whitespace-pre-line leading-relaxed",
                         slide.type === "hook" ? "text-xl" : "text-lg"
                     )}
-                    style={{ 
+                    style={{
                         color: currentTheme.text,
                         opacity: 0.9,
-                        textShadow: theme === "modern" ? "none" : "0 1px 4px rgba(0,0,0,0.4)" 
+                        textShadow: theme === "modern" ? "none" : "0 1px 4px rgba(0,0,0,0.4)"
                     }}
                 >
                     {slide.body}
@@ -166,14 +147,14 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
         );
 
         const renderBigStatementLayout = () => (
-             <div className="flex flex-col gap-6 mt-auto mb-auto items-center text-center">
-                 <div 
+            <div className="flex flex-col gap-6 mt-auto mb-auto items-center text-center">
+                <div
                     className="w-24 h-2 rounded-full mb-4"
                     style={{ backgroundColor: getAccentColor(slide.type) }}
                 />
                 <h2
                     className="font-black leading-[0.9] tracking-tighter"
-                    style={{ 
+                    style={{
                         fontSize: "clamp(3rem, 8vw, 6rem)", // Responsive massive font
                         textShadow: theme === "modern" ? "none" : "0 4px 20px rgba(0,0,0,0.6)",
                         color: currentTheme.text
@@ -182,19 +163,19 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                     {slide.headline.toUpperCase()}
                 </h2>
                 {slide.body && (
-                     <p 
+                    <p
                         className="text-xl font-medium max-w-[80%]"
                         style={{ color: currentTheme.text, opacity: 0.8 }}
-                     >
+                    >
                         {slide.body}
-                     </p>
+                    </p>
                 )}
             </div>
         );
 
         const renderQuoteLayout = () => (
             <div className="flex flex-col gap-6 mt-auto mb-auto relative">
-                <span 
+                <span
                     className="absolute -top-12 -left-4 text-9xl leading-none opacity-20 font-serif"
                     style={{ color: getAccentColor(slide.type) }}
                 >
@@ -202,42 +183,42 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                 </span>
                 <p
                     className="font-serif italic leading-relaxed text-3xl z-10 relative"
-                    style={{ 
+                    style={{
                         color: currentTheme.text,
-                        textShadow: theme === "modern" ? "none" : "0 2px 4px rgba(0,0,0,0.4)" 
+                        textShadow: theme === "modern" ? "none" : "0 2px 4px rgba(0,0,0,0.4)"
                     }}
                 >
                     {slide.headline}
                 </p>
                 <div className="flex items-center gap-3">
-                     <div className="h-[1px] w-12" style={{ backgroundColor: getAccentColor(slide.type) }} />
-                     <p className="font-bold uppercase tracking-wider text-sm" style={{ color: currentTheme.text, opacity: 0.8 }}>
+                    <div className="h-[1px] w-12" style={{ backgroundColor: getAccentColor(slide.type) }} />
+                    <p className="font-bold uppercase tracking-wider text-sm" style={{ color: currentTheme.text, opacity: 0.8 }}>
                         {slide.body}
-                     </p>
+                    </p>
                 </div>
             </div>
         );
 
-         const renderDataLayout = () => (
-             <div className="flex flex-col gap-2 mt-auto mb-auto items-center text-center">
+        const renderDataLayout = () => (
+            <div className="flex flex-col gap-2 mt-auto mb-auto items-center text-center">
                 <h2
                     className="font-black leading-none tracking-tighter"
-                    style={{ 
+                    style={{
                         fontSize: "clamp(6rem, 15vw, 10rem)",
                         color: getAccentColor(slide.type),
-                         textShadow: theme === "modern" ? "none" : "0 4px 30px rgba(0,0,0,0.5)",
+                        textShadow: theme === "modern" ? "none" : "0 4px 30px rgba(0,0,0,0.5)",
                     }}
                 >
                     {slide.headline.replace(/[^0-9%]/g, "")}
                     <span className="text-4xl align-top ml-1">
-                         {slide.headline.replace(/[0-9]/g, "")}
+                        {slide.headline.replace(/[0-9]/g, "")}
                     </span>
                 </h2>
                 <div className="h-2 w-full max-w-[200px] rounded-full my-4 opacity-50" style={{ backgroundColor: currentTheme.text }} />
 
                 <p
                     className="font-bold text-2xl leading-tight max-w-[80%]"
-                     style={{ color: currentTheme.text }}
+                    style={{ color: currentTheme.text }}
                 >
                     {slide.body}
                 </p>
@@ -269,13 +250,13 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                                 crossOrigin="anonymous"
                             />
                             {/* Brand-colored overlay gradient */}
-                            <div 
+                            <div
                                 className="absolute inset-0"
                                 style={{ background: isSplit ? "transparent" : currentTheme.overlayGradient }}
                             />
                         </>
                     ) : (
-                        <div 
+                        <div
                             className="w-full h-full flex items-center justify-center"
                             style={{ background: isSplit ? "hsl(0 0% 50% / 0.1)" : currentTheme.overlay }}
                         >
@@ -289,12 +270,12 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                 </div>
 
                 {/* Content Layer */}
-                <div 
+                <div
                     className={cn(
-                        "relative z-10 flex-1 flex flex-col p-10 h-full justify-between", 
+                        "relative z-10 flex-1 flex flex-col p-10 h-full justify-between",
                         isSplit ? "mt-[50%] bg-transparent" : "" // Push content down in split mode
                     )}
-                    style={{ 
+                    style={{
                         color: currentTheme.text,
                         background: isSplit ? currentTheme.background : "transparent"
                     }}
@@ -303,7 +284,7 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                     {!isSplit && (
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
-                                <div 
+                                <div
                                     className="h-10 w-10 rounded-lg flex items-center justify-center"
                                     style={{
                                         backgroundColor: currentTheme.cardBg,
@@ -313,14 +294,14 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                                     <span className="font-bold text-sm" style={{ color: currentTheme.text }}>LM</span>
                                 </div>
                             </div>
-                            <Badge 
-                                variant="secondary" 
+                            <Badge
+                                variant="secondary"
                                 className="border-0 uppercase tracking-wider text-[10px] font-semibold"
                                 style={{
                                     backgroundColor: slide.type === "cta" || slide.type === "hook"
                                         ? getAccentColor(slide.type) // Use specific accent 
                                         : currentTheme.badgeBg,
-                                    color: slide.type === "cta" || slide.type === "hook" 
+                                    color: slide.type === "cta" || slide.type === "hook"
                                         ? "white" // Accents usually white text
                                         : currentTheme.badgeText,
                                     opacity: slide.type === "content" ? 1 : 0.9
@@ -333,13 +314,13 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
 
                     {/* Main Content Area Routing */}
                     {layout === "big-statement" ? renderBigStatementLayout() :
-                     layout === "quote" ? renderQuoteLayout() :
-                     layout === "data" ? renderDataLayout() :
-                     renderStandardLayout()
+                        layout === "quote" ? renderQuoteLayout() :
+                            layout === "data" ? renderDataLayout() :
+                                renderStandardLayout()
                     }
 
                     {/* Footer Area */}
-                    <div 
+                    <div
                         className="pt-6 flex justify-between items-center text-sm font-medium"
                         style={{
                             borderTop: `1px solid ${currentTheme.borderColor}`,

@@ -30,7 +30,7 @@
             /* Flex shrink 0 to prevent squishing */
             flex-shrink: 0;
             position: relative;
-            background-image: url('/images/slide-background.png');
+            background-image: url('/images/high-res-bg.png');
             background-size: cover;
             background-position: center;
         }
@@ -69,14 +69,19 @@
             bottom: 200px;
             left: 200px;
             z-index: 10;
+            background: white;
+            padding: 40px;
+            border-radius: 60px;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .iso-badge {
-            height: 250px;
-            background: white;
-            padding: 20px;
-            border-radius: 40px;
-            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.3);
+            height: 300px;
+            width: auto;
+            object-fit: contain;
         }
 
         .glass-card {
@@ -159,8 +164,7 @@
         </div>
 
         <div class="iso-badge-container">
-            <!-- Using the placeholder or downloaded image, fallback to text if broken -->
-            <img src="/images/bsi-iso-13485.png" class="iso-badge" alt="ISO 13485 Certified" />
+            <img src="/images/iso-badge-working.jpg" class="iso-badge" alt="ISO 13485 Certified" />
         </div>
 
         <div class="glass-card">
