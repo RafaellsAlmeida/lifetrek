@@ -8,6 +8,7 @@ import satori from "npm:satori@0.10.11";
 import { Resvg } from "npm:@resvg/resvg-js@2.6.2";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
 import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
+import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
 await load({ export: true });
 
@@ -40,10 +41,10 @@ interface SlideData {
   composedUrl?: string;
 }
 
-// Load fonts
+// Load fonts from reliable CDN
 console.log("Loading fonts...");
-const fontBold = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf").then((res) => res.arrayBuffer());
-const fontRegular = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf").then((res) => res.arrayBuffer());
+const fontBold = await fetch("https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf").then((res) => res.arrayBuffer());
+const fontRegular = await fetch("https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf").then((res) => res.arrayBuffer());
 console.log("Fonts loaded ✓");
 
 // Load logo
@@ -52,7 +53,7 @@ try {
   const logoRes = await fetch(BRAND.logoUrl);
   if (logoRes.ok) {
     const logoBuffer = await logoRes.arrayBuffer();
-    logoBase64 = `data:image/png;base64,${btoa(String.fromCharCode(...new Uint8Array(logoBuffer)))}`;
+    logoBase64 = `data:image/png;base64,${encodeBase64(new Uint8Array(logoBuffer))}`;
     console.log("Logo loaded ✓");
   }
 } catch (e) {
@@ -84,7 +85,7 @@ async function composeSlide(
     if (!bgRes.ok) throw new Error(`Failed to fetch: ${bgRes.status}`);
     const bgBuffer = await bgRes.arrayBuffer();
     const bgMime = bgRes.headers.get("content-type") || "image/png";
-    bgBase64 = `data:${bgMime};base64,${btoa(String.fromCharCode(...new Uint8Array(bgBuffer)))}`;
+    bgBase64 = `data:${bgMime};base64,${encodeBase64(new Uint8Array(bgBuffer))}`;
     console.log(`  Background loaded (${Math.round(bgBuffer.byteLength / 1024)}KB)`);
   } catch (e) {
     console.error(`  Could not load background:`, e);
@@ -352,7 +353,6 @@ async function main() {
     .update({
       slides,
       image_urls: composedUrls,
-      original_image_urls: originalUrls,
       updated_at: new Date().toISOString()
     })
     .eq("id", carouselId);
