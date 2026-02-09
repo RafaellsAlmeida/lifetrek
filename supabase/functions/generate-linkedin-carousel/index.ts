@@ -108,7 +108,7 @@ serve(async (req) => {
                 model_versions: {
                     strategist: "gemini-2.0-flash",
                     copywriter: "gemini-2.0-flash",
-                    designer: "flux-schnell",
+                    designer: "gemini-2.5-flash-image",
                     reviewer: "gemini-2.0-flash"
                 }
             }

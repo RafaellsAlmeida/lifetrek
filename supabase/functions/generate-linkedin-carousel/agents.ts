@@ -32,7 +32,7 @@ const fontDataRegular = await fetch("https://github.com/google/fonts/raw/main/of
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
-const IMAGE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0";
+const IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],
@@ -65,13 +65,8 @@ async function callOpenRouter(
 async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promise<string | null> {
   try {
     console.log("🎨 OpenRouter Image: Calling generation...");
-    // If reference image is provided, we might want to use a model that supports img2img, 
-    // but for now OpenRouter's primary image interface is txt2img or similar via standard endpoints.
-    // User mentioned "reference imaging", which suggests img2img or controlnet. 
-    // OpenRouter supports 'liquid/lfm-40b', 'stabilityai/stable-diffusion-xl-base-1.0', etc.
-    // For simplicity and robustness, we stick to high quality txt2img first as fallback.
 
-    const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPEN_ROUTER_API}`,
@@ -80,9 +75,9 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "google/imagen-3", // User requested Imagen 3.0
-        prompt: prompt,
-        n: 1,
+        model: IMAGE_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image"],
       })
     });
 
@@ -92,7 +87,8 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
     }
 
     const data = await response.json();
-    return data.data?.[0]?.url || null;
+    const imagePart = data.choices?.[0]?.message?.content?.find?.((p: any) => p.type === "image_url");
+    return imagePart?.image_url?.url || null;
 
   } catch (error) {
     console.error("OpenRouter Image Call Failed:", error);
@@ -329,9 +325,8 @@ export async function designerAgent(
     }
 
     try {
-      // Re-implementing with OpenRouter for consistency and better error handling
       console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
-      const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${Deno.env.get("OPEN_ROUTER_API")}`,
@@ -341,9 +336,8 @@ export async function designerAgent(
         },
         body: JSON.stringify({
           model: IMAGE_MODEL,
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024"
+          messages: [{ role: "user", content: prompt }],
+          modalities: ["image"],
         })
       });
 
@@ -352,7 +346,8 @@ export async function designerAgent(
       }
 
       const data = await response.json();
-      const imageUrl = data.data?.[0]?.url || "";
+      const imagePart = data.choices?.[0]?.message?.content?.find?.((p: any) => p.type === "image_url");
+      const imageUrl = imagePart?.image_url?.url || "";
 
       images.push({
         slide_index: i,
