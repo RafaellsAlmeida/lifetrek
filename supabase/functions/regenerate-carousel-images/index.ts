@@ -72,11 +72,12 @@ serve(async (req: Request) => {
     }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || Deno.env.get("OPEN_ROUTER_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!GEMINI_API_KEY) {
-      throw new Error("Missing GEMINI_API_KEY");
+    if (!GEMINI_API_KEY && !OPENROUTER_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY or OPENROUTER_API_KEY");
     }
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error("Missing Supabase configuration");
@@ -276,11 +277,11 @@ serve(async (req: Request) => {
           }
         }
 
-        console.warn("[REGEN] No image in Nano Banana response");
-        return null;
+        console.warn("[REGEN] No image in Nano Banana response, trying fallback...");
+        return generateImageWithNanoBananaFlash(prompt);
       } catch (e) {
         console.error(`[REGEN] Nano Banana API error: ${e}`);
-        return null;
+        return generateImageWithNanoBananaFlash(prompt);
       }
     }
 
@@ -310,7 +311,8 @@ serve(async (req: Request) => {
         if (!response.ok) {
           const errText = await response.text();
           console.error(`[REGEN] Nano Banana Flash error: ${response.status} - ${errText}`);
-          return null;
+          // Fallback to OpenRouter
+          return generateImageWithOpenRouter(prompt);
         }
 
         const data = await response.json();
@@ -326,8 +328,90 @@ serve(async (req: Request) => {
         return null;
       } catch (e) {
         console.error(`[REGEN] Nano Banana Flash error: ${e}`);
+        // Fallback to OpenRouter
+        return generateImageWithOpenRouter(prompt);
+      }
+    }
+
+    // Fallback to OpenRouter (Gemini via OpenRouter or other image models)
+    async function generateImageWithOpenRouter(prompt: string): Promise<string | null> {
+      if (!OPENROUTER_API_KEY) {
+        console.warn("[REGEN] No OPENROUTER_API_KEY configured, skipping fallback");
         return null;
       }
+
+      // OpenRouter models that support image generation
+      // Priority: google/gemini-2.0-flash-exp (free), google/gemini-flash-1.5
+      const MODELS_TO_TRY = [
+        "google/gemini-2.0-flash-exp:free",
+        "google/gemini-2.5-flash-preview",
+        "google/gemini-flash-1.5"
+      ];
+
+      for (const model of MODELS_TO_TRY) {
+        try {
+          console.log(`[REGEN] Trying OpenRouter with model: ${model}...`);
+
+          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://lifetrek.io",
+              "X-Title": "Lifetrek Content Generator"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                {
+                  role: "user",
+                  content: prompt + "\n\nGenerate this image. Output ONLY the image, no text."
+                }
+              ],
+              // Request image output if supported
+              response_format: { type: "image" }
+            })
+          });
+
+          if (!response.ok) {
+            const errText = await response.text();
+            console.warn(`[REGEN] OpenRouter ${model} error: ${response.status} - ${errText.slice(0, 200)}`);
+            continue; // Try next model
+          }
+
+          const data = await response.json();
+
+          // Check if response contains image data
+          const content = data.choices?.[0]?.message?.content;
+
+          // Some models return base64 image directly
+          if (content && typeof content === "string") {
+            if (content.startsWith("data:image/")) {
+              console.log(`[REGEN] ✅ Image generated with OpenRouter (${model})`);
+              return content;
+            }
+            // Check for base64 pattern
+            if (content.match(/^[A-Za-z0-9+/=]{100,}$/)) {
+              console.log(`[REGEN] ✅ Image generated with OpenRouter (${model}) - raw base64`);
+              return `data:image/png;base64,${content}`;
+            }
+          }
+
+          // Check for image in multimodal response
+          if (data.choices?.[0]?.message?.images?.[0]) {
+            const imgData = data.choices[0].message.images[0];
+            console.log(`[REGEN] ✅ Image generated with OpenRouter (${model})`);
+            return imgData.startsWith("data:") ? imgData : `data:image/png;base64,${imgData}`;
+          }
+
+          console.warn(`[REGEN] OpenRouter ${model} returned no image data`);
+        } catch (e) {
+          console.warn(`[REGEN] OpenRouter ${model} exception: ${e}`);
+        }
+      }
+
+      console.error("[REGEN] All OpenRouter models failed");
+      return null;
     }
 
     // ========================================================================
