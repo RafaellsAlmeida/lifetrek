@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+// import remarkGfm from 'remark-gfm';
 import { supabase } from "@/integrations/supabase/client";
 
 export default function ResourceDetail() {
@@ -58,7 +59,7 @@ export default function ResourceDetail() {
             console.warn("Failed to store lead backup:", err);
         }
     };
-    
+
     const contentRef = useRef<HTMLDivElement>(null);
     const hasTrackedView = useRef(false);
 

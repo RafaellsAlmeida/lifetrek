@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, Download, ArrowLeft, Sparkles, Loader2 } from "lucide-react";
+import { Save, Download, ArrowLeft, Sparkles, Loader2, RefreshCw } from "lucide-react";
 
 const FILTER_TEMPLATES = {
     identity: { bg: '/assets/templates/identity_bg.png', textColor: '#ffffff' },
@@ -19,13 +19,16 @@ const URLImage = ({ src, x, y, width, height }: any) => {
     return <KonvaImage image={image} x={x} y={y} width={width} height={height} />;
 };
 
+
 interface ImageEditorCoreProps {
     postId?: string | null;
+    postType?: 'template' | 'linkedin' | 'instagram';
+    slideIndex?: number;
     onBack?: () => void;
     embedded?: boolean;
 }
 
-export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEditorCoreProps) {
+export function ImageEditorCore({ postId, postType = 'template', slideIndex = 0, onBack, embedded = false }: ImageEditorCoreProps) {
     const stageRef = useRef<any>(null);
     const [post, setPost] = useState<any>(null);
     const [text, setText] = useState("Headline Goes Here");
@@ -35,21 +38,45 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
 
     useEffect(() => {
         if (postId) loadPost();
-    }, [postId]);
+    }, [postId, postType, slideIndex]);
 
     const loadPost = async () => {
+        const tableName = postType === 'linkedin' ? 'linkedin_carousels' :
+            postType === 'instagram' ? 'instagram_posts' : 'content_templates';
+
+        console.log(`Loading post ${postId} from ${tableName}`);
+
         const { data, error } = await supabase
-            .from('content_templates')
+            .from(tableName as any)
             .select('*')
             .eq('id', postId!)
             .single();
 
         if (data) {
             setPost(data);
-            setText(data.title || "New Post");
-            if (data.pillar === 'Identity') setBgUrl(FILTER_TEMPLATES.identity.bg);
+
+            if (postType === 'linkedin') {
+                const slide = data.slides?.[slideIndex] || data.slides?.[0];
+                if (slide) {
+                    setText(slide.headline || data.topic);
+                    setBgUrl(slide.imageUrl || slide.image_url || "https://placehold.co/1080x1080/1a1a1a/FFF?text=SlideBackground");
+                } else {
+                    setText(data.topic);
+                }
+            } else if (postType === 'instagram') {
+                // Instagram usually single image or carousel, handle simplified for now
+                setText(data.content_preview || data.caption || "Instagram Post");
+                setBgUrl(data.image_urls?.[0] || "https://placehold.co/1080x1350/1a1a1a/FFF?text=InstaBackground");
+            } else {
+                // Content Templates (Legacy/Default)
+                setText(data.title || "New Post");
+                if (data.pillar === 'Identity') setBgUrl(FILTER_TEMPLATES.identity.bg);
+                else setBgUrl(data.image_url || "https://placehold.co/1080x1080/1a1a1a/FFF?text=Background");
+            }
         }
     };
+
+    const [isRegenerating, setIsRegenerating] = useState(false);
 
     const handleIAAssist = async () => {
         if (!bgUrl || bgUrl.includes('placehold.co')) {
@@ -83,6 +110,38 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
         }
     };
 
+    const handleRegenerateBackground = async () => {
+        if (!postId) return;
+
+        setIsRegenerating(true);
+        const toastId = toast.loading("Criando novo fundo com Nano Banana Pro...");
+
+        try {
+            const tableName = postType === 'linkedin' ? 'linkedin_carousels' :
+                postType === 'instagram' ? 'instagram_posts' : 'content_templates';
+
+            const { data, error } = await supabase.functions.invoke('regenerate-carousel-images', {
+                body: {
+                    carousel_id: postId,
+                    slide_index: slideIndex,
+                    table_name: tableName
+                }
+            });
+
+            if (error) throw error;
+
+            // Reload post to get new image URL
+            await loadPost();
+            toast.success("Novo fundo gerado com sucesso!");
+        } catch (e: any) {
+            console.error(e);
+            toast.error(`Erro ao regenerar: ${e.message}`);
+        } finally {
+            setIsRegenerating(false);
+            toast.dismiss(toastId);
+        }
+    };
+
     const handleDownload = () => {
         const uri = stageRef.current.toDataURL();
         const link = document.createElement("a");
@@ -94,7 +153,7 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
     };
 
     const handleSave = async () => {
-        if (!postId) {
+        if (!postId || !post) {
             toast.error("Nenhum post selecionado para salvar.");
             return;
         }
@@ -113,14 +172,46 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                 .from('content_assets')
                 .getPublicUrl(fileName);
 
-            const { error: updateError } = await supabase
-                .from('content_templates')
-                .update({ image_url: publicUrl })
-                .eq('id', postId);
+            if (postType === 'linkedin') {
+                const newSlides = [...(post.slides || [])];
+                const idx = slideIndex;
+                if (newSlides[idx]) {
+                    newSlides[idx] = {
+                        ...newSlides[idx],
+                        imageUrl: publicUrl,
+                        image_url: publicUrl // Keep both for safety
+                    };
 
-            if (updateError) throw updateError;
+                    const { error: updateError } = await supabase
+                        .from('linkedin_carousels')
+                        .update({
+                            slides: newSlides,
+                            // Also update image_urls array if needed
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', postId);
+                    if (updateError) throw updateError;
+                }
+            } else if (postType === 'instagram') {
+                const { error: updateError } = await supabase
+                    .from('instagram_posts')
+                    .update({
+                        image_urls: [publicUrl], // Replace first image for now
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', postId);
+                if (updateError) throw updateError;
+            } else {
+                const { error: updateError } = await supabase
+                    .from('content_templates')
+                    .update({ image_url: publicUrl })
+                    .eq('id', postId);
+                if (updateError) throw updateError;
+            }
 
             toast.success("Imagem salva e vinculada ao post!");
+            // Refresh post data
+            loadPost();
         } catch (e: any) {
             toast.error(`Erro ao salvar imagem: ${e.message}`);
         }
@@ -163,12 +254,22 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                                 variant="secondary"
                                 className="flex-1 gap-2 bg-purple-600 hover:bg-purple-700 text-white"
                                 onClick={handleIAAssist}
-                                disabled={isEnhancing}
+                                disabled={isEnhancing || isRegenerating}
                             >
                                 {isEnhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                 IA Assist
                             </Button>
                         </div>
+
+                        <Button
+                            variant="secondary"
+                            className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={handleRegenerateBackground}
+                            disabled={isRegenerating || isEnhancing}
+                        >
+                            {isRegenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                            Regenerar Fundo (Novo Prompt)
+                        </Button>
 
                         <Button
                             variant="outline"
@@ -221,6 +322,10 @@ export function ImageEditorCore({ postId, onBack, embedded = false }: ImageEdito
                                 fontFamily="Arial"
                                 fontStyle="bold"
                                 fill="white"
+                                shadowColor="black"
+                                shadowBlur={10}
+                                shadowOffset={{ x: 2, y: 2 }}
+                                shadowOpacity={0.8}
                                 align="center"
                                 draggable
                             />

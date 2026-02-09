@@ -109,7 +109,7 @@ export const ResourcePreview: React.FC<ResourcePreviewProps> = ({ resource }) =>
                             <CardContent className="p-6 md:p-8">
                                 {data.content ? (
                                     <div className="prose prose-slate prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-p:text-slate-600 prose-a:text-blue-600 max-w-none">
-                                        <ReactMarkdown>{data.content}</ReactMarkdown>
+                                        <ReactMarkdown>{data.content?.replace(/\\n/g, '\n')}</ReactMarkdown>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">

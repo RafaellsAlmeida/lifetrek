@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { strategistAgent, copywriterAgent, designerAgent, brandAnalystAgent } from "./agents.ts";
+import { strategistAgent, copywriterAgent, designerAgent, brandAnalystAgent, compositorAgent } from "./agents.ts";
 import { CarouselParams, CarouselResult } from "./types.ts";
 
 const corsHeaders = {
@@ -23,8 +23,11 @@ serve(async (req) => {
             proofPoints = [],
             ctaAction,
             profileType = "company",
+            ctaAction,
+            profileType = "company",
             format = "carousel",
-            researchLevel = "light"
+            researchLevel = "light",
+            style_mode = "ai-native" // Default to old behavior if not specified, or "hybrid-composite" if user prefers
         } = inputData;
 
         if (!topic) {
@@ -43,8 +46,10 @@ serve(async (req) => {
             proofPoints,
             ctaAction,
             profileType,
+            profileType,
             format,
-            researchLevel
+            researchLevel,
+            style_mode
         };
 
         // Multi-Agent Pipeline Execution
@@ -54,8 +59,14 @@ serve(async (req) => {
         // 2. Copywriting
         const copy = await copywriterAgent(params, strategy);
 
-        // 3. Design (Image Selection / Generation)
-        const images = await designerAgent(supabase, params, copy);
+        // 3. Design 
+        const rawImages = await designerAgent(supabase, params, copy);
+
+        // 3.5. Composition (Text Overlay & Branding) - Only if style_mode is 'hybrid-composite'
+        let images = rawImages;
+        if (params.style_mode === 'hybrid-composite') {
+            images = await compositorAgent(copy, rawImages);
+        }
 
         // 4. Brand Analysis
         const review = await brandAnalystAgent(copy, images);
@@ -70,8 +81,8 @@ serve(async (req) => {
                 image_urls: images.map(img => img.image_url),
                 caption: copy.caption,
                 quality_score: review.overall_score,
-                generation_metadata: { 
-                    review, 
+                generation_metadata: {
+                    review,
                     strategy,
                     params
                 }
@@ -98,16 +109,16 @@ serve(async (req) => {
                 assets_generated_count: images.filter(i => i.asset_source === 'ai-generated').length,
                 regeneration_count: 0,
                 model_versions: {
-                  strategist: "gemini-2.0-flash",
-                  copywriter: "gemini-2.0-flash",
-                  designer: "flux-schnell",
-                  reviewer: "gemini-2.0-flash"
+                    strategist: "gemini-2.0-flash",
+                    copywriter: "gemini-2.0-flash",
+                    designer: "flux-schnell",
+                    reviewer: "gemini-2.0-flash"
                 }
             }
         };
 
-        return new Response(JSON.stringify(result), { 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        return new Response(JSON.stringify(result), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
 
     } catch (error: any) {

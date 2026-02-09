@@ -1,174 +1,118 @@
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect, Component, ErrorInfo, ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
 import { ImageEditorCore } from "@/components/admin/content/ImageEditorCore";
 import { ContentApprovalCore } from "@/components/admin/content/ContentApprovalCore";
-import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+// import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
+// import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
+// import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore"; 
+import { Loader2, LayoutDashboard, PenLine, Palette, CheckCircle2, CalendarDays, BarChart3 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
-import { 
-  PenLine, 
-  Palette, 
-  CheckCircle2, 
-  CalendarDays,
-  Sparkles,
-  LayoutDashboard,
-  ChevronRight,
-  Info,
-  BarChart3
-} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-// Loading placeholder
-const TabLoading = () => (
-  <div className="flex items-center justify-center h-[60vh]">
-    <div className="text-center space-y-4">
-      <div className="w-12 h-12 border-4 border-blue-600/30 border-t-blue-600 rounded-full animate-spin mx-auto" />
-      <p className="text-slate-500 text-sm">Carregando...</p>
+// Helper for loading state
+function TabLoading() {
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center p-12 text-slate-400">
+      <Loader2 className="w-8 h-8 animate-spin mb-4" />
+      <p>Carregando módulo...</p>
     </div>
-  </div>
-);
+  );
+}
 
-// Context sidebar for current post
-const ContextSidebar = ({ activeTab }: { activeTab: string }) => (
-  <div className="w-80 border-l border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 hidden xl:block">
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Info className="w-5 h-5 text-blue-600" />
-        <h3 className="font-semibold text-slate-800">Contexto</h3>
-      </div>
-      
-      <Card className="p-4 bg-white/80 backdrop-blur-sm border-slate-200">
-        <h4 className="text-sm font-medium text-slate-700 mb-3">Dicas Rápidas</h4>
-        <ul className="space-y-2 text-xs text-slate-600">
-          {activeTab === "create" && (
-            <>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-blue-500" />
-                <span>Digite uma ideia de conteúdo e deixe a IA elaborar</span>
-              </li>
-            </>
-          )}
-          {activeTab === "design" && (
-            <>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-purple-500" />
-                <span>Arraste elementos para posicionar</span>
-              </li>
-            </>
-          )}
-          {activeTab === "approve" && (
-            <>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-green-500" />
-                <span>Revise antes de aprovar</span>
-              </li>
-            </>
-          )}
-          {activeTab === "calendar" && (
-            <>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-amber-500" />
-                <span>Arraste posts para agendar</span>
-              </li>
-            </>
-          )}
-          {activeTab === "analytics" && (
-            <>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-indigo-500" />
-                <span>Acompanhe o tráfego do site vs LinkedIn</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <ChevronRight className="w-3 h-3 mt-0.5 text-indigo-500" />
-                <span>Identifique seus posts de maior performance</span>
-              </li>
-            </>
-          )}
-        </ul>
-      </Card>
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean, error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-      <Card className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0 shadow-lg">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-5 h-5" />
-          <span className="font-semibold">Agentes Ativos</span>
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-red-500 bg-white rounded-lg border border-red-200 m-4">
+          <h2 className="text-lg font-bold mb-2">Something went wrong.</h2>
+          <pre className="text-xs overflow-auto bg-slate-50 p-4 rounded">{this.state.error?.toString()}</pre>
         </div>
-        <p className="text-xs text-blue-100">
-          O Estrategista e o Designer estão monitorando sua criação para sugerir melhorias em tempo real.
-        </p>
-      </Card>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function ContextSidebar({ activeTab }: { activeTab: string }) {
+  return (
+    <div className="w-80 border-l border-slate-200 bg-white p-6 hidden xl:block h-full overflow-y-auto">
+      <div className="space-y-6">
+        <div>
+          <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4 text-slate-500" />
+            Contexto do Workspace
+          </h3>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            Este painel fornece informações contextuais e ações rápidas baseadas na aba ativa: <strong>{activeTab}</strong>.
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 export default function SocialMediaWorkspace() {
-  const [activeTab, setActiveTab] = useState("create");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "create");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerateCarousel = async (topic: string) => {
-    setIsGenerating(true);
-    toast.info(`Iniciando geração de carrossel: "${topic}"...`, {
-      description: "Nossos agentes (Estrategista, Copywriter, Designer) estão trabalhando no seu post.",
-      duration: 5000,
+  // Update state when URL params change
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    setSearchParams(prev => {
+      prev.set("tab", val);
+      return prev;
     });
-
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
-        body: { 
-          topic,
-          targetAudience: "Gestores Hospitalares e Engenheiros Clínicos",
-          researchLevel: "light"
-        },
-      });
-
-      if (error) throw error;
-
-      toast.success("Carrossel gerado com sucesso!", {
-        description: "O rascunho já está disponível para sua revisão na aba de Aprovação.",
-      });
-
-      // Switch to approval tab to show results
-      setActiveTab("approve");
-    } catch (error: any) {
-      console.error("Pipeline failure:", error);
-      toast.error("Erro na geração do carrossel", {
-        description: error.message || "Ocorreu um problema na comunicação com os agentes.",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   const tabs = [
-    { 
-      id: "create", 
-      label: "Criar", 
-      icon: PenLine, 
+    {
+      id: "create",
+      label: "Criar",
+      icon: PenLine,
       color: "blue",
       description: "Gerar ideias e rascunhos com IA"
     },
-    { 
-      id: "design", 
-      label: "Design", 
-      icon: Palette, 
+    {
+      id: "design",
+      label: "Design",
+      icon: Palette,
       color: "purple",
       description: "Editor visual de posts"
     },
-    { 
-      id: "approve", 
-      label: "Aprovar", 
-      icon: CheckCircle2, 
+    {
+      id: "approve",
+      label: "Aprovar",
+      icon: CheckCircle2,
       color: "green",
       description: "Revisar e aprovar conteúdo"
     },
-    { 
-      id: "calendar", 
-      label: "Agendar", 
-      icon: CalendarDays, 
+    {
+      id: "calendar",
+      label: "Agendar",
+      icon: CalendarDays,
       color: "amber",
       description: "Planejar publicações"
     },
@@ -182,105 +126,98 @@ export default function SocialMediaWorkspace() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-slate-200 bg-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
-                <LayoutDashboard className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-800">Social Media Workspace</h1>
-                <p className="text-sm text-slate-500">
-                  Crie, edite, aprove e agende seu conteúdo em um só lugar
-                </p>
+    <ErrorBoundary>
+      <div className="min-h-[calc(100vh-4rem)] flex">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="px-6 pt-6 pb-4 border-b border-slate-200 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+                  <LayoutDashboard className="w-6 h-6" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-800">Social Media Workspace</h1>
+                  <p className="text-sm text-slate-500">
+                    Crie, edite, aprove e agende seu conteúdo em um só lugar
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Tabs Navigation */}
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
+            <div className="px-6 py-4 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+              <TabsList className="inline-flex h-14 items-center justify-start rounded-xl bg-slate-100/80 p-1.5 gap-1">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className={`
+                        relative px-5 py-3 rounded-lg font-medium text-sm transition-all duration-200
+                        flex items-center gap-2
+                        data-[state=active]:bg-white data-[state=active]:shadow-md
+                        data-[state=active]:text-slate-900
+                        data-[state=inactive]:text-slate-500 data-[state=inactive]:hover:text-slate-700
+                      `}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? `text-${tab.color}-600` : ''}`} />
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
+
+            <ScrollArea className="flex-1">
+              <div className="p-6 h-full">
+                <TabsContent value="create" className="mt-0 focus-visible:outline-none h-full">
+                  {/* Placeholder for Orchestrator */}
+                  <div className="p-12 text-center text-muted-foreground">Orchestrator Module (Temporarily Disabled for Debugging)</div>
+                </TabsContent>
+
+                <TabsContent value="design" className="mt-0 focus-visible:outline-none h-full">
+                  <Suspense fallback={<TabLoading />}>
+                    <ImageEditorEmbed
+                      postId={searchParams.get("id")}
+                      postType={searchParams.get("type") as any}
+                      slideIndex={Number(searchParams.get("slide") || 0)}
+                    />
+                  </Suspense>
+                </TabsContent>
+
+                <TabsContent value="approve" className="mt-0 focus-visible:outline-none h-full">
+                  <Suspense fallback={<TabLoading />}>
+                    <ContentApprovalEmbed />
+                  </Suspense>
+                </TabsContent>
+
+                <TabsContent value="calendar" className="mt-0 focus-visible:outline-none h-full">
+                  <div className="p-12 text-center text-muted-foreground">Calendar Module (Temporarily Disabled for Debugging)</div>
+                </TabsContent>
+
+                <TabsContent value="analytics" className="mt-0 focus-visible:outline-none h-full">
+                  <div className="p-12 text-center text-muted-foreground">Analytics Module (Temporarily Disabled for Debugging)</div>
+                </TabsContent>
+              </div>
+            </ScrollArea>
+          </Tabs>
         </div>
 
-        {/* Tabs Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="px-6 py-4 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
-            <TabsList className="inline-flex h-14 items-center justify-start rounded-xl bg-slate-100/80 p-1.5 gap-1">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <TabsTrigger
-                    key={tab.id}
-                    value={tab.id}
-                    className={`
-                      relative px-5 py-3 rounded-lg font-medium text-sm transition-all duration-200
-                      flex items-center gap-2
-                      data-[state=active]:bg-white data-[state=active]:shadow-md
-                      data-[state=active]:text-slate-900
-                      data-[state=inactive]:text-slate-500 data-[state=inactive]:hover:text-slate-700
-                    `}
-                  >
-                    <Icon className={`w-4 h-4 ${isActive ? `text-${tab.color}-600` : ''}`} />
-                    <span>{tab.label}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </div>
-
-          <ScrollArea className="flex-1">
-            <div className="p-6 h-full">
-              <TabsContent value="create" className="mt-0 focus-visible:outline-none h-full">
-                <Suspense fallback={<TabLoading />}>
-                  <ContentOrchestratorEmbed onGenerate={handleGenerateCarousel} />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="design" className="mt-0 focus-visible:outline-none h-full">
-                <Suspense fallback={<TabLoading />}>
-                  <ImageEditorEmbed />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="approve" className="mt-0 focus-visible:outline-none h-full">
-                <Suspense fallback={<TabLoading />}>
-                  <ContentApprovalEmbed />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="calendar" className="mt-0 focus-visible:outline-none h-full">
-                <Suspense fallback={<TabLoading />}>
-                  <ContentCalendarEmbed />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="mt-0 focus-visible:outline-none h-full">
-                <Suspense fallback={<TabLoading />}>
-                  <AnalyticsEmbed />
-                </Suspense>
-              </TabsContent>
-            </div>
-          </ScrollArea>
-        </Tabs>
+        <ContextSidebar activeTab={activeTab} />
       </div>
-
-      <ContextSidebar activeTab={activeTab} />
-    </div>
+    </ErrorBoundary>
   );
 }
 
-function ContentOrchestratorEmbed({ onGenerate }: { onGenerate: (topic: string) => void }) {
-  return (
-    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden min-h-[70vh]">
-        <ContentOrchestratorCore embedded={true} onGenerate={onGenerate} />
-    </div>
-  );
-}
-
-function ImageEditorEmbed() {
+function ImageEditorEmbed({ postId, postType, slideIndex }: { postId?: string | null, postType?: any, slideIndex?: number }) {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
-        <ImageEditorCore embedded={true} />
+      <ImageEditorCore embedded={true} postId={postId} postType={postType} slideIndex={slideIndex} />
     </div>
   );
 }
@@ -288,23 +225,7 @@ function ImageEditorEmbed() {
 function ContentApprovalEmbed() {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
-        <ContentApprovalCore embedded={true} />
-    </div>
-  );
-}
-
-function ContentCalendarEmbed() {
-  return (
-    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
-        <ContentScheduler />
-    </div>
-  );
-}
-
-function AnalyticsEmbed() {
-  return (
-    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
-      <AnalyticsDashboardCore />
+      <ContentApprovalCore embedded={true} />
     </div>
   );
 }

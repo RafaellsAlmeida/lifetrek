@@ -1,12 +1,13 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ResourcePreview } from './ResourcePreview';
-import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import {
@@ -28,7 +29,7 @@ import {
     useRejectInstagramPost,
     useInstagramPost,
 } from "@/hooks/useInstagramPosts";
-import { BookOpen } from "lucide-react";
+// BookOpen already imported above
 import { supabase } from "@/integrations/supabase/client";
 import {
     Dialog,
@@ -43,7 +44,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
     AlertCircle,
-    Trash2,
     ChevronRight,
     ShieldCheck,
     Image as ImageIcon
@@ -55,6 +55,7 @@ interface ContentApprovalCoreProps {
 
 export function ContentApprovalCore({ embedded = false }: ContentApprovalCoreProps) {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const { data: items, isLoading } = useContentApprovalItems();
     const { data: rejectedItems, isLoading: isLoadingRejected } = useRejectedContentItems();
@@ -145,6 +146,11 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         setPreviewDialogOpen(true);
     };
 
+    const handleEdit = (item: any) => {
+        // Navigate to Social Workspace with params
+        navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0`);
+    };
+
     const handleApprove = async (item: any) => {
         try {
             if (item.type === 'blog') {
@@ -220,7 +226,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
         try {
             const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
-                item.type === 'instagram' ? 'instagram_posts' : null;
+                item.type === 'instagram' ? 'instagram_posts' :
+                    item.type === 'blog' ? 'blog_posts' :
+                        item.type === 'resource' ? 'content_templates' : null;
 
             if (!tableName) {
                 throw new Error("Tipo de item não suporta regeneração de imagem");
@@ -352,6 +360,14 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <RefreshCw className={`h-4 w-4 ${isRegenerating ? "animate-spin" : ""}`} />
                             {isRegenerating ? "Regenerando..." : "Regenerar Slides com IA"}
                         </Button>
+                        <Button
+                            variant="default"
+                            className="gap-2 bg-purple-600 hover:bg-purple-700"
+                            onClick={() => handleEdit(selectedItem)}
+                        >
+                            <ImageIcon className="h-4 w-4" />
+                            Editar Design
+                        </Button>
                     </div>
                 </div>
             );
@@ -404,8 +420,30 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         <h4 className="font-semibold mb-2">Conteúdo</h4>
                         <div
                             className="prose prose-sm max-w-none dark:prose-invert"
-                            dangerouslySetInnerHTML={{ __html: blog.content?.substring(0, 2000) + (blog.content?.length > 2000 ? '...' : '') }}
+                            dangerouslySetInnerHTML={{ __html: blog.content?.substring(0, 20000) + (blog.content?.length > 20000 ? '...' : '') }}
                         />
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <h4 className="font-semibold text-lg text-slate-800">Eleve o padrão da sua produção médica</h4>
+                            <p className="text-sm text-slate-600">Descubra como a Lifetrek pode ajudar sua empresa a atingir excelência em manufatura e conformidade.</p>
+                        </div>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm whitespace-nowrap">
+                            Falar com Especialista
+                        </Button>
+                    </div>
+
+                    <div className="flex justify-end pt-4 border-t mt-4">
+                        <Button
+                            variant="outline"
+                            className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+                            onClick={() => handleRegenerateImages(selectedItem)}
+                            disabled={isRegenerating}
+                        >
+                            <RefreshCw className={`h-4 w-4 ${isRegenerating ? "animate-spin" : ""}`} />
+                            {isRegenerating ? "Gerando..." : "Gerar Capa Editorial IA"}
+                        </Button>
                     </div>
                 </div>
             );
@@ -504,7 +542,22 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
 
         if (selectedItem.type === 'resource') {
-            return <ResourcePreview resource={selectedItem} />;
+            return (
+                <div className="space-y-4">
+                    <ResourcePreview resource={selectedItem} />
+                    <div className="flex justify-end px-4 pb-4">
+                        <Button
+                            variant="outline"
+                            className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+                            onClick={() => handleRegenerateImages(selectedItem)}
+                            disabled={isRegenerating}
+                        >
+                            <RefreshCw className={`h-4 w-4 ${isRegenerating ? "animate-spin" : ""}`} />
+                            {isRegenerating ? "Regenerando..." : "Gerar Capa IA (Mockup)"}
+                        </Button>
+                    </div>
+                </div>
+            );
         }
 
         return <div className="p-4">Visualização para {selectedItem.title} pronta para revisão.</div>;
@@ -601,9 +654,17 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                         </div>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="flex gap-2">
+                                <CardContent className="flex gap-2 flex-wrap">
                                     <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
                                         <Eye className="h-4 w-4" /> Ver
+                                    </Button>
+                                    {(item.type === 'linkedin' || item.type === 'instagram') && (
+                                        <Button variant="outline" size="sm" onClick={() => handleEdit(item)} className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 border-purple-200">
+                                            <ImageIcon className="h-4 w-4" /> Design
+                                        </Button>
+                                    )}
+                                    <Button variant="outline" size="sm" onClick={() => navigate(`/admin/content-preview/${item.type}/${item.id}`)} className="gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200">
+                                        <Globe className="h-4 w-4" /> Preview Site
                                     </Button>
                                     <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
                                         <ThumbsUp className="h-4 w-4" /> Aprovar

@@ -62,7 +62,7 @@ serve(async (req: Request) => {
   const startTime = Date.now();
 
   try {
-    const { carousel_id, batch_mode = false, table_name = "linkedin_carousels" } = await req.json();
+    const { carousel_id, batch_mode = false, table_name = "linkedin_carousels", slide_index } = await req.json();
 
     if (!carousel_id) {
       return new Response(
@@ -141,8 +141,15 @@ serve(async (req: Request) => {
       }
     }
 
-    // Load brand assets as references (limit to 6 for objects per Nano Banana docs)
-    const assetPromises = (companyAssets || []).slice(0, 6).map(async (asset: any) => {
+    // Filter out logos/badges for generation references (they confuse the composition)
+    const validAssets = (companyAssets || []).filter((a: any) => {
+      const n = (a.name || '').toLowerCase();
+      const d = (a.description || '').toLowerCase();
+      return !n.includes('logo') && !d.includes('logo') && !n.includes('iso') && !n.includes('badge');
+    });
+
+    // Load brand assets as references (limit to 4 to reduce noise)
+    const assetPromises = validAssets.slice(0, 4).map(async (asset: any) => {
       if (asset.url) {
         const ref = await loadImageAsBase64(asset.url, asset.type);
         if (ref) referenceImages.push(ref);
@@ -158,8 +165,24 @@ serve(async (req: Request) => {
 
     let slides: SlideData[] = carousel.slides || [];
 
-    // Limit to 5 slides max
-    if (slides.length > 5) {
+    // Limit to 5 slides max (unless specific slide requested)
+    if (typeof slide_index === 'number') {
+      console.log(`[REGEN] 🎯 Regenerating specific slide index: ${slide_index}`);
+      if (slides[slide_index]) {
+        slides = [slides[slide_index]];
+        // We need to know the ORIGINAL index to map it back correctly if we were updating array indices, 
+        // but processSlide takes (slide, index). 
+        // BUT wait, processSlide uses 'index' to determine isFirst/isLast.
+        // If we filter the array, 'index' becomes 0.
+        // We need to pass the REAL index to processSlide.
+        // Let's attach original index to the slide object temporarily?
+        // Or modify processSlide signature. 
+        // Simpler: Don't filter 'slides' yet, just skip loop?
+        // No, processSlide is called in a loop.
+      } else {
+        throw new Error(`Slide index ${slide_index} out of bounds`);
+      }
+    } else if (slides.length > 5) {
       console.log(`[REGEN] ⚠️ Truncating ${slides.length} slides to 5`);
       const hook = slides.find((s) => s.type === 'hook') || slides[0];
       const cta = slides.find((s) => s.type === 'cta') || slides[slides.length - 1];
@@ -169,8 +192,22 @@ serve(async (req: Request) => {
 
     // Determine platform and aspect ratio
     const isInstagram = table_name === 'instagram_posts';
-    const aspectRatio = isInstagram ? "4:5" : "3:4";
-    const platformName = isInstagram ? "Instagram" : "LinkedIn";
+    const isBlog = table_name === 'blog_posts';
+    const isResource = table_name === 'content_templates' || table_name === 'product_catalog'; // Assuming resources are here
+
+    let aspectRatio = "3:4"; // Default LinkedIn
+    let platformName = "LinkedIn";
+
+    if (isInstagram) {
+      aspectRatio = "4:5";
+      platformName = "Instagram";
+    } else if (isBlog) {
+      aspectRatio = "16:9";
+      platformName = "Blog Cover";
+    } else if (isResource) {
+      aspectRatio = "210:297"; // A4-ish vertical
+      platformName = "Resource Cover";
+    }
 
     // ========================================================================
     // NANO BANANA PRO IMAGE GENERATION
@@ -210,7 +247,7 @@ serve(async (req: Request) => {
       };
 
       try {
-        console.log(`[REGEN] Calling Nano Banana Pro API...`);
+        console.log(`[REGEN] Calling Nano Banana Pro API (${platformName})...`);
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -300,7 +337,43 @@ serve(async (req: Request) => {
       const isFirst = slideNum === 1;
       const isLast = slideNum === totalSlides;
 
-      return `Create a professional ${platformName} carousel slide for Lifetrek Medical.
+      const title = slide.headline || (carousel as any).title || "Medical Technology";
+      const description = slide.body || (carousel as any).excerpt || (carousel as any).description || "";
+
+      let specificInstructions = "";
+
+      if (isBlog) {
+        specificInstructions = `=== BLOG COVER STYLE ===
+- Format: Landscape 16:9 cinematic
+- Subject: Abstract representation of "${title}" in a medical manufacturing context
+- Style: Editorial magazine photography, dramatic lighting, depth of field
+- NO TEXT on image (it will be added by HTML overlay)`;
+      } else if (isResource) {
+        specificInstructions = `=== RESOURCE MOCKUP STYLE ===
+- Format: Vertical/A4 document visualization
+- Subject: A 3D mockup of a high-quality printed guide/manual titled "${title}" sitting on a clean white/metallic surface
+- The "book" or "document" should look premium, thick paper, professional binding
+- Surroundings: Clean, minimal studio, maybe a pen or caliper nearby for scale
+- NO TEXT on the background (the book cover itself can have abstract lines)`;
+      } else {
+        specificInstructions = `=== SLIDE CONTENT ===
+Headline: "${slide.headline}"
+Body Text: "${slide.body}"
+Slide Type: ${slide.type} (${isFirst ? "FIRST/HOOK - grab attention" : isLast ? "LAST/CTA - call to action" : "CONTENT - inform and educate"})
+Position: Slide ${slideNum} of ${totalSlides}
+
+=== COMPOSITION REQUIREMENTS ===
+- Format: Portrait ${aspectRatio} ratio for ${platformName} carousel
+- Headline Context: "${slide.headline}" (Do NOT render)
+- Body Context: "${slide.body}" (Do NOT render)
+- Background: Medical manufacturing environment (CNC machines, cleanroom, titanium parts)
+- Style: Abstract, clean, high-tech, professional
+- **CRITICAL: NO TEXT, NO TYPOGRAPHY, NO WORDS, NO WATERMARKS**
+${isFirst || isLast ? "- Reserve space in top-right corner for company logo overlay" : ""}
+${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" : ""}`;
+      }
+
+      return `Create a professional ${platformName} image for Lifetrek Medical.
 
 === BRAND IDENTITY ===
 Company: Lifetrek Medical - Medical device contract manufacturer
@@ -322,28 +395,15 @@ White text on dark backgrounds for maximum readability
 - Photorealistic CNC machines, cleanrooms, precision parts
 - Professional studio lighting with soft shadows
 
-=== SLIDE CONTENT ===
-Headline: "${slide.headline}"
-Body Text: "${slide.body}"
-Slide Type: ${slide.type} (${isFirst ? "FIRST/HOOK - grab attention" : isLast ? "LAST/CTA - call to action" : "CONTENT - inform and educate"})
-Position: Slide ${slideNum} of ${totalSlides}
-
-=== COMPOSITION REQUIREMENTS ===
-- Format: Portrait ${aspectRatio} ratio for ${platformName} carousel
-- Render the headline text "${slide.headline}" prominently in large, bold white text
-- Render the body text below in smaller white text
-- Text must be in PORTUGUESE (Brazilian Portuguese)
-- Background: Medical manufacturing environment (CNC machines, cleanroom, titanium parts)
-${isFirst || isLast ? "- Reserve space in top-right corner for company logo overlay" : ""}
-${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" : ""}
+${specificInstructions}
 
 === CRITICAL RULES ===
 1. USE Lifetrek brand colors exactly as specified
-2. Text must be READABLE - white text with high contrast on dark background
-3. Professional, technical aesthetic - not generic stock photo look
-4. Show REAL medical manufacturing context (not abstract graphics)
-5. Text must be perfectly rendered in Portuguese
-6. Do NOT include any placeholder text, font names, or technical labels`;
+2. Professional, technical aesthetic - not generic stock photo look
+3. Show REAL medical manufacturing context (not abstract graphics)
+4. ABSOLUTELY NO TEXT ON THE IMAGE (unless it's a 3D mockup where the object is the focus).
+5. Clean, sharp focus.
+6. The image must be a CLEAN BACKGROUND.`;
     }
 
     // ========================================================================
@@ -354,7 +414,7 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
       const isFirst = index === 0;
       const isLast = index === slides.length - 1;
 
-      console.log(`[REGEN] [Slide ${slideNum}/${slides.length}] Processing: "${slide.headline}"`);
+      console.log(`[REGEN] [Item ${slideNum}/${slides.length}] Processing: "${slide.headline || (carousel as any).title}"`);
       const slideStart = Date.now();
 
       // Set overlay metadata
@@ -370,11 +430,10 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
       const imageUrl = await generateImageWithNanoBanana(prompt, referenceImages);
 
       if (imageUrl) {
-        // Upload to Supabase Storage
         try {
           const base64Data = imageUrl.split(",")[1];
           const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-          const fileName = `regen-${carousel_id.slice(0, 8)}-s${slideNum}-${Date.now()}.png`;
+          const fileName = `regen-${carousel_id.slice(0, 8)}-${isBlog ? 'cover' : isResource ? 'resource' : 's' + slideNum}-${Date.now()}.png`;
 
           const { error: uploadError } = await supabase.storage
             .from("carousel-images")
@@ -387,15 +446,23 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
 
             slide.imageUrl = publicUrlData.publicUrl;
             slide.image_url = publicUrlData.publicUrl;
-            console.log(`[REGEN] [Slide ${slideNum}] ✅ Generated and uploaded in ${Date.now() - slideStart}ms`);
+            console.log(`[REGEN] [Item ${slideNum}] ✅ Generated and uploaded in ${Date.now() - slideStart}ms`);
           } else {
-            console.warn(`[REGEN] [Slide ${slideNum}] Upload failed: ${uploadError.message}`);
+            console.warn(`[REGEN] [Item ${slideNum}] Upload failed: ${uploadError.message}`);
+            // Fallback if upload fails
+            slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Error')}`;
+            slide.image_url = slide.imageUrl;
           }
         } catch (e) {
-          console.error(`[REGEN] [Slide ${slideNum}] Upload error: ${e}`);
+          console.error(`[REGEN] [Item ${slideNum}] Upload error: ${e}`);
+          // Fallback if exception
+          slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Error')}`;
+          slide.image_url = slide.imageUrl;
         }
       } else {
-        console.error(`[REGEN] [Slide ${slideNum}] ❌ Image generation failed`);
+        console.error(`[REGEN] [Item ${slideNum}] ❌ Image generation failed - Using Placeholder`);
+        slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Gen Failed')}`;
+        slide.image_url = slide.imageUrl;
       }
 
       return slide;
@@ -404,15 +471,38 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
     // ========================================================================
     // PROCESS ALL SLIDES (Sequential to avoid rate limits)
     // ========================================================================
-    console.log(`[REGEN] Starting image generation for ${slides.length} slides...`);
+
+    // For Blogs/Resources, we construct a "fake" slide if none exists, to reuse the loop logic
+    if (isBlog || isResource) {
+      if (!slides || slides.length === 0) {
+        slides = [{
+          headline: (carousel as any).title,
+          body: (carousel as any).excerpt,
+          type: 'cover',
+          imageUrl: (carousel as any).cover_image || (carousel as any).image_url
+        }];
+      }
+    }
+
+    console.log(`[REGEN] Starting image generation for ${slides.length} items...`);
 
     const processedSlides: SlideData[] = [];
-    for (let i = 0; i < slides.length; i++) {
-      const processed = await processSlide(slides[i], i);
+
+    // For single item types (Blog/Resource), strictly process index 0
+    const slidesToProcess = (isBlog || isResource) ? [slides[0]] :
+      (typeof slide_index === 'number' ? [carousel.slides?.[slide_index]] : (carousel.slides || []));
+
+    for (let i = 0; i < slidesToProcess.length; i++) {
+      const slide = slidesToProcess[i];
+      if (!slide) continue;
+
+      // For blog/resource, index is always 0
+      const realIndex = (isBlog || isResource) ? 0 : (typeof slide_index === 'number' ? slide_index : i);
+
+      const processed = await processSlide(slide, realIndex);
       processedSlides.push(processed);
 
-      // Delay between slides to respect rate limits
-      if (i < slides.length - 1) {
+      if (i < slidesToProcess.length - 1) {
         await new Promise(r => setTimeout(r, 2000));
       }
     }
@@ -420,38 +510,84 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
     // ========================================================================
     // UPDATE DATABASE
     // ========================================================================
-    const imageUrls = processedSlides
-      .map((s) => s.imageUrl || s.image_url || "")
-      .filter(Boolean);
 
-    console.log(`[REGEN] Updating database with ${imageUrls.length} images...`);
+    let updateData = {};
+    const generatedUrl = processedSlides[0]?.imageUrl || processedSlides[0]?.image_url;
 
-    const { error: updateError } = await supabase
-      .from(table_name)
-      .update({
+    if (isBlog && generatedUrl) {
+      console.log(`[REGEN] Updating Blog cover image...`);
+      updateData = {
+        cover_image: generatedUrl,
+        updated_at: new Date().toISOString()
+      };
+    } else if (isResource && generatedUrl) {
+      console.log(`[REGEN] Updating Resource image (table: ${table_name})...`);
+      if (table_name === 'resources') {
+        updateData = {
+          thumbnail_url: generatedUrl,
+          updated_at: new Date().toISOString()
+        };
+      } else {
+        updateData = {
+          image_url: generatedUrl,
+          updated_at: new Date().toISOString()
+        };
+      }
+    } else if (typeof slide_index === 'number') {
+      // Single slide update
+      console.log(`[REGEN] Updating single slide at index ${slide_index}...`);
+
+      const currentSlides = [...(carousel.slides || [])];
+      if (currentSlides[slide_index]) {
+        currentSlides[slide_index] = processedSlides[0];
+
+        // Update image_urls array too
+        const currentImageUrls = carousel.image_urls || [];
+        currentImageUrls[slide_index] = processedSlides[0].imageUrl;
+
+        updateData = {
+          slides: currentSlides,
+          image_urls: currentImageUrls.filter(Boolean),
+          updated_at: new Date().toISOString()
+        };
+      }
+    } else {
+      // Batch update (Legacy/Full Regen)
+      const imageUrls = processedSlides
+        .map((s) => s.imageUrl || s.image_url || "")
+        .filter(Boolean);
+
+      console.log(`[REGEN] Updating database with ${imageUrls.length} images...`);
+
+      updateData = {
         slides: processedSlides,
         image_urls: imageUrls,
         updated_at: new Date().toISOString()
-      })
+      };
+    }
+
+    const { error: updateError } = await supabase
+      .from(table_name)
+      .update(updateData)
       .eq("id", carousel_id);
 
     if (updateError) {
       console.error(`[REGEN] DB update failed: ${updateError.message}`);
       return new Response(
-        JSON.stringify({ error: "Failed to update carousel", details: updateError.message }),
+        JSON.stringify({ error: "Failed to update item", details: updateError.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`[REGEN] ✅✅ COMPLETE: ${processedSlides.length} slides, ${imageUrls.length} images, ${totalTime}ms total`);
+    console.log(`[REGEN] ✅✅ COMPLETE: ${processedSlides.length} items, ${totalTime}ms total`);
 
     return new Response(
       JSON.stringify({
         success: true,
         carousel_id,
         slides_regenerated: processedSlides.length,
-        images_generated: imageUrls.length,
+        images_generated: processedSlides.length,
         reference_images_used: referenceImages.length,
         duration_ms: totalTime,
         logs: __regenLogs
@@ -461,9 +597,15 @@ ${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" :
 
   } catch (error) {
     console.error(`[REGEN] FATAL ERROR: ${error}`);
+    // Return 200 to allow client to read the error message easily
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error", logs: __regenLogs }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : null,
+        logs: __regenLogs
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   }
 });

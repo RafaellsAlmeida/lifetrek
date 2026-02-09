@@ -10,6 +10,7 @@ export interface CarouselParams {
   ctaAction?: string;
   profileType?: 'company' | 'salesperson';
   style?: 'visual' | 'text-heavy';
+  style_mode?: 'ai-native' | 'hybrid-composite'; // Story 7.2: Toggle between full AI generation and hybrid composition
   format?: 'carousel' | 'single-image';
   researchLevel?: 'none' | 'light' | 'deep'; // Research depth: none=fast (25-30s), light=balanced (40-45s), deep=quality (50-60s)
 }

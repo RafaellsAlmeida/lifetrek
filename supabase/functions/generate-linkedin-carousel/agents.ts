@@ -17,8 +17,18 @@ import {
   generateCarouselEmbedding,
   searchSimilarCarousels,
   searchKnowledgeBase,
+  searchCompanyAssets,
+  generateCarouselEmbedding,
+  searchSimilarCarousels,
+  searchKnowledgeBase,
   deepResearch
 } from "./agent_tools.ts";
+import satori from "satori";
+import { Resvg } from "@resvg/resvg-js";
+
+// Load Inter font for Satori
+const fontData = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf").then((res) => res.arrayBuffer());
+const fontDataRegular = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf").then((res) => res.arrayBuffer());
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
@@ -50,6 +60,44 @@ async function callOpenRouter(
 
   const data = await response.json();
   return data.choices?.[0]?.message?.content || "";
+}
+
+async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promise<string | null> {
+  try {
+    console.log("🎨 OpenRouter Image: Calling generation...");
+    // If reference image is provided, we might want to use a model that supports img2img, 
+    // but for now OpenRouter's primary image interface is txt2img or similar via standard endpoints.
+    // User mentioned "reference imaging", which suggests img2img or controlnet. 
+    // OpenRouter supports 'liquid/lfm-40b', 'stabilityai/stable-diffusion-xl-base-1.0', etc.
+    // For simplicity and robustness, we stick to high quality txt2img first as fallback.
+
+    const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPEN_ROUTER_API}`,
+        "HTTP-Referer": "https://lifetrek.app",
+        "X-Title": "Lifetrek App",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "google/imagen-3", // User requested Imagen 3.0
+        prompt: prompt,
+        n: 1,
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter Image Error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.data?.[0]?.url || null;
+
+  } catch (error) {
+    console.error("OpenRouter Image Call Failed:", error);
+    return null;
+  }
 }
 
 async function callGeminiImage(prompt: string): Promise<string | null> {
@@ -90,9 +138,12 @@ async function callGeminiImage(prompt: string): Promise<string | null> {
     }
 
     return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
     console.error("Gemini Image Call Failed:", error);
-    throw error;
+    // FALLBACK TO OPENROUTER
+    console.log("⚠️ Gemini failed, switching to OpenRouter fallback...");
+    return await callOpenRouterImage(prompt);
   }
 }
 
@@ -239,7 +290,17 @@ export async function designerAgent(
 
     // 1. Try real asset with semantic search
     // Combine headline and visual_description for better matching
-    const assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
+    // ENHANCED: Explicitly look for metrology, equipment, and product terms if applicable
+    let assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
+
+    // Add priority keywords if the topic suggests technical equipment
+    if (assetQuery.toLowerCase().includes('precision') || assetQuery.toLowerCase().includes('quality')) {
+      assetQuery += " metrology equipment measuring";
+    }
+    if (assetQuery.toLowerCase().includes('machining') || assetQuery.toLowerCase().includes('manufacturing')) {
+      assetQuery += " cnc machine factory";
+    }
+
     const realAsset = await searchCompanyAssets(supabase, assetQuery);
 
     if (realAsset) {
@@ -254,8 +315,18 @@ export async function designerAgent(
     }
 
     // 2. Fallback to AI Generation with Brand Infusion (Story 7.2)
-    console.log(`🤖 Designer: Fallback to AI Image Generation for slide ${i}`);
-    const prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Topic: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k.`.trim();
+    const isHybrid = params.style_mode === 'hybrid-composite';
+
+    console.log(`🤖 Designer: Generating image for slide ${i} (Mode: ${params.style_mode || 'ai-native'})`);
+
+    let prompt = "";
+    if (isHybrid) {
+      // Hybrid Mode: Clean background, no text
+      prompt = `Professional medical engineering background. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. NO TEXT, NO TYPOGRAPHY, NO WORDS, clean background. Focus on materials and textures (titanium, glass, cleanroom).`.trim();
+    } else {
+      // AI-Native Mode (Legacy): Try to include text/composition in the image
+      prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. Text overlay: "${slide.headline}".`.trim();
+    }
 
     try {
       // Re-implementing with OpenRouter for consistency and better error handling
@@ -290,12 +361,284 @@ export async function designerAgent(
       });
     } catch (e) {
       console.warn(`⚠️ Design generation failed for slide ${i}`, e);
-      images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
+      // Fallback to placeholder so design is visible even if API fails
+      images.push({
+        slide_index: i,
+        image_url: `https://placehold.co/1024x1024/f1f5f9/334155?text=Flux+Generation+Failed+${i}`,
+        asset_source: 'placeholder'
+      });
     }
   }
 
   console.log(`✅ Designer: Created assets in ${Date.now() - startTime}ms`);
   return images;
+}
+
+/**
+ * Agent 3.5: Compositor
+ * Overlays text and branding on the generated backgrounds using Satori
+ */
+export async function compositorAgent(
+  copy: CarouselCopy,
+  images: GeneratedImage[]
+): Promise<GeneratedImage[]> {
+  const startTime = Date.now();
+  console.log("🎨 Compositor Agent: Assembling final slides...");
+
+  // Fetch Logo (assuming it's hosted publicly or in supabase storage)
+  // For now, we'll search for the logo asset or use a known public URL if available.
+  // Since we don't have a supabase client passed here, we might need to hardcode the URL from an env var or a known path.
+  // Assuming the user has a 'logo.png' in public folder, but Satori needs an absolute URL or base64.
+  // We'll use a placeholder URL that points to the project's logo if known, or a generic one.
+  // BETTER: Let's assume the logo is at a standard location in Supabase storage:
+  // `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/public_assets/logo.png`
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  // Fetch Logo and ISO Badge using provided URLs
+  const logoUrl = "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/assets/logo.png";
+  const isoUrl = "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/assets/iso.jpg";
+
+  // Helper to fetch and convert to base64
+  const fetchAsBase64 = async (url: string): Promise<string | null> => {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        return `data:image/${url.endsWith('png') ? 'png' : 'jpeg'};base64,${btoa(String.fromCharCode(...new Uint8Array(buf)))}`;
+      }
+    } catch (e) {
+      console.warn(`⚠️ Failed to fetch asset ${url}:`, e);
+    }
+    return null;
+  };
+
+  const [logoBase64, isoBase64] = await Promise.all([
+    fetchAsBase64(logoUrl),
+    fetchAsBase64(isoUrl)
+  ]);
+
+  const compositedImages: GeneratedImage[] = [];
+
+  for (let i = 0; i < copy.slides.length; i++) {
+    const slide = copy.slides[i];
+    const image = images.find(img => img.slide_index === i);
+    const bgUrl = image ? image.image_url : "";
+
+    // Skip composition if no background image (shouldn't happen)
+    if (!bgUrl) {
+      compositedImages.push(image!);
+      continue;
+    }
+
+    try {
+      console.log(`🎨 Compositor: Rendering Slide ${i + 1}/${copy.slides.length}`);
+
+      // Satori JSX Template
+      const element = {
+        type: 'div',
+        props: {
+          style: {
+            display: 'flex',
+            height: '100%',
+            width: '100%',
+            backgroundImage: `url(${bgUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            fontFamily: 'Inter',
+          },
+          children: [
+            // Glass Card
+            {
+              type: 'div',
+              props: {
+                style: {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'absolute',
+                  left: '50px',
+                  top: '100px',
+                  width: '500px',
+                  backgroundColor: 'rgba(0, 79, 143, 0.85)', // #004F8F
+                  borderRadius: '24px',
+                  padding: '60px',
+                  color: 'white',
+                  boxShadow: '0 20px 60px -20px rgba(0, 79, 143, 0.5)',
+                },
+                children: [
+                  // Step Label
+                  {
+                    type: 'div',
+                    props: {
+                      style: {
+                        color: '#4ade80', // Accent Green light
+                        fontWeight: 700,
+                        fontSize: '18px',
+                        marginBottom: '10px',
+                        textTransform: 'uppercase',
+                      },
+                      children: `PASSO ${i + 1}`,
+                    },
+                  },
+                  // Headline
+                  {
+                    type: 'h1',
+                    props: {
+                      style: {
+                        fontSize: '48px',
+                        lineHeight: 1.1,
+                        marginBottom: '30px',
+                        fontWeight: 800,
+                      },
+                      children: slide.headline,
+                    },
+                  },
+                  // Body
+                  {
+                    type: 'p',
+                    props: {
+                      style: {
+                        fontSize: '24px',
+                        lineHeight: 1.6,
+                        marginBottom: '40px',
+                        color: 'rgba(255,255,255, 0.9)',
+                      },
+                      children: slide.body,
+                    },
+                  },
+                ],
+              },
+            },
+            // Branding Line
+            {
+              type: 'div',
+              props: {
+                style: {
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '12px',
+                  background: 'linear-gradient(90deg, #004F8F 0%, #1A7A3E 100%)',
+                },
+              },
+            },
+            // Logo (Placeholder for now, or fetch from URL)
+            // Logo
+            // Logo & Trust Badges
+            {
+              type: 'div',
+              props: {
+                style: {
+                  position: 'absolute',
+                  top: '50px',
+                  right: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '20px', // Space between Logo and ISO
+                },
+                children: [
+                  // ISO Badge (Trust Signal)
+                  isoBase64 ? {
+                    type: 'img',
+                    props: {
+                      src: isoBase64,
+                      height: 60,
+                      style: {
+                        objectFit: 'contain',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      }
+                    }
+                  } : null,
+                  // Main Logo
+                  {
+                    type: 'div',
+                    props: {
+                      style: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'white',
+                        padding: '10px 20px',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                      },
+                      children: logoBase64 ? [
+                        {
+                          type: 'img',
+                          props: {
+                            src: logoBase64,
+                            width: 150,
+                            style: { objectFit: 'contain' }
+                          }
+                        }
+                      ] : [
+                        {
+                          type: 'span',
+                          props: {
+                            style: {
+                              color: '#004F8F',
+                              fontWeight: 800,
+                              fontSize: '24px'
+                            },
+                            children: 'LIFETREK'
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ].filter(Boolean) // Remove nulls if assets fail
+              }
+            }
+          ],
+        },
+      };
+
+      // Generate SVG
+      const svg = await satori(
+        element,
+        {
+          width: 1024,
+          height: 1024,
+          fonts: [
+            {
+              name: 'Inter',
+              data: fontData,
+              weight: 800,
+              style: 'normal',
+            },
+            {
+              name: 'Inter',
+              data: fontDataRegular,
+              weight: 400,
+              style: 'normal',
+            },
+          ],
+        }
+      );
+
+      // Convert to PNG
+      const resvg = new Resvg(svg);
+      const pngData = resvg.render();
+      const pngBuffer = pngData.asPng();
+
+      // Upload to Supabase Storage (Simplified: return base64 for now)
+      const base64Png = `data:image/png;base64,${btoa(String.fromCharCode(...new Uint8Array(pngBuffer)))}`;
+
+      compositedImages.push({
+        ...image,
+        image_url: base64Png, // Replace raw background with composited image
+        asset_source: 'hybrid-generated'
+      });
+
+    } catch (e) {
+      console.error(`❌ Compositor failed for slide ${i}:`, e);
+      compositedImages.push(image!); // Fallback to background only
+    }
+  }
+
+  console.log(`✅ Compositor: Finalized ${compositedImages.length} slides in ${Date.now() - startTime}ms`);
+  return compositedImages;
 }
 
 /**
