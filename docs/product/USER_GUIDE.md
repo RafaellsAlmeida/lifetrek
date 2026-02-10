@@ -41,7 +41,7 @@ Your command center is the **Dashboard EV**. Here is how to master it.
 
 ### 1. analyzing a Lead
 Don't just read—**analyze**. The dashboard gives you superpowers:
--   **⭐ AI Score (1-5)**: Trust this. A '5' means they match our ideal customer profile (Medical OEM + High Volume).
+-   **⭐ AI Score (0-100)**: Trust this. 80+ means they match our ideal customer profile (Medical OEM + High Volume).
 -   **🚨 Priority Badges**:
     -   <span style="color:red">**High (Red)**</span>: Drop everything. This lead is hot.
     -   <span style="color:orange">**Medium (Yellow)**</span>: Follow up within 4 hours.

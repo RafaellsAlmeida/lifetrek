@@ -133,26 +133,26 @@ This knowledge base is designed for AI agents (Lead Scoring Agent, Email Draft A
 - Production volumes 1,000+ units/year
 - Clear specifications and drawings
 
-### Good Fit Customers (Score 4)
+### Good Fit Customers (Score 70-79)
 - Surgical instrument companies
 - Veterinary device manufacturers
 - Medical startups with funding
 - Prototype to production path
 - Some regulatory requirements
 
-### Moderate Fit (Score 3)
+### Moderate Fit (Score 50-69)
 - R&D departments exploring options
 - Prototype-only projects
 - Adjacent industries (aerospace, automotive precision)
 - Unclear regulatory path
 
-### Low Fit (Score 2)
+### Low Fit (Score 30-49)
 - Consumer products
 - Non-precision requirements
 - One-off prototypes only
 - No quality system requirements
 
-### Poor Fit (Score 1)
+### Poor Fit (Score 0-29)
 - Non-medical commodity parts
 - Price-only buyers
 - Unrealistic timelines
@@ -162,7 +162,7 @@ This knowledge base is designed for AI agents (Lead Scoring Agent, Email Draft A
 
 ## 5. LEAD SCORING CRITERIA
 
-### Scoring Algorithm (1-5 Scale)
+### Scoring Algorithm (0-100 Scale)
 
 **Weighted Factors:**
 ```
@@ -182,35 +182,35 @@ Factors:
 
 ### Scoring Logic
 
-**Score 5 - Ideal Fit:**
+**Score 80-100 - Ideal Fit:**
 - Medical/dental/vet OEM confirmed
 - Production volumes stated (1,000+ annually)
 - ISO 13485/ANVISA/FDA requirement mentioned
 - Drawings or detailed specs provided
 - Clear timeline and budget indicators
 
-**Score 4 - Strong Fit:**
+**Score 70-79 - Strong Fit:**
 - Relevant industry confirmed
 - Moderate volume potential
 - Some regulatory requirements
 - Good technical detail
 - Missing 1-2 key pieces of information
 
-**Score 3 - Moderate Fit:**
+**Score 50-69 - Moderate Fit:**
 - Adjacent industry or unclear segment
 - Prototype only mentioned
 - No regulatory requirements stated
 - Basic technical information
 - General inquiry nature
 
-**Score 2 - Low Fit:**
+**Score 30-49 - Low Fit:**
 - Vague project description
 - Commodity part indicators
 - No quality requirements
 - Price-focused inquiry
 - Missing most information
 
-**Score 1 - Poor Fit:**
+**Score 0-29 - Poor Fit:**
 - Clearly unrelated industry
 - Consumer product request
 - Unrealistic expectations stated

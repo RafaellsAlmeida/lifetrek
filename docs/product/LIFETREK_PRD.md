@@ -87,7 +87,7 @@ Deliver precision-engineered components that meet the most demanding quality sta
 - Priority levels: low, medium, high
 - Assignment to team members
 
-#### 2.2 AI Lead Scoring (1-5 Scale)
+#### 2.2 AI Lead Scoring (0-100 Scale)
 
 **Scoring Criteria Weights:**
 | Factor | Weight | Description |
@@ -103,11 +103,11 @@ Deliver precision-engineered components that meet the most demanding quality sta
 | Urgency Signals | 2 | Timeline indicators |
 
 **Score Interpretation:**
-- **5 (Ideal Fit)**: Medical/dental OEM, production volumes, ISO requirements, clear project
-- **4 (Strong Fit)**: Good market fit, moderate volume, some requirements unclear
-- **3 (Moderate Fit)**: Adjacent market, prototype only, or missing key info
-- **2 (Low Fit)**: Vague requirements, commodity parts, no regulatory needs
-- **1 (Poor Fit)**: Unrelated industry, unrealistic expectations
+- **80-100 (Ideal Fit)**: Medical/dental OEM, production volumes, ISO requirements, clear project
+- **70-79 (Strong Fit)**: Good market fit, moderate volume, some requirements unclear
+- **50-69 (Moderate Fit)**: Adjacent market, prototype only, or missing key info
+- **30-49 (Low Fit)**: Vague requirements, commodity parts, no regulatory needs
+- **0-29 (Poor Fit)**: Unrelated industry, unrealistic expectations
 
 #### 2.3 AI Draft Email Response
 
