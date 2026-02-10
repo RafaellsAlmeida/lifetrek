@@ -41,7 +41,17 @@ export default function Resources() {
         const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             resource.description.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = activeTab === "all" || resource.type === activeTab;
-        return matchesSearch && matchesType;
+
+        /* 
+           User request: "Deixe so o 3d + CNC e o roadmap e o DFM Checklist por enquanto."
+           Filtering logic:
+        */
+        const isApproved =
+            resource.title.toLowerCase().includes("dfm") ||
+            resource.title.toLowerCase().includes("roadmap") ||
+            (resource.title.toLowerCase().includes("3d") && resource.title.toLowerCase().includes("cnc"));
+
+        return matchesSearch && matchesType && isApproved;
     });
 
     const getIcon = (type: string) => {

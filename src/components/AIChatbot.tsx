@@ -16,7 +16,7 @@ interface Message {
 export const AIChatbot = () => {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -38,42 +38,27 @@ export const AIChatbot = () => {
 
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
-  // Auto-open on landing page for 3 seconds only
-  useEffect(() => {
-    if (isLandingPage && !hasAutoOpened) {
-      // Small delay before showing
-      const showTimer = setTimeout(() => {
-        setShowButton(true);
-        setIsOpen(true);
-        setHasAutoOpened(true);
-        
-        // Auto-close after 3 seconds
-        setTimeout(() => {
-          setIsOpen(false);
-        }, 3000);
-      }, 2000);
-      
-      return () => clearTimeout(showTimer);
-    }
-  }, [isLandingPage, hasAutoOpened]);
-
-  // Show button on scroll (only on landing page)
+  // Show button and auto-open on scroll (only on landing page)
   useEffect(() => {
     if (!isLandingPage) {
       setShowButton(true); // Always show button on other pages (but opaque/disabled style)
       return;
     }
-    
+
     const handleScroll = () => {
       const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      if (scrollDepth > 20) {
+      if (scrollDepth > 50) {
         setShowButton(true);
+        if (!hasAutoOpened) {
+          setIsOpen(true);
+          setHasAutoOpened(true);
+        }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLandingPage]);
+  }, [isLandingPage, hasAutoOpened]);
 
   // Session ID for conversation tracking
   const [sessionId] = useState(() => crypto.randomUUID());
@@ -100,9 +85,9 @@ export const AIChatbot = () => {
     try {
       // Use the NEW dedicated 'website-bot' function
       const { data, error } = await supabase.functions.invoke("website-bot", {
-        body: { 
+        body: {
           messages: [...messages, userMessage],
-          sessionId 
+          sessionId
         },
       });
 
@@ -195,11 +180,10 @@ export const AIChatbot = () => {
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      message.role === "user"
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-secondary text-secondary-foreground"
-                    }`}
+                      }`}
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   </div>

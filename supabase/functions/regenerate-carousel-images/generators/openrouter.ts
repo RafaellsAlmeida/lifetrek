@@ -11,9 +11,21 @@ declare const Deno: any;
 
 /** Models to try in order of preference */
 const MODELS_TO_TRY = [
-    "google/gemini-2.0-flash-exp:free",   // Free tier
-    "google/gemini-2.5-flash-preview",     // Preview
-    "google/gemini-flash-1.5"              // Stable
+    // Free/Preview Tier (Fastest)
+    "google/gemini-2.0-flash-exp:free",
+    "google/gemini-2.0-flash-001",
+
+    // High Quality Tier
+    "google/gemini-2.0-pro-exp-02-05",
+    "black-forest-labs/flux-1.1-pro",
+    "black-forest-labs/flux-dev",
+
+    // Standard Tier
+    "stabilityai/stable-diffusion-3-medium",
+    "openai/dall-e-3",
+
+    // Legacy/Stable Fallbacks
+    "google/gemini-flash-1.5"
 ];
 
 /**
@@ -52,7 +64,10 @@ export async function generateWithOpenRouter(
                     messages: [
                         {
                             role: "user",
-                            content: prompt + "\n\nGenerate this image. Output ONLY the image, no text."
+                            // Adjust prompt based on model type
+                            content: model.includes('gemini') || model.includes('gpt')
+                                ? prompt + "\n\nGenerate this image. Output ONLY the image, no text."
+                                : prompt // Pure image models (Flux, SD) just need the prompt
                         }
                     ],
                     // Request image output if supported
