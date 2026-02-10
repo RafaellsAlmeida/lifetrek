@@ -213,28 +213,29 @@ Lifetrek | Usinagem de Precisão Médica
 | **Budget** | Não sabe | Faixa estimada | Orçamento aprovado |
 
 **Como usar:**
-- Somar pontos de cada critério
-- **Score 6-12:** Lead frio (nurture)
-- **Score 13-20:** Lead médio (call exploratória)
-- **Score 21-30:** Lead quente (call técnica + proposta rápida)
+- Somar pontos de cada critério (score bruto 6-30)
+- Normalizar para **0-100**: `score_normalizado = arredondar((soma/30)*100)`
+- **Score 20-40 (bruto 6-12):** Lead frio (nurture)
+- **Score 43-67 (bruto 13-20):** Lead médio (call exploratória)
+- **Score 70-100 (bruto 21-30):** Lead quente (call técnica + proposta rápida)
 
-**Leads 21-30: ESCALAR IMEDIATAMENTE**
+**Leads 70-100: ESCALAR IMEDIATAMENTE**
 
 ---
 
 ### 3.3 Próximos Passos por Score
 
-**Lead Frio (6-12):**
+**Lead Frio (20-40):**
 - Responder educando (enviar case, artigo)
 - Adicionar em lista de nurture
 - Follow-up em 30 dias
 
-**Lead Médio (13-20):**
+**Lead Médio (43-67):**
 - Agendar call de 15-30min
 - Preparar perguntas de qualificação
 - Enviar NDA se necessário
 
-**Lead Quente (21-30):**
+**Lead Quente (70-100):**
 - Agendar call técnica com engenheiro
 - Pedir desenho + especificações
 - Fazer análise de viabilidade gratuita
@@ -408,7 +409,7 @@ Abraço!
 - [ ] Emails enviados: ___
 - [ ] Emails respondidos: ___
 - [ ] Ligações feitas: ___
-- [ ] Leads qualificados (score 13+): ___
+- [ ] Leads qualificados (score 60+): ___
 - [ ] Calls agendadas: ___
 
 **Metas Semanais:**

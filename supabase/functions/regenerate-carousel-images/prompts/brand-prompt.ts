@@ -221,7 +221,7 @@ export function buildBackgroundPrompt(
     const basePrompt = buildBrandPrompt(slide, slideNum, totalSlides, platform, styleReference);
 
     // Modify the prompt to emphasize "clean background" and "no text"
-    return basePrompt
+    let finalPrompt = basePrompt
         .replace("Create a polished LinkedIn carousel slide with TEXT INTEGRATED into the image.", "Create a high-quality background image for a LinkedIn carousel pivot.")
         .replace(/=== HYBRID-COMPOSITE DESIGN \(CRITICAL\) ===[\s\S]*?=== BACKGROUND ===/, "=== BACKGROUND (NO TEXT/LOGOS) ===") // Remove composite instructions
         .concat(`\n\n=== SPECIAL HYBRID INSTRUCTION ===
@@ -231,4 +231,21 @@ export function buildBackgroundPrompt(
         - Ensure the LEFT 60% of the image has interesting texture but isn't too busy (where text will go).
         - Focus heavily on the lighting, depth, and medical manufacturing context.
         - Clean, high-res photography style.`);
+
+    // Incorporate Designer agent's art direction if available
+    if (slide.art_direction) {
+        const ad = slide.art_direction;
+        const artDirectionBlock = [
+            `\n\n=== ART DIRECTION (FROM CREATIVE TEAM) ===`,
+            ad.visual_concept ? `Visual Concept: ${ad.visual_concept}` : '',
+            ad.mood ? `Mood: ${ad.mood}` : '',
+            ad.composition ? `Composition: ${ad.composition}` : '',
+            ad.color_emphasis ? `Color Emphasis: ${ad.color_emphasis}` : '',
+            ad.background_elements ? `Background Elements: ${ad.background_elements}` : '',
+            `\nFollow this art direction closely while maintaining the brand identity.`,
+        ].filter(Boolean).join('\n');
+        finalPrompt += artDirectionBlock;
+    }
+
+    return finalPrompt;
 }

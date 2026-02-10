@@ -39,13 +39,13 @@ async function loadFontBold() {
 /**
  * Generate a TEXT-ONLY overlay as a PNG buffer.
  * 
- * This renders the glassmorphism card, text, and badges WITHOUT any background image.
- * The background is a solid dark blue fallback.
- * The hybrid workflow will use this as the final image when compositing isn't available,
- * or the AI-generated background when Satori overlay fails.
+ * Renders the glassmorphism card and text ON TOP of the AI-generated background.
+ * The backgroundUrl should be an optimized/resized image (e.g., 720x900 quality 60)
+ * to avoid stack overflow — Satori fetches images internally.
+ * Falls back to dark blue gradient if no backgroundUrl provided.
  * 
  * @param slide - Slide data
- * @param backgroundUrl - URL of the AI-generated background (used as CSS bg, NOT as <img>)
+ * @param backgroundUrl - URL of the AI-generated background (used as CSS backgroundImage)
  * @param width - Width of the image
  * @param height - Height of the image
  */
@@ -191,9 +191,14 @@ export async function generateOverlay(
                     justifyContent: 'center',
                     alignItems: 'flex-start',
                     position: 'relative',
-                    // Use a dark gradient background as fallback
-                    // (since we can't use the AI background in Satori)
-                    backgroundImage: `linear-gradient(135deg, ${BRAND_COLORS.darkBlueStart}, ${BRAND_COLORS.darkBlueEnd})`,
+                    // Use AI-generated background if available, gradient as fallback.
+                    // The backgroundUrl should be an optimized/resized image (720x900, quality 60)
+                    // to avoid Satori stack overflow on large images.
+                    backgroundColor: BRAND_COLORS.darkBlueStart,
+                    backgroundImage: backgroundUrl
+                        ? `url(${backgroundUrl})`
+                        : `linear-gradient(135deg, ${BRAND_COLORS.darkBlueStart}, ${BRAND_COLORS.darkBlueEnd})`,
+                    backgroundSize: '100% 100%',
                 },
                 children: rootChildren,
             },

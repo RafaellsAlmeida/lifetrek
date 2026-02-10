@@ -28,6 +28,14 @@ export interface SlideData {
     logoUrl?: string;
     /** URL to ISO badge asset */
     isoUrl?: string;
+    /** Art direction from Designer agent */
+    art_direction?: {
+        visual_concept?: string;
+        composition?: string;
+        mood?: string;
+        color_emphasis?: string;
+        background_elements?: string;
+    };
 }
 
 /**

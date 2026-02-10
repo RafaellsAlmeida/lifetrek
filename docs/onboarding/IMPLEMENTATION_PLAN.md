@@ -292,7 +292,7 @@ This must be completed **BEFORE** the team member's first day.
 
 | Issue | Contact | When |
 |-------|---------|------|
-| **High-value lead (score 21+)** | Rafael | Immediately (Slack/WhatsApp) |
+| **High-value lead (score 80+)** | Rafael | Immediately (Slack/WhatsApp) |
 | **Technical question (material, process)** | Engineering team | Within 24h |
 | **Pricing/discount request** | Rafael | Before responding to client |
 | **Client complaint/issue** | Rafael | Immediately |

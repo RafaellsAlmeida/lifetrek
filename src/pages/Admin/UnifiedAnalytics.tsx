@@ -9,6 +9,7 @@ import { CorrelationChart } from "@/components/admin/analytics/CorrelationChart"
 import { StatsCards } from "@/components/admin/analytics/StatsCards";
 import { ConnectionGrowthChart } from "@/components/admin/analytics/ConnectionGrowthChart";
 import { LeadBehaviorStats } from "@/components/admin/analytics/LeadBehaviorStats";
+import { PostPerformanceTable } from "@/components/admin/analytics/PostPerformanceTable";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCcw, Globe, Linkedin, Link2, Users } from "lucide-react";
@@ -149,6 +150,8 @@ export default function UnifiedAnalytics() {
               </div>
             </div>
           </div>
+
+          <PostPerformanceTable />
         </TabsContent>
 
         {/* Leads Tab - Internal Behavior */}

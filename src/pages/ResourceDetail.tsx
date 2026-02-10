@@ -22,9 +22,189 @@ export default function ResourceDetail() {
     const { slug } = useParams();
     const { data: resource, isLoading, error } = useResource(slug || "");
     const { toast } = useToast();
-    // ... existing interactions ...
+    const [hasAccess, setHasAccess] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUnlocking, setIsUnlocking] = useState(false);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        company: ""
+    });
 
-    // ... (skipping unchanged code) ...
+    const roadmapMermaid = `
+    flowchart LR
+      A[Fase 1: Diagnóstico<br/>(Semanas 1-2)] --> B[Fase 2: Prototipagem<br/>(Semanas 3-6)]
+      B --> C[Fase 3: Lote Piloto<br/>(Semanas 7-8)]
+      C --> D[Fase 4: Escala<br/>(Semanas 9-12)]
+    `;
+
+    // Check if user has already unlocked this resource
+    useEffect(() => {
+        if (slug) {
+            const unlocked = localStorage.getItem(`resource_unlocked_${slug}`);
+            if (unlocked) {
+                setHasAccess(true);
+            }
+        }
+    }, [slug]);
+
+    const handleUnlock = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsUnlocking(true);
+
+        // Simulate API call or just save to localStorage for now
+        // In a real app, this would submit to Supabase
+        setTimeout(() => {
+            if (slug) {
+                localStorage.setItem(`resource_unlocked_${slug}`, "true");
+                setHasAccess(true);
+                setIsModalOpen(false);
+                toast({
+                    title: "Recurso desbloqueado!",
+                    description: "Boa leitura.",
+                });
+            }
+            setIsUnlocking(false);
+        }, 1000);
+    };
+
+    const [scorecard, setScorecard] = useState({
+        dependency: 3,
+        volatility: 3,
+        leadTime: 3,
+        quality: 3,
+        capital: 3
+    });
+
+    const [productionChecklist, setProductionChecklist] = useState({
+        volume: false,
+        leadTime: false,
+        impact: false,
+        quality: false,
+        capital: false
+    });
+
+    const [isSavingScorecard, setIsSavingScorecard] = useState(false);
+    const [scorecardStatus, setScorecardStatus] = useState("");
+    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
+    const [checklistStatus, setChecklistStatus] = useState("");
+
+    const scorecardTotal = Object.values(scorecard).reduce((a, b) => a + b, 0);
+    const scorecardBand = scorecardTotal < 10 ? "Baixo Risco (Verde)" : scorecardTotal < 18 ? "Médio Risco (Amarelo)" : "Alto Risco (Vermelho)";
+    const scorecardRecommendation = scorecardTotal < 10
+        ? "Sua cadeia de suprimentos está estável. Mantenha o monitoramento."
+        : scorecardTotal < 18
+            ? "Atenção necessária. Considere diversificar fornecedores críticos."
+            : "Ação imediata recomendada. Sua operação está vulnerável a interrupções.";
+
+    const productionYesCount = Object.values(productionChecklist).filter(Boolean).length;
+    const productionRecommendation = productionYesCount >= 3
+        ? "Recomendação: ALTA VIABILIDADE para produção local. Agende uma consultoria técnica."
+        : "Recomendação: Mantenha importação por enquanto, mas monitore o volume.";
+
+    const handleScorecardSave = async () => {
+        setIsSavingScorecard(true);
+        // Simulate save
+        setTimeout(() => {
+            setIsSavingScorecard(false);
+            setScorecardStatus("Respostas salvas com sucesso!");
+        }, 1000);
+    };
+
+    const handleProductionChecklistSave = async () => {
+        setIsSavingChecklist(true);
+        // Simulate save
+        setTimeout(() => {
+            setIsSavingChecklist(false);
+            setChecklistStatus("Checklist salvo com sucesso!");
+        }, 1000);
+    };
+
+    const handleAdminUpdate = async () => {
+        const enhancedContent = `# Roadmap de Nacionalização em 90 Dias: O Caminho Seguro
+**De "Refém da Importação" para "Controle Total da Produção"**
+
+## Proposta de Valor
+Este não é apenas um cronograma. É um protocolo de mitigação de risco para transferir a fabricação de componentes críticos (Implantes e Instrumentais) da Europa/EUA para o Brasil (Indaiatuba), mantendo a qualidade Suíça.
+
+---
+
+## Fase 1: Diagnóstico e Segurança (Semanas 1-2)
+*O objetivo é garantir que a mudança é tecnicamente viável e financeiramente vantajosa antes de cortar qualquer metal.*
+
+*   **O que nós fazemos:**
+    *   **Análise de Viabilidade Técnica (DFM):** Revisamos seus desenhos 3D para garantir que podem ser usinados em nossos Tornos Suíços CNC sem perda de precisão.
+    *   **Engenharia Reversa (se necessário):** Se você não tem o desenho, nós criamos a partir da peça física com metrologia óptica.
+*   **O que você recebe:**
+    *   Relatório de "Custo Landed" (Importado vs. Nacional).
+    *   Confirmação de Tolerâncias (Garantimos ±0.005mm?).
+*   **Decisão:** Go / No-Go.
+
+## Fase 2: Prototipagem e Validação (Semanas 3-6)
+*Aqui eliminamos o risco de qualidade. Você verá a peça física, idêntica à importada.*
+
+*   **O que nós fazemos:**
+    *   Setup de Máquina dedicado.
+    *   Usinagem de lote piloto (5-10 peças).
+    *   **Validação Cruzada:** Medimos em nossa CMM (Zeiss) e enviamos laudo.
+*   **O que você recebe:**
+    *   Amostras físicas para validação da sua Engenharia/Qualidade.
+    *   Laudo Dimensional Completo.
+    *   Certificado de Matéria-Prima (Rastreabilidade Total).
+
+## Fase 3: Lote Piloto e Ajuste Fino (Semanas 7-8)
+*Preparação para escala. Testamos o fluxo de produção real.*
+
+*   **O que nós fazemos:**
+    *   Produção de pequeno lote (50-100 peças).
+    *   Teste de acabamento superficial e tratamentos (passivação/anodização).
+*   **O que você recebe:**
+    *   Entrega parcial para abastecer seu estoque imediatamente.
+    *   Validação do processo de embalagem e logística.
+
+## Fase 4: Produção em Escala e Entrega Contínua (Semanas 9-12)
+*A virada de chave. Sua supply chain agora é local.*
+
+*   **O que nós fazemos:**
+    *   Programação de entregas mensais (Contrato Guarda-Chuva).
+    *   Estoque de segurança mantido na Lifetrek (Indaiatuba).
+*   **O que você recebe:**
+    *   **Lead Time reduzido:** De 90 dias (China/Europa) para **entrega imediata** ou 15 dias.
+    *   **Fluxo de Caixa:** Pague em Reais, sem fechar câmbio antecipado, e receba fracionado conforme sua demanda.
+
+---
+
+## Por que fazer isso agora?
+1.  **Dólar Volátil:** Proteja sua margem eliminando a variação cambial.
+2.  **Capital de Giro:** Pare de pagar 100% antecipado e esperar 3 meses.
+3.  **Resposta Rápida:** Ocorreu um pico de vendas? Nós entregamos mais peças em dias, não meses.
+
+## Próximo Passo: Análise de Viabilidade Gratuita
+Não precisa commitar nada agora. Mande **um desenho técnico** (PDF/STEP) de um item crítico.
+
+**Nós te entregamos em 48h:**
+1.  Análise de viabilidade técnica.
+2.  Estimativa de custo e prazo.
+3.  Comparativo de economia anual.`;
+
+        const { error } = await supabase
+            .from('resources')
+            .update({ content: enhancedContent })
+            .eq('slug', 'roadmap-90-dias-migracao-skus');
+
+        if (error) {
+            toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+        } else {
+            toast({ title: "Conteúdo atualizado!", description: "Recarregue a página." });
+        }
+    };
+
+    const roadmapMermaid = `
+    flowchart LR
+      A[Fase 1: Diagnóstico<br/>(Semanas 1-2)] --> B[Fase 2: Prototipagem<br/>(Semanas 3-6)]
+      B --> C[Fase 3: Lote Piloto<br/>(Semanas 7-8)]
+      C --> D[Fase 4: Escala<br/>(Semanas 9-12)]
+    `;
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -93,7 +273,15 @@ export default function ResourceDetail() {
 
                         {resource.slug === "roadmap-90-dias-migracao-skus" && (
                             <div className="mt-10 rounded-lg border border-slate-200 bg-slate-50 p-6">
-                                <h3 className="text-xl font-semibold text-slate-900 mb-4">Linha do tempo visual</h3>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-xl font-semibold text-slate-900">Linha do tempo visual</h3>
+                                    <Button onClick={handleAdminUpdate} variant="outline" size="sm" className="hidden">
+                                        Admin: Atualizar Conteúdo
+                                    </Button>
+                                    <button onClick={handleAdminUpdate} className="text-xs text-slate-300 hover:text-slate-500">
+                                        (Atualizar DB)
+                                    </button>
+                                </div>
                                 <Mermaid chart={roadmapMermaid} />
                             </div>
                         )}

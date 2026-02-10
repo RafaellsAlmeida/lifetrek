@@ -104,7 +104,7 @@ const CHECKLIST_SECTIONS: ChecklistSection[] = [
     title: "E. Regras de Escalação",
     icon: <Users className="h-4 w-4" />,
     items: [
-      { key: "esc_high_value", label: "Sabe escalar lead de alto valor (score 4-5)" },
+      { key: "esc_high_value", label: "Sabe escalar lead de alto valor (score 80-100)" },
       { key: "esc_technical", label: "Sabe escalar dúvida técnica profunda" },
       { key: "esc_negotiation", label: "Sabe escalar negociação comercial" },
       { key: "esc_existing", label: "Sabe escalar cliente existente com problema" },

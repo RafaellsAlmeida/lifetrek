@@ -234,8 +234,8 @@ YOU RECEIVE AS INPUT (when available):
 
 YOUR TASKS:
 
-A) LEAD SCORING (1–5)
-Score the lead from 1 (very low fit) to 5 (ideal fit) based on:
+A) LEAD SCORING (0–100)
+Score the lead from 0 (very low fit) to 100 (ideal fit) based on:
 - Market fit (medical/dental/vet/OEM vs completely unrelated)
 - Strategic fit (complex precision components vs simple commodity parts)
 - Volume / potential (prototype only vs clear path to ongoing production)
@@ -282,7 +282,7 @@ Tone:
 
 C) STRUCTURED OUTPUT
 Return a JSON object with:
-- "lead_score": 1–5
+- "lead_score": 0–100
 - "lead_score_reason": short text
 - "segment": inferred or given (orthopedic / dental / veterinary / hospital / OEM / other)
 - "opportunity_summary": 2–3 sentence summary of the project

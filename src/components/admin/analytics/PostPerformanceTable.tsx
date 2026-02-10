@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, TrendingUp, Eye, ThumbsUp, MessageSquare } from "lucide-react";
+import { Loader2, TrendingUp, Eye, ThumbsUp } from "lucide-react";
 
 interface PostMetrics {
   id: string;
@@ -19,6 +19,7 @@ interface PostMetrics {
   status: string;
   published_at: string | null;
   scheduled_for: string | null;
+  campaign_id: string | null;
   views: number;
   likes: number;
   comments: number;
@@ -38,7 +39,7 @@ export function PostPerformanceTable() {
       setLoading(true);
       const { data, error } = await supabase
         .from("linkedin_carousels")
-        .select("id, topic, status, published_at, scheduled_for, views, likes, comments, engagement_rate")
+        .select("id, topic, status, published_at, scheduled_for, campaign_id, views, likes, comments, engagement_rate")
         .order("views", { ascending: false })
         .limit(10); // Top 10 for now
 
@@ -55,6 +56,7 @@ export function PostPerformanceTable() {
         status: p.status,
         published_at: p.published_at,
         scheduled_for: p.scheduled_for,
+        campaign_id: p.campaign_id,
         views: p.views ?? 0, // Use null coalescing
         likes: p.likes ?? 0,
         comments: p.comments ?? 0,
@@ -83,7 +85,7 @@ export function PostPerformanceTable() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-indigo-600" />
+              <TrendingUp className="w-5 h-5 text-primary" />
               Performance de Posts
             </CardTitle>
             <CardDescription>Top 10 posts por visualização</CardDescription>
@@ -98,6 +100,7 @@ export function PostPerformanceTable() {
                 <TableHead>Tópico</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Data</TableHead>
+                <TableHead>Campanha</TableHead>
                 <TableHead className="text-right">Views</TableHead>
                 <TableHead className="text-right">Likes</TableHead>
                 <TableHead className="text-right">Engajamento</TableHead>
@@ -106,7 +109,7 @@ export function PostPerformanceTable() {
             <TableBody>
               {posts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                     Nenhum dado disponível.
                   </TableCell>
                 </TableRow>
@@ -131,6 +134,9 @@ export function PostPerformanceTable() {
                         : post.scheduled_for 
                           ? new Date(post.scheduled_for).toLocaleDateString('pt-BR')
                           : '-'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {post.campaign_id || "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">

@@ -141,7 +141,7 @@
 
 ### Quando envolver o time técnico/comercial humano
 
-- [ ] **Lead de alto valor** (score 4-5 na matriz de qualificação)
+- [ ] **Lead de alto valor** (score 80-100 na matriz de qualificação)
   - Volume >100 peças/mês
   - Projeto estratégico (OEM, hospital grande)
 - [ ] **Dúvida técnica profunda**
@@ -215,7 +215,7 @@
      - Requisitos regulatórios (ISO, ANVISA, etc.)
   4. Sugerir próximo passo: call ou NDA + envio de desenho
 - [ ] Logar lead no CRM com score 0-100
-  - Leads 4-5: Notificação imediata ao time
+  - Leads 80-100: Notificação imediata ao time
 
 **SLA:**
 - Primeira resposta: **15 minutos** (horário comercial)
@@ -339,7 +339,7 @@ A: Nunca dar preço sem qualificação. Resposta: "Para darmos um orçamento pre
 A: "Entendo! Muitos dos nossos clientes também tinham fornecedores antes de nos conhecer. O que os trouxe até nós foi [benefício específico]. Posso mostrar como ajudamos [empresa similar]?"
 
 **Q: Como sei se devo escalar para o time técnico?**  
-A: Use a matriz de qualificação (score 4-5) + critérios de escalação (seção E deste documento).
+A: Use a matriz de qualificação (score 80-100) + critérios de escalação (seção E deste documento).
 
 **Q: Quantos follow-ups devo fazer?**  
 A: Máximo de 3-4 tentativas por canal. Depois, mover para "nurture" e incluir em campanhas de conteúdo.

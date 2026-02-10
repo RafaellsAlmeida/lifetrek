@@ -125,7 +125,7 @@ This knowledge base is designed for AI agents (Lead Scoring Agent, Email Draft A
 
 ## 4. TARGET CUSTOMER PROFILES
 
-### Ideal Customers (Score 5)
+### Ideal Customers (Score 80-100)
 - Medical device OEMs
 - Dental implant manufacturers
 - Orthopedic device companies
