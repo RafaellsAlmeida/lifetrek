@@ -1,9 +1,17 @@
 #!/bin/bash
 
-# Configuration
-FUNCTION_URL="https://dlflpvmdzkeouhgqwqba.supabase.co/functions/v1/regenerate-carousel-images"
-CAROUSEL_ID="05ebeff0-834c-48c3-ac06-3ce483600fbf"
-SERVICE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZmxwdm1kemtlb3VoZ3F3cWJhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNzYwOSwiZXhwIjoyMDgzMzAzNjA5fQ.QT2RDwGP92JhDFb3fGRgMuViKW-AioTIu44x_g0hw5o"
+# Configuration (use env vars, never hardcode secrets)
+SUPABASE_URL="${SUPABASE_URL:-}"
+SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
+CAROUSEL_ID="${CAROUSEL_ID:-05ebeff0-834c-48c3-ac06-3ce483600fbf}"
+
+if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  echo "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment."
+  exit 1
+fi
+
+FUNCTION_URL="${SUPABASE_URL}/functions/v1/regenerate-carousel-images"
+SERVICE_KEY="$SUPABASE_SERVICE_ROLE_KEY"
 
 echo "Using Service Key to bypass 401..."
 
