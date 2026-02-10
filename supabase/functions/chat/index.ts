@@ -16,7 +16,7 @@ serve(async (req) => {
     }
 
     try {
-        const { messages } = await req.json();
+        const { messages, mode } = await req.json();
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -48,7 +48,17 @@ serve(async (req) => {
             );
         }
 
-        const systemPrompt = `Você é o Assistente Virtual da Lifetrek Medical.
+        const systemPrompt = mode === "orchestrator"
+            ? `Você é o Orquestrador de Conteúdo da Lifetrek Medical.
+Seu objetivo é ajudar o time interno a planejar conteúdo de LinkedIn (carrosséis), trazendo ângulos estratégicos, ganchos fortes e estrutura clara.
+
+DIRETRIZES:
+1. Tom profissional, técnico e colaborativo ("vamos", "juntos", "parceria").
+2. Seja direto: proponha 2-3 ângulos e sugira estrutura de slides.
+3. Sempre peça um detalhe faltante crítico (público, dor, prova, CTA) quando necessário.
+4. Evite clichês de marketing. Use linguagem de engenharia e risco/qualidade.
+5. Responda em português do Brasil.`
+            : `Você é o Assistente Virtual da Lifetrek Medical.
 Seu objetivo é ajudar visitantes do site com dúvidas sobre fabricação de dispositivos médicos (Implantes, Instrumentais, Caixas Gráficas) e capturar leads.
 
 DIRETRIZES:

@@ -220,6 +220,91 @@ Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 
 }
 
 /**
+ * Agent 1B: Strategist (Plan Mode)
+ * Returns multiple strategic angles for user selection
+ */
+export async function strategistPlansAgent(
+  params: CarouselParams,
+  supabase?: SupabaseClient,
+  optionsCount: number = 3
+): Promise<(CarouselStrategy & { topic?: string })[]> {
+  const startTime = Date.now();
+  console.log("🎯 Strategist Plan Agent: Generating strategy options...");
+
+  const brand = getBrandGuidelines(params.profileType);
+  let kbContext = "";
+  let researchContext = "";
+
+  if (supabase) {
+    try {
+      console.log(`🔍 Strategist Plan: Searching knowledge base for "${params.topic}"...`);
+      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3);
+      if (kbResults && kbResults.length > 0) {
+        kbContext = `\n\n**Reference Material from Knowledge Base**:\n${kbResults.map(item => `[${item.category}] ${item.question}: ${item.content}`).join('\n---\n')}`;
+      }
+    } catch (error) {
+      console.warn("⚠️ Plan KB Search failed:", error);
+    }
+  }
+
+  const researchLevel = params.researchLevel || 'light';
+  if (researchLevel !== 'none') {
+    try {
+      const researchQuery = `${params.topic} trends and statistics for ${params.targetAudience} in medical device manufacturing ${new Date().getFullYear()}`;
+      console.log(`🔍 Strategist Plan: Running ${researchLevel} research...`);
+      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000);
+      if (research) {
+        researchContext = `\n\n**Industry Research Findings**:\n${research}`;
+      }
+    } catch (error) {
+      console.warn("⚠️ Plan research failed:", error);
+    }
+  }
+
+  const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
+${kbContext}
+${researchContext}
+
+**Task**: Create ${optionsCount} distinct strategic angles for a LinkedIn carousel about "${params.topic}".
+**Target Audience**: ${params.targetAudience}
+**Brand Tone**: ${brand.tone}
+
+**Instructions**:
+- Each option must have a distinct angle and hook.
+- Use Research Findings (if any) to ground the content in facts and current trends.
+- Plan 5-7 slides total following: Hook → Value → Value → Value → CTA.
+
+Output ONLY valid JSON:
+{
+  "options": [
+    { "topic": "...", "hook": "...", "narrative_arc": "...", "slide_count": 7, "key_messages": [] }
+  ]
+}`;
+
+  try {
+    const response = await callOpenRouter([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Create strategy options for: ${params.topic}` }
+    ]);
+
+    const result = extractJSON(response);
+    const options = Array.isArray(result?.options) ? result.options : [];
+
+    console.log(`✅ Strategist Plan: Planned ${options.length} options in ${Date.now() - startTime}ms`);
+    return options.slice(0, optionsCount).map((option: any) => ({
+      topic: option.topic,
+      hook: option.hook,
+      narrative_arc: option.narrative_arc,
+      slide_count: option.slide_count || 7,
+      key_messages: option.key_messages || []
+    }));
+  } catch (error) {
+    console.error("❌ Strategist Plan Error:", error);
+    throw error;
+  }
+}
+
+/**
  * Agent 2: Copywriter
  * Writes headlines and body copy for each slide
  */

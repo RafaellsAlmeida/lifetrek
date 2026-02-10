@@ -12,17 +12,21 @@ export function ContentScheduler() {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const { data: items, isLoading } = useApprovedContentItems();
 
-    // Filter items that have a scheduled_date
-    const scheduledItems = items?.filter(item => item.full_data.scheduled_date) || [];
+    // Filter items that have a scheduled_for or scheduled_date
+    const scheduledItems = items?.filter(item => item.full_data.scheduled_for || item.full_data.scheduled_date) || [];
 
     // Items for the selected day
     const dayItems = scheduledItems.filter(item => {
-        if (!item.full_data.scheduled_date) return false;
-        return isSameDay(parseISO(item.full_data.scheduled_date), selectedDate || new Date());
+        const scheduledAt = item.full_data.scheduled_for || item.full_data.scheduled_date;
+        if (!scheduledAt) return false;
+        return isSameDay(parseISO(scheduledAt), selectedDate || new Date());
     });
 
     // Dates that have scheduled posts (for highlighting/modifiers)
-    const scheduledDates = scheduledItems.map(item => parseISO(item.full_data.scheduled_date));
+    const scheduledDates = scheduledItems
+        .map(item => item.full_data.scheduled_for || item.full_data.scheduled_date)
+        .filter(Boolean)
+        .map((value: string) => parseISO(value));
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
@@ -94,7 +98,7 @@ export function ContentScheduler() {
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h4 className="font-semibold text-sm truncate">{item.title}</h4>
                                                 <Badge variant="secondary" className="text-[10px] h-4">
-                                                    {format(parseISO(item.full_data.scheduled_date), "HH:mm")}
+                                                    {format(parseISO(item.full_data.scheduled_for || item.full_data.scheduled_date), "HH:mm")}
                                                 </Badge>
                                             </div>
                                             <p className="text-xs text-muted-foreground truncate italic">

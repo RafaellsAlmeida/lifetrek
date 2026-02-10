@@ -286,7 +286,7 @@ export default function LinkedInCarousel() {
         format: result.format || format,
         image_urls: result.slides.map(s => s.imageUrl || ""),
         status: overrideStatus || 'draft',
-        scheduled_date: scheduledDate || null,
+        scheduled_for: scheduledDate || null,
         generation_settings: {
           model: "google/gemini-3-pro-image-preview",
           timestamp: new Date().toISOString()

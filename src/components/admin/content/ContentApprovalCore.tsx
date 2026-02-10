@@ -203,7 +203,12 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             const { error } = await (supabase
                 .from(tableName as any)
                 .update({
-                    scheduled_date: scheduledDate.toISOString(),
+                    scheduled_for: schedulingItem.type === 'linkedin' || schedulingItem.type === 'blog'
+                        ? scheduledDate.toISOString()
+                        : undefined,
+                    scheduled_date: schedulingItem.type === 'instagram' || schedulingItem.type === 'resource'
+                        ? scheduledDate.toISOString()
+                        : undefined,
                     status: 'scheduled'
                 } as any) as any)
                 .eq('id', schedulingItem.id);

@@ -58,9 +58,8 @@ export async function generateWithNanoBanana(
             // Request both image and text output
             responseModalities: ["IMAGE", "TEXT"],
             imageConfig: {
-                aspectRatio: aspectRatio,
-                // 2K is the sweet spot for quality vs speed
-                imageSize: "2K"
+                aspectRatio: aspectRatio
+                // Default resolution (1K) to avoid huge Base64 strings crashing Satori
             }
         }
     };

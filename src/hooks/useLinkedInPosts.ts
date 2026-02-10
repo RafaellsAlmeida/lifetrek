@@ -423,7 +423,7 @@ export function useApprovedContentItems() {
 
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
-                .select("id, topic, status, created_at, updated_at, target_audience, caption, scheduled_date")
+                .select("id, topic, status, created_at, updated_at, target_audience, caption, scheduled_for")
                 .in("status", ["approved", "published", "scheduled"])
                 .order("updated_at", { ascending: false })
                 .limit(50);
@@ -560,4 +560,3 @@ export function useRejectResource() {
         },
     });
 }
-

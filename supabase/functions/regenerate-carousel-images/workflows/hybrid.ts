@@ -63,40 +63,58 @@ export async function processSlideHybrid(
         return slide;
     }
 
+    // 2.5 Upload Background to Storage (CRITICAL FIX for Satori Stack Overflow)
+    // Passing large Base64 strings to Satori's VDOM causes recursion limit errors.
+    // We must upload the image first and pass a clean URL.
+    const bgFileName = `hybrid-bg-${carouselId.slice(0, 8)}-${slideNum}-${Date.now()}.png`;
+    const bgPublicUrl = await uploadImage(supabase, imageUrl, bgFileName);
+
+    if (!bgPublicUrl) {
+        console.error(`[HYBRID] [${slideNum}] ❌ Background upload failed, skipping overlay`);
+        slide.imageUrl = getPlaceholderUrl(slide.headline || 'Upload Failed');
+        return slide;
+    }
+
+    console.log(`[HYBRID] [${slideNum}] ✅ Background uploaded: ${bgPublicUrl}`);
+
     // 3. Render Overlay with Satori (Text + Logo + Badge)
     try {
         console.log(`[HYBRID] [${slideNum}] Compositing text overlay...`);
 
-        // Define sizes based on aspect ratio (Reduced to 720px width to save Edge Function memory)
-        let width = 720;
+        // Define sizes based on aspect ratio
+        let width = 720; // Reduced width
         let height = 900; // 4:5 default
 
-        if (platform.aspectRatio === "3:4") height = 960;
-        if (platform.aspectRatio === "16:9") { width = 1280; height = 720; }
+        // OPTIMIZATION: Use Supabase properties to resize image for Satori
+        // Satori crashes with 4K images. We transform it to ~720px width using Supabase Image Transformation.
+        // URL structure: .../object/public/... -> .../render/image/public/...
+        let satoriBgUrl = bgPublicUrl;
+        if (bgPublicUrl.includes('/object/public/')) {
+            satoriBgUrl = bgPublicUrl.replace('/object/public/', '/render/image/public/') +
+                `?width=${width}&height=${height}&resize=cover&quality=60`;
+        }
+
+        console.log(`[HYBRID] [${slideNum}] Optimized BG for Satori: ${satoriBgUrl}`);
 
         const compositeBuffer = await generateOverlay(
             slide,
-            imageUrl, // Pass base64 background
+            satoriBgUrl,
             width,
             height
         );
 
-        // Convert Uint8Array back to Base64 for upload
-        // We can upload Buffer directly usually, but our uploadImage util expects Base64 string currently
-        // Let's modify validAssets loop to load logo/iso if needed for Satori inside generateOverlay
-        // Actually generateOverlay handles downloading logos if passed as URLs.
-
         // Convert buffer to base64
         const binary = String.fromCharCode(...compositeBuffer);
         const base64Composite = btoa(binary);
-        const finalDataUrl = `data:image/png;base64,${base64Composite}`;
-
-        imageUrl = finalDataUrl;
+        imageUrl = `data:image/png;base64,${base64Composite}`;
         console.log(`[HYBRID] [${slideNum}] ✅ Composite created`);
 
     } catch (e) {
         console.error(`[HYBRID] [${slideNum}] ⚠️ Satori composite failed: ${e}`);
-        // Fallback to just the AI background (better than nothing)
+        // Fallback to just the AI background (uploaded as bgPublicUrl, but we need to return it as imageUrl logic below handles it)
+        // If we fail here, imageUrl is still the original Base64.
+        // Or we can set it to bgPublicUrl?
+        // Let's stick with original behavior: if composite fails, use the original (AI generated) image.
     }
 
     // 4. Upload Final Image

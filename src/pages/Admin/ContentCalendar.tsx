@@ -27,7 +27,7 @@ interface CalendarItem {
     title: string;
     type: 'linkedin' | 'blog';
     status: 'draft' | 'scheduled' | 'published' | 'approved';
-    scheduled_date: string | null;
+    scheduled_for: string | null;
     author?: string;
 }
 
@@ -71,7 +71,7 @@ export default function ContentCalendar() {
                 title: item.topic,
                 type: 'linkedin',
                 status: item.status as any,
-                scheduled_date: item.scheduled_date || item.created_at // fallback for demo
+                scheduled_for: item.scheduled_for || item.created_at // fallback for demo
             }));
 
             const blogItems: CalendarItem[] = (blogData || []).map(item => ({
@@ -79,7 +79,7 @@ export default function ContentCalendar() {
                 title: item.title,
                 type: 'blog',
                 status: item.status as any,
-                scheduled_date: item.published_at || item.created_at // fallback
+                scheduled_for: item.scheduled_for || item.published_at || item.created_at // fallback
             }));
 
             return [...linkedinItems, ...blogItems];
@@ -92,19 +92,19 @@ export default function ContentCalendar() {
             if (type === 'linkedin') {
                 const { error } = await supabase
                     .from('linkedin_carousels')
-                    .update({
-                        scheduled_date: date,
-                        status: 'scheduled'
-                    })
+                        .update({
+                            scheduled_for: date,
+                            status: 'scheduled'
+                        })
                     .eq('id', id);
                 if (error) throw error;
             } else {
                 const { error } = await supabase
                     .from('blog_posts')
-                    .update({
-                        published_at: date,
-                        status: 'scheduled'
-                    })
+                        .update({
+                            scheduled_for: date,
+                            status: 'scheduled'
+                        })
                     .eq('id', id);
                 if (error) throw error;
             }
@@ -145,17 +145,17 @@ export default function ContentCalendar() {
     const getItemsForDay = (date: Date) => {
         if (!items) return [];
         return items.filter(item =>
-            item.scheduled_date && isSameDay(parseISO(item.scheduled_date), date)
+            item.scheduled_for && isSameDay(parseISO(item.scheduled_for), date)
         );
     };
 
     const unscheduledItems = useMemo(() => {
         if (!items) return [];
         // Just a mocked check for "unscheduled" or "draft" that hasn't been placed yet
-        // In reality, we'd check for null scheduled_date
+        // In reality, we'd check for null scheduled_for
         return items.filter(item =>
             (item.status === 'draft' || item.status === 'pending_review') &&
-            (!item.scheduled_date || new Date(item.scheduled_date).getFullYear() < 2024)
+            (!item.scheduled_for || new Date(item.scheduled_for).getFullYear() < 2024)
             // Logic to define "backlog" items
         );
     }, [items]);
