@@ -31,6 +31,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+// Deployment trigger
 export default function Resources() {
     const { t } = useLanguage();
     const { data: resources, isLoading, error } = useResources(true);
