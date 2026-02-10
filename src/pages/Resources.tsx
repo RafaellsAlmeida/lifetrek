@@ -33,6 +33,7 @@ import { ptBR } from "date-fns/locale";
 
 // Deployment trigger
 export default function Resources() {
+    console.log("Resources Page Loaded - Version Filter Fix");
     const { t } = useLanguage();
     const { data: resources, isLoading, error } = useResources(true);
     const [searchTerm, setSearchTerm] = useState("");
