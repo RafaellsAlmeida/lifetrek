@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import contactHero from "@/assets/facility/contact-hero.svg";
 import { trackAnalyticsEvent } from "@/utils/trackAnalytics";
-import { MultiSelect, Option } from "@/components/ui/multi-select";
+import { MessageCircle } from "lucide-react";
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -16,26 +15,9 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    company: "",
     phone: "",
-    projectTypes: [] as string[],
-    annualVolume: "",
-    technicalRequirements: "",
     message: "",
   });
-
-  const PROJECT_TYPE_OPTIONS: Option[] = [
-    { value: "dental_implants", label: "Implantes Dentários" },
-    { value: "orthopedic_implants", label: "Implantes Ortopédicos" },
-    { value: "spinal_implants", label: "Implantes Espinhais" },
-    { value: "veterinary_implants", label: "Implantes Veterinários" },
-    { value: "surgical_instruments", label: "Instrumentos Cirúrgicos" },
-    { value: "micro_precision_parts", label: "Peças de Micro Precisão" },
-    { value: "custom_tooling", label: "Ferramental Customizado" },
-    { value: "medical_devices", label: "Dispositivos Médicos" },
-    { value: "measurement_tools", label: "Ferramentas de Medição" },
-    { value: "other_medical", label: "Outros Médicos" },
-  ];
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +26,7 @@ export default function Contact() {
     if (isSubmitting) return;
 
     // Basic validation
-    if (!formData.name || !formData.email || !formData.phone || formData.projectTypes.length === 0 || !formData.technicalRequirements) {
+    if (!formData.name || !formData.email || !formData.phone) {
       toast({
         variant: "destructive",
         title: "Erro",
@@ -72,11 +54,7 @@ export default function Contact() {
         body: {
           name: formData.name,
           email: formData.email,
-          company: formData.company,
           phone: formData.phone,
-          projectTypes: formData.projectTypes,
-          annualVolume: formData.annualVolume,
-          technicalRequirements: formData.technicalRequirements,
           message: formData.message,
         }
       });
@@ -116,28 +94,22 @@ export default function Contact() {
       // Track analytics event
       await trackAnalyticsEvent({
         eventType: "form_submission",
-        companyName: formData.company,
         companyEmail: formData.email,
         metadata: {
-          formType: "contact_quote",
+          formType: "contact",
           name: formData.name,
-          projectTypes: formData.projectTypes
         }
       });
 
       toast({
         title: "Mensagem Enviada!",
-        description: "Entraremos em contato em breve com uma proposta personalizada.",
+        description: "Entraremos em contato em breve.",
       });
 
       setFormData({
         name: "",
         email: "",
-        company: "",
         phone: "",
-        projectTypes: [],
-        annualVolume: "",
-        technicalRequirements: "",
         message: ""
       });
     } catch (error) {
@@ -207,19 +179,6 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium mb-2">
-                    {t("contact.form.company")}
-                  </label>
-                  <Input
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) =>
-                      setFormData({ ...formData, company: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
                   <label htmlFor="phone" className="block text-sm font-medium mb-2">
                     {t("contact.form.phone")} *
                   </label>
@@ -229,48 +188,6 @@ export default function Contact() {
                     value={formData.phone}
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="projectTypes" className="block text-sm font-medium mb-2">
-                    Tipos de Projeto *
-                  </Label>
-                  <MultiSelect
-                    options={PROJECT_TYPE_OPTIONS}
-                    selected={formData.projectTypes}
-                    onChange={(values) =>
-                      setFormData({ ...formData, projectTypes: values })
-                    }
-                    placeholder="Selecione os tipos de projeto..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="annualVolume" className="block text-sm font-medium mb-2">
-                    {t("contact.form.annualVolume")}
-                  </label>
-                  <Input
-                    id="annualVolume"
-                    value={formData.annualVolume}
-                    onChange={(e) =>
-                      setFormData({ ...formData, annualVolume: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="technicalRequirements" className="block text-sm font-medium mb-2">
-                    {t("contact.form.technicalRequirements")} *
-                  </label>
-                  <Textarea
-                    id="technicalRequirements"
-                    rows={4}
-                    value={formData.technicalRequirements}
-                    onChange={(e) =>
-                      setFormData({ ...formData, technicalRequirements: e.target.value })
                     }
                     required
                   />
@@ -287,12 +204,29 @@ export default function Contact() {
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
+                    placeholder="Descreva seu projeto ou dúvida..."
                   />
                 </div>
 
                 <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Enviando..." : t("contact.form.submit")}
                 </Button>
+
+                {/* WhatsApp alternative */}
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Precisa de atendimento personalizado ou urgente?
+                  </p>
+                  <a
+                    href="https://wa.me/5511945336226?text=Olá! Gostaria de mais informações sobre os serviços da Lifetrek Medical."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[#25D366] hover:bg-[#20BA5C] text-white font-medium transition-colors"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    Fale pelo WhatsApp
+                  </a>
+                </div>
               </form>
             </div>
 

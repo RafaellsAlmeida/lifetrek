@@ -1,0 +1,23 @@
+Falhas no teste de fadiga custam caro.
+
+Não apenas em dinheiro - R$50k+ por iteração.
+Mas em tempo: meses de atraso no registro ANVISA/FDA.
+
+A análise de centenas de projetos de implantes revela um padrão:
+
+A maioria das falhas NÃO são problemas de design.
+São problemas de validação.
+
+→ Geometria não testada antes do CNC
+→ Protótipo em material "similar" (que invalida os dados)
+→ Regiões críticas sem especificação de tolerância
+
+Cada erro desses poderia ser evitado com um processo estruturado.
+
+O Fluxo de Validação de Fadiga é um guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo.
+
+Do CAD ao teste, passo a passo.
+
+Link nos comentários.
+
+#DispositivosMedicos #ImplantesOrtopedicos #ANVISA #ISO13485

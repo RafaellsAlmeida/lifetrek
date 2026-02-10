@@ -327,7 +327,13 @@ export const EquipmentCarousel = () => {
   };
 
   return (
-    <div className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-br from-blue-800 via-teal-700 to-teal-800">
+    <div className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(var(--primary-hover))] to-[hsl(var(--accent))]">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-accent-orange/20 blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
+      </div>
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 text-white">
           {t("equipment.title")}
@@ -380,12 +386,12 @@ export const EquipmentCarousel = () => {
                     
                     {/* Specifications Overlay */}
                     {item.specs && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-900/98 to-blue-900/95 text-white p-8 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--primary))] via-[hsl(var(--primary))]/98 to-[hsl(var(--primary))]/95 text-white p-8 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <h4 className="font-bold text-xl mb-4">{item.title}</h4>
                         <ul className="space-y-2">
                           {item.specs.map((spec, i) => (
                             <li key={i} className="text-sm flex items-start">
-                              <span className="mr-2 text-teal-400">•</span>
+                              <span className="mr-2 text-accent">•</span>
                               <span>{spec}</span>
                             </li>
                           ))}

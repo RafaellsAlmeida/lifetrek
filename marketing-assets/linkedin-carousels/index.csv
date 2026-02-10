@@ -1,0 +1,35 @@
+id,topic,status,slides_count,folder
+3addfff1-f913-4774-87f0-bca4d09d5c5e,"Manufatura Sustentável de Dispositivos Médicos",draft,5,manufatura-sustentavel-de-dispositivos-medicos--3addfff1
+f7e37f67-d64e-4470-9998-5d33e6943533,"3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga",pending_approval,6,3-erros-que-fazem-seu-implante-falhar-no-teste-de-fadiga--f7e37f67
+f567e3bb-fb0c-447a-ae2a-4dfddaa6eb19,"3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga",archived,6,3-erros-que-fazem-seu-implante-falhar-no-teste-de-fadiga--f567e3bb
+5b96302d-b0c1-4b07-b0dc-a12239228c51,"Roadmap de 90 Dias para Migrar 1–3 SKUs para Produção Local",approved,2,roadmap-de-90-dias-para-migrar-1-3-skus-para-producao-local--5b96302d
+05ebeff0-834c-48c3-ac06-3ce483600fbf,"Checklist DFM (Design for Manufacturing) para Implantes e Instrumentais",pending_approval,5,checklist-dfm-design-for-manufacturing-para-implantes-e-instrumentais--05ebeff0
+baa58b96-2337-49e6-9aab-cf1d15bc0b71,"Checklist: Auditoria de Fornecedores (Versão A - Fotográfica)",pending_approval,1,checklist-auditoria-de-fornecedores-versao-a-fotografica--baa58b96
+e26d7045-8323-47f5-bb2e-12661d38d58a,"Checklist: Auditoria de Fornecedores (Versão B - AI-Native)",pending_approval,1,checklist-auditoria-de-fornecedores-versao-b-ai-native--e26d7045
+aec28f8f-cbf3-4c9d-b5aa-b91ff502a5e7,"Are you missing a step? Checklist: Quando Faz Sentido Produzir Local explained.",draft,2,are-you-missing-a-step-checklist-quando-faz-sentido-produzir-local-explained--aec28f8f
+f0994a6f-d7b3-4202-af75-4cda97d7f1d6,"Deep Dive: Manual de Metrologia e Inspeção de Alta Precisão",draft,2,deep-dive-manual-de-metrologia-e-inspecao-de-alta-precisao--f0994a6f
+0085e91e-f1c3-4c3e-80d0-2b16232b664c,"Deep Dive: Guia: Sala Limpa ISO 7 e Montagem de Kits",draft,2,deep-dive-guia-sala-limpa-iso-7-e-montagem-de-kits--0085e91e
+2187d6b6-1251-4573-a8ca-70eb0b0e4f5c,"Are you missing a step? Checklist de Auditoria Interna ISO 13485 explained.",draft,2,are-you-missing-a-step-checklist-de-auditoria-interna-iso-13485-explained--2187d6b6
+eae08c83-4549-482b-8d04-3cf820a6aafd,"Are you missing a step? Checklist DFM para Implantes e Instrumentais explained.",archived,2,are-you-missing-a-step-checklist-dfm-para-implantes-e-instrumentais-explained--eae08c83
+393f1371-f0b7-4aa5-984c-d5ca817992a0,"Deep Dive: Roadmap de 90 Dias para Migrar 1-3 SKUs",draft,2,deep-dive-roadmap-de-90-dias-para-migrar-1-3-skus--393f1371
+1f33654f-3258-427e-b780-ebd3238e1a22,"Deep Dive: Scorecard de Risco de Supply Chain 2026",draft,2,deep-dive-scorecard-de-risco-de-supply-chain-2026--1f33654f
+557d4842-a315-42cc-8428-01ba4aadcb0f,"Are you missing a step? Checklist de Auditoria ISO 13485 para Usinagem explained.",draft,2,are-you-missing-a-step-checklist-de-auditoria-iso-13485-para-usinagem-explained--557d4842
+8089328a-e485-4596-b983-decac7888720,"Deep Dive: Fluxo de Validacao de Fadiga",draft,2,deep-dive-fluxo-de-validacao-de-fadiga--8089328a
+2d26a929-d013-4ae3-85a5-639286759717,"Identity: The Precision Partner",archived,1,identity-the-precision-partner--2d26a929
+ce0080b2-eaf5-43f9-a5ea-cce20b051b3e,"Capabilities: Print to Pack",archived,1,capabilities-print-to-pack--ce0080b2
+919426f3-6e38-499c-8f1a-1f6b6b920deb,"Trust: The Zero-Defect Standard",archived,1,trust-the-zero-defect-standard--919426f3
+140491ef-4c59-4848-9ebc-d5ac9474d289,"OEMs Ortopédicos: Montanha Russa Regulatória",pending_approval,5,oems-ortopedicos-montanha-russa-regulatoria--140491ef
+b2597cef-4140-4bfe-9384-4940e197cb5e,"Checklist DFM 2026",pending_approval,5,checklist-dfm-2026--b2597cef
+e7f72b61-090f-4e65-9692-e2fcbabf7614,"Metrologia ZEN (Zeiss Contura)",pending_approval,5,metrologia-zen-zeiss-contura--e7f72b61
+1cbe0260-dea1-4eaa-b43f-bde45239de51,"Por que Local Swiss-Level? (Supply Chain Risk)",approved,4,por-que-local-swiss-level-supply-chain-risk--1cbe0260
+44c39ef8-a466-4251-8860-7a15deb30dbf,"ISO 7 vs ISO 8",approved,5,iso-7-vs-iso-8--44c39ef8
+fb61c417-8951-4431-adfb-45026184994d,"Plano Piloto Lifetrek (90 Dias)",archived,5,plano-piloto-lifetrek-90-dias--fb61c417
+dd4ae665-0a13-4f4b-b2cd-73e16cf3ee3b,"Redução de Riscos em Testes de Fadiga de Implantes",draft,5,reducao-de-riscos-em-testes-de-fadiga-de-implantes--dd4ae665
+c9526851-608c-4e7a-9243-3afc004886fc,"Impressão 3D + CNC: A Parceria Perfeita para Inovação Médica",pending_approval,5,impressao-3d-cnc-a-parceria-perfeita-para-inovacao-medica--c9526851
+f607a06b-4bcf-4a5f-9272-e578e7295689,"O Futuro é Personalizado: Dispositivos Médicos Sob Medida",pending_approval,5,o-futuro-e-personalizado-dispositivos-medicos-sob-medida--f607a06b
+0eec886c-8dd0-4ba7-a28e-3a3f39b4cccf,"Reference: goodslides2",draft,5,reference-goodslides2--0eec886c
+79e5de6c-f12f-475a-beee-1a2b1763379e,"Reference: Ideia 3",draft,1,reference-ideia-3--79e5de6c
+9c48c28d-b4b2-4445-b735-b3e582dbe1a8,"Quem Somos - Lifetrek Medical",archived,4,quem-somos-lifetrek-medical--9c48c28d
+6863ac69-e10d-4b3f-8a48-ad8b807659b0,"Lifetrek Medical Launch (Real Asset + PT)",archived,1,lifetrek-medical-launch-real-asset-pt--6863ac69
+703c5790-3da4-4188-bdf8-13e8ca89951f,"Lifetrek Medical Launch (Composited)",archived,1,lifetrek-medical-launch-composited--703c5790
+62b7ef53-8198-47d1-96b8-49e538ab7e78,"Lifetrek Medical Launch & Vision",archived,5,lifetrek-medical-launch-vision--62b7ef53

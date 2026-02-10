@@ -48,8 +48,7 @@ export default function Resources() {
         */
         const isApproved =
             resource.title.toLowerCase().includes("dfm") ||
-            resource.title.toLowerCase().includes("roadmap") ||
-            (resource.title.toLowerCase().includes("3d") && resource.title.toLowerCase().includes("cnc"));
+            resource.title.toLowerCase().includes("roadmap");
 
         return matchesSearch && matchesType && isApproved;
     });

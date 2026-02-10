@@ -110,26 +110,80 @@ export default function Capabilities() {
         </div>
       </section>
 
-      {/* Certifications */}
-      <section className="py-16 sm:py-20">
+      {/* Certifications & Quality */}
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-background via-secondary/10 to-background">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <Award className="h-12 w-12 sm:h-16 sm:w-16 text-primary mx-auto mb-4" />
+          <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-primary">{t("capabilities.certifications")}</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-primary via-accent to-accent-orange mx-auto mb-6"></div>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-              {t("capabilities.subtitle")}
+              Qualidade certificada internacionalmente e capacidade de exportação para mercados globais
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto mb-12">
-            <div className="bg-card p-8 rounded-lg shadow-lg text-center border-l-4 border-primary hover:shadow-xl transition-shadow">
-              <img
-                src={isoLogo}
-                alt="ISO 13485:2016 medical device quality management"
-                className="h-24 object-contain mx-auto mb-4"
-                loading="lazy"
-              />
-              <h3 className="font-bold text-base">{t("capabilities.iso")}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* ISO Certification Card */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-card to-accent/5 p-8 border border-border/50 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-premium)] transition-all duration-500">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl bg-primary/10">
+                    <Shield className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Qualidade Certificada</h3>
+                    <p className="text-sm text-muted-foreground">Padrão internacional</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center p-6 bg-white rounded-xl shadow-sm mb-6">
+                  <img
+                    src={isoLogo}
+                    alt="ISO 13485:2016 medical device quality management"
+                    className="h-20 object-contain"
+                    loading="lazy"
+                  />
+                </div>
+
+                <h4 className="font-bold text-lg mb-2">{t("capabilities.iso")}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Sistema de gestão de qualidade para dispositivos médicos, garantindo conformidade regulatória e rastreabilidade completa.
+                </p>
+              </div>
+            </div>
+
+            {/* Export Capability Card */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent/5 via-card to-accent-orange/5 p-8 border border-border/50 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-premium)] transition-all duration-500">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent-orange/10 to-transparent rounded-tr-full" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl bg-accent/10">
+                    <TrendingUp className="h-8 w-8 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Capacidade de Exportação</h3>
+                    <p className="text-sm text-muted-foreground">Mercados globais</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center p-6 bg-gradient-to-br from-accent/5 to-accent-orange/5 rounded-xl mb-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-accent to-accent-orange bg-clip-text text-transparent mb-1">
+                      Global
+                    </div>
+                    <p className="text-sm text-muted-foreground">Alcance Internacional</p>
+                  </div>
+                </div>
+
+                <h4 className="font-bold text-lg mb-2">Exportação Internacional</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Experiência comprovada em exportação para América Latina, Europa e América do Norte, atendendo às normas regulatórias de cada mercado.
+                </p>
+              </div>
             </div>
           </div>
         </div>
