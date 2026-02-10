@@ -21,7 +21,6 @@ import { GenerationProgress, GenerationStep } from "@/components/carousel/Genera
 import { SlideCopyPanel } from "@/components/carousel/SlideCopyPanel";
 import * as htmlToImage from "html-to-image";
 import JSZip from "jszip";
-import jsPDF from "jspdf";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LINKEDIN_CAMPAIGN } from "@/config/linkedinCampaign";
 

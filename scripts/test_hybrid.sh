@@ -16,8 +16,11 @@ SERVICE_KEY="$SUPABASE_SERVICE_ROLE_KEY"
 
 echo "Triggering HYBRID regeneration for Carousel ID: $CAROUSEL_ID (Slide $SLIDE_INDEX)..."
 
-# JSON Payload
-PAYLOAD=$(cat <<EOF
+# Execute Request with payload piped to stdin
+RESPONSE=$(curl -s -X POST "$FUNCTION_URL" \
+  -H "Authorization: Bearer $SERVICE_KEY" \
+  -H "Content-Type: application/json" \
+  -d @- <<EOF
 {
   "carousel_id": "$CAROUSEL_ID",
   "table_name": "linkedin_carousels",
@@ -26,12 +29,6 @@ PAYLOAD=$(cat <<EOF
 }
 EOF
 )
-
-# Execute Request
-RESPONSE=$(curl -s -X POST "$FUNCTION_URL" \
-  -H "Authorization: Bearer $SERVICE_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$PAYLOAD")
 
 echo "Response:"
 echo "$RESPONSE"
