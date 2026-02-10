@@ -62,7 +62,7 @@ Se há uma interface de administração do LinkedIn no app:
 
 ### 2. Agendamento
 - [ ] Usar LinkedIn scheduling tool para agendar posts
-- [ ] Seguir o calendário definido (ver `linkedin_jan_2026_content_plan.md`)
+- [ ] Seguir o calendário definido (ver `linkedin_mar_2026_content_plan.md`)
 - [ ] Confirmar horários (9h para semana, 10h para sábado)
 
 ### 3. Preparação de Engagement
@@ -76,7 +76,7 @@ Se há uma interface de administração do LinkedIn no app:
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `docs/content/linkedin_jan_2026_content_plan.md` | Plano completo com estrutura dos posts |
+| `docs/content/linkedin_mar_2026_content_plan.md` | Plano completo com estrutura dos posts |
 | `docs/content/EXECUTION_CHECKLIST.md` | Checklist diário de execução |
 | `docs/content/carousel_inputs_jan2026.json` | JSON com inputs usados |
 | `scripts/generate_all_carousels.sh` | Script de geração (reutilizável) |

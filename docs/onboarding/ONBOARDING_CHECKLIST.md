@@ -102,7 +102,7 @@
 - [ ] **LinkedIn Best Practices**
   - Localização: `/docs/guides/LINKEDIN_BEST_PRACTICES.md`
 - [ ] **Plano de Conteúdo LinkedIn (Jan 2026)**
-  - Localização: `/docs/content/linkedin_jan_2026_content_plan.md`
+  - Localização: `/docs/content/linkedin_mar_2026_content_plan.md`
   - Temas, hooks, CTAs por semana
 - [ ] **Sales Enrichment System**
   - Localização: `/docs/systems/sales-enrichment.md`

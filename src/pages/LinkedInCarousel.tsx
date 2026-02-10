@@ -770,13 +770,15 @@ export default function LinkedInCarousel() {
     if (!activeCarousel) return;
 
     setDesignLoading(true);
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [1080, 1080],
-    });
 
     try {
+      const { jsPDF } = await import(/* @vite-ignore */ "https://cdn.skypack.dev/jspdf");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [1080, 1080],
+      });
+
       const slides = activeCarousel.slides;
       const slidesWithImages = slides
         .map((s, i) => ({ s, i }))

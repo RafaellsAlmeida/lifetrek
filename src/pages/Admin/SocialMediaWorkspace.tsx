@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageEditorCore } from "@/components/admin/content/ImageEditorCore";
 import { ContentApprovalCore } from "@/components/admin/content/ContentApprovalCore";
-// import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
+import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
 // import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
 // import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore"; 
 import { Loader2, LayoutDashboard, PenLine, Palette, CheckCircle2, CalendarDays, BarChart3 } from "lucide-react";
@@ -176,8 +176,9 @@ export default function SocialMediaWorkspace() {
             <ScrollArea className="flex-1">
               <div className="p-6 h-full">
                 <TabsContent value="create" className="mt-0 focus-visible:outline-none h-full">
-                  {/* Placeholder for Orchestrator */}
-                  <div className="p-12 text-center text-muted-foreground">Orchestrator Module (Temporarily Disabled for Debugging)</div>
+                  <Suspense fallback={<TabLoading />}>
+                    <ContentOrchestratorEmbed />
+                  </Suspense>
                 </TabsContent>
 
                 <TabsContent value="design" className="mt-0 focus-visible:outline-none h-full">
@@ -226,6 +227,14 @@ function ContentApprovalEmbed() {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
       <ContentApprovalCore embedded={true} />
+    </div>
+  );
+}
+
+function ContentOrchestratorEmbed() {
+  return (
+    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
+      <ContentOrchestratorCore embedded={true} />
     </div>
   );
 }

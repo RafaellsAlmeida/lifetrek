@@ -55,7 +55,7 @@ This must be completed **BEFORE** the team member's first day.
 **Morning (9:00-12:00)**
 - [ ] LinkedIn strategy deep-dive
   - Read `/docs/guides/LINKEDIN_BEST_PRACTICES.md`
-  - Review Jan 2026 content plan (`/docs/content/linkedin_jan_2026_content_plan.md`)
+  - Review Mar 2026 content plan (`/docs/content/linkedin_mar_2026_content_plan.md`)
   - Practice: Send 5 personalized connection requests (with mentor review)
 - [ ] CRM/Lead Management training
   - Open `/MASTER_ENRICHED_LEADS.csv`
@@ -221,7 +221,7 @@ This must be completed **BEFORE** the team member's first day.
 | **Brand Book** | `/docs/brand/BRAND_BOOK.md` | Brand voice, tone, messaging, colors | When creating content, writing messages |
 | **Brand Quick Reference** | `/docs/brand/BRAND_QUICK_REFERENCE.md` | Quick facts, elevator pitch, claims | Daily quick reference |
 | **LinkedIn Best Practices** | `/docs/guides/LINKEDIN_BEST_PRACTICES.md` | Hook formulas, carousel tips, posting strategy | Before creating LinkedIn content |
-| **LinkedIn Content Plan** | `/docs/content/linkedin_jan_2026_content_plan.md` | Monthly content themes, hooks, CTAs | Planning weekly posts |
+| **LinkedIn Content Plan** | `/docs/content/linkedin_mar_2026_content_plan.md` | Monthly content themes, hooks, CTAs | Planning weekly posts |
 | **Sales Enrichment Guide** | `/docs/systems/sales-enrichment.md` | How to enrich leads with Perplexity | When researching new prospects |
 | **Lead Enrichment Guide** | `/docs/guides/ENRICHMENT_GUIDE.md` | Deep research techniques | Before reaching out to high-value leads |
 | **Onboarding Checklist** | `/onboarding_checklist.md` | Full onboarding tasks, by channel | Daily reference handbook |

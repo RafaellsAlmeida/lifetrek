@@ -29,7 +29,14 @@ export async function loadImageAsBase64(
         }
 
         const buffer = await response.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        const bytes = new Uint8Array(buffer);
+        let base64Str = '';
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            base64Str += String.fromCharCode.apply(null, chunk as unknown as number[]);
+        }
+        const base64 = btoa(base64Str);
         const contentType = response.headers.get("content-type") || "image/png";
 
         return {

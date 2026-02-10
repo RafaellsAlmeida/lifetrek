@@ -103,8 +103,15 @@ export async function processSlideHybrid(
             height
         );
 
-        // Convert buffer to base64
-        const binary = String.fromCharCode(...compositeBuffer);
+        // Convert buffer to base64 (chunked to avoid stack overflow)
+        // NOTE: String.fromCharCode(...largeArray) overflows the stack.
+        // We process in 8KB chunks instead.
+        let binary = '';
+        const chunkSize = 8192;
+        for (let offset = 0; offset < compositeBuffer.length; offset += chunkSize) {
+            const chunk = compositeBuffer.subarray(offset, offset + chunkSize);
+            binary += String.fromCharCode.apply(null, chunk as unknown as number[]);
+        }
         const base64Composite = btoa(binary);
         imageUrl = `data:image/png;base64,${base64Composite}`;
         console.log(`[HYBRID] [${slideNum}] ✅ Composite created`);
