@@ -66,14 +66,28 @@ export async function generateOverlay(
                     flexDirection: 'column',
                     width: '100%',
                     height: '100%',
-                    backgroundImage: `url(${backgroundUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
                     justifyContent: 'center',
                     alignItems: 'flex-start', // Left aligned
                     position: 'relative',
+                    backgroundColor: '#004F8F', // Fallback color
                 },
                 children: [
+                    // Background Image (as absolute img to avoid style parsing issues with large base64)
+                    {
+                        type: 'img',
+                        props: {
+                            src: backgroundUrl,
+                            style: {
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                zIndex: 0,
+                            },
+                        },
+                    },
                     // Glassmorphism Card
                     {
                         type: 'div',
@@ -89,6 +103,7 @@ export async function generateOverlay(
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
                                 boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
                                 backdropFilter: 'blur(12px)',
+                                zIndex: 1, // Ensure on top of background
                             },
                             children: [
                                 // Category Label
