@@ -261,7 +261,14 @@ export default function LinkedInCarousel() {
   };
 
   // Auto-save carousel as draft and log generation
-  const autoSaveCarousel = async (result: CarouselResult, generationTimeMs?: number, overrideStatus?: string, scheduledDate?: string) => {
+  const autoSaveCarousel = async (
+    result: CarouselResult,
+    generationTimeMs?: number,
+    overrideStatus?: string,
+    scheduledDate?: string,
+    campaignId?: string,
+    utmCampaign?: string
+  ) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -286,6 +293,8 @@ export default function LinkedInCarousel() {
         image_urls: result.slides.map(s => s.imageUrl || ""),
         status: overrideStatus || 'draft',
         scheduled_for: scheduledDate || null,
+        campaign_id: campaignId || null,
+        utm_campaign: utmCampaign || campaignId || null,
         generation_settings: {
           model: "google/gemini-3-pro-image-preview",
           timestamp: new Date().toISOString()
@@ -662,7 +671,14 @@ export default function LinkedInCarousel() {
         const result = data.carousel || data.carousels?.[0];
         if (result) {
           // Force pending_approval status for campaign items
-          await autoSaveCarousel(result, 0, 'pending_approval', campaignTopic.scheduledDate);
+          await autoSaveCarousel(
+            result,
+            0,
+            'pending_approval',
+            campaignTopic.scheduledDate,
+            campaignTopic.id,
+            campaignTopic.id
+          );
           successCount++;
         }
       } catch (error) {

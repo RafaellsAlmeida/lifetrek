@@ -119,27 +119,51 @@ export type Database = {
       }
       analytics_events: {
         Row: {
+          campaign_id: string | null
           company_email: string | null
           company_name: string | null
           created_at: string
           event_type: string
           id: string
+          page_path: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           metadata: Json | null
         }
         Insert: {
+          campaign_id?: string | null
           company_email?: string | null
           company_name?: string | null
           created_at?: string
           event_type: string
           id?: string
+          page_path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           metadata?: Json | null
         }
         Update: {
+          campaign_id?: string | null
           company_email?: string | null
           company_name?: string | null
           created_at?: string
           event_type?: string
           id?: string
+          page_path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           metadata?: Json | null
         }
         Relationships: []
@@ -957,6 +981,7 @@ export type Database = {
       linkedin_carousels: {
         Row: {
           admin_user_id: string
+          campaign_id: string | null
           caption: string
           created_at: string
           cta_action: string | null
@@ -977,10 +1002,12 @@ export type Database = {
           status: string | null
           target_audience: string
           topic: string
+          utm_campaign: string | null
           updated_at: string
         }
         Insert: {
           admin_user_id: string
+          campaign_id?: string | null
           caption: string
           created_at?: string
           cta_action?: string | null
@@ -1001,10 +1028,12 @@ export type Database = {
           status?: string | null
           target_audience: string
           topic: string
+          utm_campaign?: string | null
           updated_at?: string
         }
         Update: {
           admin_user_id?: string
+          campaign_id?: string | null
           caption?: string
           created_at?: string
           cta_action?: string | null
@@ -1025,6 +1054,7 @@ export type Database = {
           status?: string | null
           target_audience?: string
           topic?: string
+          utm_campaign?: string | null
           updated_at?: string
         }
         Relationships: []

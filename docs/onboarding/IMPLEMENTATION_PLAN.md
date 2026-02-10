@@ -59,7 +59,7 @@ This must be completed **BEFORE** the team member's first day.
   - Practice: Send 5 personalized connection requests (with mentor review)
 - [ ] CRM/Lead Management training
   - Open `/MASTER_ENRICHED_LEADS.csv`
-  - Understand lead scoring system (1-5 scale)
+  - Understand lead scoring system (0-100 scale; legacy 1-5 may appear in older docs)
   - Practice: Log 3 sample leads
 
 **Afternoon (14:00-17:00)**
@@ -268,7 +268,7 @@ This must be completed **BEFORE** the team member's first day.
 - **Quality Metrics:**
   - LinkedIn acceptance: >30%
   - Email response: >15%
-  - Average lead score: 15+ (out of 30)
+  - Average lead score: 60+ (out of 100)
 - **Outcome:**
   - 5-7 active deals in pipeline
   - 2-3 closed deals

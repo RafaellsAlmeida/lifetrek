@@ -59,6 +59,22 @@ const getReferrer = (): string => {
   return document.referrer || "";
 };
 
+// Extract UTM params for campaign attribution
+const getUtmParams = (): {
+  utm_campaign?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  campaign_id?: string;
+} => {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(window.location.search);
+  const utm_campaign = params.get("utm_campaign") || undefined;
+  const utm_source = params.get("utm_source") || undefined;
+  const utm_medium = params.get("utm_medium") || undefined;
+  const campaign_id = params.get("campaign_id") || utm_campaign;
+  return { utm_campaign, utm_source, utm_medium, campaign_id };
+};
+
 /**
  * Track any analytics event with comprehensive context
  */
@@ -70,15 +86,34 @@ export const trackAnalyticsEvent = async ({
   pagePath,
 }: TrackEventParams) => {
   try {
+    const sessionId = getSessionId();
+    const resolvedPagePath = pagePath || getPagePath();
+    const referrer = getReferrer();
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const utm = getUtmParams();
+    const campaignId = (metadata?.campaign_id as string | undefined) || utm.campaign_id;
+
     const { error } = await supabase.from("analytics_events").insert({
       event_type: eventType,
       company_name: companyName,
       company_email: companyEmail,
+      session_id: sessionId,
+      page_path: resolvedPagePath,
+      referrer,
+      user_agent: userAgent,
+      campaign_id: campaignId || null,
+      utm_campaign: utm.utm_campaign || null,
+      utm_source: utm.utm_source || null,
+      utm_medium: utm.utm_medium || null,
       metadata: {
-        session_id: getSessionId(),
-        page_path: pagePath || getPagePath(),
-        referrer: getReferrer(),
-        user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        session_id: sessionId,
+        page_path: resolvedPagePath,
+        referrer,
+        user_agent: userAgent,
+        utm_campaign: utm.utm_campaign,
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        campaign_id: campaignId,
         ...(metadata || {}),
       },
     });

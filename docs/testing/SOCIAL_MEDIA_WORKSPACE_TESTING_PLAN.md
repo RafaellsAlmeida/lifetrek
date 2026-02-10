@@ -224,7 +224,7 @@ SELECT * FROM match_product_assets(
 ### 2.1 Manual UI Test Cases
 
 **Test Environment:**
-- URL: `http://localhost:8080/admin/social-workspace`
+- URL: `http://localhost:8080/admin/social`
 - Credentials: See `AGENTS.md`
 
 #### Test Case 2.1.1: Page Load & Layout
@@ -380,7 +380,7 @@ import { adminLogin } from '../helpers/auth';
 test.describe('Social Media Workspace', () => {
   test.beforeEach(async ({ page }) => {
     await adminLogin(page);
-    await page.goto('/admin/social-workspace');
+    await page.goto('/admin/social');
   });
 
   test('should load workspace with all tabs', async ({ page }) => {
@@ -481,7 +481,7 @@ node skills/content_factory/ingest_docs.js test-assets/docs
 node skills/content_factory/ingest_assets.js test-assets/images
 
 # 6. Verify in UI
-# Navigate to http://localhost:8080/admin/social-workspace
+# Navigate to http://localhost:8080/admin/social
 ```
 
 ---

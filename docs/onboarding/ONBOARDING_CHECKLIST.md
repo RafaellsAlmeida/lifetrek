@@ -214,7 +214,7 @@
      - Prazo desejado
      - Requisitos regulatórios (ISO, ANVISA, etc.)
   4. Sugerir próximo passo: call ou NDA + envio de desenho
-- [ ] Logar lead no CRM com score 1-5
+- [ ] Logar lead no CRM com score 0-100
   - Leads 4-5: Notificação imediata ao time
 
 **SLA:**
