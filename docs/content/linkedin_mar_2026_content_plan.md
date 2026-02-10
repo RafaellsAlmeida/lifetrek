@@ -75,8 +75,9 @@
 ### Post 5 - DFM: O Fornecedor Como Co-Engenheiro (17/03)
 - **Público**: P&D, Engenharia
 - **Dor**: Falta de feedback técnico no design
-- **Outcome**: Mostrar colaboração técnica e co-engenharia
-- **CTA**: “Comente ‘DFM’ para nosso guia de revisão”
+- **Outcome**: Mostrar colaboração técnica e co-engenharia com valor pratico imediato
+- **Lead Magnet**: Checklist DFM com blocos de geometria, tolerancias, processo, inspeção e red flags + mini-brief pronto para enviar ao fornecedor
+- **CTA**: “Comente ‘DFM’ para receber o checklist completo”
 - **Hook**: “DFM não é etapa final. É o começo.”
 
 ### Post 6 - Metrologia ZEISS e Evidência de Qualidade (19/03)

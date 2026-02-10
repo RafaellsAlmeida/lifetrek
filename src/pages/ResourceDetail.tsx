@@ -31,11 +31,33 @@ export default function ResourceDetail() {
         company: ""
     });
 
-    const roadmapMermaid = `
+    // Scorecard state
+    const [scorecard, setScorecard] = useState({
+        dependency: 3,
+        volatility: 3,
+        leadTime: 3,
+        quality: 3,
+        capital: 3
+    });
+
+    const [productionChecklist, setProductionChecklist] = useState({
+        volume: false,
+        leadTime: false,
+        impact: false,
+        quality: false,
+        capital: false
+    });
+
+    const [isSavingScorecard, setIsSavingScorecard] = useState(false);
+    const [scorecardStatus, setScorecardStatus] = useState("");
+    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
+    const [checklistStatus, setChecklistStatus] = useState("");
+
+    const roadmapFlowchart = `
     flowchart LR
-      A[Fase 1: Diagnóstico<br/>(Semanas 1-2)] --> B[Fase 2: Prototipagem<br/>(Semanas 3-6)]
-      B --> C[Fase 3: Lote Piloto<br/>(Semanas 7-8)]
-      C --> D[Fase 4: Escala<br/>(Semanas 9-12)]
+      A[Fase 1: Diagnóstico] --> B[Fase 2: Prototipagem]
+      B --> C[Fase 3: Lote Piloto]
+      C --> D[Fase 4: Escala]
     `;
 
     // Check if user has already unlocked this resource
@@ -47,6 +69,11 @@ export default function ResourceDetail() {
             }
         }
     }, [slug]);
+
+    if (isLoading) return <LoadingSpinner />;
+    if (error || !resource) return <div className="p-8 text-center">Recurso não encontrado.</div>;
+
+    const resourceContent = resource.content ?? "";
 
     const handleUnlock = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -68,26 +95,11 @@ export default function ResourceDetail() {
         }, 1000);
     };
 
-    const [scorecard, setScorecard] = useState({
-        dependency: 3,
-        volatility: 3,
-        leadTime: 3,
-        quality: 3,
-        capital: 3
-    });
+    const handleAdminUpdate = async () => {
+        // ... (removed for now, already updated)
+    };
 
-    const [productionChecklist, setProductionChecklist] = useState({
-        volume: false,
-        leadTime: false,
-        impact: false,
-        quality: false,
-        capital: false
-    });
 
-    const [isSavingScorecard, setIsSavingScorecard] = useState(false);
-    const [scorecardStatus, setScorecardStatus] = useState("");
-    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
-    const [checklistStatus, setChecklistStatus] = useState("");
 
     const scorecardTotal = Object.values(scorecard).reduce((a, b) => a + b, 0);
     const scorecardBand = scorecardTotal < 10 ? "Baixo Risco (Verde)" : scorecardTotal < 18 ? "Médio Risco (Amarelo)" : "Alto Risco (Vermelho)";
@@ -120,100 +132,59 @@ export default function ResourceDetail() {
         }, 1000);
     };
 
-    const handleAdminUpdate = async () => {
-        const enhancedContent = `# Roadmap de Nacionalização em 90 Dias: O Caminho Seguro
-**De "Refém da Importação" para "Controle Total da Produção"**
-
-## Proposta de Valor
-Este não é apenas um cronograma. É um protocolo de mitigação de risco para transferir a fabricação de componentes críticos (Implantes e Instrumentais) da Europa/EUA para o Brasil (Indaiatuba), mantendo a qualidade Suíça.
-
----
-
-## Fase 1: Diagnóstico e Segurança (Semanas 1-2)
-*O objetivo é garantir que a mudança é tecnicamente viável e financeiramente vantajosa antes de cortar qualquer metal.*
-
-*   **O que nós fazemos:**
-    *   **Análise de Viabilidade Técnica (DFM):** Revisamos seus desenhos 3D para garantir que podem ser usinados em nossos Tornos Suíços CNC sem perda de precisão.
-    *   **Engenharia Reversa (se necessário):** Se você não tem o desenho, nós criamos a partir da peça física com metrologia óptica.
-*   **O que você recebe:**
-    *   Relatório de "Custo Landed" (Importado vs. Nacional).
-    *   Confirmação de Tolerâncias (Garantimos ±0.005mm?).
-*   **Decisão:** Go / No-Go.
-
-## Fase 2: Prototipagem e Validação (Semanas 3-6)
-*Aqui eliminamos o risco de qualidade. Você verá a peça física, idêntica à importada.*
-
-*   **O que nós fazemos:**
-    *   Setup de Máquina dedicado.
-    *   Usinagem de lote piloto (5-10 peças).
-    *   **Validação Cruzada:** Medimos em nossa CMM (Zeiss) e enviamos laudo.
-*   **O que você recebe:**
-    *   Amostras físicas para validação da sua Engenharia/Qualidade.
-    *   Laudo Dimensional Completo.
-    *   Certificado de Matéria-Prima (Rastreabilidade Total).
-
-## Fase 3: Lote Piloto e Ajuste Fino (Semanas 7-8)
-*Preparação para escala. Testamos o fluxo de produção real.*
-
-*   **O que nós fazemos:**
-    *   Produção de pequeno lote (50-100 peças).
-    *   Teste de acabamento superficial e tratamentos (passivação/anodização).
-*   **O que você recebe:**
-    *   Entrega parcial para abastecer seu estoque imediatamente.
-    *   Validação do processo de embalagem e logística.
-
-## Fase 4: Produção em Escala e Entrega Contínua (Semanas 9-12)
-*A virada de chave. Sua supply chain agora é local.*
-
-*   **O que nós fazemos:**
-    *   Programação de entregas mensais (Contrato Guarda-Chuva).
-    *   Estoque de segurança mantido na Lifetrek (Indaiatuba).
-*   **O que você recebe:**
-    *   **Lead Time reduzido:** De 90 dias (China/Europa) para **entrega imediata** ou 15 dias.
-    *   **Fluxo de Caixa:** Pague em Reais, sem fechar câmbio antecipado, e receba fracionado conforme sua demanda.
-
----
-
-## Por que fazer isso agora?
-1.  **Dólar Volátil:** Proteja sua margem eliminando a variação cambial.
-2.  **Capital de Giro:** Pare de pagar 100% antecipado e esperar 3 meses.
-3.  **Resposta Rápida:** Ocorreu um pico de vendas? Nós entregamos mais peças em dias, não meses.
-
-## Próximo Passo: Análise de Viabilidade Gratuita
-Não precisa commitar nada agora. Mande **um desenho técnico** (PDF/STEP) de um item crítico.
-
-**Nós te entregamos em 48h:**
-1.  Análise de viabilidade técnica.
-2.  Estimativa de custo e prazo.
-3.  Comparativo de economia anual.`;
-
-        const { error } = await supabase
-            .from('resources')
-            .update({ content: enhancedContent })
-            .eq('slug', 'roadmap-90-dias-migracao-skus');
-
-        if (error) {
-            toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
-        } else {
-            toast({ title: "Conteúdo atualizado!", description: "Recarregue a página." });
-        }
-    };
-
-    const roadmapMermaid = `
-    flowchart LR
-      A[Fase 1: Diagnóstico<br/>(Semanas 1-2)] --> B[Fase 2: Prototipagem<br/>(Semanas 3-6)]
-      B --> C[Fase 3: Lote Piloto<br/>(Semanas 7-8)]
-      C --> D[Fase 4: Escala<br/>(Semanas 9-12)]
-    `;
-
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
-            {/* ... header ... */}
+            {/* Header Section */}
+            <div className="bg-white border-b border-slate-200">
+                <div className="container mx-auto px-4 py-8">
+                    <Link to="/resources" className="inline-flex items-center text-sm text-slate-500 hover:text-primary mb-6 transition-colors">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Voltar para Recursos
+                    </Link>
+
+                    <div className="flex flex-wrap gap-3 mb-4">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                            {resource.type === 'calculator' ? 'Ferramenta Interativa' :
+                                resource.type === 'checklist' ? 'Checklist' : 'Guia Prático'}
+                        </Badge>
+                        <Badge variant="outline" className="text-slate-500 border-slate-200">
+                            Tempo de leitura: {resource.read_time_minutes || 5} min
+                        </Badge>
+                    </div>
+
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+                        {resource.title}
+                    </h1>
+
+                    <p className="text-lg text-slate-600 max-w-3xl mb-6 leading-relaxed">
+                        {resource.description}
+                    </p>
+
+                    <div className="flex items-center gap-6 text-sm text-slate-500 border-t border-slate-100 pt-6">
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{resource.created_at ? format(new Date(resource.created_at), "d 'de' MMMM, yyyy", { locale: ptBR }) : 'Data não disponível'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            <span>Equipe Lifetrek</span>
+                        </div>
+                        <div className="flex-1"></div>
+                        <Button variant="ghost" size="sm" className="hidden md:flex">
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Compartilhar
+                        </Button>
+                        <Button variant="ghost" size="sm" className="hidden md:flex">
+                            <Printer className="mr-2 h-4 w-4" />
+                            Imprimir
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
             {/* Content */}
             <div className="container mx-auto px-4 py-12">
                 {!hasAccess ? (
-                    // ... lock screen ...
                     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-10 text-center">
                         <h2 className="text-2xl font-bold text-slate-900 mb-3">Desbloqueie o recurso completo</h2>
                         <p className="text-slate-600 mb-6">
@@ -227,7 +198,6 @@ Não precisa commitar nada agora. Mande **um desenho técnico** (PDF/STEP) de um
                     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border p-8 md:p-12">
                         <div className="prose prose-slate prose-lg max-w-none">
                             <ReactMarkdown
-
                                 components={{
                                     h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6 mt-10" {...props} />,
                                     h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
@@ -266,7 +236,7 @@ Não precisa commitar nada agora. Mande **um desenho técnico** (PDF/STEP) de um
                                     )
                                 }}
                             >
-                                {resource.content}
+                                {resourceContent}
                             </ReactMarkdown>
                         </div>
 
@@ -275,14 +245,8 @@ Não precisa commitar nada agora. Mande **um desenho técnico** (PDF/STEP) de um
                             <div className="mt-10 rounded-lg border border-slate-200 bg-slate-50 p-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-xl font-semibold text-slate-900">Linha do tempo visual</h3>
-                                    <Button onClick={handleAdminUpdate} variant="outline" size="sm" className="hidden">
-                                        Admin: Atualizar Conteúdo
-                                    </Button>
-                                    <button onClick={handleAdminUpdate} className="text-xs text-slate-300 hover:text-slate-500">
-                                        (Atualizar DB)
-                                    </button>
                                 </div>
-                                <Mermaid chart={roadmapMermaid} />
+                                <Mermaid chart={roadmapFlowchart} />
                             </div>
                         )}
 
