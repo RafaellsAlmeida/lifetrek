@@ -327,8 +327,16 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                             </div>
                                         </div>
                                         <CardContent className="p-3 space-y-2">
-                                            <h5 className="font-bold text-sm line-clamp-2">{slide.headline}</h5>
-                                            <p className="text-xs text-slate-600 line-clamp-3">{slide.body || slide.copy}</p>
+                                            {/* Hide headline/body if text is burned into the image */}
+                                            {!(slide.textPlacement === 'burned_in' || slide.text_placement === 'burned_in') && (
+                                                <>
+                                                    <h5 className="font-bold text-sm line-clamp-2">{slide.headline}</h5>
+                                                    <p className="text-xs text-slate-600 line-clamp-3">{slide.body || slide.copy}</p>
+                                                </>
+                                            )}
+                                            {(slide.textPlacement === 'burned_in' || slide.text_placement === 'burned_in') && (
+                                                <p className="text-xs text-slate-400 italic">Texto na imagem</p>
+                                            )}
                                             {slide.asset_source && (
                                                 <Badge variant="outline" className={`text-[10px] ${slide.asset_source === 'real' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
                                                     {slide.asset_source === 'real' ? 'Ativo Real' : 'IA Placeholder'}

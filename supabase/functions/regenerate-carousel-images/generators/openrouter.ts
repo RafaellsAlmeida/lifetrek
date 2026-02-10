@@ -1,0 +1,102 @@
+/**
+ * OpenRouter Image Generator
+ * 
+ * Final fallback using OpenRouter's model aggregation.
+ * Attempts multiple models in priority order.
+ * 
+ * @module generators/openrouter
+ */
+
+declare const Deno: any;
+
+/** Models to try in order of preference */
+const MODELS_TO_TRY = [
+    "google/gemini-2.0-flash-exp:free",   // Free tier
+    "google/gemini-2.5-flash-preview",     // Preview
+    "google/gemini-flash-1.5"              // Stable
+];
+
+/**
+ * Generate an image using OpenRouter
+ * 
+ * Tries multiple models in sequence until one succeeds.
+ * Useful when direct Gemini API is unavailable or rate-limited.
+ * 
+ * @param prompt - Full brand-compliant prompt
+ * @param apiKey - OpenRouter API key
+ * @returns Base64 data URL or null
+ */
+export async function generateWithOpenRouter(
+    prompt: string,
+    apiKey: string
+): Promise<string | null> {
+    if (!apiKey) {
+        console.warn("[OPENROUTER] No API key configured, skipping");
+        return null;
+    }
+
+    for (const model of MODELS_TO_TRY) {
+        try {
+            console.log(`[OPENROUTER] Trying model: ${model}...`);
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://lifetrek.io",
+                    "X-Title": "Lifetrek Content Generator"
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt + "\n\nGenerate this image. Output ONLY the image, no text."
+                        }
+                    ],
+                    // Request image output if supported
+                    response_format: { type: "image" }
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.warn(`[OPENROUTER] ${model} error: ${response.status} - ${errText.slice(0, 200)}`);
+                continue; // Try next model
+            }
+
+            const data = await response.json();
+
+            // Check if response contains image data
+            const content = data.choices?.[0]?.message?.content;
+
+            // Some models return base64 image directly
+            if (content && typeof content === "string") {
+                if (content.startsWith("data:image/")) {
+                    console.log(`[OPENROUTER] ✅ Image generated with ${model}`);
+                    return content;
+                }
+                // Check for raw base64 pattern
+                if (content.match(/^[A-Za-z0-9+/=]{100,}$/)) {
+                    console.log(`[OPENROUTER] ✅ Image generated with ${model} (raw base64)`);
+                    return `data:image/png;base64,${content}`;
+                }
+            }
+
+            // Check for image in multimodal response
+            if (data.choices?.[0]?.message?.images?.[0]) {
+                const imgData = data.choices[0].message.images[0];
+                console.log(`[OPENROUTER] ✅ Image generated with ${model}`);
+                return imgData.startsWith("data:") ? imgData : `data:image/png;base64,${imgData}`;
+            }
+
+            console.warn(`[OPENROUTER] ${model} returned no image data`);
+        } catch (e) {
+            console.warn(`[OPENROUTER] ${model} exception: ${e}`);
+        }
+    }
+
+    console.error("[OPENROUTER] All models failed");
+    return null;
+}

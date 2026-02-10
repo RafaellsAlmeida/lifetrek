@@ -1,0 +1,6 @@
+Triggering HYBRID regeneration for Carousel ID: f7e37f67-d64e-4470-9998-5d33e6943533 (Slide 0)...
+Response:
+{"code":"WORKER_LIMIT","message":"Function failed due to not having enough compute resources (please check logs)"}
+
+
+Request sent.

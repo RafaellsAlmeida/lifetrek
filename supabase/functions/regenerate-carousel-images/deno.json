@@ -1,0 +1,9 @@
+{
+    "imports": {
+        "satori": "https://esm.sh/satori@0.10.11",
+        "satori/wasm": "https://esm.sh/satori@0.10.11/wasm",
+        "@resvg/resvg-wasm": "https://esm.sh/@resvg/resvg-wasm@2.6.0",
+        "react": "https://esm.sh/react@18.2.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime"
+    }
+}

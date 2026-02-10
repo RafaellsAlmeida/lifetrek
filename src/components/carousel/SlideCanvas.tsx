@@ -113,11 +113,11 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
         // --- Layout Content Renderers ---
 
         const renderStandardLayout = () => (
-            <div className="flex flex-col gap-5 mt-auto mb-auto">
+            <div className="flex flex-col gap-8 mt-auto mb-auto pb-12">
                 <h2
                     className={cn(
                         "font-bold leading-tight tracking-tight",
-                        slide.type === "hook" ? "text-5xl" : "text-4xl"
+                        slide.type === "hook" ? "text-6xl" : "text-5xl"
                     )}
                     style={{
                         textShadow: theme === "modern" ? "none" : "0 2px 12px rgba(0,0,0,0.5)",
@@ -127,13 +127,13 @@ export const SlideCanvas = forwardRef<HTMLDivElement, SlideCanvasProps>(
                     {slide.headline}
                 </h2>
                 <div
-                    className="w-16 h-1.5 rounded-full"
+                    className="w-20 h-2 rounded-full"
                     style={{ backgroundColor: getAccentColor(slide.type) }}
                 />
                 <p
                     className={cn(
                         "font-medium whitespace-pre-line leading-relaxed",
-                        slide.type === "hook" ? "text-xl" : "text-lg"
+                        slide.type === "hook" ? "text-2xl" : "text-xl"
                     )}
                     style={{
                         color: currentTheme.text,

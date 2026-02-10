@@ -314,8 +314,8 @@ Se o usuário fornecer um TEMA genérico (ex: "Parafusos Espinhais"):
 2.  **Decida Tamanho**: Baseado na complexidade, escolha o número de slides (3-8).
 3.  **Gere Ângulos**: Crie ângulos distintos (Quebrando Mitos, Mergulho Profundo, Prova Social).
 4.  **ESTRATÉGIA DE TEXTO**: Para cada slide, decida sobre \`textPlacement\`:
-    *   **'clean'**: Padrão. Fundo abstrato. Texto é sobreposto pelo app web frontend.
-    *   **'burned_in'**: "Modo Outdoor". O texto é PARTE DA IMAGEM (ex: um sinal de aviso, uma declaração forte). Use para Ganchos ou declarações fortes.
+    *   **'clean'**: **PADRÃO - USE SEMPRE QUE POSSÍVEL**. Fundo abstrato/contexto visual. Texto é sobreposto pelo app web frontend com tipografia profissional.
+    *   **'burned_in'**: **RARO - USE APENAS** para efeitos estilo "outdoor/billboard" onde o texto É a imagem (ex: um aviso dramático). Não recomendado para conteúdo informativo.
 5.  **ESTRATÉGIA DE LOGO**: Aplique as regras de posicionamento acima. Primeiro e último slides recebem logos.
 6.  **ESTRATÉGIA DE PRODUTOS/EQUIPAMENTOS**: Se equipamentos foram selecionados pelo usuário, PRIORIZE-os nas imagens.
 

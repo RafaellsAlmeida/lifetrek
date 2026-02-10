@@ -1,60 +1,54 @@
+/**
+ * regenerate-carousel-images Edge Function
+ * 
+ * Main entry point for AI-powered image generation for:
+ * - LinkedIn carousels
+ * - Instagram posts
+ * - Blog covers
+ * - Resource mockups
+ * 
+ * Uses Nano Banana Pro (Gemini 3 Pro) with fallbacks to Flash and OpenRouter.
+ * 
+ * @version 18 (Refactored)
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
 
+// Local module imports
+import type {
+  SlideData,
+  ReferenceImage,
+  CarouselData,
+  RegenerateRequest,
+  StyleTemplate,
+  CompanyAsset
+} from "./types.ts";
+import { initLogging, getLogs } from "./utils/logging.ts";
+import { loadImageAsBase64, uploadImage, getPlaceholderUrl } from "./utils/storage.ts";
+import { generateWithNanoBanana } from "./generators/nano-banana.ts";
+import { generateWithFlash } from "./generators/flash.ts";
+import { generateWithOpenRouter } from "./generators/openrouter.ts";
+import { buildBrandPrompt, getPlatformConfig } from "./prompts/brand-prompt.ts";
+import { processSlideHybrid } from "./workflows/hybrid.ts";
+
 declare const Deno: any;
 
+// CORS headers for browser requests
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Capture logs for UI display
-const __regenLogs: string[] = [];
-const stringify = (v: unknown) => {
-  if (typeof v === "string") return v;
-  try { return JSON.stringify(v); } catch { return String(v); }
-};
-const record = (level: "info" | "warn" | "error", args: unknown[]) => {
-  __regenLogs.push(`[${level}] ${args.map(stringify).join(" ")}`);
-};
-
-const _log = console.log.bind(console);
-const _warn = console.warn.bind(console);
-const _error = console.error.bind(console);
-console.log = (...args: unknown[]) => { record("info", args); _log(...args); };
-console.warn = (...args: unknown[]) => { record("warn", args); _warn(...args); };
-console.error = (...args: unknown[]) => { record("error", args); _error(...args); };
-
 // ============================================================================
-// NANO BANANA PRO (Gemini 3 Pro Image Preview)
-// - Up to 14 reference images for brand consistency
-// - 4K resolution support
-// - Advanced text rendering
-// - Thinking mode for complex compositions
+// MAIN HANDLER
 // ============================================================================
-
-interface SlideData {
-  headline: string;
-  body: string;
-  type: string;
-  imageUrl?: string;
-  image_url?: string;
-  showLogo?: boolean;
-  showISOBadge?: boolean;
-  logoPosition?: string;
-  logoUrl?: string;
-  isoUrl?: string;
-}
-
-interface ReferenceImage {
-  mimeType: string;
-  data: string; // base64
-  purpose: string;
-}
 
 serve(async (req: Request) => {
-  __regenLogs.length = 0;
+  // Initialize logging for this request
+  initLogging();
 
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -62,7 +56,14 @@ serve(async (req: Request) => {
   const startTime = Date.now();
 
   try {
-    const { carousel_id, batch_mode = false, table_name = "linkedin_carousels", slide_index } = await req.json();
+    // Parse request body
+    const {
+      carousel_id,
+      batch_mode = false,
+      table_name = "linkedin_carousels",
+      slide_index,
+      mode = "hybrid"
+    }: RegenerateRequest & { mode?: 'ai' | 'hybrid' } = await req.json();
 
     if (!carousel_id) {
       return new Response(
@@ -71,6 +72,7 @@ serve(async (req: Request) => {
       );
     }
 
+    // Get API keys from environment
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || Deno.env.get("OPEN_ROUTER_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -85,8 +87,11 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Fetch carousel/post
+    // ========================================================================
+    // FETCH CAROUSEL/POST DATA
+    // ========================================================================
     console.log(`[REGEN] Fetching ${table_name} item ${carousel_id}...`);
+
     const { data: carousel, error: carouselError } = await supabase
       .from(table_name)
       .select("*")
@@ -101,404 +106,130 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`[REGEN] ✅ Found item: "${carousel.topic}" with ${carousel.slides?.length || 0} slides`);
+    console.log(`[REGEN] ✅ Found: "${carousel.topic}" with ${carousel.slides?.length || 0} slides`);
 
     // ========================================================================
-    // LOAD REFERENCE IMAGES (Brand Assets)
-    // Nano Banana Pro supports up to 14 reference images
+    // LOAD BRAND ASSETS AND STYLE TEMPLATES
     // ========================================================================
-    console.log("[REGEN] Loading brand reference images from product_catalog...");
+    console.log("[REGEN] Loading brand assets and style templates...");
 
-    // @ts-ignore
+    // Fetch company assets (facilities, equipment, products)
     const { data: catalogAssets } = await supabase
       .from("product_catalog")
-      .select("category, image_url, name, description")
+      .select("category, image_url, name, description, metadata")
       .in("category", ["facility", "equipment", "product", "asset"]);
 
-    // Map to expected format
-    const companyAssets = (catalogAssets || []).map((a: any) => ({
+    // Fetch style templates from pgvector table (text only)
+    const { data: styleTemplates } = await supabase
+      .from("style_embeddings")
+      .select("template_name, style_type, description, prompt_used")
+      .limit(3);
+
+    // Build style reference text for prompts
+    const styleReference = (styleTemplates || [])
+      .map((t: StyleTemplate) => `- ${t.style_type?.toUpperCase()}: ${t.description}`)
+      .join('\n');
+
+    console.log(`[REGEN] Loaded ${styleTemplates?.length || 0} style templates`);
+
+    // Map to internal format
+    const companyAssets: CompanyAsset[] = (catalogAssets || []).map((a: any) => ({
       type: a.category,
       url: a.image_url,
       name: a.name,
       description: a.description
     }));
 
+    // Load reference images (limit to 2 to avoid confusing AI)
     const referenceImages: ReferenceImage[] = [];
 
-    // Download and convert assets to base64 for Gemini API
-    async function loadImageAsBase64(url: string, purpose: string): Promise<ReferenceImage | null> {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return null;
-
-        const buffer = await response.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-        const contentType = response.headers.get("content-type") || "image/png";
-
-        return { mimeType: contentType, data: base64, purpose };
-      } catch (e) {
-        console.warn(`[REGEN] Failed to load reference image: ${url}`);
-        return null;
-      }
-    }
-
-    // Filter out logos/badges for generation references (they confuse the composition)
-    const validAssets = (companyAssets || []).filter((a: any) => {
+    // Filter out logos/badges (they confuse composition)
+    const validAssets = companyAssets.filter(a => {
       const n = (a.name || '').toLowerCase();
       const d = (a.description || '').toLowerCase();
-      return !n.includes('logo') && !d.includes('logo') && !n.includes('iso') && !n.includes('badge');
+      return !n.includes('logo') && !n.includes('iso') && !n.includes('badge') &&
+        !d.includes('logo');
     });
 
-    // Load brand assets as references (limit to 4 to reduce noise)
-    const assetPromises = validAssets.slice(0, 4).map(async (asset: any) => {
+    // Load only 2 brand assets as references
+    for (const asset of validAssets.slice(0, 2)) {
       if (asset.url) {
         const ref = await loadImageAsBase64(asset.url, asset.type);
         if (ref) referenceImages.push(ref);
       }
-    });
-    await Promise.all(assetPromises);
+    }
 
-    console.log(`[REGEN] Loaded ${referenceImages.length} reference images for brand consistency`);
+    console.log(`[REGEN] Loaded ${referenceImages.length} reference images`);
 
-    // Basic heuristic for specific assets
-    const logoAsset = companyAssets?.find((a: any) => a.name?.toLowerCase().includes('logo')) || companyAssets?.[0];
-    const isoAsset = companyAssets?.find((a: any) => a.name?.toLowerCase().includes('iso') || a.description?.includes('ISO'));
+    // Find logo and badge assets for overlay metadata
+    const logoAsset = companyAssets.find(a => a.name?.toLowerCase().includes('logo'));
+    const isoAsset = companyAssets.find(a =>
+      a.name?.toLowerCase().includes('iso') || a.description?.includes('ISO')
+    );
 
+    // ========================================================================
+    // PREPARE SLIDES
+    // ========================================================================
     let slides: SlideData[] = carousel.slides || [];
+    const platform = getPlatformConfig(table_name);
 
-    // Limit to 5 slides max (unless specific slide requested)
+    // Handle specific slide regeneration
     if (typeof slide_index === 'number') {
       console.log(`[REGEN] 🎯 Regenerating specific slide index: ${slide_index}`);
-      if (slides[slide_index]) {
-        slides = [slides[slide_index]];
-        // We need to know the ORIGINAL index to map it back correctly if we were updating array indices, 
-        // but processSlide takes (slide, index). 
-        // BUT wait, processSlide uses 'index' to determine isFirst/isLast.
-        // If we filter the array, 'index' becomes 0.
-        // We need to pass the REAL index to processSlide.
-        // Let's attach original index to the slide object temporarily?
-        // Or modify processSlide signature. 
-        // Simpler: Don't filter 'slides' yet, just skip loop?
-        // No, processSlide is called in a loop.
-      } else {
+      if (!slides[slide_index]) {
         throw new Error(`Slide index ${slide_index} out of bounds`);
       }
     } else if (slides.length > 5) {
+      // Limit to 5 slides for batch mode
       console.log(`[REGEN] ⚠️ Truncating ${slides.length} slides to 5`);
-      const hook = slides.find((s) => s.type === 'hook') || slides[0];
-      const cta = slides.find((s) => s.type === 'cta') || slides[slides.length - 1];
-      const content = slides.filter((s) => s.type === 'content').slice(0, 3);
+      const hook = slides.find(s => s.type === 'hook') || slides[0];
+      const cta = slides.find(s => s.type === 'cta') || slides[slides.length - 1];
+      const content = slides.filter(s => s.type === 'content').slice(0, 3);
       slides = [hook, ...content, cta].filter(Boolean).slice(0, 5);
     }
 
-    // Determine platform and aspect ratio
-    const isInstagram = table_name === 'instagram_posts';
-    const isBlog = table_name === 'blog_posts';
-    const isResource = table_name === 'content_templates' || table_name === 'product_catalog'; // Assuming resources are here
-
-    let aspectRatio = "3:4"; // Default LinkedIn
-    let platformName = "LinkedIn";
-
-    if (isInstagram) {
-      aspectRatio = "4:5";
-      platformName = "Instagram";
-    } else if (isBlog) {
-      aspectRatio = "16:9";
-      platformName = "Blog Cover";
-    } else if (isResource) {
-      aspectRatio = "210:297"; // A4-ish vertical
-      platformName = "Resource Cover";
+    // For blogs/resources, create a pseudo-slide if none exists
+    if ((platform.isBlog || platform.isResource) && slides.length === 0) {
+      slides = [{
+        headline: carousel.title || carousel.topic,
+        body: carousel.excerpt || carousel.description || '',
+        type: 'cover',
+        imageUrl: carousel.cover_image || carousel.image_url
+      }];
     }
 
     // ========================================================================
-    // NANO BANANA PRO IMAGE GENERATION
-    // Using gemini-3-pro-image-preview with proper config
+    // IMAGE GENERATION
     // ========================================================================
-    async function generateImageWithNanoBanana(
-      prompt: string,
-      references: ReferenceImage[]
-    ): Promise<string | null> {
-      // Nano Banana Pro for professional asset production
-      const MODEL = "gemini-3-pro-image-preview";
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-      // Build content parts: text prompt + reference images
-      const parts: any[] = [{ text: prompt }];
+    /**
+     * Create a fallback chain for image generation
+     */
+    const createGenerator = () => {
+      // OpenRouter fallback
+      const openRouterFallback = (prompt: string) =>
+        generateWithOpenRouter(prompt, OPENROUTER_API_KEY || '');
 
-      // Add reference images (up to 6 objects with high fidelity per docs)
-      for (const ref of references.slice(0, 6)) {
-        parts.push({
-          inlineData: {
-            mimeType: ref.mimeType,
-            data: ref.data
-          }
-        });
-      }
+      // Flash fallback (chains to OpenRouter)
+      const flashFallback = (prompt: string) =>
+        generateWithFlash(prompt, platform.aspectRatio, GEMINI_API_KEY || '', openRouterFallback);
 
-      const requestBody = {
-        contents: [{ parts }],
-        generationConfig: {
-          responseModalities: ["IMAGE", "TEXT"],
-          // Dynamic aspect ratio
-          imageConfig: {
-            aspectRatio: aspectRatio,
-            imageSize: "2K"
-          }
-        }
-      };
+      // Primary generator (chains to Flash)
+      return (prompt: string, refs: ReferenceImage[]) =>
+        generateWithNanoBanana(prompt, refs, platform.aspectRatio, GEMINI_API_KEY || '', flashFallback);
+    };
 
-      try {
-        console.log(`[REGEN] Calling Nano Banana Pro API (${platformName})...`);
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody)
-        });
+    const generateImage = createGenerator();
 
-        if (!response.ok) {
-          const errText = await response.text();
-          console.error(`[REGEN] Nano Banana API error: ${response.status} - ${errText}`);
-
-          // Fallback to gemini-2.5-flash-image (faster, simpler)
-          return generateImageWithNanoBananaFlash(prompt);
-        }
-
-        const data = await response.json();
-
-        // Extract image from response (skip thought images)
-        const candidate = data.candidates?.[0]?.content?.parts || [];
-        for (const part of candidate) {
-          // Skip thought images (part.thought === true)
-          if (part.thought) continue;
-
-          if (part.inlineData?.mimeType?.startsWith("image/")) {
-            console.log(`[REGEN] ✅ Image generated successfully`);
-            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-          }
-        }
-
-        console.warn("[REGEN] No image in Nano Banana response, trying fallback...");
-        return generateImageWithNanoBananaFlash(prompt);
-      } catch (e) {
-        console.error(`[REGEN] Nano Banana API error: ${e}`);
-        return generateImageWithNanoBananaFlash(prompt);
-      }
-    }
-
-    // Fallback to Gemini 2.5 Flash Image (faster)
-    async function generateImageWithNanoBananaFlash(prompt: string): Promise<string | null> {
-      const MODEL = "gemini-2.5-flash-image";
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
-      const requestBody = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseModalities: ["IMAGE", "TEXT"],
-          imageConfig: {
-            aspectRatio: aspectRatio
-          }
-        }
-      };
-
-      try {
-        console.log(`[REGEN] Falling back to Nano Banana Flash...`);
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          console.error(`[REGEN] Nano Banana Flash error: ${response.status} - ${errText}`);
-          // Fallback to OpenRouter
-          return generateImageWithOpenRouter(prompt);
-        }
-
-        const data = await response.json();
-        const candidate = data.candidates?.[0]?.content?.parts || [];
-
-        for (const part of candidate) {
-          if (part.inlineData?.mimeType?.startsWith("image/")) {
-            console.log(`[REGEN] ✅ Image generated with Flash`);
-            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-          }
-        }
-
-        return null;
-      } catch (e) {
-        console.error(`[REGEN] Nano Banana Flash error: ${e}`);
-        // Fallback to OpenRouter
-        return generateImageWithOpenRouter(prompt);
-      }
-    }
-
-    // Fallback to OpenRouter (Gemini via OpenRouter or other image models)
-    async function generateImageWithOpenRouter(prompt: string): Promise<string | null> {
-      if (!OPENROUTER_API_KEY) {
-        console.warn("[REGEN] No OPENROUTER_API_KEY configured, skipping fallback");
-        return null;
-      }
-
-      // OpenRouter models that support image generation
-      // Priority: google/gemini-2.0-flash-exp (free), google/gemini-flash-1.5
-      const MODELS_TO_TRY = [
-        "google/gemini-2.0-flash-exp:free",
-        "google/gemini-2.5-flash-preview",
-        "google/gemini-flash-1.5"
-      ];
-
-      for (const model of MODELS_TO_TRY) {
-        try {
-          console.log(`[REGEN] Trying OpenRouter with model: ${model}...`);
-
-          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-              "Content-Type": "application/json",
-              "HTTP-Referer": "https://lifetrek.io",
-              "X-Title": "Lifetrek Content Generator"
-            },
-            body: JSON.stringify({
-              model: model,
-              messages: [
-                {
-                  role: "user",
-                  content: prompt + "\n\nGenerate this image. Output ONLY the image, no text."
-                }
-              ],
-              // Request image output if supported
-              response_format: { type: "image" }
-            })
-          });
-
-          if (!response.ok) {
-            const errText = await response.text();
-            console.warn(`[REGEN] OpenRouter ${model} error: ${response.status} - ${errText.slice(0, 200)}`);
-            continue; // Try next model
-          }
-
-          const data = await response.json();
-
-          // Check if response contains image data
-          const content = data.choices?.[0]?.message?.content;
-
-          // Some models return base64 image directly
-          if (content && typeof content === "string") {
-            if (content.startsWith("data:image/")) {
-              console.log(`[REGEN] ✅ Image generated with OpenRouter (${model})`);
-              return content;
-            }
-            // Check for base64 pattern
-            if (content.match(/^[A-Za-z0-9+/=]{100,}$/)) {
-              console.log(`[REGEN] ✅ Image generated with OpenRouter (${model}) - raw base64`);
-              return `data:image/png;base64,${content}`;
-            }
-          }
-
-          // Check for image in multimodal response
-          if (data.choices?.[0]?.message?.images?.[0]) {
-            const imgData = data.choices[0].message.images[0];
-            console.log(`[REGEN] ✅ Image generated with OpenRouter (${model})`);
-            return imgData.startsWith("data:") ? imgData : `data:image/png;base64,${imgData}`;
-          }
-
-          console.warn(`[REGEN] OpenRouter ${model} returned no image data`);
-        } catch (e) {
-          console.warn(`[REGEN] OpenRouter ${model} exception: ${e}`);
-        }
-      }
-
-      console.error("[REGEN] All OpenRouter models failed");
-      return null;
-    }
-
-    // ========================================================================
-    // BRAND-COMPLIANT PROMPT BUILDER
-    // ========================================================================
-    function buildBrandPrompt(slide: SlideData, slideNum: number, totalSlides: number): string {
-      const isFirst = slideNum === 1;
-      const isLast = slideNum === totalSlides;
-
-      const title = slide.headline || (carousel as any).title || "Medical Technology";
-      const description = slide.body || (carousel as any).excerpt || (carousel as any).description || "";
-
-      let specificInstructions = "";
-
-      if (isBlog) {
-        specificInstructions = `=== BLOG COVER STYLE ===
-- Format: Landscape 16:9 cinematic
-- Subject: Abstract representation of "${title}" in a medical manufacturing context
-- Style: Editorial magazine photography, dramatic lighting, depth of field
-- NO TEXT on image (it will be added by HTML overlay)`;
-      } else if (isResource) {
-        specificInstructions = `=== RESOURCE MOCKUP STYLE ===
-- Format: Vertical/A4 document visualization
-- Subject: A 3D mockup of a high-quality printed guide/manual titled "${title}" sitting on a clean white/metallic surface
-- The "book" or "document" should look premium, thick paper, professional binding
-- Surroundings: Clean, minimal studio, maybe a pen or caliper nearby for scale
-- NO TEXT on the background (the book cover itself can have abstract lines)`;
-      } else {
-        specificInstructions = `=== SLIDE CONTENT ===
-Headline: "${slide.headline}"
-Body Text: "${slide.body}"
-Slide Type: ${slide.type} (${isFirst ? "FIRST/HOOK - grab attention" : isLast ? "LAST/CTA - call to action" : "CONTENT - inform and educate"})
-Position: Slide ${slideNum} of ${totalSlides}
-
-=== COMPOSITION REQUIREMENTS ===
-- Format: Portrait ${aspectRatio} ratio for ${platformName} carousel
-- Headline Context: "${slide.headline}" (Do NOT render)
-- Body Context: "${slide.body}" (Do NOT render)
-- Background: Medical manufacturing environment (CNC machines, cleanroom, titanium parts)
-- Style: Abstract, clean, high-tech, professional
-- **CRITICAL: NO TEXT, NO TYPOGRAPHY, NO WORDS, NO WATERMARKS**
-${isFirst || isLast ? "- Reserve space in top-right corner for company logo overlay" : ""}
-${isLast ? "- Reserve space in bottom-left corner for ISO certification badge" : ""}`;
-      }
-
-      return `Create a professional ${platformName} image for Lifetrek Medical.
-
-=== BRAND IDENTITY ===
-Company: Lifetrek Medical - Medical device contract manufacturer
-Industry: Orthopedic implants, dental implants, CNC precision machining
-Location: Indaiatuba, São Paulo, Brazil
-Certifications: ISO 13485, ANVISA registered
-
-=== BRAND COLORS (MUST USE) ===
-Primary Blue: #004F8F (corporate, trust)
-Dark Blue Gradient: #0A1628 → #003052 (backgrounds)
-Innovation Green: #1A7A3E (accents, success indicators)
-Energy Orange: #F07818 (CTAs, highlights)
-White text on dark backgrounds for maximum readability
-
-=== VISUAL STYLE ===
-- Premium glassmorphism effects with subtle transparency
-- Editorial magazine quality, clean and sophisticated
-- High-tech medical manufacturing aesthetic
-- Photorealistic CNC machines, cleanrooms, precision parts
-- Professional studio lighting with soft shadows
-
-${specificInstructions}
-
-=== CRITICAL RULES ===
-1. USE Lifetrek brand colors exactly as specified
-2. Professional, technical aesthetic - not generic stock photo look
-3. Show REAL medical manufacturing context (not abstract graphics)
-4. ABSOLUTELY NO TEXT ON THE IMAGE (unless it's a 3D mockup where the object is the focus).
-5. Clean, sharp focus.
-6. The image must be a CLEAN BACKGROUND.`;
-    }
-
-    // ========================================================================
-    // PROCESS SLIDES
-    // ========================================================================
+    /**
+     * Process a single slide
+     */
     async function processSlide(slide: SlideData, index: number): Promise<SlideData> {
       const slideNum = index + 1;
       const isFirst = index === 0;
-      const isLast = index === slides.length - 1;
+      const isLast = index === (typeof slide_index === 'number' ? slides.length - 1 : carousel.slides?.length - 1);
 
-      console.log(`[REGEN] [Item ${slideNum}/${slides.length}] Processing: "${slide.headline || (carousel as any).title}"`);
+      console.log(`[REGEN] [${slideNum}/${slides.length}] Processing: "${slide.headline || carousel.title}"`);
       const slideStart = Date.now();
 
       // Set overlay metadata
@@ -507,45 +238,38 @@ ${specificInstructions}
       if (logoAsset?.url) slide.logoUrl = logoAsset.url;
       if (isoAsset?.url) slide.isoUrl = isoAsset.url;
 
-      // Build brand-compliant prompt
-      const prompt = buildBrandPrompt(slide, slideNum, slides.length);
+      // Build prompt
+      const prompt = buildBrandPrompt(
+        slide,
+        slideNum,
+        slides.length,
+        platform,
+        styleReference
+      );
 
-      // Generate image with reference images for brand consistency
-      const imageUrl = await generateImageWithNanoBanana(prompt, referenceImages);
+      // Generate image
+      const imageUrl = await generateImage(prompt, referenceImages);
 
       if (imageUrl) {
-        try {
-          const base64Data = imageUrl.split(",")[1];
-          const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-          const fileName = `regen-${carousel_id.slice(0, 8)}-${isBlog ? 'cover' : isResource ? 'resource' : 's' + slideNum}-${Date.now()}.png`;
+        // Upload to Supabase Storage
+        const fileName = `regen-${carousel_id.slice(0, 8)}-${platform.isBlog ? 'cover' : platform.isResource ? 'resource' : 's' + slideNum
+          }-${Date.now()}.png`;
 
-          const { error: uploadError } = await supabase.storage
-            .from("carousel-images")
-            .upload(fileName, imageBytes, { contentType: "image/png", upsert: true });
+        const publicUrl = await uploadImage(supabase, imageUrl, fileName);
 
-          if (!uploadError) {
-            const { data: publicUrlData } = supabase.storage
-              .from("carousel-images")
-              .getPublicUrl(fileName);
-
-            slide.imageUrl = publicUrlData.publicUrl;
-            slide.image_url = publicUrlData.publicUrl;
-            console.log(`[REGEN] [Item ${slideNum}] ✅ Generated and uploaded in ${Date.now() - slideStart}ms`);
-          } else {
-            console.warn(`[REGEN] [Item ${slideNum}] Upload failed: ${uploadError.message}`);
-            // Fallback if upload fails
-            slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Error')}`;
-            slide.image_url = slide.imageUrl;
-          }
-        } catch (e) {
-          console.error(`[REGEN] [Item ${slideNum}] Upload error: ${e}`);
-          // Fallback if exception
-          slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Error')}`;
+        if (publicUrl) {
+          slide.imageUrl = publicUrl;
+          slide.image_url = publicUrl;
+          console.log(`[REGEN] [${slideNum}] ✅ Done in ${Date.now() - slideStart}ms`);
+        } else {
+          // Use placeholder on upload failure
+          slide.imageUrl = getPlaceholderUrl(slide.headline || 'Error');
           slide.image_url = slide.imageUrl;
         }
       } else {
-        console.error(`[REGEN] [Item ${slideNum}] ❌ Image generation failed - Using Placeholder`);
-        slide.imageUrl = `https://placehold.co/1080x1350/004F8F/FFFFFF?text=${encodeURIComponent(slide.headline || 'Gen Failed')}`;
+        // Use placeholder on generation failure
+        console.error(`[REGEN] [${slideNum}] ❌ Generation failed`);
+        slide.imageUrl = getPlaceholderUrl(slide.headline || 'Gen Failed');
         slide.image_url = slide.imageUrl;
       }
 
@@ -553,39 +277,49 @@ ${specificInstructions}
     }
 
     // ========================================================================
-    // PROCESS ALL SLIDES (Sequential to avoid rate limits)
+    // PROCESS ALL SLIDES
     // ========================================================================
-
-    // For Blogs/Resources, we construct a "fake" slide if none exists, to reuse the loop logic
-    if (isBlog || isResource) {
-      if (!slides || slides.length === 0) {
-        slides = [{
-          headline: (carousel as any).title,
-          body: (carousel as any).excerpt,
-          type: 'cover',
-          imageUrl: (carousel as any).cover_image || (carousel as any).image_url
-        }];
-      }
-    }
-
-    console.log(`[REGEN] Starting image generation for ${slides.length} items...`);
+    console.log(`[REGEN] Starting generation for ${slides.length} items (Mode: ${mode?.toUpperCase() || 'HYBRID'})...`);
 
     const processedSlides: SlideData[] = [];
 
-    // For single item types (Blog/Resource), strictly process index 0
-    const slidesToProcess = (isBlog || isResource) ? [slides[0]] :
-      (typeof slide_index === 'number' ? [carousel.slides?.[slide_index]] : (carousel.slides || []));
+    // Determine which slides to process
+    const slidesToProcess = (platform.isBlog || platform.isResource)
+      ? [slides[0]]
+      : (typeof slide_index === 'number'
+        ? [carousel.slides?.[slide_index]]
+        : (carousel.slides || []));
 
     for (let i = 0; i < slidesToProcess.length; i++) {
       const slide = slidesToProcess[i];
       if (!slide) continue;
 
-      // For blog/resource, index is always 0
-      const realIndex = (isBlog || isResource) ? 0 : (typeof slide_index === 'number' ? slide_index : i);
+      const realIndex = (platform.isBlog || platform.isResource)
+        ? 0
+        : (typeof slide_index === 'number' ? slide_index : i);
 
-      const processed = await processSlide(slide, realIndex);
+      let processed: SlideData;
+
+      if (mode === 'hybrid') {
+        processed = await processSlideHybrid(
+          slide,
+          realIndex,
+          slides.length,
+          carousel_id,
+          platform,
+          styleReference,
+          referenceImages,
+          GEMINI_API_KEY || '',
+          OPENROUTER_API_KEY || '',
+          supabase
+        );
+      } else {
+        processed = await processSlide(slide, realIndex);
+      }
+
       processedSlides.push(processed);
 
+      // Rate limit delay between slides
       if (i < slidesToProcess.length - 1) {
         await new Promise(r => setTimeout(r, 2000));
       }
@@ -594,38 +328,26 @@ ${specificInstructions}
     // ========================================================================
     // UPDATE DATABASE
     // ========================================================================
-
-    let updateData = {};
+    let updateData: Record<string, any> = {};
     const generatedUrl = processedSlides[0]?.imageUrl || processedSlides[0]?.image_url;
 
-    if (isBlog && generatedUrl) {
-      console.log(`[REGEN] Updating Blog cover image...`);
+    if (platform.isBlog && generatedUrl) {
+      console.log(`[REGEN] Updating blog cover...`);
       updateData = {
         cover_image: generatedUrl,
         updated_at: new Date().toISOString()
       };
-    } else if (isResource && generatedUrl) {
-      console.log(`[REGEN] Updating Resource image (table: ${table_name})...`);
-      if (table_name === 'resources') {
-        updateData = {
-          thumbnail_url: generatedUrl,
-          updated_at: new Date().toISOString()
-        };
-      } else {
-        updateData = {
-          image_url: generatedUrl,
-          updated_at: new Date().toISOString()
-        };
-      }
+    } else if (platform.isResource && generatedUrl) {
+      console.log(`[REGEN] Updating resource image...`);
+      updateData = table_name === 'resources'
+        ? { thumbnail_url: generatedUrl, updated_at: new Date().toISOString() }
+        : { image_url: generatedUrl, updated_at: new Date().toISOString() };
     } else if (typeof slide_index === 'number') {
       // Single slide update
-      console.log(`[REGEN] Updating single slide at index ${slide_index}...`);
-
+      console.log(`[REGEN] Updating slide ${slide_index}...`);
       const currentSlides = [...(carousel.slides || [])];
       if (currentSlides[slide_index]) {
         currentSlides[slide_index] = processedSlides[0];
-
-        // Update image_urls array too
         const currentImageUrls = carousel.image_urls || [];
         currentImageUrls[slide_index] = processedSlides[0].imageUrl;
 
@@ -636,13 +358,12 @@ ${specificInstructions}
         };
       }
     } else {
-      // Batch update (Legacy/Full Regen)
+      // Batch update
       const imageUrls = processedSlides
-        .map((s) => s.imageUrl || s.image_url || "")
+        .map(s => s.imageUrl || s.image_url || '')
         .filter(Boolean);
 
-      console.log(`[REGEN] Updating database with ${imageUrls.length} images...`);
-
+      console.log(`[REGEN] Updating ${imageUrls.length} slides...`);
       updateData = {
         slides: processedSlides,
         image_urls: imageUrls,
@@ -658,13 +379,16 @@ ${specificInstructions}
     if (updateError) {
       console.error(`[REGEN] DB update failed: ${updateError.message}`);
       return new Response(
-        JSON.stringify({ error: "Failed to update item", details: updateError.message }),
+        JSON.stringify({ error: "Failed to update", details: updateError.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
 
+    // ========================================================================
+    // SUCCESS RESPONSE
+    // ========================================================================
     const totalTime = Date.now() - startTime;
-    console.log(`[REGEN] ✅✅ COMPLETE: ${processedSlides.length} items, ${totalTime}ms total`);
+    console.log(`[REGEN] ✅✅ COMPLETE: ${processedSlides.length} items, ${totalTime}ms`);
 
     return new Response(
       JSON.stringify({
@@ -674,20 +398,23 @@ ${specificInstructions}
         images_generated: processedSlides.length,
         reference_images_used: referenceImages.length,
         duration_ms: totalTime,
-        logs: __regenLogs
+        logs: getLogs()
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
-    console.error(`[REGEN] FATAL ERROR: ${error}`);
-    // Return 200 to allow client to read the error message easily
+    // ========================================================================
+    // ERROR RESPONSE
+    // ========================================================================
+    console.error(`[REGEN] FATAL: ${error}`);
+
     return new Response(
       JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : null,
-        logs: __regenLogs
+        logs: getLogs()
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );

@@ -17,10 +17,6 @@ import {
   generateCarouselEmbedding,
   searchSimilarCarousels,
   searchKnowledgeBase,
-  searchCompanyAssets,
-  generateCarouselEmbedding,
-  searchSimilarCarousels,
-  searchKnowledgeBase,
   deepResearch
 } from "./agent_tools.ts";
 import satori from "satori";
@@ -32,7 +28,7 @@ const fontDataRegular = await fetch("https://github.com/google/fonts/raw/main/of
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
-const IMAGE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0";
+const IMAGE_MODEL = "google/gemini-2.0-flash-exp:free";
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],
@@ -64,14 +60,9 @@ async function callOpenRouter(
 
 async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promise<string | null> {
   try {
-    console.log("🎨 OpenRouter Image: Calling generation...");
-    // If reference image is provided, we might want to use a model that supports img2img, 
-    // but for now OpenRouter's primary image interface is txt2img or similar via standard endpoints.
-    // User mentioned "reference imaging", which suggests img2img or controlnet. 
-    // OpenRouter supports 'liquid/lfm-40b', 'stabilityai/stable-diffusion-xl-base-1.0', etc.
-    // For simplicity and robustness, we stick to high quality txt2img first as fallback.
+    console.log("🎨 OpenRouter Image: Calling generation via chat completions...");
 
-    const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPEN_ROUTER_API}`,
@@ -80,9 +71,9 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "google/imagen-3", // User requested Imagen 3.0
-        prompt: prompt,
-        n: 1,
+        model: IMAGE_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image"],
       })
     });
 
@@ -92,7 +83,15 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
     }
 
     const data = await response.json();
-    return data.data?.[0]?.url || null;
+    // New API returns image as base64 in message content parts
+    const parts = data.choices?.[0]?.message?.content;
+    if (Array.isArray(parts)) {
+      const imagePart = parts.find((p: any) => p.type === 'image_url');
+      if (imagePart?.image_url?.url) return imagePart.image_url.url;
+    }
+    // Fallback: check if content is a direct URL string
+    if (typeof parts === 'string' && parts.startsWith('http')) return parts;
+    return null;
 
   } catch (error) {
     console.error("OpenRouter Image Call Failed:", error);
@@ -137,7 +136,6 @@ async function callGeminiImage(prompt: string): Promise<string | null> {
       throw new Error("No image generated in Gemini response");
     }
 
-    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
     return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
     console.error("Gemini Image Call Failed:", error);
@@ -329,30 +327,9 @@ export async function designerAgent(
     }
 
     try {
-      // Re-implementing with OpenRouter for consistency and better error handling
+      // Use the shared callOpenRouterImage function for consistency
       console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
-      const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${Deno.env.get("OPEN_ROUTER_API")}`,
-          "HTTP-Referer": "https://lifetrek.app",
-          "X-Title": "Lifetrek App",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: IMAGE_MODEL,
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024"
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenRouter Image Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const imageUrl = data.data?.[0]?.url || "";
+      const imageUrl = await callOpenRouterImage(prompt) || "";
 
       images.push({
         slide_index: i,

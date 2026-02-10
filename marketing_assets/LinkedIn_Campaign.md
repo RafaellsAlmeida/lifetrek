@@ -33,13 +33,17 @@ Posts para validar fornecedores ISO 13485.
 Guia estratégico para migração de SKUs.
 
 ### Carrossel (2 Slides)
-*   **Slide 01 (Capa)**: [slide_01_cover.png](file:///Users/rafaelalmeida/lifetrek/marketing_assets/linkedin/02_roadmap_90_days/slide_01_cover.png)
-*   **Slide 02 (CTA)**: [slide_02_cta.png](file:///Users/rafaelalmeida/lifetrek/marketing_assets/linkedin/02_roadmap_90_days/slide_02_cta.png)
+*   **Slide 01 (Capa)**: [roadmap_slide_1_clean.png](file:///Users/rafaelalmeida/lifetrek/marketing_assets/linkedin/02_roadmap_90_days/roadmap_slide_1_clean.png)
+*   **Slide 02 (CTA)**: [roadmap_slide_2_clean.png](file:///Users/rafaelalmeida/lifetrek/marketing_assets/linkedin/02_roadmap_90_days/roadmap_slide_2_clean.png)
 *   **Legenda**:
-    > Sofrendo com interrupções na cadeia de suprimentos global? 🌍🚫
+    > 📉 **90 dias de lead time = Capital parado.**
     >
-    > Descubra nosso roteiro comprovado de 90 dias para nacionalizar a produção de 1-3 SKUs. Reduza lead times, melhore o controle de qualidade e proteja sua margem.
+    > Na indústria de dispositivos médicos, cada dia com estoque no mar é um risco para o seu cash flow. A Lifetrek traz a precisão suíça para Indaiatuba:
     >
-    > O futuro da manufatura médica é local e de alta precisão. 🇧🇷🔬
+    > ✅ **Entrega em 30 dias** (vs. 90+ importado)
+    > ✅ **Zero risco cambial** e logístico
+    > ✅ **Validação micron-level** na sua porta
     >
-    > #supplychain #manufacturing #localization #ISO13485
+    > Transforme sua cadeia de suprimentos de um centro de custo em uma vantagem competitiva. Pare de sangrar caixa.
+    >
+    > #MedTech #SupplyChain #MedicalDevices #Indaiatuba #Lifetrek
