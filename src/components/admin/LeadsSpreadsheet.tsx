@@ -52,6 +52,7 @@ export const LeadsSpreadsheet = () => {
       const { data, error } = await supabase
         .from("contact_leads")
         .select("*")
+        .eq("source", "website")
         .order("lead_score", { ascending: false })
         .limit(5000);
 

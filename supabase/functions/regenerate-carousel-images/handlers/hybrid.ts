@@ -55,10 +55,16 @@ export async function handleHybridGeneration(
 
     // Generator factory
     const createGenerator = () => {
-        const openRouterFallback = (prompt: string) =>
-            generateWithOpenRouter(prompt, OPENROUTER_API_KEY || '');
-        // Skip Flash fallback for background to save speed/complexity, straight to OpenRouter if Nano banana fails? 
-        // Or keep it. Let's keep a simple chain.
+        const openRouterFallback = (p: string) =>
+            generateWithOpenRouter(p, OPENROUTER_API_KEY || '');
+
+        // If Gemini key is provided but looks like an OpenAI/OpenRouter key (sk-...), 
+        // redirect to OpenRouter directly
+        if (GEMINI_API_KEY?.startsWith('sk-') && !OPENROUTER_API_KEY) {
+            console.log("[HYBRID_HANDLER] 💡 Gemini key looks like OpenRouter/OpenAI key, using for OpenRouter.");
+            return (p: string, _refs: ReferenceImage[]) => generateWithOpenRouter(p, GEMINI_API_KEY);
+        }
+
         return (prompt: string, refs: ReferenceImage[]) =>
             generateWithNanoBanana(prompt, refs, platform.aspectRatio, GEMINI_API_KEY || '', openRouterFallback);
     };

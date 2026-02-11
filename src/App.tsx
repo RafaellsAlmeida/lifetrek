@@ -42,11 +42,9 @@ const Leads = lazy(() => import("./pages/AdminLeads"));
 const RejectionAnalytics = lazy(() => import("./pages/Admin/RejectionAnalytics"));
 const ContentApproval = lazy(() => import("./pages/Admin/ContentApproval"));
 const ContentCalendar = lazy(() => import("./pages/Admin/ContentCalendar"));
-const CampaignManagement = lazy(() => import("./pages/Admin/CampaignManagement"));
 const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
 const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
-const RoiSimulation = lazy(() => import("./pages/Admin/RoiSimulation"));
 const UnifiedAnalytics = lazy(() => import("./pages/Admin/UnifiedAnalytics"));
 const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox"));
 const OnePager = lazy(() => import("./pages/OnePager"));
@@ -134,9 +132,7 @@ const App = () => (
                     <Route path="leads" element={<Leads />} />
                     <Route path="rejection-analytics" element={<RejectionAnalytics />} />
                     <Route path="content-calendar" element={<ContentCalendar />} />
-                    <Route path="campaigns" element={<CampaignManagement />} />
                     <Route path="video-studio" element={<VideoStudio />} />
-                    <Route path="roi-simulation" element={<RoiSimulation />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="analytics" element={<UnifiedAnalytics />} />
                     <Route path="inbox" element={<UnifiedInbox />} />

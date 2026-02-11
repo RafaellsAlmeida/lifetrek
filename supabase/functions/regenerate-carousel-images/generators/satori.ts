@@ -11,8 +11,8 @@
  * @module generators/satori
  */
 
-import satori from "satori";
-import { initWasm, Resvg } from "@resvg/resvg-wasm";
+import satori from "https://esm.sh/satori@0.10.13";
+import { initWasm, Resvg } from "https://esm.sh/@resvg/resvg-wasm@2.6.0";
 import { BRAND_COLORS } from "../prompts/brand-prompt.ts";
 import type { SlideData } from "../types.ts";
 

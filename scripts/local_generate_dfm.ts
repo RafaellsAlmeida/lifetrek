@@ -1,22 +1,27 @@
-
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { config } from "https://deno.land/std@0.168.0/dotenv/mod.ts";
 import { AssetLoader } from "../supabase/functions/regenerate-carousel-images/utils/assets.ts";
 import { handleHybridGeneration } from "../supabase/functions/regenerate-carousel-images/handlers/hybrid.ts";
 import { handleAiGeneration } from "../supabase/functions/regenerate-carousel-images/handlers/ai.ts";
-// Mock Deno.env for local execution if not present
-if (typeof Deno === 'undefined') {
-    throw new Error("Must be run with Deno");
-}
 
-// Load env vars from arguments or prompt user if missing
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "https://dlflpvmdzkeouhgqwqba.supabase.co";
-const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ACCESS_TOKEN");
-const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY");
-const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
+// Load .env file
+const env = await config({ path: ".env" });
+
+// Mock Deno.env for local execution
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || env.SUPABASE_URL || "https://dlflpvmdzkeouhgqwqba.supabase.co";
+const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || env.SUPABASE_SERVICE_ROLE_KEY || Deno.env.get("SUPABASE_ACCESS_TOKEN") || env.SUPABASE_ACCESS_TOKEN;
+const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") || env.GEMINI_API_KEY;
+const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY") || env.OPENROUTER_API_KEY;
+
+// Ensure keys are in Deno.env for the handlers to pick up
+if (GEMINI_KEY) Deno.env.set("GEMINI_API_KEY", GEMINI_KEY);
+if (OPENROUTER_KEY) Deno.env.set("OPENROUTER_API_KEY", OPENROUTER_KEY);
+if (SUPABASE_KEY) Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", SUPABASE_KEY);
+if (SUPABASE_URL) Deno.env.set("SUPABASE_URL", SUPABASE_URL);
 
 if (!SUPABASE_KEY || (!GEMINI_KEY && !OPENROUTER_KEY)) {
     console.error("❌ Missing Environment Variables!");
-    console.error("Usage: SUPABASE_SERVICE_ROLE_KEY=... GEMINI_API_KEY=... deno run -A scripts/local_generate_dfm.ts");
+    console.error("Please ensure .env has SUPABASE_SERVICE_ROLE_KEY and GEMINI_API_KEY or OPENROUTER_API_KEY");
     Deno.exit(1);
 }
 
@@ -57,28 +62,33 @@ async function run() {
     // OVERRIDE: Use hardcoded slides from user request
     const newSlides = [
         {
-            title: "Padrão é suficiente para todos os pacientes?",
-            content: "Em casos complexos, implantes e instrumentais genéricos começam a falhar – clínica e mecanicamente.",
+            headline: "Padrão é suficiente para todos os pacientes?",
+            body: "Em casos complexos, implantes e instrumentais genéricos começam a falhar – clínica e mecanicamente.",
+            type: "hook" as const,
             order: 1
         },
         {
-            title: "Onde o genérico não acompanha",
-            content: "Deformidades, revisões, anatomias fora da curva e protocolos cirúrgicos específicos exigem soluções sob medida – ou o cirurgião precisa improvisar em campo.",
+            headline: "Onde o genérico não acompanha",
+            body: "Deformidades, revisões, anatomias fora da curva e protocolos cirúrgicos específicos exigem soluções sob medida – ou o cirurgião precisa improvisar em campo.",
+            type: "content" as const,
             order: 2
         },
         {
-            title: "Personalização séria começa no projeto",
-            content: "Trabalhamos com times clínicos e de P&D para traduzir necessidades cirúrgicas em desenhos usináveis, com materiais de grau implante e critérios claros de validação mecânica.",
+            headline: "Personalização séria começa no projeto",
+            body: "Trabalhamos com times clínicos e de P&D para traduzir necessidades cirúrgicas em desenhos usináveis, com materiais de grau implante e critérios claros de validação mecânica.",
+            type: "content" as const,
             order: 3
         },
         {
-            title: "Do conceito ao implante em mãos",
-            content: "Usinagem CNC de precisão, metrologia 3D e, quando necessário, sala limpa ISO 7. Cada caso recebe plano de processo, medição e rastreabilidade completos.",
+            headline: "Do conceito ao implante em mãos",
+            body: "Usinagem CNC de precisão, metrologia 3D e, quando necessário, sala limpa ISO 7. Cada caso recebe plano de processo, medição e rastreabilidade completos.",
+            type: "content" as const,
             order: 4
         },
         {
-            title: "Tem um caso que o “padrão” não resolve?",
-            content: "Se você é OEM ou cirurgião e tem um cenário onde o catálogo não atende, podemos ajudar a avaliar viabilidade técnica e rota regulatória para uma solução personalizada. 👉 Comente “PERSONALIZADO” ou fale com nossa equipe.",
+            headline: "Tem um caso que o “padrão” não resolve?",
+            body: "Se você é OEM ou cirurgião e tem um cenário onde o catálogo não atende, podemos ajudar a avaliar viabilidade técnica e rota regulatória para uma solução personalizada. 👉 Comente “PERSONALIZADO” ou fale com nossa equipe.",
+            type: "cta" as const,
             order: 5
         }
     ];

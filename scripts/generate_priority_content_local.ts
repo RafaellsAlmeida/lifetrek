@@ -60,12 +60,12 @@ console.log(`👤 Using Admin User ID: ${ADMIN_USER_ID}`);
 
 const tierOneContent = [
     {
-        topic: "Roadmap de 90 Dias para Migrar 1–3 SKUs para Produção Local",
-        targetAudience: "Diretores de Supply Chain e Gerentes de Operações",
-        painPoint: "Dependência de importação, variação cambial e longos lead times (90+ dias)",
-        desiredOutcome: "Plano claro para nacionalizar a produção com qualidade equivalente ou superior",
-        proofPoints: ["Casos de sucesso em migração de importados", "Redução de lead time para 30 dias", "Acabamento e metrologia integrados"],
-        ctaAction: "Baixe o Roadmap e inicie sua estratégia de nacionalização",
+        topic: "Padrão é suficiente para todos os pacientes?",
+        targetAudience: "Cirurgiões Ortopédicos, Médicos de Coluna e Recon, Gestores de OEM",
+        painPoint: "Deformidades e anatomias complexas onde implantes genéricos exigem improviso cirúrgico",
+        desiredOutcome: "Soluções personalizadas (engenharia + manufatura de precisão) que garantem fit anatomico e segurança",
+        proofPoints: ["Usinagem CNC de precisão", "Materiais grau implante (Ti, PEEK)", "ISO 13485 / ANVISA compliant"],
+        ctaAction: "Comente PERSONALIZADO para avaliar viabilidade técnica",
         profileType: "company",
         researchLevel: "light"
     }
