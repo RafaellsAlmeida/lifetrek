@@ -38,9 +38,7 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const DashboardOverview = lazy(() => import("./components/admin/DashboardOverview").then(module => ({ default: module.DashboardOverview })));
 const Leads = lazy(() => import("./pages/AdminLeads"));
 // const Gallery = lazy(() => import("./pages/Admin/Gallery"));
-const ProductAssets = lazy(() => import("./pages/Admin/ProductAssets"));
-const EnvironmentAssets = lazy(() => import("./pages/Admin/EnvironmentAssets"));
-const KnowledgeBase = lazy(() => import("./pages/Admin/KnowledgeBase"));
+// const Gallery = lazy(() => import("./pages/Admin/Gallery"));
 const RejectionAnalytics = lazy(() => import("./pages/Admin/RejectionAnalytics"));
 const ContentApproval = lazy(() => import("./pages/Admin/ContentApproval"));
 const ContentCalendar = lazy(() => import("./pages/Admin/ContentCalendar"));
@@ -134,10 +132,6 @@ const App = () => (
                     <Route path="orchestrator" element={<ContentOrchestrator />} />
                     <Route path="content-approval" element={<ContentApproval />} />
                     <Route path="leads" element={<Leads />} />
-                    <Route path="gallery" element={<ProductAssets />} />
-                    <Route path="knowledge-base" element={<KnowledgeBase />} />
-                    <Route path="product-assets" element={<ProductAssets />} />
-                    <Route path="environment-assets" element={<EnvironmentAssets />} />
                     <Route path="rejection-analytics" element={<RejectionAnalytics />} />
                     <Route path="content-calendar" element={<ContentCalendar />} />
                     <Route path="campaigns" element={<CampaignManagement />} />

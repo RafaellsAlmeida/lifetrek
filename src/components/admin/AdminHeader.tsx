@@ -5,21 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
     LayoutDashboard,
-    Images,
     FileText,
     CheckCircle,
-    BookOpen,
-    Upload,
     LogOut,
-    Camera,
     Database,
     BarChart3,
     Target,
     Crown,
     ChevronDown,
-    Building2,
     Briefcase,
-    Search,
     MessageSquare,
     Clapperboard,
     Eye,
@@ -86,17 +80,7 @@ const navStructure: NavEntry[] = [
             { path: "/admin/content-approval", label: "Aprovação", icon: CheckCircle },
             { path: "/admin/content-calendar", label: "Calendário", icon: Target },
             { path: "/admin/video-studio", label: "Video Studio", icon: Clapperboard },
-        ]
-    },
-    {
-        label: "Empresa",
-        icon: Building2,
-        items: [
-            { path: "/admin/gallery", label: "Galeria", icon: Images },
             { path: "/admin/one-pager", label: "One Pager", icon: FileText },
-            { path: "/admin/knowledge-base", label: "Knowledge", icon: BookOpen, requiresSuperAdmin: true },
-            { path: "/admin/product-assets", label: "Assets", icon: Upload, requiresSuperAdmin: true },
-            { path: "/admin/environment-assets", label: "Ambiente", icon: Camera, requiresSuperAdmin: true },
         ]
     },
     {
