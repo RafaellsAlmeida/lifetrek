@@ -57,34 +57,29 @@ async function run() {
     // OVERRIDE: Use hardcoded slides from user request
     const newSlides = [
         {
-            title: "Seu implante falhou no teste de fadiga?",
-            content: "70% das falhas poderiam ser evitadas com um passo que a maioria pula.",
+            title: "Padrão é suficiente para todos os pacientes?",
+            content: "Em casos complexos, implantes e instrumentais genéricos começam a falhar – clínica e mecanicamente.",
             order: 1
         },
         {
-            title: "O Custo de Descobrir Tarde",
-            content: "Cada falha no teste = R$50k+ em retrabalho. Meses de atraso no registro ANVISA/FDA. Time de P&D travado em loop infinito de iterações.",
+            title: "Onde o genérico não acompanha",
+            content: "Deformidades, revisões, anatomias fora da curva e protocolos cirúrgicos específicos exigem soluções sob medida – ou o cirurgião precisa improvisar em campo.",
             order: 2
         },
         {
-            title: "Erro #1: Pular a Validação de Geometria",
-            content: "Ir direto do CAD para o CNC é tentador. Mas sem validar forma e encaixe com impressão 3D médica, problemas de geometria aparecem depois de usinar titânio.",
+            title: "Personalização séria começa no projeto",
+            content: "Trabalhamos com times clínicos e de P&D para traduzir necessidades cirúrgicas em desenhos usináveis, com materiais de grau implante e critérios claros de validação mecânica.",
             order: 3
         },
         {
-            title: "Erro #2: Prototipar em Material Errado",
-            content: "Testar fadiga com liga similar não é testar fadiga. A ASTM F136 (titânio grau cirúrgico) tem comportamento mecânico único. Trocar por outro material invalida 100% dos dados.",
+            title: "Do conceito ao implante em mãos",
+            content: "Usinagem CNC de precisão, metrologia 3D e, quando necessário, sala limpa ISO 7. Cada caso recebe plano de processo, medição e rastreabilidade completos.",
             order: 4
         },
         {
-            title: "Erro #3: Não Mapear Regiões Críticas",
-            content: "Roscas, mudanças de seção, cantos vivos - são pontos de concentração de tensão. Sem tolerâncias definidas antes do CNC, o teste de fadiga encontra o problema por você.",
+            title: "Tem um caso que o “padrão” não resolve?",
+            content: "Se você é OEM ou cirurgião e tem um cenário onde o catálogo não atende, podemos ajudar a avaliar viabilidade técnica e rota regulatória para uma solução personalizada. 👉 Comente “PERSONALIZADO” ou fale com nossa equipe.",
             order: 5
-        },
-        {
-            title: "O Fluxo Que Evita Esses Erros",
-            content: "Guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo. Do CAD ao teste, passo a passo.",
-            order: 6
         }
     ];
 
