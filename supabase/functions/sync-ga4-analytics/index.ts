@@ -110,8 +110,6 @@ serve(async (req) => {
           { name: "screenPageViews" },
           { name: "averageSessionDuration" },
           { name: "bounceRate" },
-          { name: "entrances" },
-          { name: "exits" },
         ],
         limit: 50,
         keepEmptyRows: true,
@@ -124,8 +122,6 @@ serve(async (req) => {
         page_views: parseInt(row.metricValues?.[0]?.value || "0"),
         avg_time_on_page_seconds: parseFloat(row.metricValues?.[1]?.value || "0"),
         bounce_rate: parseFloat(row.metricValues?.[2]?.value || "0"),
-        entrances: parseInt(row.metricValues?.[3]?.value || "0"),
-        exits: parseInt(row.metricValues?.[4]?.value || "0"),
       }, pageColumns));
 
       if (pagePayloads.length > 0) {
