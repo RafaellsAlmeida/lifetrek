@@ -54,9 +54,43 @@ async function run() {
     // 4. Run Hybrid Generation
     const platform = { isBlog: false, isResource: false, aspectRatio: "4:5" };
 
+    // OVERRIDE: Use hardcoded slides from user request
+    const newSlides = [
+        {
+            title: "Seu implante falhou no teste de fadiga?",
+            content: "70% das falhas poderiam ser evitadas com um passo que a maioria pula.",
+            order: 1
+        },
+        {
+            title: "O Custo de Descobrir Tarde",
+            content: "Cada falha no teste = R$50k+ em retrabalho. Meses de atraso no registro ANVISA/FDA. Time de P&D travado em loop infinito de iterações.",
+            order: 2
+        },
+        {
+            title: "Erro #1: Pular a Validação de Geometria",
+            content: "Ir direto do CAD para o CNC é tentador. Mas sem validar forma e encaixe com impressão 3D médica, problemas de geometria aparecem depois de usinar titânio.",
+            order: 3
+        },
+        {
+            title: "Erro #2: Prototipar em Material Errado",
+            content: "Testar fadiga com liga similar não é testar fadiga. A ASTM F136 (titânio grau cirúrgico) tem comportamento mecânico único. Trocar por outro material invalida 100% dos dados.",
+            order: 4
+        },
+        {
+            title: "Erro #3: Não Mapear Regiões Críticas",
+            content: "Roscas, mudanças de seção, cantos vivos - são pontos de concentração de tensão. Sem tolerâncias definidas antes do CNC, o teste de fadiga encontra o problema por você.",
+            order: 5
+        },
+        {
+            title: "O Fluxo Que Evita Esses Erros",
+            content: "Guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo. Do CAD ao teste, passo a passo.",
+            order: 6
+        }
+    ];
+
     console.log("\n🎨 Running Hybrid Generator...");
     const slides = await handleHybridGeneration(
-        carousel.slides,
+        newSlides,
         carousel.id,
         platform,
         assetLoader,
