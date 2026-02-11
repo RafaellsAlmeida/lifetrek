@@ -18,23 +18,33 @@ const ISO_BADGE_PATH = 'src/assets/certifications/iso.jpg';
 // Content for DFM Checklist (Simulated or AI generated)
 const SLIDES_CONTENT = [
     {
-        title: "DFM Checklist: 7 Essential Checks",
-        body: "Ensure your medical device design is ready for manufacturing. Avoid costly rework.",
+        title: "Seu implante falhou no teste de fadiga?",
+        body: "70% das falhas poderiam ser evitadas com um passo que a maioria pula.",
         type: "cover"
     },
     {
-        title: "1. Wall Thickness Consistency",
-        body: "Uniform walls prevent cooling warping. Aim for 2-3mm for injection molding.",
+        title: "O Custo de Descobrir Tarde",
+        body: "Cada falha no teste = R$50k+ em retrabalho. Meses de atraso no registro ANVISA/FDA. Time de P&D travado em loop infinito de iterações.",
         type: "content"
     },
     {
-        title: "2. Draft Angles",
-        body: "Include 1-2 degrees draft on vertical walls for easy ejection.",
+        title: "Erro #1: Pular a Validação de Geometria",
+        body: "Ir direto do CAD para o CNC é tentador. Mas sem validar forma e encaixe com impressão 3D médica, problemas de geometria aparecem depois de usinar titânio.",
         type: "content"
     },
     {
-        title: "3. Undercuts & Side Actions",
-        body: "Minimize undercuts to reduce tooling cost and complexity.",
+        title: "Erro #2: Prototipar em Material Errado",
+        body: "Testar fadiga com liga similar não é testar fadiga. A ASTM F136 (titânio grau cirúrgico) tem comportamento mecânico único. Trocar por outro material invalida 100% dos dados.",
+        type: "content"
+    },
+    {
+        title: "Erro #3: Não Mapear Regiões Críticas",
+        body: "Roscas, mudanças de seção, cantos vivos - são pontos de concentração de tensão. Sem tolerâncias definidas antes do CNC, o teste de fadiga encontra o problema por você.",
+        type: "content"
+    },
+    {
+        title: "O Fluxo Que Evita Esses Erros",
+        body: "Guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo. Do CAD ao teste, passo a passo.",
         type: "content"
     }
 ];
@@ -103,14 +113,15 @@ function generateHtml(slide, isoBadgeDataUrl) {
 
             <!-- Content -->
             <div class="relative z-10 flex-1 flex flex-col justify-center">
-                <div class="glass-card p-16 rounded-3xl">
-                    <span class="inline-block px-4 py-2 bg-blue-500/20 text-blue-300 rounded-full text-sm font-semibold mb-6 uppercase tracking-wider">
-                        ${slide.type === 'cover' ? 'Guide' : 'Checklist Item'}
+                <div class="glass-card p-12 rounded-3xl border-t border-white/20">
+                    <span class="inline-block px-4 py-2 bg-blue-500/20 text-blue-300 rounded-full text-sm font-semibold mb-6 uppercase tracking-wider border border-blue-500/30">
+                        ${slide.type === 'cover' ? 'Guia Essencial' : 'Ponto de Atenção'}
                     </span>
-                    <h1 class="text-7xl font-bold leading-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                    <h1 class="text-6xl font-extrabold leading-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
                         ${slide.title}
                     </h1>
-                    <p class="text-3xl text-gray-300 leading-relaxed font-light">
+                    <div class="w-20 h-1 bg-blue-500 mb-8 rounded-full"></div>
+                    <p class="text-3xl text-gray-200 leading-relaxed font-light">
                         ${slide.body}
                     </p>
                 </div>
