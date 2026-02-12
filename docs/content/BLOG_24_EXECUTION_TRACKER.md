@@ -30,27 +30,27 @@
 |---|---|---|---|---|---|
 | 01 | 2026-02-12 | Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável | db_existing | scheduled | parcial |
 | 02 | 2026-02-17 | Manufatura de Dispositivos Médicos: Otimização e Crescimento com Tecnologia | db_existing | draft_pending_internal | parcial |
-| 03 | 2026-02-19 | Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek | db_existing | stakeholder_review | parcial |
-| 04 | 2026-02-24 | Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos | db_existing | stakeholder_review | parcial |
-| 05 | 2026-02-26 | Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA | db_existing | stakeholder_review | parcial |
-| 06 | 2026-03-03 | ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos | db_existing | stakeholder_review | parcial |
-| 07 | 2026-03-05 | ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos | db_existing | stakeholder_review | parcial |
-| 08 | 2026-03-10 | 3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga | linkedin_archived | brief_ready | aberto |
-| 09 | 2026-03-12 | Checklist DFM para Implantes e Instrumentais | linkedin_archived | brief_ready | aberto |
-| 10 | 2026-03-17 | Capabilities: Print to Pack | linkedin_archived | brief_ready | aberto |
-| 11 | 2026-03-19 | Identity: The Precision Partner | linkedin_archived | brief_ready | aberto |
-| 12 | 2026-03-24 | Lifetrek Medical Launch (Composited) | linkedin_archived | brief_ready | aberto |
-| 13 | 2026-03-26 | Lifetrek Medical Launch (Real Asset + PT) | linkedin_archived | brief_ready | aberto |
-| 14 | 2026-03-31 | Lifetrek Medical Launch & Vision | linkedin_archived | brief_ready | aberto |
-| 15 | 2026-04-02 | Quem Somos — Lifetrek Medical | linkedin_archived | brief_ready | aberto |
-| 16 | 2026-04-07 | Trust: The Zero-Defect Standard | linkedin_archived | brief_ready | aberto |
-| 17 | 2026-04-09 | ISO 13485 explicado: O que é e por que importa | blog_topics | brief_ready | aberto |
-| 18 | 2026-04-14 | Como escolher fornecedor de implantes ortopédicos no Brasil | blog_topics | brief_ready | aberto |
-| 19 | 2026-04-16 | ZEISS CMM: Precisão micrométrica em metrologia médica | blog_topics | brief_ready | aberto |
-| 20 | 2026-04-21 | Tolerâncias micrométricas em dispositivos médicos: Guia completo | blog_topics | brief_ready | aberto |
-| 21 | 2026-04-28 | Guia DFM: Design for Manufacturing para implantes médicos | blog_topics | brief_ready | aberto |
-| 22 | 2026-05-05 | Sala limpa ISO 7: Padrões e requisitos para dispositivos médicos | blog_topics | brief_ready | aberto |
-| 23 | 2026-05-19 | Materiais para implantes: Titânio Ti-6Al-4V vs Aço Inoxidável 316L | blog_topics | brief_ready | aberto |
+| 03 | 2026-02-19 | 3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga | linkedin_archived | brief_ready | aberto |
+| 04 | 2026-02-24 | Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek | db_existing | stakeholder_review | parcial |
+| 05 | 2026-02-26 | Checklist DFM para Implantes e Instrumentais | linkedin_archived | brief_ready | aberto |
+| 06 | 2026-03-03 | Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos | db_existing | stakeholder_review | parcial |
+| 07 | 2026-03-05 | Trust: The Zero-Defect Standard | linkedin_archived | brief_ready | aberto |
+| 08 | 2026-03-10 | Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA | db_existing | stakeholder_review | parcial |
+| 09 | 2026-03-12 | Capabilities: Print to Pack | linkedin_archived | brief_ready | aberto |
+| 10 | 2026-03-17 | ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos | db_existing | stakeholder_review | parcial |
+| 11 | 2026-03-19 | ZEISS CMM: Precisão micrométrica em metrologia médica | blog_topics | brief_ready | aberto |
+| 12 | 2026-03-24 | ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos | db_existing | stakeholder_review | parcial |
+| 13 | 2026-03-26 | Guia DFM: Design for Manufacturing para implantes médicos | blog_topics | brief_ready | aberto |
+| 14 | 2026-03-31 | Identity: The Precision Partner | linkedin_archived | brief_ready | aberto |
+| 15 | 2026-04-02 | Tolerâncias micrométricas em dispositivos médicos: Guia completo | blog_topics | brief_ready | aberto |
+| 16 | 2026-04-07 | ISO 13485 explicado: O que é e por que importa | blog_topics | brief_ready | aberto |
+| 17 | 2026-04-09 | Como escolher fornecedor de implantes ortopédicos no Brasil | blog_topics | brief_ready | aberto |
+| 18 | 2026-04-14 | Lifetrek Medical Launch & Vision | linkedin_archived | brief_ready | aberto |
+| 19 | 2026-04-16 | Materiais para implantes: Titânio Ti-6Al-4V vs Aço Inoxidável 316L | blog_topics | brief_ready | aberto |
+| 20 | 2026-04-21 | Sala limpa ISO 7: Padrões e requisitos para dispositivos médicos | blog_topics | brief_ready | aberto |
+| 21 | 2026-04-28 | Quem Somos — Lifetrek Medical | linkedin_archived | brief_ready | aberto |
+| 22 | 2026-05-05 | Lifetrek Medical Launch (Composited) | linkedin_archived | brief_ready | aberto |
+| 23 | 2026-05-19 | Lifetrek Medical Launch (Real Asset + PT) | linkedin_archived | brief_ready | aberto |
 | 24 | 2026-05-26 | ANVISA: Guia de certificação para fabricantes de dispositivos médicos | blog_topics | brief_ready | aberto |
 
 ## Checklist SEO/AIO por Post
@@ -64,6 +64,12 @@
 - FAQ com 3+ perguntas (quando tema permitir)
 - imagem destacada horizontal definida
 - canonical/OG/Twitter válidos no `/blog/:slug`
+
+## Regra editorial de sequência
+
+- Máximo de 2 temas regulatórios em sequência.
+- Sempre alternar com processo, qualidade, metrologia, supply chain ou capacidades.
+- A ordem atual do tracker já está rebalanceada para evitar bloco ANVISA contínuo.
 
 ## Cadência de revisão
 

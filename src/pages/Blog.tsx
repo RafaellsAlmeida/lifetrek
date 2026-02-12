@@ -29,7 +29,7 @@ export default function Blog() {
             {t("blog.title")}
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Insights sobre manufatura médica, supply chain e inovação.
+            {t("blog.subtitle")}
           </p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export default function Blog() {
       <div className="container mx-auto px-4 py-12">
         {(!blogPosts || blogPosts.length === 0) ? (
           <div className="text-center py-20">
-            <p className="text-xl text-slate-500">Nenhum artigo publicado no momento.</p>
+            <p className="text-xl text-slate-500">{t("blog.empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

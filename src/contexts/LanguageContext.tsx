@@ -44,6 +44,12 @@ const translations = {
     "home.clients.title": "Trusted by Leading Medical Industry Companies",
     "home.clients.subtitle": "Partnering with innovative companies to deliver precision medical components worldwide",
     "home.clients.cta": "View All Industries",
+
+    // Blog
+    "blog.title": "Lifetrek Medical Blog",
+    "blog.subtitle": "Insights on medical manufacturing, supply chain and innovation.",
+    "blog.readMore": "Read more",
+    "blog.empty": "No published articles at the moment.",
     
     // About
     "about.title": "About Us",
@@ -529,6 +535,12 @@ const translations = {
     "home.clients.title": "Confiado pelas Principais Empresas da Área Médica",
     "home.clients.subtitle": "Fazendo parcerias com empresas inovadoras para entregar componentes médicos de precisão em todo o mundo",
     "home.clients.cta": "Ver Todas as Indústrias",
+
+    // Blog
+    "blog.title": "Blog Lifetrek Medical",
+    "blog.subtitle": "Insights sobre manufatura médica, supply chain e inovação.",
+    "blog.readMore": "Ler mais",
+    "blog.empty": "Nenhum artigo publicado no momento.",
     
     // About
     "about.title": "Quem Somos",

@@ -11,7 +11,7 @@ const COMPANY_CONTEXT = `
 # Lifetrek Medical - Company Context
 **Mission**: "To lead in the manufacture of high-performance products... with an absolute commitment to life."
 **Tone**: Technical, Ethical, Confident, Partnership-Oriented.
-**Key Themes**: Risk Reduction, Precision (Micron-level), Compliance (ANVISA/ISO 13485), Speed.
+**Key Themes**: Risk Reduction, Precision (Micron-level), Process Reliability, Speed, Compliance (ANVISA/ISO 13485 when relevant).
 
 ## Infrastructure
 - **CNC**: Citizen M32/L20 (Swiss-Type), Doosan Lynx 2100.
@@ -20,7 +20,7 @@ const COMPANY_CONTEXT = `
 
 ## Value Proposition
 1. **Dream Outcome**: Eliminate import dependency. Audit-ready supply chain.
-2. **Proof**: ISO 13485, ANVISA, Supplier for FGM/Ultradent.
+2. **Proof**: ISO 13485, ANVISA, supplier to leading medical OEMs.
 3. **Speed**: 30 days local production vs 90 days import.
 4. **Effort**: Single-source (Machining + Finishing + Metrology).
 `;
@@ -124,6 +124,39 @@ function formatRagMatches(matches: any[], maxChars = 600): string {
   return `**RAG Context (Vector Bucket)**\n${lines.join("\n")}`;
 }
 
+function normalizeUrlList(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+  const deduped = new Set<string>();
+
+  for (const item of input) {
+    if (typeof item !== "string") continue;
+    const trimmed = item.trim();
+    if (!trimmed.startsWith("http")) continue;
+    deduped.add(trimmed);
+  }
+
+  return Array.from(deduped);
+}
+
+function extractUrlsFromText(text: string): string[] {
+  if (!text) return [];
+  const matches = text.match(/https?:\/\/[^\s"')\]]+/g) || [];
+  return normalizeUrlList(matches);
+}
+
+function sanitizeForbiddenClientMentions(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/amorim\s*stout\s*consulting\s*\(asc\)/gi, "Lifetrek Medical")
+    .replace(/amorim\s*stout\s*consulting/gi, "Lifetrek Medical")
+    .replace(/\bmetodologia\s*4p\s*da\s*asc\b/gi, "abordagem de 4 pilares da Lifetrek Medical")
+    .replace(/\bframework\s*4p\b/gi, "framework técnico de 4 pilares")
+    .replace(/\bna\s+asc\b/gi, "na Lifetrek Medical")
+    .replace(/\bda\s+asc\b/gi, "da Lifetrek Medical")
+    .replace(/\ba\s+asc\b/gi, "a Lifetrek Medical")
+    .replace(/\bASC\b/g, "Lifetrek Medical");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -133,7 +166,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { generateNews, topic, category, research_context, skipImage, job_id: jobIdFromReq } = body;
+    const { generateNews, topic, category, research_context, skipImage, keywords: requestedKeywords, job_id: jobIdFromReq } = body;
     const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
     const VECTOR_BUCKET_NAME = Deno.env.get("VECTOR_BUCKET_NAME");
@@ -147,6 +180,7 @@ serve(async (req) => {
 
     let contextToUse = research_context || "";
     let ragMetrics: Record<string, number | string | boolean> = {};
+    let researchSources: string[] = [];
 
     // 1. DEEP RESEARCH PHASE (Perplexity sonar-pro for comprehensive research)
     if (PERPLEXITY_API_KEY && !contextToUse) {
@@ -181,7 +215,12 @@ Realize uma pesquisa aprofundada incluindo:
    - Lançamentos de produtos ou certificações
    - Desafios e oportunidades identificados
 
-Forneça informações factuais com fontes quando possível. Resposta em Português do Brasil, máximo 1000 palavras.`;
+Forneça informações factuais com fontes quando possível. Resposta em Português do Brasil, máximo 1000 palavras.
+
+IMPORTANTE:
+- Não force foco regulatório em todos os temas.
+- Se o tópico não for regulatório, priorize manufatura, qualidade, engenharia de processo, metrologia e performance operacional.
+- Nunca inclua nomes de outros clientes/consultorias.`;
 
         const researchPromise = fetch("https://api.perplexity.ai/chat/completions", {
           method: "POST",
@@ -203,7 +242,8 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
         contextToUse = pData.choices?.[0]?.message?.content || "";
 
         // Store citations for reference (not shown to users)
-        const citations = pData.citations || [];
+        const citations = normalizeUrlList(pData.citations || []);
+        researchSources = citations;
         if (citations.length > 0) {
           console.log(`📚 Research sources: ${citations.slice(0, 5).join(", ")}`);
         }
@@ -212,6 +252,10 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
       } catch (e) {
         console.error("⚠️ Perplexity deep research failed, continuing without research", e);
       }
+    }
+
+    if (researchSources.length === 0) {
+      researchSources = extractUrlsFromText(contextToUse);
     }
 
     // 1.5 VECTOR BUCKET RAG (Prototype)
@@ -315,6 +359,9 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
     // Moved BEFORE image generation to ensure content is always generated
     console.log("✍️ [Phase 3] Copywriter is working...");
     const writeStart = Date.now();
+    const sourceContext = researchSources.length > 0
+      ? researchSources.map((url, idx) => `${idx + 1}. ${url}`).join("\n")
+      : "No external URLs available. Use only verifiable, non-numeric claims if no source is available.";
 
     const writerSystemPrompt = `You are a Senior Manufacturing Engineer writing for Lifetrek Medical.
     
@@ -330,11 +377,21 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
     - Persona: ${strategy.target_persona}
     - Angle: ${strategy.angle}
     - Outline: ${JSON.stringify(strategy.outline)}
+    - Available external sources:
+${sourceContext}
     
     INSTRUCTIONS:
     - Write a technical article (800-1200 words).
-    - Use specific machine names (Citizen L20, Zeiss CMM), regulatory references (ANVISA RDC).
+    - Use specific machine names (Citizen L20, Zeiss CMM).
+    - Mention ANVISA/RDC only when the topic is directly about regulation/compliance.
+    - For non-regulatory topics, focus on process, metrology, quality, manufacturing performance, and supply chain risk reduction.
     - Goal: Make reader learn something valuable about manufacturing.
+    - NEVER mention other clients, consulting firms, competitors, or external brand names not explicitly provided as approved references.
+    - Forbidden terms: "Amorim Stout Consulting", "ASC", "Framework 4P", "Metodologia 4P da ASC".
+    - If a forbidden term appears in drafts, replace with "Lifetrek Medical" and rewrite the sentence to keep it technical and neutral.
+    - Include one section named "Referências" with 4-8 credible links in HTML list format (<ul><li>...</li></ul>).
+    - Include one section named "Perguntas frequentes" with at least 3 practical Q&A items (h3 + p).
+    - Do not invent URLs. Use only available sources.
     
     OUTPUT JSON:
     {
@@ -343,7 +400,8 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
       "seo_description": "Meta description (max 160 chars)",
       "excerpt": "2-3 sentence summary",
       "content": "HTML string",
-      "keywords": ["tag1", "tag2", "tag3"]
+      "keywords": ["tag1", "tag2", "tag3"],
+      "sources": ["https://source1.com", "https://source2.com"]
     }`;
 
     const writerData = await callAI(OPEN_ROUTER_API, {
@@ -362,7 +420,35 @@ Forneça informações factuais com fontes quando possível. Resposta em Portugu
       console.error("Failed to parse writer response:", parseError);
       throw new Error("Failed to generate blog content");
     }
+
+    finalPost.title = sanitizeForbiddenClientMentions(finalPost.title || "");
+    finalPost.excerpt = sanitizeForbiddenClientMentions(finalPost.excerpt || "");
+    finalPost.seo_title = sanitizeForbiddenClientMentions(finalPost.seo_title || "");
+    finalPost.seo_description = sanitizeForbiddenClientMentions(finalPost.seo_description || "");
+    finalPost.content = sanitizeForbiddenClientMentions(finalPost.content || "");
     console.log(`✅ [Phase 3] Content complete in ${Date.now() - writeStart}ms`);
+
+    const mergedSources = normalizeUrlList([
+      ...(Array.isArray(finalPost.sources) ? finalPost.sources : []),
+      ...researchSources
+    ]).slice(0, 10);
+
+    if (mergedSources.length > 0 && !/refer[eê]ncias/i.test(finalPost.content || "")) {
+      const referencesHtml = mergedSources
+        .map((url) => `<li><a href="${url}" target="_blank" rel="noopener noreferrer nofollow">${url}</a></li>`)
+        .join("");
+      finalPost.content = `${finalPost.content || ""}\n<h2>Referências</h2>\n<ul>${referencesHtml}</ul>`;
+    }
+
+    const keywordCandidates = Array.isArray(finalPost.keywords) && finalPost.keywords.length > 0
+      ? finalPost.keywords
+      : (Array.isArray(requestedKeywords) ? requestedKeywords : []);
+    const safeKeywords = Array.from(new Set(
+      keywordCandidates
+        .filter((k: unknown) => typeof k === "string")
+        .map((k: string) => k.trim())
+        .filter((k: string) => k.length > 0)
+    )).slice(0, 12);
 
     // 4. IMAGE GENERATION (Optional, non-blocking)
     let imageUrl = "";
@@ -457,12 +543,12 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
       seo_description: finalPost.seo_description,
       excerpt: finalPost.excerpt || finalPost.seo_description,
       content: finalPost.content,
-      keywords: finalPost.keywords || [],
-      tags: finalPost.keywords || [],
+      keywords: safeKeywords,
+      tags: safeKeywords,
       slug,
       featured_image: imageUrl,
       strategy_brief: strategy,
-      sources: [],
+      sources: mergedSources,
       rag_metrics: ragMetrics
     };
 
@@ -501,11 +587,14 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
           slug: result.slug,
           seo_title: result.seo_title,
           seo_description: result.seo_description,
+          keywords: result.keywords,
           ai_generated: true,
           metadata: {
             strategy: strategy,
             generation_time_ms: totalTime,
             keywords: result.keywords || [],
+            tags: result.tags || [],
+            sources: result.sources || [],
             rag_metrics: ragMetrics
           }
         };
