@@ -53,7 +53,7 @@ export interface BlogPost {
     excerpt: string | null;
     featured_image: string | null;
     author_name: string;
-    status: 'draft' | 'pending_review' | 'published' | 'rejected';
+    status: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
     seo_title: string | null;
     seo_description: string | null;
     keywords: string[] | null;
@@ -76,7 +76,7 @@ export interface BlogPostInsert {
     excerpt?: string;
     featured_image?: string;
     author_name?: string;
-    status?: 'draft' | 'pending_review' | 'published' | 'rejected';
+    status?: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
     seo_title?: string;
     seo_description?: string;
     keywords?: string[];

@@ -25,6 +25,7 @@ interface ScheduledItem {
   status: string;
   scheduled_for: string | null;
   created_at: string;
+  full_data?: any;
 }
 
 export default function ContentCalendar() {
@@ -50,7 +51,7 @@ export default function ContentCalendar() {
     queryFn: async () => {
       let q = supabase
         .from('linkedin_carousels')
-        .select('id, topic, status, scheduled_for, created_at, admin_user_id')
+        .select('id, topic, status, scheduled_date, created_at, admin_user_id')
         .in('status', ['draft', 'approved', 'pending_approval'])
         .order('created_at', { ascending: false });
 
@@ -66,8 +67,9 @@ export default function ContentCalendar() {
         type: 'linkedin' as const,
         title: item.topic,
         status: item.status || 'draft',
-        scheduled_for: item.scheduled_for,
-        created_at: item.created_at
+        scheduled_for: item.scheduled_date,
+        created_at: item.created_at,
+        full_data: item,
       }));
     }
   });
@@ -77,8 +79,8 @@ export default function ContentCalendar() {
     queryFn: async () => {
       let q = supabase
         .from('blog_posts')
-        .select('id, title, status, scheduled_for, created_at, author_name')
-        .in('status', ['draft', 'pending_review', 'published'])
+        .select('id, title, status, metadata, created_at, author_name')
+        .in('status', ['draft', 'pending_review', 'approved', 'scheduled', 'published'])
         .order('created_at', { ascending: false });
 
       if (scope === 'mine' && me?.email) {
@@ -93,8 +95,9 @@ export default function ContentCalendar() {
         type: 'blog' as const,
         title: item.title,
         status: item.status,
-        scheduled_for: item.scheduled_for,
-        created_at: item.created_at
+        scheduled_for: (item as any)?.metadata?.target_date || null,
+        created_at: item.created_at,
+        full_data: item,
       }));
     }
   });
@@ -102,12 +105,27 @@ export default function ContentCalendar() {
   // Mutation to schedule content
   const scheduleMutation = useMutation({
     mutationFn: async ({ item, date }: { item: ScheduledItem; date: Date | null }) => {
-      const table = item.type === 'linkedin' ? 'linkedin_carousels' : 'blog_posts';
+      if (item.type === 'linkedin') {
+        const { error } = await supabase
+          .from('linkedin_carousels')
+          .update({ scheduled_date: date?.toISOString() || null } as any)
+          .eq('id', item.id);
+        if (error) throw error;
+        return;
+      }
+
+      // blog_posts does not have scheduled_date in prod yet; store schedule in metadata.target_date.
+      const currentMetadata = (item.full_data as any)?.metadata || {};
+      const nextMetadata = {
+        ...currentMetadata,
+        target_date: date?.toISOString() || null,
+      };
+
       const { error } = await supabase
-        .from(table)
-        .update({ scheduled_for: date?.toISOString() || null })
+        .from('blog_posts')
+        .update({ metadata: nextMetadata } as any)
         .eq('id', item.id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {

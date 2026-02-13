@@ -21,7 +21,7 @@ import {
     useRejectResource,
 } from "@/hooks/useLinkedInPosts";
 import {
-    usePublishBlogPost,
+    useApproveBlogPost,
     useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
 import {
@@ -62,7 +62,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const { data: approvedItems, isLoading: isLoadingApproved } = useApprovedContentItems();
     const approveLinkedIn = useApproveLinkedInPost();
     const rejectLinkedIn = useRejectLinkedInPost();
-    const publishBlog = usePublishBlogPost();
+    const approveBlog = useApproveBlogPost();
     const updateBlog = useUpdateBlogPost();
     const approveResource = useApproveResource();
     const rejectResource = useRejectResource();
@@ -154,7 +154,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const handleApprove = async (item: any) => {
         try {
             if (item.type === 'blog') {
-                await publishBlog.mutateAsync(item.id);
+                await approveBlog.mutateAsync(item.id);
             } else if (item.type === 'linkedin') {
                 await approveLinkedIn.mutateAsync(item.id);
             } else if (item.type === 'instagram') {
@@ -196,21 +196,32 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (!schedulingItem || !scheduledDate) return;
 
         try {
+            const scheduledIso = scheduledDate.toISOString();
             const tableName = schedulingItem.type === 'linkedin' ? 'linkedin_carousels' :
                 schedulingItem.type === 'blog' ? 'blog_posts' :
                     schedulingItem.type === 'instagram' ? 'instagram_posts' : 'content_templates';
 
+            let updatePayload: Record<string, any> = { status: 'scheduled' };
+
+            if (schedulingItem.type === 'linkedin' || schedulingItem.type === 'instagram') {
+                updatePayload = { ...updatePayload, scheduled_date: scheduledIso };
+            } else if (schedulingItem.type === 'blog') {
+                // blog_posts does not have scheduled_date in prod yet; store schedule in metadata.target_date.
+                const currentMetadata = schedulingItem.full_data?.metadata || {};
+                updatePayload = {
+                    ...updatePayload,
+                    metadata: {
+                        ...currentMetadata,
+                        target_date: scheduledIso,
+                    }
+                };
+            } else if (schedulingItem.type === 'resource') {
+                updatePayload = { ...updatePayload, scheduled_date: scheduledIso };
+            }
+
             const { error } = await (supabase
                 .from(tableName as any)
-                .update({
-                    scheduled_for: schedulingItem.type === 'linkedin' || schedulingItem.type === 'blog'
-                        ? scheduledDate.toISOString()
-                        : undefined,
-                    scheduled_date: schedulingItem.type === 'instagram' || schedulingItem.type === 'resource'
-                        ? scheduledDate.toISOString()
-                        : undefined,
-                    status: 'scheduled'
-                } as any) as any)
+                .update(updatePayload as any) as any)
                 .eq('id', schedulingItem.id);
 
             if (error) throw error;

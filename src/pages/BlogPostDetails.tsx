@@ -12,6 +12,13 @@ import { toast } from "sonner";
 
 const SITE_URL = "https://lifetrek-medical.com";
 
+const resolveAbsoluteUrl = (value: string | null | undefined) => {
+    if (!value) return null;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith("/")) return `${SITE_URL}${value}`;
+    return `${SITE_URL}/${value}`;
+};
+
 const stripHtml = (html: string) =>
     html
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
@@ -133,6 +140,7 @@ export default function BlogPostDetails() {
     const faqEntries = extractFaqEntries(content);
     const displayAuthor = post.author_name || "Equipe Lifetrek Medical";
     const showHtmlContent = isLikelyHtml(content);
+    const featuredImageUrl = resolveAbsoluteUrl(post.featured_image);
 
     return (
         <div className="min-h-screen bg-white pb-20">
@@ -157,12 +165,12 @@ export default function BlogPostDetails() {
                 {articleKeywords.map((keyword) => (
                     <meta key={keyword} property="article:tag" content={keyword} />
                 ))}
-                {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+                {featuredImageUrl && <meta property="og:image" content={featuredImageUrl} />}
 
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={headline} />
                 <meta name="twitter:description" content={metaDescription} />
-                {post.featured_image && <meta name="twitter:image" content={post.featured_image} />}
+                {featuredImageUrl && <meta name="twitter:image" content={featuredImageUrl} />}
 
                 <script type="application/ld+json">
                     {JSON.stringify({
@@ -170,7 +178,7 @@ export default function BlogPostDetails() {
                         "@type": "BlogPosting",
                         headline,
                         description: metaDescription,
-                        image: post.featured_image,
+                        image: featuredImageUrl,
                         author: {
                             "@type": "Person",
                             name: displayAuthor,

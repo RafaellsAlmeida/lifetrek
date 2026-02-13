@@ -133,6 +133,57 @@ export function useDeleteBlogPost() {
     });
 }
 
+export function useApproveBlogPost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data: currentPost, error: fetchError } = await supabase
+                .from("blog_posts")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const metadata = (currentPost as any)?.metadata || {};
+            const icpPrimary = typeof metadata?.icp_primary === "string" ? metadata.icp_primary.trim() : "";
+            const pillarKeyword = typeof metadata?.pillar_keyword === "string" ? metadata.pillar_keyword.trim() : "";
+
+            if (!icpPrimary || !pillarKeyword) {
+                throw new Error("Preencha metadata.icp_primary e metadata.pillar_keyword antes de aprovar.");
+            }
+
+            const now = new Date().toISOString();
+            const nextMetadata = {
+                ...metadata,
+                approved_at: now,
+            };
+
+            const { data, error } = await supabase
+                .from("blog_posts")
+                .update({ status: "approved", metadata: nextMetadata } as any)
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
+            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+            toast.success("Artigo aprovado com sucesso!");
+        },
+        onError: (error) => {
+            console.error("Error approving blog post:", error);
+            const message = error instanceof Error ? error.message : "Erro ao aprovar artigo";
+            toast.error(message);
+        },
+    });
+}
+
 export function usePublishBlogPost() {
     const queryClient = useQueryClient();
 

@@ -415,7 +415,7 @@ export function useApprovedContentItems() {
              const { data: blogs, error: blogsError } = await supabase
                 .from("blog_posts")
                 .select("*")
-                .in("status", ["published", "scheduled"])
+                .in("status", ["approved", "scheduled", "published"])
                 .order("published_at", { ascending: false })
                 .limit(50);
 
@@ -455,7 +455,7 @@ export function useApprovedContentItems() {
                     content_preview: blog.excerpt || blog.content.substring(0, 150),
                     status: blog.status,
                     created_at: blog.created_at,
-                    approved_at: blog.published_at,
+                    approved_at: blog.published_at || blog?.metadata?.approved_at || blog.updated_at || blog.created_at,
                     ai_generated: blog.ai_generated || false,
                     full_data: blog,
                 })),

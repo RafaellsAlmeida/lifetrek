@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageEditorCore } from "@/components/admin/content/ImageEditorCore";
 import { ContentApprovalCore } from "@/components/admin/content/ContentApprovalCore";
 import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
-// import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
+import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
 // import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore"; 
 import { Loader2, LayoutDashboard, PenLine, Palette, CheckCircle2, CalendarDays, BarChart3 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -198,7 +198,9 @@ export default function SocialMediaWorkspace() {
                 </TabsContent>
 
                 <TabsContent value="calendar" className="mt-0 focus-visible:outline-none h-full">
-                  <div className="p-12 text-center text-muted-foreground">Calendar Module (Temporarily Disabled for Debugging)</div>
+                  <Suspense fallback={<TabLoading />}>
+                    <ContentSchedulerEmbed />
+                  </Suspense>
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 focus-visible:outline-none h-full">
@@ -235,6 +237,14 @@ function ContentOrchestratorEmbed() {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
       <ContentOrchestratorCore embedded={true} />
+    </div>
+  );
+}
+
+function ContentSchedulerEmbed() {
+  return (
+    <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 p-6 min-h-[70vh]">
+      <ContentScheduler />
     </div>
   );
 }

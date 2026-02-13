@@ -18,7 +18,7 @@ interface PostMetrics {
   item_topic: string; // mapped from 'topic'
   status: string;
   published_at: string | null;
-  scheduled_for: string | null;
+  scheduled_date: string | null;
   campaign_id: string | null;
   views: number;
   likes: number;
@@ -39,7 +39,7 @@ export function PostPerformanceTable() {
       setLoading(true);
       const { data, error } = await supabase
         .from("linkedin_carousels")
-        .select("id, topic, status, published_at, scheduled_for, campaign_id, views, likes, comments, engagement_rate")
+        .select("id, topic, status, published_at, scheduled_date, campaign_id, views, likes, comments, engagement_rate")
         .order("views", { ascending: false })
         .limit(10); // Top 10 for now
 
@@ -55,7 +55,7 @@ export function PostPerformanceTable() {
         item_topic: p.topic,
         status: p.status,
         published_at: p.published_at,
-        scheduled_for: p.scheduled_for,
+        scheduled_date: p.scheduled_date,
         campaign_id: p.campaign_id,
         views: p.views ?? 0, // Use null coalescing
         likes: p.likes ?? 0,
@@ -131,8 +131,8 @@ export function PostPerformanceTable() {
                     <TableCell className="text-muted-foreground text-sm">
                       {post.published_at 
                         ? new Date(post.published_at).toLocaleDateString('pt-BR') 
-                        : post.scheduled_for 
-                          ? new Date(post.scheduled_for).toLocaleDateString('pt-BR')
+                        : post.scheduled_date 
+                          ? new Date(post.scheduled_date).toLocaleDateString('pt-BR')
                           : '-'}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">

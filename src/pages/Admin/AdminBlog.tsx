@@ -140,6 +140,8 @@ export default function AdminBlog() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'published': return <Badge className="bg-green-500">Publicado</Badge>;
+            case 'scheduled': return <Badge className="bg-blue-500">Agendado</Badge>;
+            case 'approved': return <Badge className="bg-emerald-500">Aprovado</Badge>;
             case 'draft': return <Badge variant="secondary">Rascunho</Badge>;
             case 'pending_review': return <Badge variant="outline" className="border-yellow-500 text-yellow-600">Revisão</Badge>;
             case 'rejected': return <Badge variant="destructive">Rejeitado</Badge>;

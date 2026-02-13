@@ -35,9 +35,9 @@ serve(async (req) => {
     // 1. Process LinkedIn Carousels
     const { data: linkedinToPublish, error: liError } = await supabase
         .from("linkedin_carousels")
-        .select("id, topic, scheduled_for, scheduled_date")
+        .select("id, topic, scheduled_date")
         .eq("status", "scheduled")
-        .or(`scheduled_for.lte.${now},scheduled_date.lte.${now}`);
+        .lte("scheduled_date", now);
 
     if (liError) throw liError;
 
@@ -77,12 +77,14 @@ serve(async (req) => {
     // 3. Process Blog Posts
     const { data: blogsToPublish, error: blogError } = await supabase
         .from("blog_posts")
-        .select("id, title, scheduled_for, scheduled_date")
-        .eq("status", "scheduled")
-        .or(`scheduled_for.lte.${now},scheduled_date.lte.${now}`);
+        .select("id, title, metadata")
+        .eq("status", "scheduled");
 
     if (!blogError) {
         for (const item of blogsToPublish || []) {
+            const scheduledAt = (item as any)?.metadata?.target_date;
+            if (!scheduledAt || new Date(scheduledAt).toISOString() > now) continue;
+
             console.log(`Publishing Blog Post: ${item.title}`);
             await supabase
                 .from("blog_posts")

@@ -124,11 +124,17 @@ export async function handleHybridGeneration(
         try {
             console.log(`[HYBRID_HANDLER] Compositing overlay...`);
 
+            // Match platform aspect ratio.
+            // IG should be 1:1; LinkedIn defaults to 4:5 in this project.
+            const overlaySize = platform.aspectRatio === '1:1'
+                ? { width: 1080, height: 1080 }
+                : { width: 720, height: 900 };
+
             // Resize for Satori optimization
             let satoriBgUrl = bgPublicUrl;
             if (bgPublicUrl.includes('/object/public/')) {
                 satoriBgUrl = bgPublicUrl.replace('/object/public/', '/render/image/public/') +
-                    `?width=720&height=900&resize=cover&quality=60`;
+                    `?width=${overlaySize.width}&height=${overlaySize.height}&resize=cover&quality=60`;
             }
 
             // Note: We need to update generateOverlay to accept iso/logo blobs if we want to embed them?
@@ -138,8 +144,8 @@ export async function handleHybridGeneration(
             const compositeBuffer = await generateOverlay(
                 slide,
                 satoriBgUrl,
-                720,
-                900
+                overlaySize.width,
+                overlaySize.height
             );
 
             // Convert buffer to base64

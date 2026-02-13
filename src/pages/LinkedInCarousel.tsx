@@ -292,7 +292,7 @@ export default function LinkedInCarousel() {
         format: result.format || format,
         image_urls: result.slides.map(s => s.imageUrl || ""),
         status: overrideStatus || 'draft',
-        scheduled_for: scheduledDate || null,
+        scheduled_date: scheduledDate || null,
         campaign_id: campaignId || null,
         utm_campaign: utmCampaign || campaignId || null,
         generation_settings: {
