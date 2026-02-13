@@ -19,7 +19,7 @@ import {
   useLinkedInCarouselFull,
 } from "@/hooks/useLinkedInPosts";
 import {
-  usePublishBlogPost,
+  useApproveBlogPost,
   useUpdateBlogPost
 } from "@/hooks/useBlogPosts";
 import {
@@ -62,7 +62,7 @@ export default function ContentApproval() {
   const rejectLinkedIn = useRejectLinkedInPost();
   const approveInstagram = useApproveInstagramPost();
   const rejectInstagram = useRejectInstagramPost();
-  const publishBlog = usePublishBlogPost();
+  const approveBlog = useApproveBlogPost();
   const updateBlog = useUpdateBlogPost();
 
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -158,14 +158,14 @@ export default function ContentApproval() {
   };
 
   const handleApprove = async (item: any) => {
-    try {
-      if (item.type === 'blog') {
-        await publishBlog.mutateAsync(item.id);
-      } else if (item.type === 'linkedin') {
+      try {
+        if (item.type === 'blog') {
+        await approveBlog.mutateAsync(item.id);
+        } else if (item.type === 'linkedin') {
         await approveLinkedIn.mutateAsync(item.id);
-      } else if (item.type === 'instagram') {
+        } else if (item.type === 'instagram') {
         await approveInstagram.mutateAsync(item.id);
-      }
+        }
     } catch (error) {
       console.error('Error approving:', error);
     }
@@ -544,7 +544,7 @@ export default function ContentApproval() {
                       variant="default"
                       onClick={() => handleApprove(item)}
                       className="gap-2 bg-green-600 hover:bg-green-700"
-                      disabled={approveLinkedIn.isPending || publishBlog.isPending}
+                      disabled={approveLinkedIn.isPending || approveBlog.isPending}
                     >
                       <ThumbsUp className="h-4 w-4" />
                       Aprovar
@@ -611,7 +611,7 @@ export default function ContentApproval() {
                       variant="default"
                       onClick={() => handleApprove(item)}
                       className="gap-2 bg-green-600 hover:bg-green-700"
-                      disabled={publishBlog.isPending}
+                      disabled={approveBlog.isPending}
                     >
                       <ThumbsUp className="h-4 w-4" />
                       Aprovar

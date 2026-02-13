@@ -71,7 +71,7 @@ export default function ContentCalendar() {
                 title: item.topic,
                 type: 'linkedin',
                 status: item.status as any,
-                scheduled_for: item.scheduled_for || item.created_at // fallback for demo
+                scheduled_for: item.scheduled_date || item.created_at // fallback for demo
             }));
 
             const blogItems: CalendarItem[] = (blogData || []).map(item => ({
@@ -79,7 +79,7 @@ export default function ContentCalendar() {
                 title: item.title,
                 type: 'blog',
                 status: item.status as any,
-                scheduled_for: item.scheduled_for || item.published_at || item.created_at // fallback
+                scheduled_for: item?.metadata?.target_date || item.published_at || item.created_at // fallback
             }));
 
             return [...linkedinItems, ...blogItems];
@@ -93,18 +93,31 @@ export default function ContentCalendar() {
                 const { error } = await supabase
                     .from('linkedin_carousels')
                         .update({
-                            scheduled_for: date,
+                            scheduled_date: date,
                             status: 'scheduled'
                         })
                     .eq('id', id);
                 if (error) throw error;
             } else {
+                const { data: current, error: fetchError } = await supabase
+                    .from('blog_posts')
+                    .select('metadata')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                if (fetchError) throw fetchError;
+
+                const nextMetadata = {
+                    ...(current as any)?.metadata,
+                    target_date: date,
+                };
+
                 const { error } = await supabase
                     .from('blog_posts')
                         .update({
-                            scheduled_for: date,
+                            metadata: nextMetadata,
                             status: 'scheduled'
-                        })
+                        } as any)
                     .eq('id', id);
                 if (error) throw error;
             }

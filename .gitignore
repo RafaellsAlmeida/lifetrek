@@ -47,6 +47,7 @@ execution/generated_carousels/
 playwright-report
 test-results
 *.local
+.playwright-cli/
 
 # Sensitive / project-specific
 unipile-node-sdk

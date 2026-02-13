@@ -12,19 +12,28 @@ export function ContentScheduler() {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const { data: items, isLoading } = useApprovedContentItems();
 
-    // Filter items that have a scheduled_for or scheduled_date
-    const scheduledItems = items?.filter(item => item.full_data.scheduled_for || item.full_data.scheduled_date) || [];
+    const getScheduledAt = (fullData: any): string | null => {
+        return (
+            fullData?.scheduled_date ||
+            fullData?.scheduled_for ||
+            fullData?.metadata?.target_date ||
+            null
+        );
+    };
+
+    // Filter items that have a scheduled date (platform-specific fields)
+    const scheduledItems = items?.filter(item => !!getScheduledAt(item.full_data)) || [];
 
     // Items for the selected day
     const dayItems = scheduledItems.filter(item => {
-        const scheduledAt = item.full_data.scheduled_for || item.full_data.scheduled_date;
+        const scheduledAt = getScheduledAt(item.full_data);
         if (!scheduledAt) return false;
         return isSameDay(parseISO(scheduledAt), selectedDate || new Date());
     });
 
     // Dates that have scheduled posts (for highlighting/modifiers)
     const scheduledDates = scheduledItems
-        .map(item => item.full_data.scheduled_for || item.full_data.scheduled_date)
+        .map(item => getScheduledAt(item.full_data))
         .filter(Boolean)
         .map((value: string) => parseISO(value));
 
@@ -98,7 +107,7 @@ export function ContentScheduler() {
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h4 className="font-semibold text-sm truncate">{item.title}</h4>
                                                 <Badge variant="secondary" className="text-[10px] h-4">
-                                                    {format(parseISO(item.full_data.scheduled_for || item.full_data.scheduled_date), "HH:mm")}
+                                                    {format(parseISO(getScheduledAt(item.full_data) as string), "HH:mm")}
                                                 </Badge>
                                             </div>
                                             <p className="text-xs text-muted-foreground truncate italic">

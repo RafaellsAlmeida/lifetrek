@@ -153,9 +153,9 @@ const slidesData: SlideData[] = [
       { title: "4. Produção", desc: "Fornecimento contínuo com qualidade garantida" }
     ],
     content: [
-      "contato@lifetrekmedical.com.br",
+      "vmartin@lifetrek-medical.com",
       "+55 (47) 3333-0000",
-      "www.lifetrekmedical.com.br"
+      "www.lifetrek-medical.com"
     ]
   }
 ];

@@ -14,7 +14,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://lifetrekmedical.com.br/sitemap.xml
+Sitemap: https://lifetrek-medical.com/sitemap.xml
 
 # Disallow admin pages
 Disallow: /admin
