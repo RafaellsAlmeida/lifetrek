@@ -66,7 +66,7 @@ export function ImageEditorCore({ postId, postType = 'template', slideIndex = 0,
             } else if (postType === 'instagram') {
                 // Instagram usually single image or carousel, handle simplified for now
                 setText(data.content_preview || data.caption || "Instagram Post");
-                setBgUrl(data.image_urls?.[0] || "https://placehold.co/1080x1350/1a1a1a/FFF?text=InstaBackground");
+                setBgUrl(data.image_urls?.[0] || data.slides?.[0]?.image_url || data.slides?.[0]?.imageUrl || "https://placehold.co/1080x1350/1a1a1a/FFF?text=InstaBackground");
             } else {
                 // Content Templates (Legacy/Default)
                 setText(data.title || "New Post");

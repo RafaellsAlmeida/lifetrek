@@ -269,9 +269,9 @@ export default function ContentPreview() {
                 <div className="min-h-screen bg-slate-50 py-12">
                     <div className="container max-w-2xl mx-auto">
                         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                            {content.image_urls?.[0] && (
+                            {(content.image_urls?.[0] || content.slides?.[0]?.image_url || content.slides?.[0]?.imageUrl) && (
                                 <img
-                                    src={content.image_urls[0]}
+                                    src={content.image_urls?.[0] || content.slides?.[0]?.image_url || content.slides?.[0]?.imageUrl}
                                     alt={content.title}
                                     className="w-full aspect-square object-cover"
                                 />

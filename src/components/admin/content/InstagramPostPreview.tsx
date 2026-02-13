@@ -32,9 +32,9 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
 
             {/* Main Image / Carousel Placeholder */}
             <div className="aspect-square bg-slate-100 relative flex items-center justify-center overflow-hidden">
-                {post?.image_url ? (
+                {(post?.image_url || post?.slides?.[0]?.image_url || post?.slides?.[0]?.imageUrl) ? (
                     <img
-                        src={post.image_url}
+                        src={post.image_url || post.slides?.[0]?.image_url || post.slides?.[0]?.imageUrl}
                         alt="Instagram Content"
                         className="w-full h-full object-cover"
                     />
