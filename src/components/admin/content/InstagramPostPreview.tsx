@@ -1,17 +1,51 @@
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Instagram } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface InstagramPostPreviewProps {
     post: any;
 }
 
 export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
+    const [imageSet, setImageSet] = useState<'square' | 'original' | 'current'>('current');
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const { currentUrls, squareUrls, originalUrls } = useMemo(() => {
+        const normalizeArray = (value: any): string[] => {
+            if (!value) return [];
+            if (Array.isArray(value)) return value.filter(Boolean);
+            if (typeof value === 'string') {
+                try {
+                    const parsed = JSON.parse(value);
+                    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+                } catch {
+                    return value.split(',').map((s) => s.trim()).filter(Boolean);
+                }
+            }
+            return [];
+        };
+
+        const meta = post?.generation_metadata && typeof post.generation_metadata === 'object'
+            ? post.generation_metadata
+            : {};
+
+        return {
+            currentUrls: normalizeArray(post?.image_urls).length ? normalizeArray(post?.image_urls) : normalizeArray(post?.image_url),
+            squareUrls: normalizeArray((meta as any)?.square_v1_image_urls),
+            originalUrls: normalizeArray((meta as any)?.prev_image_urls),
+        };
+    }, [post]);
+
+    const activeUrls = imageSet === 'square' ? squareUrls : imageSet === 'original' ? originalUrls : currentUrls;
+    const mainUrl = activeUrls[activeIndex] || activeUrls[0] || null;
+
     const hashtags = Array.isArray(post?.hashtags)
         ? post.hashtags
         : (typeof post?.hashtags === 'string' ? post.hashtags.split(',').map((s: string) => s.trim()) : []);
+
+    const canPrev = activeUrls.length > 1 && activeIndex > 0;
+    const canNext = activeUrls.length > 1 && activeIndex < activeUrls.length - 1;
 
     return (
         <div className="max-w-md mx-auto bg-white border rounded-xl overflow-hidden shadow-sm">
@@ -30,11 +64,45 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
 
+            {/* Image source toggle */}
+            <div className="px-3 py-2 border-b bg-slate-50 flex items-center justify-between gap-2">
+                <div className="text-[11px] text-slate-600">
+                    Visual: {imageSet === 'square' ? 'Quadrado (1:1)' : imageSet === 'original' ? 'Original (Claude)' : 'Atual (DB)'}
+                </div>
+                <div className="flex items-center gap-1">
+                    {squareUrls.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => { setImageSet('square'); setActiveIndex(0); }}
+                            className={`px-2 py-1 rounded-md text-[11px] border ${imageSet === 'square' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                        >
+                            Quadrado
+                        </button>
+                    )}
+                    {originalUrls.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => { setImageSet('original'); setActiveIndex(0); }}
+                            className={`px-2 py-1 rounded-md text-[11px] border ${imageSet === 'original' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                        >
+                            Original
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => { setImageSet('current'); setActiveIndex(0); }}
+                        className={`px-2 py-1 rounded-md text-[11px] border ${imageSet === 'current' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                    >
+                        Atual
+                    </button>
+                </div>
+            </div>
+
             {/* Main Image / Carousel Placeholder */}
             <div className="aspect-square bg-slate-100 relative flex items-center justify-center overflow-hidden">
-                {post?.image_url ? (
+                {mainUrl ? (
                     <img
-                        src={post.image_url}
+                        src={mainUrl}
                         alt="Instagram Content"
                         className="w-full h-full object-cover"
                     />
@@ -50,9 +118,32 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
                     </div>
                 )}
 
-                {post?.post_type === 'carousel' && (
+                {activeUrls.length > 1 && (
                     <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full whitespace-nowrap">
-                        1/5
+                        {activeIndex + 1}/{activeUrls.length}
+                    </div>
+                )}
+
+                {activeUrls.length > 1 && (
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-2">
+                        <button
+                            type="button"
+                            disabled={!canPrev}
+                            onClick={() => setActiveIndex((i) => Math.max(0, i - 1))}
+                            className={`h-9 w-9 rounded-full flex items-center justify-center backdrop-blur border ${canPrev ? 'bg-white/80 border-white/60 hover:bg-white' : 'bg-white/40 border-white/30 opacity-60 cursor-not-allowed'}`}
+                            aria-label="Slide anterior"
+                        >
+                            <ChevronLeft className="h-5 w-5 text-slate-800" />
+                        </button>
+                        <button
+                            type="button"
+                            disabled={!canNext}
+                            onClick={() => setActiveIndex((i) => Math.min(activeUrls.length - 1, i + 1))}
+                            className={`h-9 w-9 rounded-full flex items-center justify-center backdrop-blur border ${canNext ? 'bg-white/80 border-white/60 hover:bg-white' : 'bg-white/40 border-white/30 opacity-60 cursor-not-allowed'}`}
+                            aria-label="Proximo slide"
+                        >
+                            <ChevronRight className="h-5 w-5 text-slate-800" />
+                        </button>
                     </div>
                 )}
             </div>
@@ -96,5 +187,4 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
         </div>
     );
 }
-
 
