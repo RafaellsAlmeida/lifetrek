@@ -310,6 +310,32 @@ export default function ContentApproval() {
             </div>
           </div>
 
+          {/* Carousel Slides / Image Preview */}
+          {post?.slides && post.slides.length > 0 && (
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-2">Slides ({post.slides.length})</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {post.slides.map((slide: any, idx: number) => {
+                  const imgSrc = slide?.image_url || slide?.imageUrl;
+                  return (
+                    <div key={idx} className="relative aspect-square bg-slate-100 rounded-lg overflow-hidden border">
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={slide?.headline || `Slide ${idx + 1}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                          Sem imagem
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] px-2 py-1 truncate">
+                        {slide?.headline || `Slide ${idx + 1}`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
             <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
