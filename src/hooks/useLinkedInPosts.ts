@@ -237,7 +237,7 @@ export function useContentApprovalItems() {
                 // Fetch pending/draft Instagram posts
                 const { data: instagramPosts, error: instagramError } = await (supabase
                     .from("instagram_posts" as any)
-                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, hashtags, post_type")
+                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, hashtags, post_type, slides")
                     .in("status", ["draft", "pending_approval"])
                     .order("created_at", { ascending: false }) as any);
 
@@ -338,7 +338,7 @@ export function useRejectedContentItems() {
 
             const { data: instagramPosts, error: instagramError } = await (supabase
                 .from("instagram_posts" as any)
-                .select("id, topic, status, created_at, rejected_at, rejection_reason, target_audience, caption, hashtags")
+                .select("id, topic, status, created_at, rejected_at, rejection_reason, target_audience, caption, hashtags, slides")
                 .eq("status", "archived")
                 .order("rejected_at", { ascending: false }) as any);
 
@@ -432,7 +432,7 @@ export function useApprovedContentItems() {
 
             const { data: instagramPosts, error: instagramError } = await (supabase
                 .from("instagram_posts" as any)
-                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date")
+                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date, slides")
                 .in("status", ["approved", "published", "scheduled"])
                 .order("updated_at", { ascending: false })
                 .limit(50) as any);
