@@ -224,6 +224,9 @@ export function buildBackgroundPrompt(
     let finalPrompt = basePrompt
         .replace("Create a polished LinkedIn carousel slide with TEXT INTEGRATED into the image.", "Create a high-quality background image for a LinkedIn carousel pivot.")
         .replace(/=== HYBRID-COMPOSITE DESIGN \(CRITICAL\) ===[\s\S]*?=== BACKGROUND ===/, "=== BACKGROUND (NO TEXT/LOGOS) ===") // Remove composite instructions
+        // Avoid prompting the model to literally render "Logo"/badges as text.
+        .replace(/- Reserve space in top-right corner[^\n]*\n/g, "")
+        .replace(/- Badge space in bottom area[^\n]*\n/g, "")
         .concat(`\n\n=== SPECIAL HYBRID INSTRUCTION ===
         - DO NOT generate any text, headlines, or logos.
         - DO NOT generate badges.
