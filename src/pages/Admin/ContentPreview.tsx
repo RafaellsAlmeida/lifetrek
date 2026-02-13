@@ -36,6 +36,8 @@ export default function ContentPreview() {
     const [isLoading, setIsLoading] = useState(true);
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
+    const [igImageSet, setIgImageSet] = useState<'square' | 'original' | 'current'>('current');
+    const [igActiveIndex, setIgActiveIndex] = useState(0);
 
     useEffect(() => {
         fetchContent();
@@ -101,6 +103,15 @@ export default function ContentPreview() {
             }
 
             setContent(data);
+            if (type === 'instagram') {
+                const meta = (data as any)?.generation_metadata;
+                const hasSquare = meta && typeof meta === 'object' && Array.isArray(meta.square_v1_image_urls) && meta.square_v1_image_urls.length > 0;
+                const hasPrev = meta && typeof meta === 'object' && Array.isArray(meta.prev_image_urls) && meta.prev_image_urls.length > 0;
+                setIgImageSet(hasSquare ? 'square' : 'current');
+                setIgActiveIndex(0);
+                // If there is no square set but there is a previous set, default to current anyway.
+                if (!hasSquare && hasPrev) setIgImageSet('current');
+            }
         } catch (error) {
             console.error('Error fetching content:', error);
             toast.error('Erro ao carregar conteúdo');
@@ -269,13 +280,78 @@ export default function ContentPreview() {
                 <div className="min-h-screen bg-slate-50 py-12">
                     <div className="container max-w-2xl mx-auto">
                         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                            {content.image_urls?.[0] && (
-                                <img
-                                    src={content.image_urls[0]}
-                                    alt={content.title}
-                                    className="w-full aspect-square object-cover"
-                                />
-                            )}
+                            {(() => {
+                                const meta = (content as any)?.generation_metadata;
+                                const currentUrls: string[] = Array.isArray((content as any).image_urls) ? (content as any).image_urls : [];
+                                const squareUrls: string[] = meta && typeof meta === 'object' && Array.isArray(meta.square_v1_image_urls) ? meta.square_v1_image_urls : [];
+                                const originalUrls: string[] = meta && typeof meta === 'object' && Array.isArray(meta.prev_image_urls) ? meta.prev_image_urls : [];
+
+                                const activeUrls =
+                                    igImageSet === 'square' ? squareUrls :
+                                        igImageSet === 'original' ? originalUrls :
+                                            currentUrls;
+
+                                const mainUrl = activeUrls[igActiveIndex] || activeUrls[0];
+
+                                return (
+                                    <>
+                                        <div className="p-4 border-b bg-white flex flex-wrap gap-2 items-center justify-between">
+                                            <div className="text-sm text-slate-600">
+                                                Preview do carrossel (Instagram)
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {squareUrls.length > 0 && (
+                                                    <button
+                                                        onClick={() => { setIgImageSet('square'); setIgActiveIndex(0); }}
+                                                        className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'square' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
+                                                    >
+                                                        Quadrado (1:1)
+                                                    </button>
+                                                )}
+                                                {originalUrls.length > 0 && (
+                                                    <button
+                                                        onClick={() => { setIgImageSet('original'); setIgActiveIndex(0); }}
+                                                        className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'original' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
+                                                    >
+                                                        Original (Claude)
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => { setIgImageSet('current'); setIgActiveIndex(0); }}
+                                                    className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'current' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
+                                                >
+                                                    Atual (DB)
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {mainUrl && (
+                                            <img
+                                                src={mainUrl}
+                                                alt={content.title}
+                                                className="w-full aspect-square object-cover bg-slate-100"
+                                            />
+                                        )}
+
+                                        {activeUrls.length > 1 && (
+                                            <div className="p-4 border-b bg-white">
+                                                <div className="grid grid-cols-4 gap-3">
+                                                    {activeUrls.map((url, idx) => (
+                                                        <button
+                                                            key={url}
+                                                            onClick={() => setIgActiveIndex(idx)}
+                                                            className={`rounded-lg overflow-hidden border ${idx === igActiveIndex ? 'border-slate-900' : 'border-slate-200 hover:border-slate-400'}`}
+                                                            title={`Slide ${idx + 1}`}
+                                                        >
+                                                            <img src={url} alt={`Slide ${idx + 1}`} className="w-full aspect-square object-cover" />
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                );
+                            })()}
                             <div className="p-6">
                                 <p className="text-slate-700">{content.caption}</p>
                             </div>

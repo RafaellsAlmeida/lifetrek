@@ -29,13 +29,12 @@ async function assertNoPlaceholders(page) {
 
 async function screenshot(page, name) {
   const p = path.join(OUT_DIR, name);
-  // Prefer element screenshots; they're more reliable than page screenshots
-  // when pages have complex layout/scroll/async fonts.
-  await page.locator("body").screenshot({
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForTimeout(250);
+  await page.screenshot({
     path: p,
+    fullPage: false,
     timeout: 60_000,
-    animations: "disabled",
-    caret: "hide",
   });
   return p;
 }
