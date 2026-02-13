@@ -50,15 +50,33 @@ import { BLOG_TOPICS, BlogTopic } from "@/config/blogTopics";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
+import { BlogIcpCode } from "@/types/blog";
+
+const ICP_LABELS: Record<BlogIcpCode, string> = {
+    MI: "Implantes/Instrumentos",
+    OD: "Odonto",
+    VT: "Veterinário",
+    HS: "Instituições de Saúde",
+    CM: "OEM/CM",
+};
+
+const getIcpPrimary = (post: any): BlogIcpCode | null => {
+    const value = post?.metadata?.icp_primary;
+    if (value === "MI" || value === "OD" || value === "VT" || value === "HS" || value === "CM") {
+        return value;
+    }
+    return null;
+};
 
 export default function AdminBlog() {
     const [activeTab, setActiveTab] = useState("posts");
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedIcp, setSelectedIcp] = useState<"all" | BlogIcpCode>("all");
     const [selectedTopic, setSelectedTopic] = useState<BlogTopic | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
     const { data: posts, isLoading } = useBlogPosts(false);
-    const { data: categories } = useBlogCategories();
+    const { data: categories } = useBlogCategories(activeTab === "strategy");
     const createPost = useCreateBlogPost();
     const deletePost = useDeleteBlogPost();
     const publishPost = usePublishBlogPost();
@@ -108,10 +126,16 @@ export default function AdminBlog() {
         }
     };
 
-    const filteredPosts = posts?.filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.status.includes(searchTerm.toLowerCase())
-    );
+    const filteredPosts = posts?.filter((post: any) => {
+        const term = searchTerm.trim().toLowerCase();
+        const byText =
+            !term ||
+            post.title.toLowerCase().includes(term) ||
+            post.status.includes(term);
+        const icp = getIcpPrimary(post);
+        const byIcp = selectedIcp === "all" || icp === selectedIcp;
+        return byText && byIcp;
+    });
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -149,14 +173,32 @@ export default function AdminBlog() {
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle>Artigos ({filteredPosts?.length || 0})</CardTitle>
-                                <div className="relative w-64">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Buscar artigos..."
-                                        className="pl-8"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                                <div className="flex items-center gap-3">
+                                    <Select
+                                        value={selectedIcp}
+                                        onValueChange={(value) => setSelectedIcp(value as "all" | BlogIcpCode)}
+                                    >
+                                        <SelectTrigger className="w-[220px]">
+                                            <SelectValue placeholder="Filtrar por ICP" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todos os ICPs</SelectItem>
+                                            <SelectItem value="CM">{ICP_LABELS.CM}</SelectItem>
+                                            <SelectItem value="MI">{ICP_LABELS.MI}</SelectItem>
+                                            <SelectItem value="OD">{ICP_LABELS.OD}</SelectItem>
+                                            <SelectItem value="VT">{ICP_LABELS.VT}</SelectItem>
+                                            <SelectItem value="HS">{ICP_LABELS.HS}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <div className="relative w-64">
+                                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Buscar artigos..."
+                                            className="pl-8"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </CardHeader>
@@ -169,6 +211,7 @@ export default function AdminBlog() {
                                         <TableRow>
                                             <TableHead>Título</TableHead>
                                             <TableHead>Status</TableHead>
+                                            <TableHead>ICP</TableHead>
                                             <TableHead>Data Criação</TableHead>
                                             <TableHead>Views</TableHead>
                                             <TableHead className="text-right">Ações</TableHead>
@@ -179,6 +222,16 @@ export default function AdminBlog() {
                                             <TableRow key={post.id}>
                                                 <TableCell className="font-medium">{post.title}</TableCell>
                                                 <TableCell>{getStatusBadge(post.status)}</TableCell>
+                                                <TableCell>
+                                                    {(() => {
+                                                        const icp = getIcpPrimary(post);
+                                                        return icp ? (
+                                                            <Badge variant="outline">{ICP_LABELS[icp]}</Badge>
+                                                        ) : (
+                                                            <Badge variant="secondary">Sem ICP</Badge>
+                                                        );
+                                                    })()}
+                                                </TableCell>
                                                 <TableCell>{format(new Date(post.created_at), "dd/MM/yyyy", { locale: ptBR })}</TableCell>
                                                 <TableCell>-</TableCell>
                                                 <TableCell className="text-right space-x-2">

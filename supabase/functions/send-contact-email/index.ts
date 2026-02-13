@@ -16,9 +16,9 @@ interface ContactEmailRequest {
   email: string;
   company?: string;
   phone: string;
-  projectTypes: string[];
+  projectTypes?: string[];
   annualVolume?: string;
-  technicalRequirements: string;
+  technicalRequirements?: string;
   message?: string;
 }
 
@@ -35,7 +35,10 @@ const PROJECT_TYPE_LABELS: Record<string, string> = {
   other_medical: "Outros Médicos",
 };
 
-const formatProjectTypes = (types: string[]): string => {
+const formatProjectTypes = (types: string[] = []): string => {
+  if (!Array.isArray(types) || types.length === 0) {
+    return "Nao informado";
+  }
   return types.map(type => PROJECT_TYPE_LABELS[type] || type).join(", ");
 };
 
@@ -44,33 +47,43 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Initialize clients inside handler to prevent cold-start crashes
-  console.log("DEBUG: Available Env Keys:", Object.keys(Deno.env.toObject()));
-
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  // Fallback to hardcoded key if env var is missing (Temporary fix for secrets issue)
-  const finalResendKey = resendApiKey || "re_PK5SsLmT_5xs5uxxKGtMSo7B4HEr35eB7";
-
-  if (!finalResendKey) {
+  if (!resendApiKey) {
     console.error("Missing RESEND_API_KEY");
-    return new Response(JSON.stringify({
-      error: "Configuration Error: Missing RESEND_API_KEY",
-      availableKeys: Object.keys(Deno.env.toObject())
-    }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: "Configuration Error: Missing RESEND_API_KEY" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
   if (!supabaseUrl || !supabaseKey) {
     console.error("Missing SUPABASE credentials");
     return new Response(JSON.stringify({ error: "Configuration Error: Missing Supabase Credentials" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
-  const resend = new Resend(finalResendKey);
+  const resend = new Resend(resendApiKey);
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    const { name, email, company, phone, projectTypes, annualVolume, technicalRequirements, message }: ContactEmailRequest = await req.json();
+    const payload: Partial<ContactEmailRequest> = await req.json();
+    const name = payload.name?.trim() || "";
+    const email = payload.email?.trim() || "";
+    const company = payload.company?.trim();
+    const phone = payload.phone?.trim() || "";
+    const projectTypes = Array.isArray(payload.projectTypes) && payload.projectTypes.length > 0
+      ? payload.projectTypes
+      : ["medical_devices"];
+    const annualVolume = payload.annualVolume?.trim();
+    const technicalRequirements = payload.technicalRequirements?.trim() || payload.message?.trim() || "Nao informado";
+    const message = payload.message?.trim();
+
+    if (!name || !email || !phone) {
+      return new Response(JSON.stringify({ error: "Missing required fields: name, email, phone" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const formattedProjectTypes = formatProjectTypes(projectTypes);
 
     console.log("Sending contact email for:", { name, email, company, projectTypes });
 
@@ -95,7 +108,7 @@ const handler = async (req: Request): Promise<Response> => {
             <p style="color: #666;"><strong>E-mail / Email:</strong> ${email}</p>
             ${company ? `<p style="color: #666;"><strong>Empresa / Company:</strong> ${company}</p>` : ''}
             <p style="color: #666;"><strong>Telefone / Phone:</strong> ${phone}</p>
-            <p style="color: #666;"><strong>Tipos de Projeto / Project Types:</strong> ${formatProjectTypes(projectTypes)}</p>
+            <p style="color: #666;"><strong>Tipos de Projeto / Project Types:</strong> ${formattedProjectTypes}</p>
             ${annualVolume ? `<p style="color: #666;"><strong>Volume Anual / Annual Volume:</strong> ${annualVolume}</p>` : ''}
             <p style="color: #666;"><strong>Requisitos Técnicos / Technical Requirements:</strong><br>${technicalRequirements}</p>
             ${message ? `<p style="color: #666;"><strong>Mensagem Adicional / Additional Message:</strong><br>${message}</p>` : ''}
@@ -106,35 +119,6 @@ const handler = async (req: Request): Promise<Response> => {
             <strong>Equipe Lifetrek Medical</strong><br>
             <em>Best regards,<br>Lifetrek Medical Team</em>
           </p>
-        </div>
-      `,
-    });
-
-    console.log("Customer email sent successfully:", customerEmailResponse);
-
-    // Send notification email to Lifetrek
-    const notificationEmailResponse = await resend.emails.send({
-      from: "Formulário de Contato <noreply@lifetrek-medical.com>",
-      to: ["vmartin@lifetrek-medical.com"],
-      subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #003366;">Nova Solicitação de Cotação</h1>
-          
-          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #003366; margin-top: 0;">Informações do Cliente:</h2>
-            <p style="color: #666;"><strong>Nome:</strong> ${name}</p>
-            <p style="color: #666;"><strong>E-mail:</strong> ${email}</p>
-            ${company ? `<p style="color: #666;"><strong>Empresa:</strong> ${company}</p>` : ''}
-            <p style="color: #666;"><strong>Telefone:</strong> ${phone}</p>
-            <p style="color: #666;"><strong>Tipos de Projeto:</strong> ${formatProjectTypes(projectTypes)}</p>
-            ${annualVolume ? `<p style="color: #666;"><strong>Volume Anual Esperado:</strong> ${annualVolume}</p>` : ''}
-            
-            <h3 style="color: #003366; margin-top: 20px;">Requisitos Técnicos:</h3>
-            <p style="color: #666; white-space: pre-wrap;">${technicalRequirements}</p>
-            
-            ${message ? `<h3 style="color: #003366; margin-top: 20px;">Mensagem Adicional:</h3><p style="color: #666; white-space: pre-wrap;">${message}</p>` : ''}
-          </div>
         </div>
       `,
     });
@@ -267,7 +251,7 @@ Output strictly raw JSON.`;
 - Company: ${company || 'Not provided'}
 - Email: ${email}
 - Phone: ${phone}
-- Project Types: ${formatProjectTypes(projectTypes)}
+- Project Types: ${formattedProjectTypes}
 - Annual Volume: ${annualVolume || 'Not specified'}
 - Technical Requirements: ${technicalRequirements}
 ${message ? `- Additional Message: ${message}` : ''}
@@ -328,31 +312,6 @@ ${companyResearch ? `**Company Research:**
               }
             }
 
-            if (aiResponse.ok) {
-              const aiData = await aiResponse.json();
-              const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-              if (toolCall) {
-                const suggestion = JSON.parse(toolCall.function.arguments);
-                console.log('AI suggestion generated');
-
-                // Save AI suggestion to database
-                const { data: savedSuggestion } = await supabase
-                  .from('ai_response_suggestions')
-                  .insert({
-                    lead_id: leadId,
-                    subject_line: suggestion.subject_line,
-                    email_body: suggestion.email_body,
-                    key_points: suggestion.key_points,
-                    follow_up_date: suggestion.follow_up_date,
-                    priority_level: suggestion.priority_level,
-                    company_research_id: companyResearch?.id
-                  })
-                  .select()
-                  .single();
-
-                aiSuggestion = savedSuggestion || suggestion;
-              }
-            }
           }
         }
       } catch (error) {
@@ -365,7 +324,7 @@ ${companyResearch ? `**Company Research:**
     const enhancedNotificationEmail = await resend.emails.send({
       from: "Formulário de Contato <noreply@lifetrek-medical.com>",
       to: ["vmartin@lifetrek-medical.com"],
-      subject: `Nova Cotação: ${formatProjectTypes(projectTypes)} - ${name}${aiSuggestion ? ' [AI Suggestion Available]' : ''}`,
+      subject: `Nova Cotação: ${formattedProjectTypes} - ${name}${aiSuggestion ? ' [AI Suggestion Available]' : ''}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
           <h1 style="color: #003366;">Nova Solicitação de Cotação</h1>
@@ -376,7 +335,7 @@ ${companyResearch ? `**Company Research:**
             <p style="color: #666;"><strong>E-mail:</strong> ${email}</p>
             ${company ? `<p style="color: #666;"><strong>Empresa:</strong> ${company}</p>` : ''}
             <p style="color: #666;"><strong>Telefone:</strong> ${phone}</p>
-            <p style="color: #666;"><strong>Tipos de Projeto:</strong> ${formatProjectTypes(projectTypes)}</p>
+            <p style="color: #666;"><strong>Tipos de Projeto:</strong> ${formattedProjectTypes}</p>
             ${annualVolume ? `<p style="color: #666;"><strong>Volume Anual Esperado:</strong> ${annualVolume}</p>` : ''}
             
             <h3 style="color: #003366; margin-top: 20px;">Requisitos Técnicos:</h3>

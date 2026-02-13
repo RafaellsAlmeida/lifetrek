@@ -8,14 +8,13 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import Mermaid from "@/components/agents/Mermaid";
-import { useEffect, useState, useRef } from "react";
-import { trackResourceView, trackResourceRead, trackResourceDownload } from "@/utils/trackAnalytics";
+import { useEffect, useState } from "react";
+import { trackResourceView, trackResourceDownload } from "@/utils/trackAnalytics";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 // import remarkGfm from 'remark-gfm';
-import { supabase } from "@/integrations/supabase/client";
 import SupplierAuditCalculator from "@/components/resources/SupplierAuditCalculator";
 
 export default function ResourceDetail() {
@@ -52,6 +51,10 @@ export default function ResourceDetail() {
     const [scorecardStatus, setScorecardStatus] = useState("");
     const [isSavingChecklist, setIsSavingChecklist] = useState(false);
     const [checklistStatus, setChecklistStatus] = useState("");
+    const resourceContent = resource?.content ?? "";
+    const resolvedSlug = resource?.slug ?? slug ?? "resource";
+    const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
+    const downloadUrl = typeof metadata.download_url === "string" ? metadata.download_url : undefined;
 
     const roadmapFlowchart = `
     flowchart LR
@@ -70,10 +73,13 @@ export default function ResourceDetail() {
         }
     }, [slug]);
 
+    useEffect(() => {
+        if (!resource?.slug) return;
+        trackResourceView(resource.slug, resource.title);
+    }, [resource?.slug, resource?.title]);
+
     if (isLoading) return <LoadingSpinner />;
     if (error || !resource) return <div className="p-8 text-center">Recurso não encontrado.</div>;
-
-    const resourceContent = resource.content ?? "";
 
     const handleUnlock = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,12 +100,6 @@ export default function ResourceDetail() {
             setIsUnlocking(false);
         }, 1000);
     };
-
-    const handleAdminUpdate = async () => {
-        // ... (removed for now, already updated)
-    };
-
-
 
     const scorecardTotal = Object.values(scorecard).reduce((a, b) => a + b, 0);
     const scorecardBand = scorecardTotal < 10 ? "Baixo Risco (Verde)" : scorecardTotal < 18 ? "Médio Risco (Amarelo)" : "Alto Risco (Vermelho)";
@@ -130,6 +130,84 @@ export default function ResourceDetail() {
             setIsSavingChecklist(false);
             setChecklistStatus("Checklist salvo com sucesso!");
         }, 1000);
+    };
+
+    const handleShare = async () => {
+        const currentUrl = window.location.href;
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: resource.title,
+                    text: resource.description,
+                    url: currentUrl,
+                });
+                return;
+            }
+            await navigator.clipboard.writeText(currentUrl);
+            toast({
+                title: "Link copiado",
+                description: "O link do recurso foi copiado para a area de transferencia.",
+            });
+        } catch (error) {
+            console.error("Error sharing resource:", error);
+            toast({
+                variant: "destructive",
+                title: "Nao foi possivel compartilhar",
+                description: "Tente novamente em alguns instantes.",
+            });
+        }
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleDownload = async () => {
+        try {
+            const currentUrl = window.location.href;
+
+            if (downloadUrl) {
+                const link = document.createElement("a");
+                link.href = downloadUrl;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.click();
+                await trackResourceDownload(resolvedSlug, resource.title, "external");
+                return;
+            }
+
+            const generatedFile = [
+                `# ${resource.title}`,
+                "",
+                resource.description,
+                "",
+                `Fonte: ${currentUrl}`,
+                "",
+                resourceContent,
+                "",
+            ].join("\n");
+
+            const blob = new Blob([generatedFile], { type: "text/markdown;charset=utf-8" });
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `${resolvedSlug}.md`;
+            link.click();
+            URL.revokeObjectURL(blobUrl);
+
+            await trackResourceDownload(resolvedSlug, resource.title, "md");
+            toast({
+                title: "Download iniciado",
+                description: "Material exportado em formato Markdown.",
+            });
+        } catch (error) {
+            console.error("Error downloading resource:", error);
+            toast({
+                variant: "destructive",
+                title: "Falha no download",
+                description: "Nao foi possivel gerar o arquivo.",
+            });
+        }
     };
 
     return (
@@ -170,11 +248,11 @@ export default function ResourceDetail() {
                             <span>Equipe Lifetrek</span>
                         </div>
                         <div className="flex-1"></div>
-                        <Button variant="ghost" size="sm" className="hidden md:flex">
+                        <Button variant="ghost" size="sm" className="hidden md:flex" onClick={handleShare}>
                             <Share2 className="mr-2 h-4 w-4" />
                             Compartilhar
                         </Button>
-                        <Button variant="ghost" size="sm" className="hidden md:flex">
+                        <Button variant="ghost" size="sm" className="hidden md:flex" onClick={handlePrint}>
                             <Printer className="mr-2 h-4 w-4" />
                             Imprimir
                         </Button>
@@ -372,9 +450,9 @@ export default function ResourceDetail() {
                                         Falar com um Especialista
                                     </Button>
                                 </Link>
-                                <Button variant="outline" size="lg">
+                                <Button variant="outline" size="lg" onClick={handleDownload}>
                                     <Download className="mr-2 h-4 w-4" />
-                                    Baixar PDF
+                                    Baixar material
                                 </Button>
                             </div>
                         </div>

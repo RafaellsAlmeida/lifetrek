@@ -1,0 +1,172 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e156]:
+        - img [ref=e158]
+        - generic [ref=e161]: Artigo publicado com sucesso!
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "LT Admin" [ref=e6] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e8]: LT
+          - generic [ref=e9]: Admin
+        - navigation [ref=e10]:
+          - link "Dashboard" [ref=e11] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e12]
+            - generic [ref=e17]: Dashboard
+          - link "Inbox" [ref=e18] [cursor=pointer]:
+            - /url: /admin/inbox
+            - img [ref=e19]
+            - generic [ref=e22]: Inbox
+          - link "Chatbot" [ref=e23] [cursor=pointer]:
+            - /url: /admin/chatbot-inbox
+            - img [ref=e24]
+            - generic [ref=e26]: Chatbot
+          - button "Conteúdo" [ref=e27] [cursor=pointer]:
+            - img
+            - generic [ref=e28]: Conteúdo
+            - img
+          - button "Analytics" [ref=e29] [cursor=pointer]:
+            - img
+            - generic [ref=e30]: Analytics
+            - img
+          - link "Leads" [ref=e31] [cursor=pointer]:
+            - /url: /admin/leads
+            - img [ref=e32]
+            - generic [ref=e36]: Leads
+        - generic [ref=e37]:
+          - combobox [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]:
+              - img [ref=e40]
+              - generic: Ver como...
+            - img [ref=e43]
+          - generic [ref=e45]: Rafael (iCloud)
+          - generic [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e49]: Super
+          - button "Sair" [ref=e50] [cursor=pointer]:
+            - img
+            - generic [ref=e51]: Sair
+    - main [ref=e52]:
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - heading "Blog & SEO" [level=1] [ref=e57]
+            - paragraph [ref=e58]: Gerencie artigos, categorias e estratégia de conteúdo SEO.
+          - button "Novo Artigo" [ref=e59] [cursor=pointer]:
+            - img
+            - text: Novo Artigo
+        - generic [ref=e60]:
+          - tablist [ref=e61]:
+            - tab "Gerenciar Posts" [selected] [ref=e62] [cursor=pointer]
+            - tab "Estratégia & Tópicos" [ref=e63] [cursor=pointer]
+            - tab "Categorias" [ref=e64] [cursor=pointer]
+          - tabpanel "Gerenciar Posts" [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e68]:
+                - heading "Artigos (7)" [level=3] [ref=e69]
+                - generic [ref=e70]:
+                  - img [ref=e71]
+                  - textbox "Buscar artigos..." [ref=e74]
+              - table [ref=e77]:
+                - rowgroup [ref=e78]:
+                  - row "Título Status Data Criação Views Ações" [ref=e79]:
+                    - columnheader "Título" [ref=e80]
+                    - columnheader "Status" [ref=e81]
+                    - columnheader "Data Criação" [ref=e82]
+                    - columnheader "Views" [ref=e83]
+                    - columnheader "Ações" [ref=e84]
+                - rowgroup [ref=e85]:
+                  - 'row "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável Publicado 08/02/2026 -" [ref=e162]':
+                    - 'cell "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável" [ref=e87]'
+                    - cell "Publicado" [ref=e163]:
+                      - generic [ref=e89]: Publicado
+                    - cell "08/02/2026" [ref=e90]
+                    - cell "-" [ref=e91]
+                    - cell [ref=e92]:
+                      - button [ref=e93] [cursor=pointer]:
+                        - img
+                      - button [ref=e95] [cursor=pointer]:
+                        - img
+                  - 'row "Manufatura de Dispositivos Médicos: Otimização e Crescimento com Tecnologia Rascunho 08/02/2026 -" [ref=e96]':
+                    - 'cell "Manufatura de Dispositivos Médicos: Otimização e Crescimento com Tecnologia" [ref=e97]'
+                    - cell "Rascunho" [ref=e98]:
+                      - generic [ref=e99]: Rascunho
+                    - cell "08/02/2026" [ref=e100]
+                    - cell "-" [ref=e101]
+                    - cell [ref=e102]:
+                      - button [ref=e103] [cursor=pointer]:
+                        - img
+                      - button [ref=e104] [cursor=pointer]:
+                        - img
+                      - button [ref=e105] [cursor=pointer]:
+                        - img
+                  - 'row "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek Revisão 16/01/2026 -" [ref=e106]':
+                    - 'cell "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek" [ref=e107]'
+                    - cell "Revisão" [ref=e108]:
+                      - generic [ref=e109]: Revisão
+                    - cell "16/01/2026" [ref=e110]
+                    - cell "-" [ref=e111]
+                    - cell [ref=e112]:
+                      - button [ref=e113] [cursor=pointer]:
+                        - img
+                      - button [ref=e114] [cursor=pointer]:
+                        - img
+                      - button [ref=e115] [cursor=pointer]:
+                        - img
+                  - 'row "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos Revisão 16/01/2026 -" [ref=e116]':
+                    - 'cell "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos" [ref=e117]'
+                    - cell "Revisão" [ref=e118]:
+                      - generic [ref=e119]: Revisão
+                    - cell "16/01/2026" [ref=e120]
+                    - cell "-" [ref=e121]
+                    - cell [ref=e122]:
+                      - button [ref=e123] [cursor=pointer]:
+                        - img
+                      - button [ref=e124] [cursor=pointer]:
+                        - img
+                      - button [ref=e125] [cursor=pointer]:
+                        - img
+                  - 'row "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA Revisão 16/01/2026 -" [ref=e126]':
+                    - 'cell "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA" [ref=e127]'
+                    - cell "Revisão" [ref=e128]:
+                      - generic [ref=e129]: Revisão
+                    - cell "16/01/2026" [ref=e130]
+                    - cell "-" [ref=e131]
+                    - cell [ref=e132]:
+                      - button [ref=e133] [cursor=pointer]:
+                        - img
+                      - button [ref=e134] [cursor=pointer]:
+                        - img
+                      - button [ref=e135] [cursor=pointer]:
+                        - img
+                  - 'row "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos Revisão 16/01/2026 -" [ref=e136]':
+                    - 'cell "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos" [ref=e137]'
+                    - cell "Revisão" [ref=e138]:
+                      - generic [ref=e139]: Revisão
+                    - cell "16/01/2026" [ref=e140]
+                    - cell "-" [ref=e141]
+                    - cell [ref=e142]:
+                      - button [ref=e143] [cursor=pointer]:
+                        - img
+                      - button [ref=e144] [cursor=pointer]:
+                        - img
+                      - button [ref=e145] [cursor=pointer]:
+                        - img
+                  - 'row "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos Revisão 16/01/2026 -" [ref=e146]':
+                    - 'cell "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos" [ref=e147]'
+                    - cell "Revisão" [ref=e148]:
+                      - generic [ref=e149]: Revisão
+                    - cell "16/01/2026" [ref=e150]
+                    - cell "-" [ref=e151]
+                    - cell [ref=e152]:
+                      - button [ref=e153] [cursor=pointer]:
+                        - img
+                      - button [ref=e154] [cursor=pointer]:
+                        - img
+                      - button [ref=e155] [cursor=pointer]:
+                        - img

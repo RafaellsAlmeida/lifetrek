@@ -1,0 +1,152 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e10]:
+        - link "LT Admin" [ref=e11] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e13]: LT
+          - generic [ref=e14]: Admin
+        - navigation [ref=e15]:
+          - link "Dashboard" [ref=e16] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e17]
+            - generic [ref=e22]: Dashboard
+          - link "Inbox" [ref=e23] [cursor=pointer]:
+            - /url: /admin/inbox
+            - img [ref=e24]
+            - generic [ref=e27]: Inbox
+          - link "Chatbot" [ref=e28] [cursor=pointer]:
+            - /url: /admin/chatbot-inbox
+            - img [ref=e29]
+            - generic [ref=e31]: Chatbot
+          - button "Conteúdo" [ref=e32] [cursor=pointer]:
+            - img
+            - generic [ref=e33]: Conteúdo
+            - img
+          - button "Analytics" [ref=e34] [cursor=pointer]:
+            - img
+            - generic [ref=e35]: Analytics
+            - img
+          - link "Leads" [ref=e36] [cursor=pointer]:
+            - /url: /admin/leads
+            - img [ref=e37]
+            - generic [ref=e41]: Leads
+        - generic [ref=e42]:
+          - combobox [ref=e43] [cursor=pointer]:
+            - generic [ref=e44]:
+              - img [ref=e45]
+              - generic: Ver como...
+            - img [ref=e48]
+          - generic [ref=e50]: Rafael (iCloud)
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - generic [ref=e54]: Super
+          - button "Sair" [ref=e55] [cursor=pointer]:
+            - img
+            - generic [ref=e56]: Sair
+    - main [ref=e57]:
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - heading "Aprovação de Conteúdo" [level=1] [ref=e62]
+            - paragraph [ref=e63]: Revise o conteúdo gerado por IA antes da publicação
+          - generic [ref=e64]:
+            - button "Limpar Duplicados" [ref=e65] [cursor=pointer]:
+              - img
+              - text: Limpar Duplicados
+            - button "Sincronizar" [ref=e66] [cursor=pointer]:
+              - img
+              - text: Sincronizar
+        - generic [ref=e67]:
+          - tablist [ref=e68]:
+            - tab "Pendentes (33)" [ref=e69] [cursor=pointer]
+            - tab "Blogs (5)" [active] [selected] [ref=e70] [cursor=pointer]
+            - tab "LinkedIn (18)" [ref=e71] [cursor=pointer]
+            - tab "Instagram (9)" [ref=e72] [cursor=pointer]
+            - tab "Recursos (1)" [ref=e73] [cursor=pointer]
+            - tab "Aprovados (17)" [ref=e74] [cursor=pointer]
+            - tab "Rejeitados (12)" [ref=e75] [cursor=pointer]
+          - tabpanel "Blogs (5)" [ref=e616]:
+            - generic [ref=e618]:
+              - generic [ref=e621]:
+                - generic [ref=e622]:
+                  - img [ref=e623]
+                  - 'heading "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek" [level=3] [ref=e626]'
+                - paragraph [ref=e627]: A implementação da Identificação Única de Dispositivos (UDI) pela ANVISA representa um marco regulatório no Brasil, com impacto significativo para fabricantes de dispositivos médicos. Este artigo técnico explora os desafios e as oportunidades da UDI, detalhando como a Lifetrek Medical, com sua expertise técnica e infraestrutura avançada, é seu parceiro estratégico para garantir a conformidade e impulsionar a inovação no setor.
+              - generic [ref=e628]:
+                - button "Ver" [ref=e629] [cursor=pointer]:
+                  - img
+                  - text: Ver
+                - button "Aprovar" [ref=e630] [cursor=pointer]:
+                  - img
+                  - text: Aprovar
+                - button "Rejeitar" [ref=e631] [cursor=pointer]:
+                  - img
+                  - text: Rejeitar
+            - generic [ref=e633]:
+              - generic [ref=e636]:
+                - generic [ref=e637]:
+                  - img [ref=e638]
+                  - 'heading "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos" [level=3] [ref=e641]'
+                - paragraph [ref=e642]: A navegação no ambiente regulatório brasileiro para dispositivos médicos é um desafio complexo. Este artigo explora as diretrizes da RDC 751/2022, a Agenda Regulatória 2026-2027 e como a Lifetrek Medical oferece suporte técnico para garantir a conformidade e agilizar o registro de seus produtos perante a ANVISA.
+              - generic [ref=e643]:
+                - button "Ver" [ref=e644] [cursor=pointer]:
+                  - img
+                  - text: Ver
+                - button "Aprovar" [ref=e645] [cursor=pointer]:
+                  - img
+                  - text: Aprovar
+                - button "Rejeitar" [ref=e646] [cursor=pointer]:
+                  - img
+                  - text: Rejeitar
+            - generic [ref=e648]:
+              - generic [ref=e651]:
+                - generic [ref=e652]:
+                  - img [ref=e653]
+                  - 'heading "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA" [level=3] [ref=e656]'
+                - paragraph [ref=e657]: A verificação de dispositivos médicos é a espinha dorsal da segurança e conformidade regulatória. Este artigo explora como a Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, ajuda as empresas a navegar pelo rigoroso cenário regulatório brasileiro, garantindo que seus produtos atendam às mais altas exigências de desempenho e segurança.
+              - generic [ref=e658]:
+                - button "Ver" [ref=e659] [cursor=pointer]:
+                  - img
+                  - text: Ver
+                - button "Aprovar" [ref=e660] [cursor=pointer]:
+                  - img
+                  - text: Aprovar
+                - button "Rejeitar" [ref=e661] [cursor=pointer]:
+                  - img
+                  - text: Rejeitar
+            - generic [ref=e663]:
+              - generic [ref=e666]:
+                - generic [ref=e667]:
+                  - img [ref=e668]
+                  - 'heading "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos" [level=3] [ref=e671]'
+                - paragraph [ref=e672]: A ANVISA está transformando o cenário regulatório de dispositivos médicos no Brasil, com uma reestruturação baseada em risco que impacta diretamente os cronogramas de aprovação e as exigências documentais. A Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, oferece a parceira ideal para navegar por essas mudanças, garantindo conformidade e otimizando o time-to-market. Entenda como nossa abordagem pode acelerar sua entrada no mercado brasileiro.
+              - generic [ref=e673]:
+                - button "Ver" [ref=e674] [cursor=pointer]:
+                  - img
+                  - text: Ver
+                - button "Aprovar" [ref=e675] [cursor=pointer]:
+                  - img
+                  - text: Aprovar
+                - button "Rejeitar" [ref=e676] [cursor=pointer]:
+                  - img
+                  - text: Rejeitar
+            - generic [ref=e678]:
+              - generic [ref=e681]:
+                - generic [ref=e682]:
+                  - img [ref=e683]
+                  - 'heading "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos" [level=3] [ref=e686]'
+                - paragraph [ref=e687]: Navegar pelas regulamentações da ANVISA, especialmente a RDC 751/2022 e a iminente obrigatoriedade do UDI para dispositivos Classe III, é um desafio complexo. Este artigo explora as diretrizes, armadilhas comuns e como a Lifetrek Medical se posiciona como um parceiro estratégico, fornecendo expertise técnica e infraestrutura avançada para garantir a conformidade e a competitividade no mercado brasileiro de MedTech.
+              - generic [ref=e688]:
+                - button "Ver" [ref=e689] [cursor=pointer]:
+                  - img
+                  - text: Ver
+                - button "Aprovar" [ref=e690] [cursor=pointer]:
+                  - img
+                  - text: Aprovar
+                - button "Rejeitar" [ref=e691] [cursor=pointer]:
+                  - img
+                  - text: Rejeitar

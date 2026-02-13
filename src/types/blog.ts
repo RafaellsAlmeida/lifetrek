@@ -1,3 +1,42 @@
+export type BlogIcpCode = "MI" | "OD" | "VT" | "HS" | "CM";
+export type BlogCtaMode = "article_only" | "diagnostico" | "resource_optional";
+
+export interface BlogIcpScores {
+    MI: number;
+    OD: number;
+    VT: number;
+    HS: number;
+    CM: number;
+}
+
+export interface BlogPostMetadata {
+    strategy?: unknown;
+    sources?: string[];
+    source_linkedin?: {
+        folder?: string;
+        id?: string | null;
+        topic?: string;
+        status?: string;
+        caption_excerpt?: string;
+    };
+    marketing_assets_plan_id?: string;
+    content_cluster?: string;
+    funnel_stage?: string;
+    target_date?: string;
+    generation_origin?: string;
+    seo_enriched_at?: string;
+    cleaned_scope_terms_at?: string;
+    expected_topic?: string;
+    title_aligned_at?: string;
+    icp_primary?: BlogIcpCode;
+    icp_secondary?: BlogIcpCode[];
+    icp_specificity_scores?: BlogIcpScores;
+    cta_mode?: BlogCtaMode;
+    pillar_keyword?: string;
+    entity_keywords?: string[];
+    [key: string]: unknown;
+}
+
 export interface BlogCategory {
     id: string;
     name: string;
@@ -26,6 +65,8 @@ export interface BlogPost {
     updated_at: string;
     ai_generated: boolean;
     news_sources: string[] | null;
+    metadata?: BlogPostMetadata | null;
+    scheduled_for?: string | null;
 }
 
 export interface BlogPostInsert {
@@ -44,6 +85,8 @@ export interface BlogPostInsert {
     published_at?: string;
     ai_generated?: boolean;
     news_sources?: string[];
+    metadata?: BlogPostMetadata;
+    scheduled_for?: string;
 }
 
 export interface BlogPostUpdate extends Partial<BlogPostInsert> {

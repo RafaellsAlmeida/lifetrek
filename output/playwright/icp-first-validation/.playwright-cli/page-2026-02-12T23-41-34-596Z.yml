@@ -1,0 +1,1043 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e27]:
+      - banner [ref=e28]:
+        - generic [ref=e29]:
+          - link "LT Admin" [ref=e30] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e32]: LT
+            - generic [ref=e33]: Admin
+          - navigation [ref=e34]:
+            - link [ref=e35] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e36]
+            - link [ref=e41] [cursor=pointer]:
+              - /url: /admin/inbox
+              - img [ref=e42]
+            - link [ref=e45] [cursor=pointer]:
+              - /url: /admin/chatbot-inbox
+              - img [ref=e46]
+            - button [ref=e48] [cursor=pointer]:
+              - img
+              - img
+            - button [ref=e49] [cursor=pointer]:
+              - img
+              - img
+            - link [ref=e50] [cursor=pointer]:
+              - /url: /admin/leads
+              - img [ref=e51]
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - img [ref=e57]
+              - generic [ref=e59]: Super
+            - button "Sair" [ref=e60] [cursor=pointer]:
+              - img
+              - generic [ref=e61]: Sair
+      - main [ref=e62]:
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - heading "Aprovação de Conteúdo" [level=1] [ref=e67]
+              - paragraph [ref=e68]: Revise o conteúdo gerado por IA antes da publicação
+            - generic [ref=e69]:
+              - button "Limpar Duplicados" [ref=e70] [cursor=pointer]:
+                - img
+                - text: Limpar Duplicados
+              - button "Sincronizar" [ref=e71] [cursor=pointer]:
+                - img
+                - text: Sincronizar
+          - generic [ref=e72]:
+            - tablist [ref=e73]:
+              - tab "Pendentes (48)" [selected] [ref=e74] [cursor=pointer]
+              - tab "Blogs (24)" [ref=e75] [cursor=pointer]
+              - tab "LinkedIn (14)" [ref=e76] [cursor=pointer]
+              - tab "Instagram (9)" [ref=e77] [cursor=pointer]
+              - tab "Recursos (1)" [ref=e78] [cursor=pointer]
+              - tab "Aprovados (20)" [ref=e79] [cursor=pointer]
+              - tab "Rejeitados (14)" [ref=e80] [cursor=pointer]
+            - tabpanel "Pendentes (48)" [ref=e81]:
+              - generic [ref=e82]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]:
+                    - img [ref=e87]
+                    - 'heading "Single-source partnership: quando consolidar fornecedores faz sentido" [level=3] [ref=e90]'
+                  - paragraph [ref=e91]: A expansão da Lifetrek Medical demonstra a importância de um planejamento estratégico sólido e da otimização de processos na indústria de manufatura médica. Este guia explora as principais etapas e considerações para alcançar um crescimento sustentável.
+                - generic [ref=e92]:
+                  - button "Ver" [ref=e93] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e94] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e95] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e96] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e97]:
+                - generic [ref=e100]:
+                  - generic [ref=e101]:
+                    - img [ref=e102]
+                    - 'heading "Launch com método: readiness técnico para escalar produção médica" [level=3] [ref=e105]'
+                  - paragraph [ref=e106]: A expansão da capacidade produtiva em dispositivos médicos exige planejamento e execução precisos. Descubra como a Lifetrek Medical otimizou sua nova instalação para atender às demandas de seus parceiros OEM, garantindo qualidade, eficiência e escalabilidade.
+                - generic [ref=e107]:
+                  - button "Ver" [ref=e108] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e109] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e110] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e111] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e112]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - img [ref=e117]
+                    - 'heading "Expansão de 5.000m²: como aumentar capacidade sem perder controle" [level=3] [ref=e120]'
+                  - paragraph [ref=e121]: A expansão de uma fábrica de dispositivos médicos é um passo crucial que exige planejamento estratégico e otimização de processos. Descubra como maximizar o ROI através de metodologias comprovadas e tecnologia de ponta.
+                - generic [ref=e122]:
+                  - button "Ver" [ref=e123] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e124] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e125] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e126] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e127]:
+                - generic [ref=e130]:
+                  - generic [ref=e131]:
+                    - img [ref=e132]
+                    - 'heading "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade" [level=3] [ref=e135]'
+                  - paragraph [ref=e136]: A Lifetrek Medical se destaca no setor de dispositivos médicos pela sua busca incessante por excelência. Através de tecnologia avançada, processos otimizados e um forte compromisso com a qualidade, a empresa impulsiona a inovação e garante produtos de alta performance para melhorar a vida dos pacientes.
+                - generic [ref=e137]:
+                  - button "Ver" [ref=e138] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e139] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e140] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e141] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e142]:
+                - generic [ref=e145]:
+                  - generic [ref=e146]:
+                    - img [ref=e147]
+                    - 'heading "The Precision Partner na prática: como a Lifetrek opera com OEMs" [level=3] [ref=e150]'
+                  - paragraph [ref=e151]: A escalabilidade na fabricação de dispositivos médicos exige precisão, qualidade e conformidade regulatória. Explore as estratégias e desafios para expandir sua produção com excelência.
+                - generic [ref=e152]:
+                  - button "Ver" [ref=e153] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e154] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e155] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e156] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e157]:
+                - generic [ref=e160]:
+                  - generic [ref=e161]:
+                    - img [ref=e162]
+                    - heading "Modelo de qualificação técnica para parceiro local em manufatura médica" [level=3] [ref=e165]
+                  - paragraph [ref=e166]: A expansão de uma fábrica de dispositivos médicos é um marco que exige uma revisão completa da cadeia de suprimentos. Este artigo explora como otimizar sua cadeia de suprimentos, desde a avaliação de fornecedores até a implementação de tecnologias avançadas, garantindo resiliência e crescimento sustentável.
+                - generic [ref=e167]:
+                  - button "Ver" [ref=e168] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e169] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e170] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e171] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e172]:
+                - generic [ref=e175]:
+                  - generic [ref=e176]:
+                    - img [ref=e177]
+                    - 'heading "Governança da transição local: KPIs que importam no primeiro trimestre" [level=3] [ref=e180]'
+                  - paragraph [ref=e181]: A expansão de uma fábrica de dispositivos médicos é um marco que envolve planejamento estratégico, otimização de processos e a adoção de tecnologias avançadas. Este artigo detalha como a Lifetrek Medical, e outras empresas do setor, podem garantir uma escalabilidade bem-sucedida e sustentável em suas operações.
+                - generic [ref=e182]:
+                  - button "Ver" [ref=e183] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e184] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e185] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e186] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e187]:
+                - generic [ref=e190]:
+                  - generic [ref=e191]:
+                    - img [ref=e192]
+                    - 'heading "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento" [level=3] [ref=e195]'
+                  - paragraph [ref=e196]: A expansão de instalações de manufatura representa um marco crucial para empresas de dispositivos médicos. Este artigo explora como essa expansão estratégica pode otimizar processos, aumentar a capacidade produtiva e garantir a qualidade, com foco em resultados mensuráveis e retorno sobre o investimento.
+                - generic [ref=e197]:
+                  - button "Ver" [ref=e198] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e199] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e200] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e201] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e202]:
+                - generic [ref=e205]:
+                  - generic [ref=e206]:
+                    - img [ref=e207]
+                    - 'heading "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local" [level=3] [ref=e210]'
+                  - paragraph [ref=e211]: A expansão da Lifetrek Medical ilustra um caso de sucesso em que o aumento da capacidade produtiva é acompanhado por otimização de processos e mitigação de riscos. Este artigo explora as estratégias e metodologias adotadas para garantir a resiliência da cadeia de suprimentos e a excelência operacional.
+                - generic [ref=e212]:
+                  - button "Ver" [ref=e213] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e214] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e215] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e216] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e217]:
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - img [ref=e222]
+                    - 'heading "ISO 7 na prática: pontos de controle para montagem e preparação de kits" [level=3] [ref=e225]'
+                  - paragraph [ref=e226]: Gerenciar múltiplos fornecedores na manufatura médica pode ser um desafio. Descubra como consolidar parceiros para otimizar sua cadeia de suprimentos, reduzir custos e garantir a qualidade em cada etapa do processo.
+                - generic [ref=e227]:
+                  - button "Ver" [ref=e228] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e229] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e230] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e231] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e232]:
+                - generic [ref=e235]:
+                  - generic [ref=e236]:
+                    - img [ref=e237]
+                    - heading "Quando internalizar acabamento, limpeza e embalagem em projetos médicos" [level=3] [ref=e240]
+                  - paragraph [ref=e241]: No setor de fabricação médica, a complexidade da cadeia de suprimentos pode ser um gargalo. Descubra como a Lifetrek Medical simplifica este processo, oferecendo soluções completas desde a matéria-prima até a embalagem estéril, garantindo eficiência e conformidade.
+                - generic [ref=e242]:
+                  - button "Ver" [ref=e243] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e244] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e245] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e246] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e247]:
+                - generic [ref=e250]:
+                  - generic [ref=e251]:
+                    - img [ref=e252]
+                    - 'heading "Print to Pack: fluxo integrado da usinagem à embalagem estéril" [level=3] [ref=e255]'
+                  - paragraph [ref=e256]: Na manufatura médica, a eficiência e a confiabilidade da cadeia de suprimentos são cruciais. Este artigo explora como a otimização da cadeia de suprimentos pode impulsionar a inovação, garantir a qualidade e reduzir custos, com foco em casos práticos e metodologias comprovadas.
+                - generic [ref=e257]:
+                  - button "Ver" [ref=e258] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e259] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e260] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e261] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e262]:
+                - generic [ref=e265]:
+                  - generic [ref=e266]:
+                    - img [ref=e267]
+                    - 'heading "CAPA orientado a processo: prevenindo recorrência de não conformidades" [level=3] [ref=e270]'
+                  - paragraph [ref=e271]: No setor de manufatura e construção, a busca pela qualidade perfeita é mais que um objetivo; é uma necessidade. Adotar o padrão Zero Defeito não só eleva a qualidade do produto, mas também otimiza processos, reduz custos e garante a satisfação do cliente. Explore como implementar essa filosofia em sua empresa.
+                - generic [ref=e272]:
+                  - button "Ver" [ref=e273] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e274] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e275] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e276] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e277]:
+                - generic [ref=e280]:
+                  - generic [ref=e281]:
+                    - img [ref=e282]
+                    - 'heading "Plano de Controle com CMM: como reduzir risco dimensional em features críticas" [level=3] [ref=e285]'
+                  - paragraph [ref=e286]: Na manufatura moderna, a busca pela qualidade zero defeitos não é apenas um ideal, mas uma necessidade estratégica. Este artigo explora como essa abordagem, combinada com metodologias comprovadas, pode transformar seus processos, impulsionar a eficiência e garantir a satisfação do cliente.
+                - generic [ref=e287]:
+                  - button "Ver" [ref=e288] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e289] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e290] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e291] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e292]:
+                - generic [ref=e295]:
+                  - generic [ref=e296]:
+                    - img [ref=e297]
+                    - 'heading "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção" [level=3] [ref=e300]'
+                  - paragraph [ref=e301]: Na busca por excelência, a 'tolerância zero' não é apenas um ideal, mas um catalisador para o crescimento sustentável. Entenda como essa filosofia, aplicada rigorosamente, transforma processos, eleva a qualidade e impulsiona resultados tangíveis nas indústrias de construção e manufatura.
+                - generic [ref=e302]:
+                  - button "Ver" [ref=e303] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e304] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e305] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e306] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e307]:
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - img [ref=e312]
+                    - 'heading "Zero-Defect na Prática: metrologia que sustenta a liberação de lote" [level=3] [ref=e315]'
+                  - paragraph [ref=e316]: Na indústria de dispositivos médicos, a busca pela qualidade 'zero defeito' é mais que um ideal; é uma necessidade. Este artigo explora como essa filosofia impacta a produção, a segurança do paciente e a competitividade, oferecendo insights valiosos para empresas do setor.
+                - generic [ref=e317]:
+                  - button "Ver" [ref=e318] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e319] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e320] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e321] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e322]:
+                - generic [ref=e325]:
+                  - generic [ref=e326]:
+                    - img [ref=e327]
+                    - 'heading "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão" [level=3] [ref=e330]'
+                  - paragraph [ref=e331]: Um Checklist DFM (Design for Manufacturing) bem estruturado é crucial para garantir a qualidade, reduzir custos e otimizar a produção de implantes e instrumentais médicos. Descubra como implementar este processo de forma eficaz em sua empresa.
+                - generic [ref=e332]:
+                  - button "Ver" [ref=e333] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e334] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e335] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e336] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e337]:
+                - generic [ref=e340]:
+                  - generic [ref=e341]:
+                    - img [ref=e342]
+                    - heading "Handoff de Engenharia para Produção sem Retrabalho em Dispositivos Médicos" [level=3] [ref=e345]
+                  - paragraph [ref=e346]: A otimização da fabricação de implantes e instrumentais médicos exige um Design for Manufacturing (DFM) robusto. Um checklist DFM detalhado pode ser a chave para reduzir custos, evitar erros e garantir a conformidade com as normas. Descubra como implementar.
+                - generic [ref=e347]:
+                  - button "Ver" [ref=e348] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e349] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e350] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e351] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e352]:
+                - generic [ref=e355]:
+                  - generic [ref=e356]:
+                    - img [ref=e357]
+                    - 'heading "DFM sem Comprometer Performance: como cortar custo com segurança" [level=3] [ref=e360]'
+                  - paragraph [ref=e361]: O Design for Manufacturing (DFM) é crucial na fabricação de implantes e instrumentais médicos. Este artigo explora um checklist completo para otimizar processos, reduzir custos e garantir a qualidade.
+                - generic [ref=e362]:
+                  - button "Ver" [ref=e363] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e364] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e365] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e366] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e367]:
+                - generic [ref=e370]:
+                  - generic [ref=e371]:
+                    - img [ref=e372]
+                    - 'heading "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho" [level=3] [ref=e375]'
+                  - paragraph [ref=e376]: A metodologia DFM (Design for Manufacturing) é crucial na produção de implantes e instrumentais médicos. Um checklist bem estruturado garante a qualidade, reduz custos e acelera o time-to-market. Descubra como aplicar o DFM de forma eficaz em sua empresa.
+                - generic [ref=e377]:
+                  - button "Ver" [ref=e378] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e379] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e380] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e381] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e382]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]:
+                    - img [ref=e387]
+                    - 'heading "Geometria, Rugosidade e Transições: o que mais impacta a fadiga" [level=3] [ref=e390]'
+                  - paragraph [ref=e391]: Falhas inesperadas em testes de fadiga de implantes representam um problema sério, gerando custos elevados e atrasos significativos. Este artigo explora os principais erros que levam a essas falhas e apresenta um processo estruturado para garantir a validação eficaz de implantes, otimizando tempo, recursos e a conformidade regulatória.
+                - generic [ref=e392]:
+                  - button "Ver" [ref=e393] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e394] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e395] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e396] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e397]:
+                - generic [ref=e400]:
+                  - generic [ref=e401]:
+                    - img [ref=e402]
+                    - heading "Como Reduzir Iterações Caras em Testes de Fadiga de Implantes" [level=3] [ref=e405]
+                  - paragraph [ref=e406]: Falhas em testes de fadiga de implantes custam tempo e recursos. Este artigo explora erros comuns na validação e apresenta um processo estruturado para garantir a aprovação e otimizar a performance.
+                - generic [ref=e407]:
+                  - button "Ver" [ref=e408] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e409] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e410] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e411] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e412]:
+                - generic [ref=e415]:
+                  - generic [ref=e416]:
+                    - img [ref=e417]
+                    - 'heading "Validação de Fadiga em Implantes: do CAD ao Ensaio Dinâmico" [level=3] [ref=e420]'
+                  - paragraph [ref=e421]: Falhas em testes de fadiga de implantes médicos podem gerar custos altíssimos e atrasos significativos. Este guia detalha os erros mais comuns e apresenta um fluxo de validação estruturado para garantir o sucesso.
+                - generic [ref=e422]:
+                  - button "Ver" [ref=e423] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e424] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e425] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e426] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e427]:
+                - generic [ref=e430]:
+                  - generic [ref=e431]:
+                    - img [ref=e432]
+                    - heading "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga" [level=3] [ref=e435]
+                  - paragraph [ref=e436]: Falhas em testes de fadiga de implantes podem gerar custos elevados e atrasos significativos. Este artigo explora três erros críticos na validação de implantes e apresenta um processo estruturado para otimizar a durabilidade e a conformidade.
+                - generic [ref=e437]:
+                  - button "Ver" [ref=e438] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e439] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e440] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e441] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e442]:
+                - generic [ref=e445]:
+                  - generic [ref=e446]:
+                    - img [ref=e447]
+                    - heading "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga" [level=3] [ref=e451]
+                  - paragraph [ref=e452]: Seu implante falhou no teste de fadiga?
+                - generic [ref=e453]:
+                  - button "Ver" [ref=e454] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e455] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e456] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e457] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e458] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e459]:
+                - generic [ref=e462]:
+                  - generic [ref=e463]:
+                    - img [ref=e464]
+                    - heading "Checklist DFM (Design for Manufacturing) para Implantes e Instrumentais" [level=3] [ref=e468]
+                  - paragraph [ref=e469]: Padrão é suficiente para todos os pacientes?
+                - generic [ref=e470]:
+                  - button "Ver" [ref=e471] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e472] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e473] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e474] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e475] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e476]:
+                - generic [ref=e479]:
+                  - generic [ref=e480]:
+                    - img [ref=e481]
+                    - 'heading "Are you missing a step? Checklist: Quando Faz Sentido Produzir Local explained." [level=3] [ref=e485]'
+                  - paragraph [ref=e486]: "Are you missing a step? Checklist: Quando Faz Sentido Produzir Local explained."
+                - generic [ref=e487]:
+                  - button "Ver" [ref=e488] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e489] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e490] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e491] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e492] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e493]:
+                - generic [ref=e496]:
+                  - generic [ref=e497]:
+                    - img [ref=e498]
+                    - 'heading "Deep Dive: Manual de Metrologia e Inspeção de Alta Precisão" [level=3] [ref=e502]'
+                  - paragraph [ref=e503]: "Deep Dive: Manual de Metrologia e Inspeção de Alta Precisão"
+                - generic [ref=e504]:
+                  - button "Ver" [ref=e505] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e506] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e507] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e508] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e509] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e510]:
+                - generic [ref=e513]:
+                  - generic [ref=e514]:
+                    - img [ref=e515]
+                    - 'heading "Deep Dive: Guia: Sala Limpa ISO 7 e Montagem de Kits" [level=3] [ref=e519]'
+                  - paragraph [ref=e520]: "Deep Dive: Guia: Sala Limpa ISO 7 e Montagem de Kits"
+                - generic [ref=e521]:
+                  - button "Ver" [ref=e522] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e523] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e524] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e525] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e526] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e527]:
+                - generic [ref=e530]:
+                  - generic [ref=e531]:
+                    - img [ref=e532]
+                    - heading "Are you missing a step? Checklist de Auditoria Interna ISO 13485 explained." [level=3] [ref=e536]
+                  - paragraph [ref=e537]: Are you missing a step? Checklist de Auditoria Interna ISO 13485 explained.
+                - generic [ref=e538]:
+                  - button "Ver" [ref=e539] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e540] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e541] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e542] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e543] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e544]:
+                - generic [ref=e547]:
+                  - generic [ref=e548]:
+                    - img [ref=e549]
+                    - 'heading "Deep Dive: Roadmap de 90 Dias para Migrar 1-3 SKUs" [level=3] [ref=e553]'
+                  - paragraph [ref=e554]: "Deep Dive: Roadmap de 90 Dias para Migrar 1-3 SKUs"
+                - generic [ref=e555]:
+                  - button "Ver" [ref=e556] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e557] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e558] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e559] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e560] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e561]:
+                - generic [ref=e564]:
+                  - generic [ref=e565]:
+                    - img [ref=e566]
+                    - 'heading "Deep Dive: Scorecard de Risco de Supply Chain 2026" [level=3] [ref=e570]'
+                  - paragraph [ref=e571]: "Deep Dive: Scorecard de Risco de Supply Chain 2026"
+                - generic [ref=e572]:
+                  - button "Ver" [ref=e573] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e574] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e575] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e576] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e577] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e578]:
+                - generic [ref=e581]:
+                  - generic [ref=e582]:
+                    - img [ref=e583]
+                    - heading "Are you missing a step? Checklist de Auditoria ISO 13485 para Usinagem explained." [level=3] [ref=e587]
+                  - paragraph [ref=e588]: Are you missing a step? Checklist de Auditoria ISO 13485 para Usinagem explained.
+                - generic [ref=e589]:
+                  - button "Ver" [ref=e590] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e591] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e592] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e593] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e594] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e595]:
+                - generic [ref=e598]:
+                  - generic [ref=e599]:
+                    - img [ref=e600]
+                    - 'heading "Deep Dive: Fluxo de Validacao de Fadiga" [level=3] [ref=e604]'
+                  - paragraph [ref=e605]: "Deep Dive: Fluxo de Validacao de Fadiga"
+                - generic [ref=e606]:
+                  - button "Ver" [ref=e607] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e608] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e609] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e610] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e611] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e612]:
+                - generic [ref=e615]:
+                  - generic [ref=e616]:
+                    - img [ref=e617]
+                    - 'heading "Behind the Scenes: How Swiss Turning Creates Micro-Precision Medical Parts" [level=3] [ref=e620]'
+                  - paragraph [ref=e621]: Ever wonder how a 0.5mm titanium screw is made? 🔬 This is Swiss Turning — the art of micro-precisi
+                - generic [ref=e622]:
+                  - button "Ver" [ref=e623] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e624] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e625] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e626] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e627] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e628]:
+                - generic [ref=e631]:
+                  - generic [ref=e632]:
+                    - img [ref=e633]
+                    - 'heading "Lifetrek Medical: The Precision Partner Behind Critical Medical Devices" [level=3] [ref=e636]'
+                  - paragraph [ref=e637]: Precision at scale. 🏭 For over 30 years, Lifetrek Medical has been the silent partner behind the w
+                - generic [ref=e638]:
+                  - button "Ver" [ref=e639] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e640] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e641] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e642] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e643] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e644]:
+                - generic [ref=e647]:
+                  - generic [ref=e648]:
+                    - img [ref=e649]
+                    - heading "O Custo Real da Importação vs. Fabricação Local de Dispositivos Médicos" [level=3] [ref=e652]
+                  - paragraph [ref=e653]: "Importar parece mais barato. Até você fazer as contas. 📊 Custos ocultos da importação: ❌ Lead time"
+                - generic [ref=e654]:
+                  - button "Ver" [ref=e655] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e656] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e657] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e658] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e659] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e660]:
+                - generic [ref=e663]:
+                  - generic [ref=e664]:
+                    - img [ref=e665]
+                    - 'heading "Inside Our ISO 7 Cleanroom: Where Sterile Packaging Meets Precision" [level=3] [ref=e668]'
+                  - paragraph [ref=e669]: Welcome to our ISO 7 Cleanroom. 🧪 This is where precision meets purity. After machining, every com
+                - generic [ref=e670]:
+                  - button "Ver" [ref=e671] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e672] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e673] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e674] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e675] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e676]:
+                - generic [ref=e679]:
+                  - generic [ref=e680]:
+                    - img [ref=e681]
+                    - 'heading "From Raw Titanium to Sterile Package: One-Stop Manufacturing" [level=3] [ref=e684]'
+                  - paragraph [ref=e685]: From raw titanium to sterile package. One partner. 🔄 Why manage 5 suppliers when you can trust one
+                - generic [ref=e686]:
+                  - button "Ver" [ref=e687] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e688] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e689] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e690] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e691] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e692]:
+                - generic [ref=e695]:
+                  - generic [ref=e696]:
+                    - img [ref=e697]
+                    - heading "Quality is Not a Department — It's Our Product" [level=3] [ref=e700]
+                  - paragraph [ref=e701]: Quality is not a department. It's our product. 🛡️ In our industry, a micron is the difference betw
+                - generic [ref=e702]:
+                  - button "Ver" [ref=e703] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e704] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e705] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e706] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e707] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e708]:
+                - generic [ref=e711]:
+                  - generic [ref=e712]:
+                    - img [ref=e713]
+                    - 'heading "Tour Virtual: Nossa Planta de Manufatura" [level=3] [ref=e716]'
+                  - paragraph [ref=e717]: "Por trás da precisão. 🏭 Conheça o espaço onde seus dispositivos médicos ganham vida: 4.000m² de te"
+                - generic [ref=e718]:
+                  - button "Ver" [ref=e719] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e720] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e721] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e722] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e723] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e724]:
+                - generic [ref=e727]:
+                  - generic [ref=e728]:
+                    - img [ref=e729]
+                    - heading "Do Protótipo à Produção em Escala" [level=3] [ref=e732]
+                  - paragraph [ref=e733]: De 1 peça para 10.000. Sem trocar de fornecedor. 🚀 O maior risco na jornada de um dispositivo médi
+                - generic [ref=e734]:
+                  - button "Ver" [ref=e735] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e736] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e737] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e738] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e739] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e740]:
+                - generic [ref=e743]:
+                  - generic [ref=e744]:
+                    - img [ref=e745]
+                    - 'heading "ANVISA & FDA: Navegando a Conformidade" [level=3] [ref=e748]'
+                  - paragraph [ref=e749]: Regulamentação não precisa ser um pesadelo. 📋 A conformidade com ANVISA e FDA é complexa, mas não
+                - generic [ref=e750]:
+                  - button "Ver" [ref=e751] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e752] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e753] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e754] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e755] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e756]:
+                - generic [ref=e759]:
+                  - generic [ref=e760]:
+                    - img [ref=e761]
+                    - 'heading "Guia de Precisão: Metrologia 3D e CNC Swiss" [level=3] [ref=e763]'
+                  - paragraph [ref=e764]: Como a integração entre tornos suíços de alta performance e inspeção tridimensional garante zero falhas em implantes complexos.
+                - generic [ref=e765]:
+                  - button "Ver" [ref=e766] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e767] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e768] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e769] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e770]:
+                - generic [ref=e773]:
+                  - generic [ref=e774]:
+                    - img [ref=e775]
+                    - 'heading "OEMs Ortopédicos: Montanha Russa Regulatória" [level=3] [ref=e779]'
+                  - paragraph [ref=e780]: "OEMs Ortopédicos: Cansados da Montanha Russa Regulatória?"
+                - generic [ref=e781]:
+                  - button "Ver" [ref=e782] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e783] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e784] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e785] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e786] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e787]:
+                - generic [ref=e790]:
+                  - generic [ref=e791]:
+                    - img [ref=e792]
+                    - heading "Checklist DFM 2026" [level=3] [ref=e796]
+                  - paragraph [ref=e797]: Usinável ou Não? 3 Erros de DFM
+                - generic [ref=e798]:
+                  - button "Ver" [ref=e799] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e800] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e801] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e802] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e803] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e804]:
+                - generic [ref=e807]:
+                  - generic [ref=e808]:
+                    - img [ref=e809]
+                    - heading "Redução de Riscos em Testes de Fadiga de Implantes" [level=3] [ref=e813]
+                  - paragraph [ref=e814]: Seu implante falhou na fadiga? 📉
+                - generic [ref=e815]:
+                  - button "Ver" [ref=e816] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e817] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e818] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e819] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e820] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e821]:
+                - generic [ref=e824]:
+                  - generic [ref=e825]:
+                    - img [ref=e826]
+                    - 'heading "Impressão 3D + CNC: A Parceria Perfeita para Inovação Médica" [level=3] [ref=e830]'
+                  - paragraph [ref=e831]: Impressão 3D ou CNC?
+                - generic [ref=e832]:
+                  - button "Ver" [ref=e833] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e834] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e835] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e836] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e837] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+  - generic [ref=e838]: "24"

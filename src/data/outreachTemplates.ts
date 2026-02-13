@@ -16,30 +16,35 @@ export const TEMPLATES_DATA: TemplatesData = {
   orthopedic: {
     linkedin_intro: `Olá [Nome],
 
-Vi que você lidera a qualidade na [Empresa].
+Vi que a [Empresa] fabrica dispositivos ortopédicos aqui no Brasil.
 
-Ajudamos fabricantes de ortopedia a reduzir riscos de fornecimento com usinagem suíça (Citizen) e CMM (Zeiss) no Brasil.
+Somos parceiros de manufatura para fabricantes que querem internalizar componentes críticos — usinagem suíça (Citizen), metrologia Zeiss, sala limpa ISO 7.
 
-Se fizer sentido, adoraria compartilhar como alcançamos <0.1% de defeitos em parafusos complexos.
+A ideia não é substituir sua operação, mas complementar com etapas específicas enquanto você mantém controle total do registro ANVISA.
 
-Abraço,`,
-    linkedin_followup: `[Nome], 
+Faz sentido trocar uma ideia?`,
+    linkedin_followup: `[Nome],
 
-Só para não deixar passar: nossa fábrica em Indaiatuba tem certificação ISO 13485 e entregamos protótipos em 10 dias.
+Só para contextualizar: atendemos fabricantes com planta no Brasil que querem reduzir dependência de importação em componentes críticos.
 
-Faz sentido conversarmos sobre sua próxima linha de implantes?`,
-    email_outreach: `Assunto: Redução de Risco na Cadeia de Suprimentos - [Empresa]
+Nossa fábrica em Indaiatuba tem ISO 13485 e entregamos protótipos em 10 dias.
+
+Se a [Empresa] tem interesse em internalizar algum SKU, posso enviar nosso roteiro de 90 dias?`,
+    email_outreach: `Assunto: Parceria de Manufatura para Componentes Críticos - [Empresa]
 
 Olá [Nome],
 
-Muitos fabricantes de dispositivos ortopédicos enfrentam desafios com prazos de entrega e consistência de qualidade na importação.
+Fabricantes de dispositivos ortopédicos com planta no Brasil frequentemente enfrentam um dilema: depender de importação com lead time de 90+ dias ou investir em capacidade interna para cada componente.
 
-Na Lifetrek Medical (Indaiatuba/SP), operamos com:
-- Tornos Suíços Citizen (L20/M32) para geometrias complexas.
-- Inspeção 100% automatizada (Zeiss Contura).
-- Acabamento interno (Eletropolimento e Marcação a Laser).
+Na Lifetrek Medical, oferecemos uma terceira via: parceria de manufatura para etapas específicas, onde você mantém controle total do registro ANVISA.
 
-Gostaria de agendar 10 minutos para entender seus desafios atuais de usinagem?
+Nossa capacidade inclui:
+- Tornos Suíços Citizen (L20/M32) para geometrias complexas
+- Metrologia 100% automatizada (Zeiss Contura)
+- Acabamento interno (eletropolimento, passivação, marcação a laser)
+- Sala limpa ISO 7 para montagem de kits
+
+Gostaria de agendar 15 minutos para entender se há fit com algum SKU crítico da [Empresa]?
 
 Atenciosamente,`
   },
@@ -128,29 +133,34 @@ Atenciosamente,`
   oem: {
     linkedin_intro: `Olá [Nome],
 
-Vi que a [Empresa] desenvolve dispositivos médicos.
+Vi que a [Empresa] desenvolve e fabrica dispositivos médicos no Brasil.
 
-Na Lifetrek, somos parceiros de manufatura para OEMs: da prototipagem à produção em escala, com ISO 13485.
+Na Lifetrek, somos parceiros de manufatura para OEMs que querem terceirizar etapas específicas (usinagem, acabamento, montagem) mantendo controle total do registro ANVISA.
 
-Faz sentido conversarmos sobre seu próximo projeto?`,
+Faz sentido conversarmos sobre como podemos complementar sua operação?`,
     linkedin_followup: `[Nome],
 
-Apenas um lembrete: oferecemos NDAs padrão e capacidade para co-desenvolvimento.
+Só para esclarecer nosso modelo: atendemos fabricantes com planta no Brasil que precisam de capacidade adicional ou especializada.
 
-Posso enviar um case de um projeto similar?`,
-    email_outreach: `Assunto: Parceria de Manufatura para [Empresa]
+Você mantém o registro, nós executamos as etapas acordadas com rastreabilidade total.
+
+Posso enviar nosso roteiro de 90 dias para internalização de SKUs?`,
+    email_outreach: `Assunto: Parceria de Manufatura para Componentes - [Empresa]
 
 Olá [Nome],
 
-Desenvolver dispositivos médicos exige um parceiro de manufatura confiável e flexível.
+Fabricantes de dispositivos médicos com operação no Brasil frequentemente precisam de parceiros especializados para etapas específicas do processo produtivo.
 
 Na Lifetrek, oferecemos:
-- Prototipagem rápida (10 dias).
-- Produção em escala com repetibilidade.
-- Suporte em documentação regulatória.
-- Confidencialidade via NDA.
+- Usinagem de precisão (CNC suíço Citizen)
+- Metrologia avançada (CMM Zeiss)
+- Acabamento (eletropolimento, passivação, marcação a laser)
+- Montagem em sala limpa ISO 7
+- Prototipagem rápida (10 dias)
 
-Gostaria de explorar como podemos apoiar seu roadmap de produtos?
+Importante: trabalhamos como extensão da sua fábrica. Você mantém controle total do registro ANVISA e do processo produtivo.
+
+Gostaria de explorar se há fit para algum componente crítico?
 
 Atenciosamente,`
   }

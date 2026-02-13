@@ -15,7 +15,10 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    company: "",
     phone: "",
+    annualVolume: "",
+    technicalRequirements: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,7 +29,7 @@ export default function Contact() {
     if (isSubmitting) return;
 
     // Basic validation
-    if (!formData.name || !formData.email || !formData.phone) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.technicalRequirements) {
       toast({
         variant: "destructive",
         title: "Erro",
@@ -54,7 +57,11 @@ export default function Contact() {
         body: {
           name: formData.name,
           email: formData.email,
+          company: formData.company || undefined,
           phone: formData.phone,
+          projectTypes: ["medical_devices"],
+          annualVolume: formData.annualVolume || undefined,
+          technicalRequirements: formData.technicalRequirements || formData.message || "Solicitacao enviada pelo formulario de contato.",
           message: formData.message,
         }
       });
@@ -109,7 +116,10 @@ export default function Contact() {
       setFormData({
         name: "",
         email: "",
+        company: "",
         phone: "",
+        annualVolume: "",
+        technicalRequirements: "",
         message: ""
       });
     } catch (error) {
@@ -189,6 +199,49 @@ export default function Contact() {
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
                     }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium mb-2">
+                    {t("contact.form.company")}
+                  </label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(e) =>
+                      setFormData({ ...formData, company: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="annualVolume" className="block text-sm font-medium mb-2">
+                    {t("contact.form.annualVolume")}
+                  </label>
+                  <Input
+                    id="annualVolume"
+                    value={formData.annualVolume}
+                    onChange={(e) =>
+                      setFormData({ ...formData, annualVolume: e.target.value })
+                    }
+                    placeholder="Ex.: 5.000 unidades/ano"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="technicalRequirements" className="block text-sm font-medium mb-2">
+                    {t("contact.form.technicalRequirements")} *
+                  </label>
+                  <Textarea
+                    id="technicalRequirements"
+                    rows={4}
+                    value={formData.technicalRequirements}
+                    onChange={(e) =>
+                      setFormData({ ...formData, technicalRequirements: e.target.value })
+                    }
+                    placeholder="Materiais, tolerâncias, processo (usinagem, acabamento, montagem), requisitos regulatórios etc."
                     required
                   />
                 </div>

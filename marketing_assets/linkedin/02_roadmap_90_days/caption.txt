@@ -1,0 +1,36 @@
+Ainda faz sentido depender de importacao para componentes criticos com lead time de 90-120 dias?
+
+Para fabricantes de dispositivos medicos COM PLANTA NO BRASIL, a resposta ja e "nao" - mas a grande duvida e como internalizar mais etapas sem comprometer qualidade ou compliance.
+
+Importante: A ANVISA exige que o detentor do registro tenha fabricacao nacional. Mesmo terceirizando etapas, voce precisa controlar parte do processo produtivo.
+
+Por isso desenhamos um Roteiro de 90 Dias para Producao Local de 1-3 SKUs:
+
+Semanas 1-2 - Diagnostico e selecao dos SKUs certos
+- Mapear componentes criticos (impacto em faturamento + risco de parada)
+- Levantar TCO atual (preco FOB, frete, impostos, estoque de seguranca, NCs)
+- Alinhar requisitos regulatorios (ANVISA, ISO 13485)
+- NDA + compartilhamento de desenhos e volumes
+
+Semanas 3-6 - DFM, prototipos e validacao
+- Revisao colaborativa de DFM (usinabilidade, tolerancias, materiais)
+- Prototipos em CNC suico de precisao
+- Metrologia completa (CMM Zeiss) + documentacao alinhada ao seu DHF
+
+Semanas 7-12 - 1o lote produtivo e estabilizacao
+- Producao em ambiente controlado (sala limpa ISO 7 quando necessario)
+- Integracao com seu MRP e plano de fornecimento recorrente
+- Definicao de KPIs: lead time, NC, OTD
+
+Resultado: voce mantem o controle do registro ANVISA, reduz dependencia de importacao e ganha previsibilidade - com um parceiro de manufatura local.
+
+Para quem e: Fabricantes de dispositivos medicos com planta no Brasil que querem internalizar componentes criticos.
+
+Nao atendemos: Distribuidores, importadores ou empresas apenas com escritorio comercial no pais.
+
+---
+
+Baixe o roteiro completo: lifetrek-medical.com/resources/roadmap-90-dias-migracao-skus
+Quer avaliar se faz sentido para seus SKUs? Comente ou mande DM.
+
+#ManufaturaMedica #SupplyChain #DispositivosMedicos #ANVISA #ISO13485 #Nearshoring #ProducaoLocal #EngenhariaMedica

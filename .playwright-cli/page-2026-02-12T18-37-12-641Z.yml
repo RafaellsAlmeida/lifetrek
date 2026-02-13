@@ -1,0 +1,118 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - navigation [ref=e5]:
+        - link "Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" [ref=e6] [cursor=pointer]:
+          - /url: /#top
+          - img "Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" [ref=e7]
+        - generic [ref=e8]:
+          - link "Início" [ref=e9] [cursor=pointer]:
+            - /url: /#top
+          - link "Quem Somos" [ref=e10] [cursor=pointer]:
+            - /url: /about#top
+          - link "O que Fazemos" [ref=e11] [cursor=pointer]:
+            - /url: /what-we-do#top
+          - link "Produtos" [ref=e12] [cursor=pointer]:
+            - /url: /products#top
+          - link "Recursos" [ref=e13] [cursor=pointer]:
+            - /url: /resources#top
+          - link "Infraestrutura" [ref=e14] [cursor=pointer]:
+            - /url: /capabilities#top
+          - link "Quem Atendemos" [ref=e15] [cursor=pointer]:
+            - /url: /clients#top
+          - link "Contato" [ref=e16] [cursor=pointer]:
+            - /url: /contact#top
+        - generic [ref=e18]:
+          - button "🇺🇸 EN" [ref=e19] [cursor=pointer]
+          - button "🇧🇷 PT" [ref=e20] [cursor=pointer]
+    - main [ref=e21]:
+      - generic [ref=e23]:
+        - generic [ref=e63]:
+          - link "Voltar para o Blog" [ref=e64] [cursor=pointer]:
+            - /url: /blog
+            - img [ref=e65]
+            - text: Voltar para o Blog
+          - generic [ref=e68]:
+            - img [ref=e69]
+            - text: 6 min de leitura
+          - 'heading "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável" [level=1] [ref=e72]'
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - img [ref=e76]
+              - generic [ref=e79]:
+                - paragraph [ref=e80]: Equipe Lifetrek Medical
+                - paragraph [ref=e81]: 12 de fevereiro, 2026
+            - generic [ref=e82]:
+              - button [ref=e83] [cursor=pointer]:
+                - img
+              - button [ref=e84] [cursor=pointer]:
+                - img
+        - 'img "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável" [ref=e86]'
+        - article [ref=e88]:
+          - article [ref=e89]:
+            - generic [ref=e90]:
+              - 'heading "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável" [level=1] [ref=e91]'
+              - paragraph [ref=e92]: A manufatura de dispositivos médicos no Brasil está à beira de uma transformação radical, impulsionada por avanços tecnológicos, mudanças regulatórias e uma crescente demanda por eficiência e inovação. Neste artigo, exploraremos as principais tendências que estão moldando o setor e como sua empresa pode se preparar para o futuro, aproveitando as oportunidades de crescimento e otimização.
+            - generic [ref=e93]:
+              - 'heading "O Cenário Atual: Desafios e Oportunidades" [level=2] [ref=e94]'
+              - paragraph [ref=e95]: O setor de dispositivos médicos no Brasil movimenta anualmente cerca de R$ 26 bilhões e emprega mais de 6 mil pessoas, demonstrando sua importância econômica e social. No entanto, o setor enfrenta desafios como a necessidade de modernização de processos, a adaptação às novas regulamentações e a crescente concorrência global. A boa notícia é que, com a abordagem certa, esses desafios podem se transformar em oportunidades de crescimento e inovação.
+              - paragraph [ref=e96]: Uma das principais tendências que estão impulsionando a transformação do setor é a manufatura aditiva, ou impressão 3D. Essa tecnologia está revolucionando a forma como os dispositivos médicos são projetados e fabricados, permitindo a criação de produtos personalizados, com maior precisão e menor custo. Além disso, a manufatura aditiva possibilita a produção de dispositivos com geometrias complexas e funcionalidades avançadas, abrindo novas possibilidades para a medicina.
+            - generic [ref=e97]:
+              - 'heading "Manufatura Aditiva: A Revolução da Impressão 3D" [level=2] [ref=e98]'
+              - paragraph [ref=e99]: A impressão 3D está se tornando cada vez mais popular no setor de dispositivos médicos, especialmente nas áreas de odontologia e cardiologia. Na odontologia, a impressão 3D é utilizada para a fabricação de próteses, guias cirúrgicos e modelos para planejamento de cirurgias bucomaxilofaciais. Na cardiologia, a impressão 3D é utilizada para a criação de modelos de corações e vasos sanguíneos, permitindo que os cirurgiões planejem e pratiquem cirurgias complexas com maior precisão.
+              - paragraph [ref=e100]: No entanto, a adoção da impressão 3D no setor de dispositivos médicos requer cuidados especiais. É fundamental garantir a segurança regulatória dos produtos fabricados com essa tecnologia, seguindo as normas da Anvisa e do Inmetro. Além disso, é importante investir em metrologia para garantir a precisão e a qualidade dos produtos impressos em 3D.
+            - generic [ref=e101]:
+              - 'heading "Transformação Digital e Automação: Maximizando a Eficiência" [level=2] [ref=e102]'
+              - paragraph [ref=e103]: A transformação digital é outra tendência importante que está moldando o setor de dispositivos médicos. A automação de testes, a implementação de sistemas de Electronic Health Records (EHRs) e a utilização de dispositivos médicos conectados estão permitindo que as empresas do setor aumentem sua eficiência, reduzam seus custos e melhorem a qualidade de seus produtos e serviços.
+              - paragraph [ref=e104]: Um exemplo de como a transformação digital pode beneficiar o setor de dispositivos médicos é a automação de testes. Ao automatizar os testes de qualidade dos produtos, as empresas podem reduzir o tempo necessário para realizar esses testes, diminuir o risco de erros e aumentar a confiabilidade dos resultados. Além disso, a automação de testes permite que as empresas coletem e analisem dados de forma mais eficiente, identificando padrões e tendências que podem ser utilizados para melhorar a qualidade dos produtos e otimizar os processos de fabricação.
+              - paragraph [ref=e105]: A implementação de sistemas de EHRs também pode trazer grandes benefícios para o setor de dispositivos médicos. Esses sistemas permitem que os médicos e outros profissionais de saúde acessem informações sobre os pacientes de forma rápida e fácil, melhorando a coordenação dos cuidados e reduzindo o risco de erros. Além disso, os sistemas de EHRs permitem que as empresas do setor coletem dados sobre o desempenho de seus produtos e serviços, ajudando-as a identificar oportunidades de melhoria e inovação.
+              - paragraph [ref=e106]: A integração de Inteligência Artificial (IA) e Customer Relationship Management (CRM) pode transformar a gestão de relacionamento com o cliente e a otimização de processos. A IA pode automatizar tarefas repetitivas, analisar grandes volumes de dados para identificar insights e personalizar a experiência do cliente. Já o CRM permite centralizar as informações dos clientes, facilitando o acompanhamento das interações e a identificação de oportunidades de venda. A aplicação dessas tecnologias pode resultar em um aumento significativo na satisfação do cliente e na eficiência operacional.
+            - generic [ref=e107]:
+              - 'heading "Framework 4P: Uma Metodologia para o Sucesso" [level=2] [ref=e108]'
+              - paragraph [ref=e109]: "Na Amorim Stout Consulting (ASC), utilizamos o Framework 4P para ajudar as empresas do setor de dispositivos médicos a alcançar seus objetivos de transformação e crescimento. O Framework 4P é uma metodologia comprovada que se baseia em quatro pilares fundamentais: Diagnóstico, Design, Implementação e Otimização."
+              - list [ref=e110]:
+                - listitem [ref=e111]: "Diagnóstico: Nesta fase, realizamos uma análise completa da situação atual da empresa, identificando seus pontos fortes e fracos, suas oportunidades e ameaças. Utilizamos ferramentas como análise SWOT, análise de Porter e análise de stakeholders para obter uma visão clara do ambiente interno e externo da empresa."
+                - listitem [ref=e112]: "Design: Com base no diagnóstico, desenvolvemos um plano de ação detalhado, definindo os objetivos a serem alcançados, as estratégias a serem implementadas e os recursos necessários. Utilizamos metodologias como Lean Six Sigma e DMAIC para otimizar os processos da empresa e reduzir o desperdício."
+                - listitem [ref=e113]: "Implementação: Colocamos o plano de ação em prática, acompanhando de perto a execução das atividades e garantindo que os resultados sejam alcançados. Utilizamos ferramentas de gestão de projetos para garantir que os prazos sejam cumpridos e os custos sejam controlados."
+                - listitem [ref=e114]: "Otimização: Monitoramos continuamente o desempenho da empresa, identificando áreas de melhoria e implementando ações corretivas. Utilizamos metodologias como OKRs (Objectives and Key Results) para definir metas ambiciosas e medir o progresso da empresa em direção a essas metas."
+            - generic [ref=e115]:
+              - heading "Resultados Mensuráveis e ROI Tangível" [level=2] [ref=e116]
+              - paragraph [ref=e117]: Ao implementar o Framework 4P, as empresas do setor de dispositivos médicos podem esperar resultados mensuráveis e um ROI tangível. Por exemplo, uma empresa que implementou o Framework 4P conseguiu reduzir seus custos de produção em 15%, aumentar sua receita em 20% e melhorar a satisfação de seus clientes em 25%. Esses resultados demonstram o poder da metodologia e sua capacidade de gerar valor para as empresas do setor.
+              - paragraph [ref=e118]: Para ilustrar, considere uma empresa que busca otimizar sua gestão financeira (um dos nossos Core Services). Através de uma análise detalhada e implementação de controles financeiros mais rigorosos, é possível otimizar o fluxo de caixa em até 30% e melhorar as margens em 10%, gerando um impacto direto no resultado final da empresa.
+            - generic [ref=e119]:
+              - 'heading "Conclusão: Preparando-se para o Futuro" [level=2] [ref=e120]'
+              - paragraph [ref=e121]: O setor de manufatura de dispositivos médicos no Brasil está passando por um momento de transformação, impulsionado por avanços tecnológicos, mudanças regulatórias e uma crescente demanda por eficiência e inovação. As empresas que souberem aproveitar essas tendências estarão melhor posicionadas para o sucesso no futuro. A Amorim Stout Consulting (ASC) pode ajudar sua empresa a navegar por esse cenário complexo e a alcançar seus objetivos de transformação e crescimento. Entre em contato conosco hoje mesmo e descubra como podemos ajudá-lo a transformar sua empresa e a alcançar o sucesso sustentável.
+    - contentinfo [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - img "Lifetrek Medical logo" [ref=e32]
+            - paragraph [ref=e33]: Desenvolva componentes médicos de precisão com nossa fabricação certificada ISO 13485, tecnologia CNC de última geração e instalações de sala limpa.
+          - generic [ref=e34]:
+            - heading "Contato" [level=3] [ref=e35]
+            - generic [ref=e36]:
+              - link "vmartin@lifetrek-medical.com" [ref=e38] [cursor=pointer]:
+                - /url: mailto:vmartin@lifetrek-medical.com
+              - link "+55 11 94533-6226" [ref=e40] [cursor=pointer]:
+                - /url: tel:+5511945336226
+              - generic [ref=e42]: Indaiatuba / SP, Brasil
+              - generic [ref=e43]:
+                - link "LinkedIn (Lifetrek Medical)" [ref=e44] [cursor=pointer]:
+                  - /url: https://www.linkedin.com/company/109570674/
+                  - img [ref=e45]
+                  - text: LinkedIn (Lifetrek Medical)
+                - link "Instagram (@lifetrekmedical)" [ref=e49] [cursor=pointer]:
+                  - /url: https://www.instagram.com/lifetrekmedical
+                  - img [ref=e50]
+                  - text: Instagram (@lifetrekmedical)
+          - generic [ref=e53]:
+            - heading "Certificações" [level=3] [ref=e54]
+            - generic [ref=e56]:
+              - img "ISO 13485:2016 Medical Device Quality Management certification" [ref=e57]
+              - generic [ref=e58]: ISO 13485:2016
+        - paragraph [ref=e60]: © 2026 Lifetrek Medical. Todos os direitos reservados.
+    - button "Chat disponível na página inicial" [ref=e61]:
+      - img

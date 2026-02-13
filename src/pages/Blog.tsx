@@ -11,6 +11,10 @@ import { Calendar, User, ArrowRight } from "lucide-react";
 export default function Blog() {
   const { t } = useLanguage();
   const { data: blogPosts, isLoading } = useBlogPosts(true); // Fetch published posts only
+  const tSafe = (key: string, fallback: string) => {
+    const value = t(key);
+    return value === key ? fallback : value;
+  };
 
   if (isLoading) {
     return (
@@ -26,10 +30,10 @@ export default function Blog() {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 font-display tracking-tight">
-            {t("blog.title")}
+            {tSafe("blog.title", "Blog Lifetrek Medical")}
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            {t("blog.subtitle")}
+            {tSafe("blog.subtitle", "Insights sobre manufatura médica, supply chain e inovação.")}
           </p>
         </div>
       </div>
@@ -37,7 +41,7 @@ export default function Blog() {
       <div className="container mx-auto px-4 py-12">
         {(!blogPosts || blogPosts.length === 0) ? (
           <div className="text-center py-20">
-            <p className="text-xl text-slate-500">{t("blog.empty")}</p>
+            <p className="text-xl text-slate-500">{tSafe("blog.empty", "Nenhum artigo publicado no momento.")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -77,7 +81,7 @@ export default function Blog() {
 
                   <Link to={`/blog/${post.slug}`} className="mt-auto">
                     <Button variant="ghost" className="p-0 h-auto hover:bg-transparent hover:text-primary group">
-                      {t("blog.readMore")}
+                      {tSafe("blog.readMore", "Ler mais")}
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>

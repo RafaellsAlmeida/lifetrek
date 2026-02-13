@@ -1,0 +1,27 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e21]:
+        - img [ref=e23]
+        - generic [ref=e26]: Email ou senha incorretos. Verifique suas credenciais.
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "Admin Login" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Access the internal analytics dashboard
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - text: Email
+        - textbox "Admin email address" [ref=e13]:
+          - /placeholder: temp_admin@lifetrek.com
+          - text: rafacrvg@icloud.com
+      - generic [ref=e14]:
+        - text: Password
+        - textbox "Admin password" [active] [ref=e15]:
+          - /placeholder: ••••••••
+          - text: _@Raju05022005
+      - button "Login to admin dashboard" [ref=e16] [cursor=pointer]: Login
+    - button "Reset password" [ref=e18] [cursor=pointer]: Forgot password?
+    - button "Return to main website homepage" [ref=e20] [cursor=pointer]: Back to website

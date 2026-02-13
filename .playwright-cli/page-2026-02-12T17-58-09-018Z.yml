@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e21]:
+      - banner [ref=e22]:
+        - generic [ref=e23]:
+          - link "LT Admin" [ref=e24] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e26]: LT
+            - generic [ref=e27]: Admin
+          - navigation [ref=e28]:
+            - link "Dashboard" [ref=e29] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e30]
+              - generic [ref=e35]: Dashboard
+            - link "Inbox" [ref=e36] [cursor=pointer]:
+              - /url: /admin/inbox
+              - img [ref=e37]
+              - generic [ref=e40]: Inbox
+            - link "Chatbot" [ref=e41] [cursor=pointer]:
+              - /url: /admin/chatbot-inbox
+              - img [ref=e42]
+              - generic [ref=e44]: Chatbot
+            - button "Conteúdo" [ref=e45] [cursor=pointer]:
+              - img
+              - generic [ref=e46]: Conteúdo
+              - img
+            - button "Analytics" [ref=e47] [cursor=pointer]:
+              - img
+              - generic [ref=e48]: Analytics
+              - img
+            - link "Leads" [ref=e49] [cursor=pointer]:
+              - /url: /admin/leads
+              - img [ref=e50]
+              - generic [ref=e54]: Leads
+          - generic [ref=e55]:
+            - generic [ref=e56]: Rafael (iCloud)
+            - generic [ref=e57]:
+              - img [ref=e58]
+              - generic [ref=e60]: Super
+            - button "Sair" [ref=e61] [cursor=pointer]:
+              - img
+              - generic [ref=e62]: Sair
+      - main [ref=e63]:
+        - generic [ref=e1482]:
+          - generic [ref=e1483]:
+            - generic [ref=e1484]: Modo Preview
+            - generic [ref=e1485]: Esta é uma simulação de como o conteúdo aparecerá no site após aprovação
+          - generic [ref=e1486]:
+            - button [ref=e1488] [cursor=pointer]:
+              - img [ref=e1489]
+            - generic [ref=e1494]:
+              - button [ref=e1495] [cursor=pointer]:
+                - img [ref=e1496]
+              - button [ref=e1498] [cursor=pointer]:
+                - img [ref=e1499]
+              - button [ref=e1501] [cursor=pointer]:
+                - img [ref=e1502]
+            - generic [ref=e1506]:
+              - img [ref=e1507]
+              - generic [ref=e1510]: linkedin.com/company/lifetrek-medical/posts
+              - img [ref=e1511] [cursor=pointer]
+            - generic [ref=e1515]: 3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga
+          - generic [ref=e1519]:
+            - heading "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga" [level=1] [ref=e1520]
+            - generic [ref=e1522]: "## Slide 1: Seu implante falhou no teste de fadiga? 70% das falhas poderiam ser evitadas com um passo que a maioria pula. --- ## Slide 2: O Custo de Descobrir Tarde Cada falha no teste = R$50k+ em retrabalho. Meses de atraso no registro ANVISA/FDA. Time de P&D travado em loop infinito de iterações. --- ## Slide 3: Erro #1: Pular a Validação de Geometria Ir direto do CAD para o CNC é tentador. Mas sem validar forma e encaixe com impressão 3D médica, problemas de geometria aparecem depois de usinar titânio. --- ## Slide 4: Erro #2: Prototipar em Material Errado Testar fadiga com liga similar não é testar fadiga. A ASTM F136 (titânio grau cirúrgico) tem comportamento mecânico único. Trocar por outro material invalida 100% dos dados. --- ## Slide 5: Erro #3: Não Mapear Regiões Críticas Roscas, mudanças de seção, cantos vivos - são pontos de concentração de tensão. Sem tolerâncias definidas antes do CNC, o teste de fadiga encontra o problema por você. --- ## Slide 6: O Fluxo Que Evita Esses Erros Guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo. Do CAD ao teste, passo a passo."
+          - generic [ref=e1523]:
+            - generic [ref=e1524]: Revise o conteúdo acima antes de aprovar para publicação
+            - generic [ref=e1525]:
+              - button "Fechar Preview" [ref=e1526] [cursor=pointer]
+              - button "Rejeitar" [ref=e1527] [cursor=pointer]
+              - button "Aprovar e Publicar" [ref=e1528] [cursor=pointer]
+  - generic [ref=e235]: "24"

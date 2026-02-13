@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-02-13T00:03:40.327Z",
+  "urls": {
+    "adminBlog": "http://127.0.0.1:8080/admin/blog",
+    "blogList": "http://127.0.0.1:8080/blog",
+    "blogDetail": ""
+  },
+  "checks": {
+    "adminHasBlogSeoHeader": false,
+    "adminHasIcpFilter": false,
+    "adminHasIcpColumn": false,
+    "adminHasIcpValues": false,
+    "noBlogTitlePlaceholder": true,
+    "noBlogReadMorePlaceholder": true,
+    "blogHeaderPresent": false,
+    "detailHasForbiddenAsc": false,
+    "seoTitlePresent": false,
+    "seoDescriptionPresent": false,
+    "ogTitlePresent": false,
+    "ogDescriptionPresent": false,
+    "ogImagePresent": false,
+    "twitterCardPresent": false
+  },
+  "seo": {},
+  "screenshots": [
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/admin-blog-authenticated.png",
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/blog-list-authenticated-run.png",
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/blog-detail-authenticated-run.png"
+  ]
+}

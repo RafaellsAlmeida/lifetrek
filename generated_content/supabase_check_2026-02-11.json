@@ -1,0 +1,753 @@
+{
+  "summary": {
+    "totalLeads": 21,
+    "recentLeadsSampleSize": 21,
+    "recentLeadsSourceBreakdown": {
+      "website": 21
+    },
+    "leadsLast14Days": 10,
+    "leadsLast14DaysByDate": {
+      "2026-02-05": 8,
+      "2026-02-03": 2
+    },
+    "recentResourceAnalyticsEvents": 15,
+    "recentFormSubmissionEvents": 0,
+    "resourceLikeLeadsInRecentSample": 11
+  },
+  "recentLeads": [
+    {
+      "id": "d1788f94-6701-477c-abbc-f61434ffc70c",
+      "created_at": "2026-02-05T17:40:58.785797+00:00",
+      "name": "Playwright Test 1770313254267",
+      "email": "playwright+1770313254267@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "43bce4b2-cfa0-405a-a249-7db73b606d3d",
+      "created_at": "2026-02-05T17:40:58.732033+00:00",
+      "name": "Playwright Test 1770313254268",
+      "email": "playwright+1770313254268@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026. Responses: {\"scorecard\":{\"dependency\":5,\"volatility\":5,\"leadTime\":5,\"quality\":5,\"capital\":5},\"total\":25,\"band\":\"Alto\"}",
+      "business_challenges": "Scorecard Scorecard de Risco de Supply Chain 2026: 25 (Alto)."
+    },
+    {
+      "id": "69bc37c9-2a37-4064-ba03-ae174518b992",
+      "created_at": "2026-02-05T17:40:58.155814+00:00",
+      "name": "Playwright Test 1770313254267",
+      "email": "playwright+1770313254267@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "5cfc630d-4382-44b2-b514-a777275bac58",
+      "created_at": "2026-02-05T17:40:58.151591+00:00",
+      "name": "Playwright Test 1770313254268",
+      "email": "playwright+1770313254268@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "58b63859-cb94-4d48-abcb-0bf9dca30b6c",
+      "created_at": "2026-02-05T17:39:58.761221+00:00",
+      "name": "Test Lead",
+      "email": "test+lead-1770313198@lifetrek.test",
+      "company": "TestCo",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Hello",
+      "business_challenges": "Nao informado"
+    },
+    {
+      "id": "553c5b91-81c4-4289-925a-11143764a432",
+      "created_at": "2026-02-05T17:39:45.697392+00:00",
+      "name": "Test Lead",
+      "email": "test+lead-1770313185@lifetrek.test",
+      "company": "TestCo",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Nao informado"
+    },
+    {
+      "id": "30a8a178-33c1-4274-91f2-a4cbff6052b3",
+      "created_at": "2026-02-05T17:39:45.4856+00:00",
+      "name": "Test Lead",
+      "email": "test+lead-1770313185@lifetrek.test",
+      "company": null,
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Nao informado"
+    },
+    {
+      "id": "14f772fd-5879-4cba-8ba8-5d2cfaa398ee",
+      "created_at": "2026-02-05T17:39:30.955696+00:00",
+      "name": "Test Lead",
+      "email": "test+lead-1770313170@lifetrek.test",
+      "company": null,
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Nao informado"
+    },
+    {
+      "id": "22b733d1-9cf6-40b7-a5f9-3eeebda61bfb",
+      "created_at": "2026-02-03T20:57:36.155372+00:00",
+      "name": "Sistema Lifetrek",
+      "email": "vmartins@lifetrek-medical.com",
+      "company": "Lifetrek Medical",
+      "source": "website",
+      "project_type": "Transformação Digital",
+      "project_types": [
+        "digital_transformation"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Este email e uma notificacao automatica sobre a atualizacao do chatbot do site Lifetrek.",
+      "business_challenges": "NOTIFICACAO INTERNA: Chatbot do site atualizado com IA (Gemini Flash), captura automatica de leads, deteccao de interesse, historico de conversas salvo, e RAG com 15 documentos embedados. Tudo funcionando!"
+    },
+    {
+      "id": "ac4a3dc0-a925-4eba-9212-13a4ccfa70d9",
+      "created_at": "2026-02-03T20:45:05.212266+00:00",
+      "name": "Maria",
+      "email": "maria@dentalcorp.com.br",
+      "company": null,
+      "source": "website",
+      "project_type": "Orcamento",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Ola, me chamo Maria Quero orcamento. Meu email e maria@dentalcorp.com.br",
+      "business_challenges": "Capturado via chatbot do site"
+    },
+    {
+      "id": "6a561915-243c-4fe2-8d93-3744b29f5a83",
+      "created_at": "2026-01-22T02:13:32.96003+00:00",
+      "name": "Playwright Test 1769048010525",
+      "email": "playwright+1769048010525@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "f2115e5f-1d79-4a4b-8cd7-e6adb4215d16",
+      "created_at": "2026-01-22T02:13:32.427754+00:00",
+      "name": "Playwright Test 1769048009137",
+      "email": "playwright+1769048009137@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026. Responses: {\"scorecard\":{\"dependency\":5,\"volatility\":5,\"leadTime\":5,\"quality\":5,\"capital\":5},\"total\":25,\"band\":\"Alto\"}",
+      "business_challenges": "Scorecard Scorecard de Risco de Supply Chain 2026: 25 (Alto)."
+    },
+    {
+      "id": "e07128e6-4644-4b8b-88e2-c03f2ebbd273",
+      "created_at": "2026-01-22T02:13:32.407895+00:00",
+      "name": "Playwright Test 1769048010525",
+      "email": "playwright+1769048010525@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "c3451f04-f3c5-4e6b-8bff-5e8a59bf4275",
+      "created_at": "2026-01-22T02:13:31.90756+00:00",
+      "name": "Playwright Test 1769048009137",
+      "email": "playwright+1769048009137@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "081a2655-0385-4b4a-b925-517df425dd22",
+      "created_at": "2026-01-22T02:11:10.983721+00:00",
+      "name": "Playwright Test 1769047868258",
+      "email": "playwright+1769047868258@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "5d16e768-11ce-416c-b6ce-15d9a3925528",
+      "created_at": "2026-01-22T02:11:10.289363+00:00",
+      "name": "Playwright Test 1769047868258",
+      "email": "playwright+1769047868258@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "043920f1-6255-4d4d-b2da-14f44b23519a",
+      "created_at": "2026-01-22T02:11:09.704383+00:00",
+      "name": "Playwright Test 1769047866799",
+      "email": "playwright+1769047866799@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026. Responses: {\"scorecard\":{\"dependency\":5,\"volatility\":5,\"leadTime\":5,\"quality\":5,\"capital\":5},\"total\":25,\"band\":\"Alto\"}",
+      "business_challenges": "Scorecard Scorecard de Risco de Supply Chain 2026: 25 (Alto)."
+    },
+    {
+      "id": "bc52edca-4359-4777-9b99-3ea57a8e40ea",
+      "created_at": "2026-01-22T02:11:09.245467+00:00",
+      "name": "Playwright Test 1769047866799",
+      "email": "playwright+1769047866799@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "a01bcd16-6345-4da0-90b5-3b84c57840f5",
+      "created_at": "2026-01-19T18:14:56.922959+00:00",
+      "name": "fff",
+      "email": "rafacrvg@icloud.com",
+      "company": "ffff",
+      "source": "website",
+      "project_type": "orthopedic_implants",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Lead magnet: Fluxo de Validacao de Fadiga."
+    },
+    {
+      "id": "255c2f69-66e0-490e-aba6-a70bb92123b3",
+      "created_at": "2026-01-19T17:04:40.298349+00:00",
+      "name": "dadasda",
+      "email": "info@cacao-ai.com",
+      "company": "dadadadd",
+      "source": "website",
+      "project_type": "orthopedic_implants",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Lead magnet: Fluxo de Validacao de Fadiga."
+    },
+    {
+      "id": "08489c8d-84b3-47db-82c5-09cf59db6639",
+      "created_at": "2026-01-09T02:40:27.348611+00:00",
+      "name": "Test User Automated",
+      "email": "test_automation@lifetrek-medical.com",
+      "company": null,
+      "source": "website",
+      "project_type": "Dispositivos Médicos",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Automated verification test.",
+      "business_challenges": "This is a specialized test to verify database insertion and email trigger."
+    }
+  ],
+  "recentResourceLikeLeads": [
+    {
+      "id": "d1788f94-6701-477c-abbc-f61434ffc70c",
+      "created_at": "2026-02-05T17:40:58.785797+00:00",
+      "name": "Playwright Test 1770313254267",
+      "email": "playwright+1770313254267@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "69bc37c9-2a37-4064-ba03-ae174518b992",
+      "created_at": "2026-02-05T17:40:58.155814+00:00",
+      "name": "Playwright Test 1770313254267",
+      "email": "playwright+1770313254267@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "5cfc630d-4382-44b2-b514-a777275bac58",
+      "created_at": "2026-02-05T17:40:58.151591+00:00",
+      "name": "Playwright Test 1770313254268",
+      "email": "playwright+1770313254268@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "6a561915-243c-4fe2-8d93-3744b29f5a83",
+      "created_at": "2026-01-22T02:13:32.96003+00:00",
+      "name": "Playwright Test 1769048010525",
+      "email": "playwright+1769048010525@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "e07128e6-4644-4b8b-88e2-c03f2ebbd273",
+      "created_at": "2026-01-22T02:13:32.407895+00:00",
+      "name": "Playwright Test 1769048010525",
+      "email": "playwright+1769048010525@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "c3451f04-f3c5-4e6b-8bff-5e8a59bf4275",
+      "created_at": "2026-01-22T02:13:31.90756+00:00",
+      "name": "Playwright Test 1769048009137",
+      "email": "playwright+1769048009137@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "081a2655-0385-4b4a-b925-517df425dd22",
+      "created_at": "2026-01-22T02:11:10.983721+00:00",
+      "name": "Playwright Test 1769047868258",
+      "email": "playwright+1769047868258@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+      "business_challenges": "Checklist producao local: 3 SIM."
+    },
+    {
+      "id": "5d16e768-11ce-416c-b6ce-15d9a3925528",
+      "created_at": "2026-01-22T02:11:10.289363+00:00",
+      "name": "Playwright Test 1769047868258",
+      "email": "playwright+1769047868258@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: checklist-producao-local",
+      "business_challenges": "Lead magnet: Checklist: Quando Faz Sentido Produzir Local"
+    },
+    {
+      "id": "bc52edca-4359-4777-9b99-3ea57a8e40ea",
+      "created_at": "2026-01-22T02:11:09.245467+00:00",
+      "name": "Playwright Test 1769047866799",
+      "email": "playwright+1769047866799@lifetrek.test",
+      "company": "",
+      "source": "website",
+      "project_type": "other_medical",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": "Resource slug: scorecard-risco-supply-chain-2026",
+      "business_challenges": "Lead magnet: Scorecard de Risco de Supply Chain 2026"
+    },
+    {
+      "id": "a01bcd16-6345-4da0-90b5-3b84c57840f5",
+      "created_at": "2026-01-19T18:14:56.922959+00:00",
+      "name": "fff",
+      "email": "rafacrvg@icloud.com",
+      "company": "ffff",
+      "source": "website",
+      "project_type": "orthopedic_implants",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Lead magnet: Fluxo de Validacao de Fadiga."
+    },
+    {
+      "id": "255c2f69-66e0-490e-aba6-a70bb92123b3",
+      "created_at": "2026-01-19T17:04:40.298349+00:00",
+      "name": "dadasda",
+      "email": "info@cacao-ai.com",
+      "company": "dadadadd",
+      "source": "website",
+      "project_type": "orthopedic_implants",
+      "project_types": [
+        "custom_consulting"
+      ],
+      "status": "new",
+      "priority": "medium",
+      "message": null,
+      "business_challenges": "Lead magnet: Fluxo de Validacao de Fadiga."
+    }
+  ],
+  "recentLeads14Days": [
+    {
+      "id": "d1788f94-6701-477c-abbc-f61434ffc70c",
+      "created_at": "2026-02-05T17:40:58.785797+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "43bce4b2-cfa0-405a-a249-7db73b606d3d",
+      "created_at": "2026-02-05T17:40:58.732033+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "69bc37c9-2a37-4064-ba03-ae174518b992",
+      "created_at": "2026-02-05T17:40:58.155814+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "5cfc630d-4382-44b2-b514-a777275bac58",
+      "created_at": "2026-02-05T17:40:58.151591+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "58b63859-cb94-4d48-abcb-0bf9dca30b6c",
+      "created_at": "2026-02-05T17:39:58.761221+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "553c5b91-81c4-4289-925a-11143764a432",
+      "created_at": "2026-02-05T17:39:45.697392+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "30a8a178-33c1-4274-91f2-a4cbff6052b3",
+      "created_at": "2026-02-05T17:39:45.4856+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "14f772fd-5879-4cba-8ba8-5d2cfaa398ee",
+      "created_at": "2026-02-05T17:39:30.955696+00:00",
+      "source": "website",
+      "project_type": "other_medical"
+    },
+    {
+      "id": "22b733d1-9cf6-40b7-a5f9-3eeebda61bfb",
+      "created_at": "2026-02-03T20:57:36.155372+00:00",
+      "source": "website",
+      "project_type": "Transformação Digital"
+    },
+    {
+      "id": "ac4a3dc0-a925-4eba-9212-13a4ccfa70d9",
+      "created_at": "2026-02-03T20:45:05.212266+00:00",
+      "source": "website",
+      "project_type": "Orcamento"
+    }
+  ],
+  "recentResourceAnalyticsEvents": [
+    {
+      "created_at": "2026-02-09T14:50:18.290528+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "http://localhost:8081/resources/checklist-auditoria-iso-13485",
+        "page_path": "/resources/checklist-auditoria-iso-13485",
+        "session_id": "1770648608912-977t16e",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-auditoria-iso-13485",
+        "resource_title": "Checklist: Auditoria de Fornecedores de Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-09T14:50:09.077811+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-auditoria-iso-13485",
+        "session_id": "1770648608912-977t16e",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-auditoria-iso-13485",
+        "resource_title": "Checklist: Auditoria de Fornecedores de Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-09T13:24:15.570845+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-auditoria-iso-13485",
+        "session_id": "1770643455444-5mgllui",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-auditoria-iso-13485",
+        "resource_title": "Checklist: Auditoria de Fornecedores de Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-09T13:23:59.849371+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-auditoria-iso-13485",
+        "session_id": "1770643439710-izhyitr",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-auditoria-iso-13485",
+        "resource_title": "Checklist: Auditoria de Fornecedores de Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-07T15:16:32.833076+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-dfm-implantes",
+        "session_id": "1770477392641-ii6jvub",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-dfm-implantes",
+        "resource_title": "Checklist DFM para Implantes e Instrumentais"
+      }
+    },
+    {
+      "created_at": "2026-02-07T15:09:25.867786+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "http://localhost:8080/version-b",
+        "page_path": "/resources/whitepaper-usinagem-suica-dispositivos-medicos",
+        "session_id": "1770476887918-dwcn676",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "whitepaper-usinagem-suica-dispositivos-medicos",
+        "resource_title": "Whitepaper: Usinagem Suíça para Dispositivos Médicos - Guia Técnico"
+      }
+    },
+    {
+      "created_at": "2026-02-07T15:08:08.175052+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "http://localhost:8080/version-b",
+        "page_path": "/resources/checklist-producao-local",
+        "session_id": "1770476887918-dwcn676",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-producao-local",
+        "resource_title": "Checklist: Quando Faz Sentido Produzir Local"
+      }
+    },
+    {
+      "created_at": "2026-02-07T14:53:01.214638+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-auditoria-fornecedores-medicos",
+        "session_id": "1770475980966-5f6xsaf",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "checklist-auditoria-fornecedores-medicos",
+        "resource_title": "Checklist: Auditoria de Fornecedores de Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-06T18:05:47.684251+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/guia-sala-limpa-dispositivos-medicos",
+        "session_id": "1770401147564-fieyaal",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "guia-sala-limpa-dispositivos-medicos",
+        "resource_title": "Guia Técnico: Salas Limpas em Dispositivos Médicos"
+      }
+    },
+    {
+      "created_at": "2026-02-06T17:12:16.394399+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "http://localhost:8080/resources/roadmap-90-dias-migracao-skus",
+        "page_path": "/resources/guia-metrologia-alta-precisao",
+        "session_id": "1770397905488-xeso60v",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "guia-metrologia-alta-precisao",
+        "resource_title": "Manual de Metrologia e Inspeção de Alta Precisão"
+      }
+    },
+    {
+      "created_at": "2026-02-06T17:11:45.616156+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "http://localhost:8080/resources/roadmap-90-dias-migracao-skus",
+        "page_path": "/resources/roadmap-90-dias-migracao-skus",
+        "session_id": "1770397905488-xeso60v",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+        "resource_slug": "roadmap-90-dias-migracao-skus",
+        "resource_title": "Roadmap de 90 Dias para Migrar 1-3 SKUs"
+      }
+    },
+    {
+      "created_at": "2026-02-05T17:40:56.944967+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/scorecard-risco-supply-chain-2026",
+        "session_id": "1770313256758-gp5xh43",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+        "resource_slug": "scorecard-risco-supply-chain-2026",
+        "resource_title": "Scorecard de Risco de Supply Chain 2026"
+      }
+    },
+    {
+      "created_at": "2026-02-05T17:40:56.919731+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": {
+        "referrer": "",
+        "page_path": "/resources/checklist-producao-local",
+        "session_id": "1770313256714-8odag1d",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+        "resource_slug": "checklist-producao-local",
+        "resource_title": "Checklist: Quando Faz Sentido Produzir Local"
+      }
+    },
+    {
+      "created_at": "2026-02-05T17:38:42.12717+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": null
+    },
+    {
+      "created_at": "2026-02-05T17:38:31.754667+00:00",
+      "event_type": "resource_view",
+      "company_email": null,
+      "metadata": null
+    }
+  ],
+  "recentFormSubmissionEvents": []
+}

@@ -55,18 +55,49 @@ Regra de sequencia:
 - **Maximo 2 posts regulatorios seguidos**.
 - Sempre alternar com processo, qualidade, metrologia ou supply chain.
 
+## ICP-First (Quem Atendemos)
+
+Cada blog deve declarar ICP primario e ICP secundario no metadata:
+
+- `MI`: Fabricantes de Implantes e Instrumentos Cirurgicos
+- `OD`: Empresas de Equipamentos Odontologicos
+- `VT`: Empresas Veterinarias
+- `HS`: Instituicoes de Saude
+- `CM`: Parceiros de Manufatura Contratada / OEM
+
+Campos obrigatorios no `metadata` de `blog_posts`:
+
+- `icp_primary`
+- `icp_secondary`
+- `icp_specificity_scores` (MI/OD/VT/HS/CM)
+- `cta_mode` (`article_only`, `diagnostico`, `resource_optional`)
+- `pillar_keyword`
+- `entity_keywords`
+
+Regra de publicacao:
+
+- Bloquear publicacao sem `icp_primary` e `pillar_keyword`.
+
 ## Mapeamento por etapa do funil
 
 | Funnel Stage | Conteudo | Objetivo | CTA |
 | :--- | :--- | :--- | :--- |
 | **TOFU** | Carrossel LinkedIn + blog tecnico introdutorio | Gerar descoberta e interesse tecnico | "Acesse o artigo completo" |
-| **MOFU** | Blog tecnico aprofundado + recurso (checklist/guia) | Educar e qualificar lead | "Baixar checklist / guia tecnico" |
+| **MOFU** | Blog tecnico aprofundado | Educar e qualificar lead | "Aprofundar criterios tecnicos com a Lifetrek" |
 | **BOFU** | Blog de decisao (risco, ROI, validacao, transicao de fornecedor) | Reduzir risco percebido e acelerar decisao | "Agendar diagnostico tecnico com a Lifetrek" |
+
+## Politica de lead magnet
+
+- Regra padrao: o proprio blog e o lead magnet.
+- Material complementar (checklist/guia) e opcional, apenas quando houver ganho claro de conversao.
+- Priorizar `resource_optional` em temas BOFU de alta friccao tecnica.
 
 ## Regras de qualidade editorial dos blogs
 
 - Linguagem tecnica, objetiva, sem hype.
 - Conteudo orientado a problema real de OEM/engenharia/qualidade.
+- Abertura do artigo com dor real do ICP primario.
+- Encerramento com CTA tecnico de decisao (nao CTA generico de marketing).
 - Nao forcar ANVISA em temas que nao sao regulatorios.
 - Incluir secoes de referencia com fontes validas.
 - Nunca citar clientes externos nao aprovados.

@@ -1,0 +1,21 @@
+{
+  "id": "d1788f94-6701-477c-abbc-f61434ffc70c",
+  "name": "Playwright Test 1770313254267",
+  "email": "playwright+1770313254267@lifetrek.test",
+  "company": "",
+  "phone": "Nao informado",
+  "project_type": "other_medical",
+  "company_size": null,
+  "business_challenges": "Checklist producao local: 3 SIM.",
+  "message": "Resource slug: checklist-producao-local. Responses: {\"checklist\":{\"volume\":true,\"leadTime\":true,\"impact\":true,\"quality\":false,\"capital\":false},\"yesCount\":3}",
+  "status": "new",
+  "priority": "medium",
+  "admin_notes": null,
+  "assigned_to": null,
+  "created_at": "2026-02-05T17:40:58.785797+00:00",
+  "updated_at": "2026-02-05T17:40:58.785797+00:00",
+  "lead_score": 0,
+  "score_breakdown": {},
+  "source": "website",
+  "project_types": []
+}

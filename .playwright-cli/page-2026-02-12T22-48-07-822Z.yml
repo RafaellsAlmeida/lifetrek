@@ -1,0 +1,63 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e27]:
+      - banner [ref=e28]:
+        - generic [ref=e29]:
+          - link "LT Admin" [ref=e30] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e32]: LT
+            - generic [ref=e33]: Admin
+          - navigation [ref=e34]:
+            - link "Dashboard" [ref=e35] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e36]
+              - generic [ref=e41]: Dashboard
+            - link "Inbox" [ref=e42] [cursor=pointer]:
+              - /url: /admin/inbox
+              - img [ref=e43]
+              - generic [ref=e46]: Inbox
+            - link "Chatbot" [ref=e47] [cursor=pointer]:
+              - /url: /admin/chatbot-inbox
+              - img [ref=e48]
+              - generic [ref=e50]: Chatbot
+            - button "Conteúdo" [active] [ref=e51] [cursor=pointer]:
+              - img
+              - generic [ref=e52]: Conteúdo
+              - img
+            - button "Analytics" [ref=e53] [cursor=pointer]:
+              - img
+              - generic [ref=e54]: Analytics
+              - img
+            - link "Leads" [ref=e55] [cursor=pointer]:
+              - /url: /admin/leads
+              - img [ref=e56]
+              - generic [ref=e60]: Leads
+          - generic [ref=e61]:
+            - generic [ref=e62]: Rafael (iCloud)
+            - generic [ref=e63]:
+              - img [ref=e64]
+              - generic [ref=e66]: Super
+            - button "Sair" [ref=e67] [cursor=pointer]:
+              - img
+              - generic [ref=e68]: Sair
+      - main [ref=e69]:
+        - generic [ref=e275]:
+          - generic [ref=e276]:
+            - heading "Content Manager" [level=1] [ref=e277]
+            - generic [ref=e278]:
+              - button "Auto-Generate Images" [ref=e279] [cursor=pointer]:
+                - img
+                - text: Auto-Generate Images
+              - button "Refresh" [ref=e280] [cursor=pointer]
+          - generic [ref=e281]:
+            - tablist [ref=e282]:
+              - tab "Pending" [selected] [ref=e283] [cursor=pointer]
+              - tab "Approved" [ref=e284] [cursor=pointer]
+              - tab "Rejected" [ref=e285] [cursor=pointer]
+              - tab "All" [ref=e286] [cursor=pointer]
+            - tabpanel "Pending" [ref=e287]:
+              - generic [ref=e288]: No posts found in pending
+  - generic [ref=e242]: "24"

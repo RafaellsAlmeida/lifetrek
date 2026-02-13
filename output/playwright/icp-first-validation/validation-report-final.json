@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-02-13T00:15:25.447Z",
+  "login": {
+    "ok": true,
+    "attempts": 1
+  },
+  "urls": {
+    "adminBlog": "http://127.0.0.1:8080/admin/blog",
+    "blogList": "http://127.0.0.1:8080/blog",
+    "blogDetail": "http://127.0.0.1:8080/blog/manufatura-de-dispositivos-medicos-transformacao-estrategica-e-crescimento-sustentavel-1770568168963"
+  },
+  "checks": {
+    "adminOnBlogPage": true,
+    "adminHasIcpFilter": true,
+    "adminHasIcpColumn": true,
+    "adminHasRows": true,
+    "adminHasIcpValues": true,
+    "noBlogTitlePlaceholder": true,
+    "noBlogReadMorePlaceholder": true,
+    "blogHeaderPresent": true,
+    "blogListHasCard": true,
+    "detailHasForbiddenAsc": false,
+    "seoTitlePresent": true,
+    "seoDescriptionPresent": true,
+    "ogTitlePresent": true,
+    "ogDescriptionPresent": true,
+    "ogImagePresent": true,
+    "twitterCardPresent": true
+  },
+  "seo": {
+    "title": "Manufatura Médica: Estratégia e Crescimento Sustentável | Lifetrek Medical Blog",
+    "description": "O setor de manufatura de dispositivos médicos no Brasil está passando por uma revolução impulsionada pela manufatura aditiva, inovações regulatórias e digitali…",
+    "ogTitle": "Manufatura Médica: Estratégia e Crescimento Sustentável",
+    "ogDescription": "O setor de manufatura de dispositivos médicos no Brasil está passando por uma revolução impulsionada pela manufatura aditiva, inovações regulatórias e digitali…",
+    "ogImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/blog-covers/blog-newsletter-cover-horizontal-variant-2-1770921412596.png",
+    "twitterCard": "summary_large_image"
+  },
+  "screenshots": [
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/final-admin-blog-validated.png",
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/final-blog-list-validated.png",
+    "/Users/rafaelalmeida/lifetrek/output/playwright/icp-first-validation/final-blog-detail-validated.png"
+  ],
+  "errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Rafael QA",
+  "email": "rafael.qa@example.com",
+  "company": "Lifetrek Medical",
+  "phone": "+55 11 99999-9999",
+  "projectTypes": [
+    "medical_devices"
+  ],
+  "annualVolume": "5000 unidades/ano",
+  "technicalRequirements": "Titanio grau implante, tolerancia +/-0.01mm, metrologia completa.",
+  "message": "Teste E2E do fluxo de cotacao."
+}

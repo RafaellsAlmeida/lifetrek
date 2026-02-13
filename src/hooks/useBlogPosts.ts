@@ -9,14 +9,13 @@ export function useBlogPosts(publishedOnly = true) {
         queryFn: async () => {
             let query = supabase
                 .from("blog_posts")
-                .select("*, category:blog_categories(*)");
+                .select("*");
 
             if (publishedOnly) {
                 query = query.eq("status", "published");
             }
 
             const { data, error } = await query.order("created_at", { ascending: false });
-
             if (error) throw error;
             return data as unknown as BlogPost[];
         },
@@ -29,7 +28,7 @@ export function useBlogPost(slug: string) {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("blog_posts")
-                .select("*, category:blog_categories(*)")
+                .select("*")
                 .eq("slug", slug)
                 .single();
 
@@ -40,16 +39,24 @@ export function useBlogPost(slug: string) {
     });
 }
 
-export function useBlogCategories() {
+export function useBlogCategories(enabled = true) {
     return useQuery({
         queryKey: ["blog-categories"],
+        enabled,
         queryFn: async () => {
             const { data, error } = await (supabase
                 .from("blog_categories" as any)
                 .select("*")
                 .order("name") as any);
 
-            if (error) throw error;
+            // Some environments do not expose blog_categories or FK relations yet.
+            if (error) {
+                const code = (error as { code?: string }).code || "";
+                if (code === "PGRST205") {
+                    return [] as BlogCategory[];
+                }
+                throw error;
+            }
             return data as BlogCategory[];
         },
     });
@@ -131,6 +138,22 @@ export function usePublishBlogPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: currentPost, error: fetchError } = await supabase
+                .from("blog_posts")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const metadata = (currentPost as any)?.metadata || {};
+            const icpPrimary = typeof metadata?.icp_primary === "string" ? metadata.icp_primary.trim() : "";
+            const pillarKeyword = typeof metadata?.pillar_keyword === "string" ? metadata.pillar_keyword.trim() : "";
+
+            if (!icpPrimary || !pillarKeyword) {
+                throw new Error("Preencha metadata.icp_primary e metadata.pillar_keyword antes de publicar.");
+            }
+
             const { data, error } = await supabase
                 .from("blog_posts")
                 .update({ status: "published", published_at: new Date().toISOString() })
@@ -147,7 +170,8 @@ export function usePublishBlogPost() {
         },
         onError: (error) => {
             console.error("Error publishing blog post:", error);
-            toast.error("Erro ao publicar artigo");
+            const message = error instanceof Error ? error.message : "Erro ao publicar artigo";
+            toast.error(message);
         },
     });
 }

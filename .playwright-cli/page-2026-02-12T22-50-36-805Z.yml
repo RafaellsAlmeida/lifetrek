@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e21]:
+        - img [ref=e23]
+        - generic [ref=e26]: Login realizado com sucesso!
+  - generic [ref=e27]:
+    - banner [ref=e28]:
+      - generic [ref=e29]:
+        - link "LT Admin" [ref=e30] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e32]: LT
+          - generic [ref=e33]: Admin
+        - navigation [ref=e34]:
+          - link "Dashboard" [ref=e35] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e36]
+            - generic [ref=e41]: Dashboard
+          - link "Inbox" [ref=e42] [cursor=pointer]:
+            - /url: /admin/inbox
+            - img [ref=e43]
+            - generic [ref=e46]: Inbox
+          - link "Chatbot" [ref=e47] [cursor=pointer]:
+            - /url: /admin/chatbot-inbox
+            - img [ref=e48]
+            - generic [ref=e50]: Chatbot
+          - button "Conteúdo" [ref=e51] [cursor=pointer]:
+            - img
+            - generic [ref=e52]: Conteúdo
+            - img
+          - button "Analytics" [ref=e53] [cursor=pointer]:
+            - img
+            - generic [ref=e54]: Analytics
+            - img
+          - link "Leads" [ref=e55] [cursor=pointer]:
+            - /url: /admin/leads
+            - img [ref=e56]
+            - generic [ref=e60]: Leads
+        - generic [ref=e61]:
+          - generic [ref=e62]: Rafael (iCloud)
+          - generic [ref=e63]:
+            - img [ref=e64]
+            - generic [ref=e66]: Super
+          - button "Sair" [ref=e67] [cursor=pointer]:
+            - img
+            - generic [ref=e68]: Sair
+    - main [ref=e69]:
+      - img [ref=e72]

@@ -1,0 +1,480 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "LT Admin" [ref=e6] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e8]: LT
+          - generic [ref=e9]: Admin
+        - navigation [ref=e10]:
+          - link "Dashboard" [ref=e11] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e12]
+            - generic [ref=e17]: Dashboard
+          - link "Inbox" [ref=e18] [cursor=pointer]:
+            - /url: /admin/inbox
+            - img [ref=e19]
+            - generic [ref=e22]: Inbox
+          - link "Chatbot" [ref=e23] [cursor=pointer]:
+            - /url: /admin/chatbot-inbox
+            - img [ref=e24]
+            - generic [ref=e26]: Chatbot
+          - button "Conteúdo" [ref=e27] [cursor=pointer]:
+            - img
+            - generic [ref=e28]: Conteúdo
+            - img
+          - button "Analytics" [ref=e29] [cursor=pointer]:
+            - img
+            - generic [ref=e30]: Analytics
+            - img
+          - link "Leads" [ref=e31] [cursor=pointer]:
+            - /url: /admin/leads
+            - img [ref=e32]
+            - generic [ref=e36]: Leads
+        - generic [ref=e37]:
+          - combobox [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]:
+              - img [ref=e40]
+              - generic: Ver como...
+            - img [ref=e43]
+          - generic [ref=e45]: Rafael (iCloud)
+          - generic [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e49]: Super
+          - button "Sair" [ref=e50] [cursor=pointer]:
+            - img
+            - generic [ref=e51]: Sair
+    - main [ref=e52]:
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - heading "Blog & SEO" [level=1] [ref=e57]
+            - paragraph [ref=e58]: Gerencie artigos, categorias e estratégia de conteúdo SEO.
+          - button "Novo Artigo" [ref=e59] [cursor=pointer]:
+            - img
+            - text: Novo Artigo
+        - generic [ref=e60]:
+          - tablist [ref=e61]:
+            - tab "Gerenciar Posts" [selected] [ref=e62] [cursor=pointer]
+            - tab "Estratégia & Tópicos" [ref=e63] [cursor=pointer]
+            - tab "Categorias" [ref=e64] [cursor=pointer]
+          - tabpanel "Gerenciar Posts" [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e68]:
+                - heading "Artigos (31)" [level=3] [ref=e79]
+                - generic [ref=e70]:
+                  - img [ref=e71]
+                  - textbox "Buscar artigos..." [ref=e74]
+              - table [ref=e81]:
+                - rowgroup [ref=e82]:
+                  - row "Título Status Data Criação Views Ações" [ref=e83]:
+                    - columnheader "Título" [ref=e84]
+                    - columnheader "Status" [ref=e85]
+                    - columnheader "Data Criação" [ref=e86]
+                    - columnheader "Views" [ref=e87]
+                    - columnheader "Ações" [ref=e88]
+                - rowgroup [ref=e89]:
+                  - 'row "Single-source partnership: quando consolidar fornecedores faz sentido Revisão 12/02/2026 -" [ref=e90]':
+                    - 'cell "Single-source partnership: quando consolidar fornecedores faz sentido" [ref=e91]'
+                    - cell "Revisão" [ref=e92]:
+                      - generic [ref=e93]: Revisão
+                    - cell "12/02/2026" [ref=e94]
+                    - cell "-" [ref=e95]
+                    - cell [ref=e96]:
+                      - button [ref=e97] [cursor=pointer]:
+                        - img
+                      - button [ref=e98] [cursor=pointer]:
+                        - img
+                      - button [ref=e99] [cursor=pointer]:
+                        - img
+                  - 'row "Launch com método: readiness técnico para escalar produção médica Revisão 12/02/2026 -" [ref=e100]':
+                    - 'cell "Launch com método: readiness técnico para escalar produção médica" [ref=e101]'
+                    - cell "Revisão" [ref=e102]:
+                      - generic [ref=e103]: Revisão
+                    - cell "12/02/2026" [ref=e104]
+                    - cell "-" [ref=e105]
+                    - cell [ref=e106]:
+                      - button [ref=e107] [cursor=pointer]:
+                        - img
+                      - button [ref=e108] [cursor=pointer]:
+                        - img
+                      - button [ref=e109] [cursor=pointer]:
+                        - img
+                  - 'row "Expansão de 5.000m²: como aumentar capacidade sem perder controle Revisão 12/02/2026 -" [ref=e110]':
+                    - 'cell "Expansão de 5.000m²: como aumentar capacidade sem perder controle" [ref=e111]'
+                    - cell "Revisão" [ref=e112]:
+                      - generic [ref=e113]: Revisão
+                    - cell "12/02/2026" [ref=e114]
+                    - cell "-" [ref=e115]
+                    - cell [ref=e116]:
+                      - button [ref=e117] [cursor=pointer]:
+                        - img
+                      - button [ref=e118] [cursor=pointer]:
+                        - img
+                      - button [ref=e119] [cursor=pointer]:
+                        - img
+                  - 'row "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade Revisão 12/02/2026 -" [ref=e120]':
+                    - 'cell "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade" [ref=e121]'
+                    - cell "Revisão" [ref=e122]:
+                      - generic [ref=e123]: Revisão
+                    - cell "12/02/2026" [ref=e124]
+                    - cell "-" [ref=e125]
+                    - cell [ref=e126]:
+                      - button [ref=e127] [cursor=pointer]:
+                        - img
+                      - button [ref=e128] [cursor=pointer]:
+                        - img
+                      - button [ref=e129] [cursor=pointer]:
+                        - img
+                  - 'row "The Precision Partner na prática: como a Lifetrek opera com OEMs Revisão 12/02/2026 -" [ref=e130]':
+                    - 'cell "The Precision Partner na prática: como a Lifetrek opera com OEMs" [ref=e131]'
+                    - cell "Revisão" [ref=e132]:
+                      - generic [ref=e133]: Revisão
+                    - cell "12/02/2026" [ref=e134]
+                    - cell "-" [ref=e135]
+                    - cell [ref=e136]:
+                      - button [ref=e137] [cursor=pointer]:
+                        - img
+                      - button [ref=e138] [cursor=pointer]:
+                        - img
+                      - button [ref=e139] [cursor=pointer]:
+                        - img
+                  - row "Modelo de qualificação técnica para parceiro local em manufatura médica Revisão 12/02/2026 -" [ref=e140]:
+                    - cell "Modelo de qualificação técnica para parceiro local em manufatura médica" [ref=e141]
+                    - cell "Revisão" [ref=e142]:
+                      - generic [ref=e143]: Revisão
+                    - cell "12/02/2026" [ref=e144]
+                    - cell "-" [ref=e145]
+                    - cell [ref=e146]:
+                      - button [ref=e147] [cursor=pointer]:
+                        - img
+                      - button [ref=e148] [cursor=pointer]:
+                        - img
+                      - button [ref=e149] [cursor=pointer]:
+                        - img
+                  - 'row "Governança da transição local: KPIs que importam no primeiro trimestre Revisão 12/02/2026 -" [ref=e150]':
+                    - 'cell "Governança da transição local: KPIs que importam no primeiro trimestre" [ref=e151]'
+                    - cell "Revisão" [ref=e152]:
+                      - generic [ref=e153]: Revisão
+                    - cell "12/02/2026" [ref=e154]
+                    - cell "-" [ref=e155]
+                    - cell [ref=e156]:
+                      - button [ref=e157] [cursor=pointer]:
+                        - img
+                      - button [ref=e158] [cursor=pointer]:
+                        - img
+                      - button [ref=e159] [cursor=pointer]:
+                        - img
+                  - 'row "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento Revisão 12/02/2026 -" [ref=e160]':
+                    - 'cell "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento" [ref=e161]'
+                    - cell "Revisão" [ref=e162]:
+                      - generic [ref=e163]: Revisão
+                    - cell "12/02/2026" [ref=e164]
+                    - cell "-" [ref=e165]
+                    - cell [ref=e166]:
+                      - button [ref=e167] [cursor=pointer]:
+                        - img
+                      - button [ref=e168] [cursor=pointer]:
+                        - img
+                      - button [ref=e169] [cursor=pointer]:
+                        - img
+                  - 'row "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local Revisão 12/02/2026 -" [ref=e170]':
+                    - 'cell "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local" [ref=e171]'
+                    - cell "Revisão" [ref=e172]:
+                      - generic [ref=e173]: Revisão
+                    - cell "12/02/2026" [ref=e174]
+                    - cell "-" [ref=e175]
+                    - cell [ref=e176]:
+                      - button [ref=e177] [cursor=pointer]:
+                        - img
+                      - button [ref=e178] [cursor=pointer]:
+                        - img
+                      - button [ref=e179] [cursor=pointer]:
+                        - img
+                  - 'row "ISO 7 na prática: pontos de controle para montagem e preparação de kits Revisão 12/02/2026 -" [ref=e180]':
+                    - 'cell "ISO 7 na prática: pontos de controle para montagem e preparação de kits" [ref=e181]'
+                    - cell "Revisão" [ref=e182]:
+                      - generic [ref=e183]: Revisão
+                    - cell "12/02/2026" [ref=e184]
+                    - cell "-" [ref=e185]
+                    - cell [ref=e186]:
+                      - button [ref=e187] [cursor=pointer]:
+                        - img
+                      - button [ref=e188] [cursor=pointer]:
+                        - img
+                      - button [ref=e189] [cursor=pointer]:
+                        - img
+                  - row "Quando internalizar acabamento, limpeza e embalagem em projetos médicos Revisão 12/02/2026 -" [ref=e190]:
+                    - cell "Quando internalizar acabamento, limpeza e embalagem em projetos médicos" [ref=e191]
+                    - cell "Revisão" [ref=e192]:
+                      - generic [ref=e193]: Revisão
+                    - cell "12/02/2026" [ref=e194]
+                    - cell "-" [ref=e195]
+                    - cell [ref=e196]:
+                      - button [ref=e197] [cursor=pointer]:
+                        - img
+                      - button [ref=e198] [cursor=pointer]:
+                        - img
+                      - button [ref=e199] [cursor=pointer]:
+                        - img
+                  - 'row "Print to Pack: fluxo integrado da usinagem à embalagem estéril Revisão 12/02/2026 -" [ref=e200]':
+                    - 'cell "Print to Pack: fluxo integrado da usinagem à embalagem estéril" [ref=e201]'
+                    - cell "Revisão" [ref=e202]:
+                      - generic [ref=e203]: Revisão
+                    - cell "12/02/2026" [ref=e204]
+                    - cell "-" [ref=e205]
+                    - cell [ref=e206]:
+                      - button [ref=e207] [cursor=pointer]:
+                        - img
+                      - button [ref=e208] [cursor=pointer]:
+                        - img
+                      - button [ref=e209] [cursor=pointer]:
+                        - img
+                  - 'row "CAPA orientado a processo: prevenindo recorrência de não conformidades Revisão 12/02/2026 -" [ref=e210]':
+                    - 'cell "CAPA orientado a processo: prevenindo recorrência de não conformidades" [ref=e211]'
+                    - cell "Revisão" [ref=e212]:
+                      - generic [ref=e213]: Revisão
+                    - cell "12/02/2026" [ref=e214]
+                    - cell "-" [ref=e215]
+                    - cell [ref=e216]:
+                      - button [ref=e217] [cursor=pointer]:
+                        - img
+                      - button [ref=e218] [cursor=pointer]:
+                        - img
+                      - button [ref=e219] [cursor=pointer]:
+                        - img
+                  - 'row "Plano de Controle com CMM: como reduzir risco dimensional em features críticas Revisão 12/02/2026 -" [ref=e220]':
+                    - 'cell "Plano de Controle com CMM: como reduzir risco dimensional em features críticas" [ref=e221]'
+                    - cell "Revisão" [ref=e222]:
+                      - generic [ref=e223]: Revisão
+                    - cell "12/02/2026" [ref=e224]
+                    - cell "-" [ref=e225]
+                    - cell [ref=e226]:
+                      - button [ref=e227] [cursor=pointer]:
+                        - img
+                      - button [ref=e228] [cursor=pointer]:
+                        - img
+                      - button [ref=e229] [cursor=pointer]:
+                        - img
+                  - 'row "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção Revisão 12/02/2026 -" [ref=e230]':
+                    - 'cell "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção" [ref=e231]'
+                    - cell "Revisão" [ref=e232]:
+                      - generic [ref=e233]: Revisão
+                    - cell "12/02/2026" [ref=e234]
+                    - cell "-" [ref=e235]
+                    - cell [ref=e236]:
+                      - button [ref=e237] [cursor=pointer]:
+                        - img
+                      - button [ref=e238] [cursor=pointer]:
+                        - img
+                      - button [ref=e239] [cursor=pointer]:
+                        - img
+                  - 'row "Zero-Defect na Prática: metrologia que sustenta a liberação de lote Revisão 12/02/2026 -" [ref=e240]':
+                    - 'cell "Zero-Defect na Prática: metrologia que sustenta a liberação de lote" [ref=e241]'
+                    - cell "Revisão" [ref=e242]:
+                      - generic [ref=e243]: Revisão
+                    - cell "12/02/2026" [ref=e244]
+                    - cell "-" [ref=e245]
+                    - cell [ref=e246]:
+                      - button [ref=e247] [cursor=pointer]:
+                        - img
+                      - button [ref=e248] [cursor=pointer]:
+                        - img
+                      - button [ref=e249] [cursor=pointer]:
+                        - img
+                  - 'row "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão Revisão 12/02/2026 -" [ref=e250]':
+                    - 'cell "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão" [ref=e251]'
+                    - cell "Revisão" [ref=e252]:
+                      - generic [ref=e253]: Revisão
+                    - cell "12/02/2026" [ref=e254]
+                    - cell "-" [ref=e255]
+                    - cell [ref=e256]:
+                      - button [ref=e257] [cursor=pointer]:
+                        - img
+                      - button [ref=e258] [cursor=pointer]:
+                        - img
+                      - button [ref=e259] [cursor=pointer]:
+                        - img
+                  - row "Handoff de Engenharia para Produção sem Retrabalho em Dispositivos Médicos Revisão 12/02/2026 -" [ref=e260]:
+                    - cell "Handoff de Engenharia para Produção sem Retrabalho em Dispositivos Médicos" [ref=e261]
+                    - cell "Revisão" [ref=e262]:
+                      - generic [ref=e263]: Revisão
+                    - cell "12/02/2026" [ref=e264]
+                    - cell "-" [ref=e265]
+                    - cell [ref=e266]:
+                      - button [ref=e267] [cursor=pointer]:
+                        - img
+                      - button [ref=e268] [cursor=pointer]:
+                        - img
+                      - button [ref=e269] [cursor=pointer]:
+                        - img
+                  - 'row "DFM sem Comprometer Performance: como cortar custo com segurança Revisão 12/02/2026 -" [ref=e270]':
+                    - 'cell "DFM sem Comprometer Performance: como cortar custo com segurança" [ref=e271]'
+                    - cell "Revisão" [ref=e272]:
+                      - generic [ref=e273]: Revisão
+                    - cell "12/02/2026" [ref=e274]
+                    - cell "-" [ref=e275]
+                    - cell [ref=e276]:
+                      - button [ref=e277] [cursor=pointer]:
+                        - img
+                      - button [ref=e278] [cursor=pointer]:
+                        - img
+                      - button [ref=e279] [cursor=pointer]:
+                        - img
+                  - 'row "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho Revisão 12/02/2026 -" [ref=e280]':
+                    - 'cell "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho" [ref=e281]'
+                    - cell "Revisão" [ref=e282]:
+                      - generic [ref=e283]: Revisão
+                    - cell "12/02/2026" [ref=e284]
+                    - cell "-" [ref=e285]
+                    - cell [ref=e286]:
+                      - button [ref=e287] [cursor=pointer]:
+                        - img
+                      - button [ref=e288] [cursor=pointer]:
+                        - img
+                      - button [ref=e289] [cursor=pointer]:
+                        - img
+                  - 'row "Geometria, Rugosidade e Transições: o que mais impacta a fadiga Revisão 12/02/2026 -" [ref=e290]':
+                    - 'cell "Geometria, Rugosidade e Transições: o que mais impacta a fadiga" [ref=e291]'
+                    - cell "Revisão" [ref=e292]:
+                      - generic [ref=e293]: Revisão
+                    - cell "12/02/2026" [ref=e294]
+                    - cell "-" [ref=e295]
+                    - cell [ref=e296]:
+                      - button [ref=e297] [cursor=pointer]:
+                        - img
+                      - button [ref=e298] [cursor=pointer]:
+                        - img
+                      - button [ref=e299] [cursor=pointer]:
+                        - img
+                  - row "Como Reduzir Iterações Caras em Testes de Fadiga de Implantes Revisão 12/02/2026 -" [ref=e300]:
+                    - cell "Como Reduzir Iterações Caras em Testes de Fadiga de Implantes" [ref=e301]
+                    - cell "Revisão" [ref=e302]:
+                      - generic [ref=e303]: Revisão
+                    - cell "12/02/2026" [ref=e304]
+                    - cell "-" [ref=e305]
+                    - cell [ref=e306]:
+                      - button [ref=e307] [cursor=pointer]:
+                        - img
+                      - button [ref=e308] [cursor=pointer]:
+                        - img
+                      - button [ref=e309] [cursor=pointer]:
+                        - img
+                  - 'row "Validação de Fadiga em Implantes: do CAD ao Ensaio Dinâmico Revisão 12/02/2026 -" [ref=e310]':
+                    - 'cell "Validação de Fadiga em Implantes: do CAD ao Ensaio Dinâmico" [ref=e311]'
+                    - cell "Revisão" [ref=e312]:
+                      - generic [ref=e313]: Revisão
+                    - cell "12/02/2026" [ref=e314]
+                    - cell "-" [ref=e315]
+                    - cell [ref=e316]:
+                      - button [ref=e317] [cursor=pointer]:
+                        - img
+                      - button [ref=e318] [cursor=pointer]:
+                        - img
+                      - button [ref=e319] [cursor=pointer]:
+                        - img
+                  - row "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga Revisão 12/02/2026 -" [ref=e320]:
+                    - cell "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga" [ref=e321]
+                    - cell "Revisão" [ref=e322]:
+                      - generic [ref=e323]: Revisão
+                    - cell "12/02/2026" [ref=e324]
+                    - cell "-" [ref=e325]
+                    - cell [ref=e326]:
+                      - button [ref=e327] [cursor=pointer]:
+                        - img
+                      - button [ref=e328] [cursor=pointer]:
+                        - img
+                      - button [ref=e329] [cursor=pointer]:
+                        - img
+                  - 'row "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável Publicado 08/02/2026 -" [ref=e330]':
+                    - 'cell "Manufatura de Dispositivos Médicos: Transformação Estratégica e Crescimento Sustentável" [ref=e331]'
+                    - cell "Publicado" [ref=e332]:
+                      - generic [ref=e333]: Publicado
+                    - cell "08/02/2026" [ref=e334]
+                    - cell "-" [ref=e335]
+                    - cell [ref=e336]:
+                      - button [ref=e337] [cursor=pointer]:
+                        - img
+                      - button [ref=e338] [cursor=pointer]:
+                        - img
+                  - 'row "Manufatura de Dispositivos Médicos: Otimização e Crescimento com Tecnologia Rascunho 08/02/2026 -" [ref=e339]':
+                    - 'cell "Manufatura de Dispositivos Médicos: Otimização e Crescimento com Tecnologia" [ref=e340]'
+                    - cell "Rascunho" [ref=e341]:
+                      - generic [ref=e342]: Rascunho
+                    - cell "08/02/2026" [ref=e343]
+                    - cell "-" [ref=e344]
+                    - cell [ref=e345]:
+                      - button [ref=e346] [cursor=pointer]:
+                        - img
+                      - button [ref=e347] [cursor=pointer]:
+                        - img
+                      - button [ref=e348] [cursor=pointer]:
+                        - img
+                  - 'row "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek Rascunho 16/01/2026 -" [ref=e349]':
+                    - 'cell "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek" [ref=e350]'
+                    - cell "Rascunho" [ref=e351]:
+                      - generic [ref=e352]: Rascunho
+                    - cell "16/01/2026" [ref=e353]
+                    - cell "-" [ref=e354]
+                    - cell [ref=e355]:
+                      - button [ref=e356] [cursor=pointer]:
+                        - img
+                      - button [ref=e357] [cursor=pointer]:
+                        - img
+                      - button [ref=e358] [cursor=pointer]:
+                        - img
+                  - 'row "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos Rascunho 16/01/2026 -" [ref=e359]':
+                    - 'cell "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos" [ref=e360]'
+                    - cell "Rascunho" [ref=e361]:
+                      - generic [ref=e362]: Rascunho
+                    - cell "16/01/2026" [ref=e363]
+                    - cell "-" [ref=e364]
+                    - cell [ref=e365]:
+                      - button [ref=e366] [cursor=pointer]:
+                        - img
+                      - button [ref=e367] [cursor=pointer]:
+                        - img
+                      - button [ref=e368] [cursor=pointer]:
+                        - img
+                  - 'row "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA Rascunho 16/01/2026 -" [ref=e369]':
+                    - 'cell "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA" [ref=e370]'
+                    - cell "Rascunho" [ref=e371]:
+                      - generic [ref=e372]: Rascunho
+                    - cell "16/01/2026" [ref=e373]
+                    - cell "-" [ref=e374]
+                    - cell [ref=e375]:
+                      - button [ref=e376] [cursor=pointer]:
+                        - img
+                      - button [ref=e377] [cursor=pointer]:
+                        - img
+                      - button [ref=e378] [cursor=pointer]:
+                        - img
+                  - 'row "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos Rascunho 16/01/2026 -" [ref=e379]':
+                    - 'cell "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos" [ref=e380]'
+                    - cell "Rascunho" [ref=e381]:
+                      - generic [ref=e382]: Rascunho
+                    - cell "16/01/2026" [ref=e383]
+                    - cell "-" [ref=e384]
+                    - cell [ref=e385]:
+                      - button [ref=e386] [cursor=pointer]:
+                        - img
+                      - button [ref=e387] [cursor=pointer]:
+                        - img
+                      - button [ref=e388] [cursor=pointer]:
+                        - img
+                  - 'row "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos Rascunho 16/01/2026 -" [ref=e389]':
+                    - 'cell "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos" [ref=e390]'
+                    - cell "Rascunho" [ref=e391]:
+                      - generic [ref=e392]: Rascunho
+                    - cell "16/01/2026" [ref=e393]
+                    - cell "-" [ref=e394]
+                    - cell [ref=e395]:
+                      - button [ref=e396] [cursor=pointer]:
+                        - img
+                      - button [ref=e397] [cursor=pointer]:
+                        - img
+                      - button [ref=e398] [cursor=pointer]:
+                        - img

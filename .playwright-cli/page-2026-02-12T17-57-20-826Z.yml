@@ -1,0 +1,250 @@
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T"
+    - generic:
+      - banner:
+        - generic:
+          - link:
+            - /url: /admin
+            - generic:
+              - generic: LT
+            - generic: Admin
+          - navigation:
+            - link:
+              - /url: /admin
+              - img
+              - generic: Dashboard
+            - link:
+              - /url: /admin/inbox
+              - img
+              - generic: Inbox
+            - link:
+              - /url: /admin/chatbot-inbox
+              - img
+              - generic: Chatbot
+            - button:
+              - img
+              - generic: Conteúdo
+              - img
+            - button:
+              - img
+              - generic: Analytics
+              - img
+            - link:
+              - /url: /admin/leads
+              - img
+              - generic: Leads
+          - generic:
+            - generic: Rafael (iCloud)
+            - generic:
+              - img
+              - generic: Super
+            - button:
+              - img
+              - generic: Sair
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=1]: Aprovação de Conteúdo
+                - paragraph: Revise o conteúdo gerado por IA antes da publicação
+              - generic:
+                - button:
+                  - img
+                  - text: Limpar Duplicados
+                - button:
+                  - img
+                  - text: Sincronizar
+            - generic:
+              - tablist:
+                - tab: Pendentes (33)
+                - tab [selected]: Blogs (5)
+                - tab: LinkedIn (18)
+                - tab: Instagram (9)
+                - tab: Recursos (1)
+                - tab: Aprovados (0)
+                - tab: Rejeitados (12)
+              - tabpanel:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                            - heading [level=3]: "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek"
+                          - paragraph: A implementação da Identificação Única de Dispositivos (UDI) pela ANVISA representa um marco regulatório no Brasil, com impacto significativo para fabricantes de dispositivos médicos. Este artigo técnico explora os desafios e as oportunidades da UDI, detalhando como a Lifetrek Medical, com sua expertise técnica e infraestrutura avançada, é seu parceiro estratégico para garantir a conformidade e impulsionar a inovação no setor.
+                    - generic:
+                      - button:
+                        - img
+                        - text: Ver
+                      - button:
+                        - img
+                        - text: Aprovar
+                      - button:
+                        - img
+                        - text: Rejeitar
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                            - heading [level=3]: "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos"
+                          - paragraph: A navegação no ambiente regulatório brasileiro para dispositivos médicos é um desafio complexo. Este artigo explora as diretrizes da RDC 751/2022, a Agenda Regulatória 2026-2027 e como a Lifetrek Medical oferece suporte técnico para garantir a conformidade e agilizar o registro de seus produtos perante a ANVISA.
+                    - generic:
+                      - button:
+                        - img
+                        - text: Ver
+                      - button:
+                        - img
+                        - text: Aprovar
+                      - button:
+                        - img
+                        - text: Rejeitar
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                            - heading [level=3]: "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA"
+                          - paragraph: A verificação de dispositivos médicos é a espinha dorsal da segurança e conformidade regulatória. Este artigo explora como a Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, ajuda as empresas a navegar pelo rigoroso cenário regulatório brasileiro, garantindo que seus produtos atendam às mais altas exigências de desempenho e segurança.
+                    - generic:
+                      - button:
+                        - img
+                        - text: Ver
+                      - button:
+                        - img
+                        - text: Aprovar
+                      - button:
+                        - img
+                        - text: Rejeitar
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                            - heading [level=3]: "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos"
+                          - paragraph: A ANVISA está transformando o cenário regulatório de dispositivos médicos no Brasil, com uma reestruturação baseada em risco que impacta diretamente os cronogramas de aprovação e as exigências documentais. A Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, oferece a parceira ideal para navegar por essas mudanças, garantindo conformidade e otimizando o time-to-market. Entenda como nossa abordagem pode acelerar sua entrada no mercado brasileiro.
+                    - generic:
+                      - button:
+                        - img
+                        - text: Ver
+                      - button:
+                        - img
+                        - text: Aprovar
+                      - button:
+                        - img
+                        - text: Rejeitar
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                            - heading [level=3]: "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos"
+                          - paragraph: Navegar pelas regulamentações da ANVISA, especialmente a RDC 751/2022 e a iminente obrigatoriedade do UDI para dispositivos Classe III, é um desafio complexo. Este artigo explora as diretrizes, armadilhas comuns e como a Lifetrek Medical se posiciona como um parceiro estratégico, fornecendo expertise técnica e infraestrutura avançada para garantir a conformidade e a competitividade no mercado brasileiro de MedTech.
+                    - generic:
+                      - button:
+                        - img
+                        - text: Ver
+                      - button:
+                        - img
+                        - text: Aprovar
+                      - button:
+                        - img
+                        - text: Rejeitar
+  - generic: "24"
+  - dialog "Pré-visualização" [ref=e872]:
+    - generic [ref=e873]:
+      - heading "Pré-visualização" [level=2] [ref=e874]
+      - paragraph [ref=e875]: Visualize o conteúdo gerado antes de aprovar ou rejeitar.
+    - generic [ref=e876]:
+      - generic [ref=e877]:
+        - 'heading "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek" [level=3] [ref=e878]'
+        - paragraph [ref=e879]: A implementação da Identificação Única de Dispositivos (UDI) pela ANVISA representa um marco regulatório no Brasil, com impacto significativo para fabricantes de dispositivos médicos. Este artigo técnico explora os desafios e as oportunidades da UDI, detalhando como a Lifetrek Medical, com sua expertise técnica e infraestrutura avançada, é seu parceiro estratégico para garantir a conformidade e impulsionar a inovação no setor.
+        - button "Aprovar Conteúdo" [active] [ref=e880] [cursor=pointer]:
+          - img
+          - text: Aprovar Conteúdo
+        - generic [ref=e881]:
+          - generic [ref=e882]: Blog
+          - generic [ref=e883]:
+            - img [ref=e884]
+            - text: IA
+      - generic [ref=e886]:
+        - heading "SEO" [level=4] [ref=e887]
+        - generic [ref=e888]:
+          - paragraph [ref=e889]:
+            - strong [ref=e890]: "Título SEO:"
+            - text: "Lifetrek: Conformidade UDI ANVISA & Fabricação de Dispositivos Médicos"
+          - paragraph [ref=e891]:
+            - strong [ref=e892]: "Descrição:"
+            - text: Entenda o mandato UDI da ANVISA (RDC 591/2021) com a Lifetrek Medical. Soluções técnicas para rastreabilidade, segurança do paciente e conformidade regulatória. Parceria para o futuro da fabricação nacional.
+      - generic [ref=e893]:
+        - heading "Conteúdo" [level=4] [ref=e894]
+        - generic [ref=e895]:
+          - 'heading "Navegando no Cenário em Evolução: O Mandato UDI do Brasil e Além" [level=2] [ref=e896]'
+          - paragraph [ref=e897]: A ANVISA, por meio da RDC nº 591/2021, deu um passo decisivo rumo à maior segurança e rastreabilidade de dispositivos médicos no Brasil, alinhando-se às regulamentações globais com a implementação da Identificação Única de Dispositivos (UDI). Este mandado não é meramente um requisito burocrático; ele representa um pilar fundamental para a integridade da cadeia de suprimentos, a segurança do paciente e a vigilância pós-mercado. A compreensão aprofundada de sua implementação é crucial para todos os fabricantes de dispositivos médicos.
+          - paragraph [ref=e898]: A RDC nº 591/2021 estabelece um cronograma de implementação escalonado, priorizando as classes de risco mais elevadas. Dispositivos Classe IV e III foram os primeiros a serem impactados, seguidos pelas classes de menor risco. Essa abordagem progressiva permite que os fabricantes se adaptem gradualmente, mas a complexidade inerente à UDI exige um planejamento meticuloso e a adoção de soluções técnicas robustas. O sistema UDI, ao fornecer uma identificação única em cada nível de embalagem e diretamente no dispositivo, viabiliza uma rastreabilidade sem precedentes, desde a fabricação até o uso final. Isso não apenas facilita recalls eficazes e a identificação de problemas de qualidade, mas também empodera profissionais de saúde e pacientes com informações precisas e acessíveis.
+          - paragraph [ref=e899]: "Para os fabricantes, a UDI apresenta desafios significativos, como a integração de novos processos de rotulagem, a gestão de grandes volumes de dados e a necessidade de sistemas de TI compatíveis. No entanto, esses desafios são acompanhados por oportunidades valiosas: a melhoria da gestão de inventário, a redução de erros, o fortalecimento da reputação da marca e a abertura de portas para mercados globais que já adotaram a UDI. A Lifetrek Medical entende que o sucesso nessa transição exige uma parceria estratégica, e estamos prontos para ser esse parceiro."
+          - 'heading "A Espinha Dorsal Técnica: A Abordagem da Lifetrek à Conformidade UDI" [level=2] [ref=e900]'
+          - paragraph [ref=e901]: A implementação bem-sucedida da UDI vai muito além da simples aplicação de um código em uma etiqueta. Ela exige uma compreensão profunda dos requisitos técnicos e uma infraestrutura de fabricação capaz de executá-los com precisão e consistência. Na Lifetrek Medical, nossa abordagem à conformidade UDI é fundamentada em nossa expertise técnica e em nossa infraestrutura de ponta.
+          - paragraph [ref=e902]: "Os requisitos técnicos para a UDI incluem a correta geração do identificador do dispositivo (DI) e do identificador de produção (PI), a aplicação legível e durável desses códigos na embalagem e, para certos dispositivos, diretamente no produto, e a submissão dos dados UDI à base de dados da ANVISA. Isso implica em:"
+          - list [ref=e903]:
+            - listitem [ref=e904]:
+              - strong [ref=e905]: "Rotulagem Precisa:"
+              - text: Nossos sistemas de marcação a laser garantem a aplicação de UDI diretamente em peças metálicas ou de polímeros com precisão micrométrica, resistente a processos de esterilização e uso contínuo, atendendo não apenas à legibilidade humana, mas também à capacidade de escaneamento eletrônico.
+            - listitem [ref=e906]:
+              - strong [ref=e907]: "Gestão de Dados:"
+              - text: Auxiliamos na estruturação e na integração dos dados UDI no fluxo de trabalho de fabricação, garantindo a consistência e a exatidão das informações que serão submetidas ao banco de dados da ANVISA.
+            - listitem [ref=e908]:
+              - strong [ref=e909]: "Sistemas de Metrologia Avançados:"
+              - text: A verificação da qualidade da marcação e da conformidade dimensional é crítica. Nosso CMM ZEISS Contura 3D e comparadores ópticos garantem que cada detalhe, incluindo a qualidade dos códigos UDI, esteja dentro das especificações rigorosas, assegurando que o código gravado seja perfeitamente legível e atenda aos requisitos de contraste e posicionamento.
+            - listitem [ref=e910]:
+              - strong [ref=e911]: "Ambiência Controlada:"
+              - text: Nossas Salas Limpas ISO Classe 7 são essenciais para a montagem e embalagem de dispositivos médicos, onde a integridade da rotulagem UDI não pode ser comprometida por contaminantes.
+          - paragraph
+          - paragraph [ref=e912]:
+            - strong [ref=e913]: "Caso de Estudo Implícito:"
+            - text: Recentemente, colaboramos com um fabricante de implantes odontológicos que enfrentava desafios significativos na marcação UDI em componentes de titânio. Utilizando nossos tornos suíços Citizen L20 e M32 para usinagem de precisão, integramos o processo de marcação a laser de UDI diretamente na linha de produção, otimizando o fluxo e garantindo a rastreabilidade desde o primeiro momento. O resultado foi uma conformidade robusta e uma eficiência operacional aprimorada, validada por auditorias rigorosas.
+          - 'heading "Além da UDI: Antecipando a Próxima Onda de Inovação na Fabricação Médica" [level=2] [ref=e914]'
+          - paragraph [ref=e915]: Enquanto a UDI ocupa o lugar central nas discussões regulatórias atuais, é imperativo que os fabricantes de dispositivos médicos olhem além e se preparem para a próxima onda de inovações e requisitos regulatórios. A RDC 751/2022, que atualiza as regras de registro de dispositivos médicos, já aponta para um processo de registro mais ágil, porém mais exigente em termos de evidências de segurança e eficácia, alinhado às melhores práticas internacionais.
+          - paragraph [ref=e916]: A Lifetrek Medical está atenta a essas tendências globais e entende que o futuro da fabricação médica será moldado pela digitalização, pelo uso de inteligência artificial na otimização de processos, pelo avanço de novos materiais e pela manufatura aditiva. Nossa visão vai além da conformidade básica; buscamos capacitar nossos parceiros a prosperar nesse ambiente dinâmico. Nossa capacidade de trabalhar com geometrias complexas em materiais avançados, como superligas e polímeros de alto desempenho, nos posiciona para atender às demandas de dispositivos médicos de próxima geração. A flexibilidade de nossas máquinas Doosan Lynx 2100 e Citizen M32/L20 nos permite prototipar e escalar a produção de inovações rapidamente, transformando ideias em produtos compatíveis com as mais altas exigências do mercado.
+          - paragraph [ref=e917]: Na Lifetrek, acreditamos que a antecipação é a chave. Ao investir continuamente em tecnologia, processos e no desenvolvimento de nossa equipe de engenharia, estamos construindo o futuro da fabricação de dispositivos médicos no Brasil, um futuro que é não apenas conforme, mas também inovador e mundialmente competitivo. Nossa infraestrutura de eletropolimento e nossas salas limpas são exemplos de como integramos processos de ponta para entregar um produto final de excelência, pronto para os desafios de amanhã.
+          - heading "Parceria para um Futuro em Conformidade" [level=2] [ref=e918]
+          - paragraph [ref=e919]: A jornada para a conformidade regulatória, especialmente com a UDI, pode ser complexa e desafiadora. No entanto, com um parceiro estratégico como a Lifetrek Medical, essa jornada se torna uma oportunidade para fortalecer sua cadeia de suprimentos, aprimorar a qualidade de seus produtos e solidificar sua posição no mercado. Nossa expertise em fabricação de alta precisão, comprovada por nossa capacidade de entregar peças com tolerâncias micrométricas e nossa certificação ISO 13485, juntamente com nossa compreensão das nuances regulatórias da ANVISA, nos capacita a ser o parceiro ideal.
+          - paragraph [ref=e920]: "Optar pela Lifetrek significa escolher:"
+          - list [ref=e921]:
+            - listitem [ref=e922]:
+              - strong [ref=e923]: "Redução de Riscos:"
+              - text: Uma cadeia de suprimentos auditável e comprovadamente em conformidade.
+            - listitem [ref=e924]:
+              - strong [ref=e925]: "Precisão Inigualável:"
+              - text: Fabricação em ambiente controlado, com metrologia rigorosa.
+            - listitem [ref=e926]:
+              - strong [ref=e927]: "Velocidade e Eficiência:"
+              - text: Produção local, reduzindo prazos de 90 para 30 dias.
+            - listitem [ref=e928]:
+              - strong [ref=e929]: "Solução Abrangente:"
+              - text: Um único fornecedor para usinagem, acabamento e metrologia.
+          - paragraph
+          - paragraph [ref=e930]: Convidamos Quality Assurance, Regulatory Affairs, e Engenheiros de P&D a entrar em contato com a Lifetrek Medical. Permita-nos demonstrar como podemos apoiar sua empresa não apenas na navegação pelas regulamentações atuais, como a UDI, mas também na antecipação e na liderança das inovações que moldarão o futuro da saúde. Juntos, podemos construir um futuro mais seguro e eficiente para a fabricação de dispositivos médicos no Brasil.
+      - generic [ref=e931]:
+        - generic [ref=e932]:
+          - heading "Eleve o padrão da sua produção médica" [level=4] [ref=e933]
+          - paragraph [ref=e934]: Descubra como a Lifetrek pode ajudar sua empresa a atingir excelência em manufatura e conformidade.
+        - button "Falar com Especialista" [ref=e935] [cursor=pointer]
+      - button "Gerar Capa Editorial IA" [ref=e937] [cursor=pointer]:
+        - img
+        - text: Gerar Capa Editorial IA
+    - button "Close" [ref=e938] [cursor=pointer]:
+      - img [ref=e939]
+      - generic [ref=e942]: Close

@@ -10,6 +10,47 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
+const SITE_URL = "https://lifetrek-medical.com";
+
+const stripHtml = (html: string) =>
+  html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const clampText = (value: string, maxLength: number) => {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 1).trim()}…`;
+};
+
+const decodeHtmlEntities = (text: string) => {
+  const parser = new DOMParser();
+  return parser.parseFromString(text, "text/html").documentElement.textContent || text;
+};
+
+const extractFaqEntries = (html: string) => {
+  const faqSectionMatch = html.match(/<h2[^>]*>[^<]*(Perguntas frequentes|FAQ)[^<]*<\/h2>([\s\S]*)/i);
+  if (!faqSectionMatch) return [];
+
+  const sectionHtml = faqSectionMatch[2] || "";
+  const entries: Array<{ question: string; answer: string }> = [];
+  const qaRegex = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi;
+  let match: RegExpExecArray | null = null;
+
+  while ((match = qaRegex.exec(sectionHtml)) !== null && entries.length < 5) {
+    const question = decodeHtmlEntities(stripHtml(match[1] || ""));
+    const answer = decodeHtmlEntities(stripHtml(match[2] || ""));
+    if (question.length >= 8 && answer.length >= 20) {
+      entries.push({ question, answer });
+    }
+  }
+
+  return entries;
+};
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading, error } = useBlogPost(slug || "");
@@ -17,8 +58,8 @@ const BlogPost = () => {
 
   const estimateReadTime = (content: string) => {
     const wordsPerMinute = 200;
-    const words = content.split(/\s+/).length;
-    return Math.ceil(words / wordsPerMinute);
+    const words = content.split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / wordsPerMinute));
   };
 
   const handleShare = async () => {
@@ -68,25 +109,52 @@ const BlogPost = () => {
     );
   }
 
+  const canonicalUrl = `${SITE_URL}/blog/${post.slug}`;
+  const publishedAt = post.published_at || post.created_at;
+  const plainTextContent = stripHtml(post.content || "");
+  const metaDescription = clampText(post.seo_description || post.excerpt || plainTextContent, 160);
+  const readTimeMinutes = estimateReadTime(plainTextContent);
+  const wordCount = plainTextContent.split(/\s+/).filter(Boolean).length;
+  const articleKeywords = Array.from(new Set((post.keywords || []).filter(Boolean)));
+  const metadataSources = Array.isArray((post as any)?.metadata?.sources)
+    ? (post as any).metadata.sources.filter((url: unknown) => typeof url === "string" && url.startsWith("http"))
+    : [];
+  const articleSources = Array.from(new Set([
+    ...((post as any).news_sources || []),
+    ...metadataSources,
+  ])).filter((url) => typeof url === "string" && url.startsWith("http"));
+  const faqEntries = extractFaqEntries(post.content || "");
+  const displayAuthor = post.author_name || "Equipe Lifetrek Medical";
+  const headline = post.seo_title || post.title;
+
   return (
     <>
       <Helmet>
-        <title>{post.seo_title || post.title} | Lifetrek Medical Blog</title>
-        <meta name="description" content={post.seo_description || post.excerpt || post.content.slice(0, 160)} />
-        {post.keywords && <meta name="keywords" content={post.keywords.join(", ")} />}
-        <link rel="canonical" href={`https://lifetrekmedical.com.br/blog/${post.slug}`} />
+        <title>{headline} | Lifetrek Medical Blog</title>
+        <meta name="description" content={metaDescription} />
+        {articleKeywords.length > 0 && <meta name="keywords" content={articleKeywords.join(", ")} />}
+        <meta name="author" content={displayAuthor} />
+        <link rel="canonical" href={canonicalUrl} />
         
         {/* Open Graph */}
-        <meta property="og:title" content={post.seo_title || post.title} />
-        <meta property="og:description" content={post.seo_description || post.excerpt || post.content.slice(0, 160)} />
+        <meta property="og:title" content={headline} />
+        <meta property="og:description" content={metaDescription} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://lifetrekmedical.com.br/blog/${post.slug}`} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:locale" content="pt_BR" />
+        <meta property="og:site_name" content="Lifetrek Medical" />
+        <meta property="article:published_time" content={publishedAt} />
+        <meta property="article:modified_time" content={post.updated_at} />
+        {post.category?.name && <meta property="article:section" content={post.category.name} />}
+        {articleKeywords.map((keyword) => (
+          <meta key={keyword} property="article:tag" content={keyword} />
+        ))}
         {post.featured_image && <meta property="og:image" content={post.featured_image} />}
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.seo_title || post.title} />
-        <meta name="twitter:description" content={post.seo_description || post.excerpt || post.content.slice(0, 160)} />
+        <meta name="twitter:title" content={headline} />
+        <meta name="twitter:description" content={metaDescription} />
         {post.featured_image && <meta name="twitter:image" content={post.featured_image} />}
         
         {/* Article Schema */}
@@ -97,31 +165,36 @@ const BlogPost = () => {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Article",
-            headline: post.title,
-            description: post.seo_description || post.excerpt,
+            "@type": "BlogPosting",
+            headline: headline,
+            description: metaDescription,
             image: post.featured_image,
             author: {
               "@type": "Person",
-              name: post.author_name,
+              name: displayAuthor,
             },
             publisher: {
               "@type": "Organization",
               name: "Lifetrek Medical",
-              url: "https://lifetrekmedical.com.br",
+              url: SITE_URL,
               logo: {
                 "@type": "ImageObject",
-                url: "https://lifetrekmedical.com.br/logo.png",
+                url: `${SITE_URL}/logo.png`,
               },
             },
-            datePublished: post.published_at || post.created_at,
+            datePublished: publishedAt,
             dateModified: post.updated_at,
             mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `https://lifetrekmedical.com.br/blog/${post.slug}`,
+              "@id": canonicalUrl,
             },
             inLanguage: "pt-BR",
-            timeRequired: `PT${estimateReadTime(post.content)}M`,
+            url: canonicalUrl,
+            articleSection: post.category?.name || "Blog",
+            keywords: articleKeywords.join(", "),
+            wordCount,
+            timeRequired: `PT${readTimeMinutes}M`,
+            citation: articleSources,
           })}
         </script>
         
@@ -131,12 +204,29 @@ const BlogPost = () => {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://lifetrekmedical.com.br" },
-              { "@type": "ListItem", position: 2, name: "Blog", item: "https://lifetrekmedical.com.br/blog" },
-              { "@type": "ListItem", position: 3, name: post.title, item: `https://lifetrekmedical.com.br/blog/${post.slug}` }
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://lifetrek-medical.com" },
+              { "@type": "ListItem", position: 2, name: "Blog", item: "https://lifetrek-medical.com/blog" },
+              { "@type": "ListItem", position: 3, name: post.title, item: canonicalUrl }
             ]
           })}
         </script>
+
+        {faqEntries.length > 0 && (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqEntries.map((entry) => ({
+                "@type": "Question",
+                name: entry.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: entry.answer,
+                },
+              })),
+            })}
+          </script>
+        )}
       </Helmet>
 
       <article className="min-h-screen bg-background">
@@ -185,9 +275,9 @@ const BlogPost = () => {
               </span>
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                {estimateReadTime(post.content)} min de leitura
+                {readTimeMinutes} min de leitura
               </span>
-              <span>Por {post.author_name}</span>
+              <span>Por {displayAuthor}</span>
               <Button variant="ghost" size="sm" onClick={handleShare} className="ml-auto">
                 <Share2 className="h-4 w-4 mr-2" />
                 Compartilhar

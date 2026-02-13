@@ -1,0 +1,777 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e21]:
+      - banner [ref=e22]:
+        - generic [ref=e23]:
+          - link "LT Admin" [ref=e24] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e26]: LT
+            - generic [ref=e27]: Admin
+          - navigation [ref=e28]:
+            - link "Dashboard" [ref=e29] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e30]
+              - generic [ref=e35]: Dashboard
+            - link "Inbox" [ref=e36] [cursor=pointer]:
+              - /url: /admin/inbox
+              - img [ref=e37]
+              - generic [ref=e40]: Inbox
+            - link "Chatbot" [ref=e41] [cursor=pointer]:
+              - /url: /admin/chatbot-inbox
+              - img [ref=e42]
+              - generic [ref=e44]: Chatbot
+            - button "Conteúdo" [ref=e45] [cursor=pointer]:
+              - img
+              - generic [ref=e46]: Conteúdo
+              - img
+            - button "Analytics" [ref=e47] [cursor=pointer]:
+              - img
+              - generic [ref=e48]: Analytics
+              - img
+            - link "Leads" [ref=e49] [cursor=pointer]:
+              - /url: /admin/leads
+              - img [ref=e50]
+              - generic [ref=e54]: Leads
+          - generic [ref=e55]:
+            - generic [ref=e56]: Rafael (iCloud)
+            - generic [ref=e57]:
+              - img [ref=e58]
+              - generic [ref=e60]: Super
+            - button "Sair" [ref=e61] [cursor=pointer]:
+              - img
+              - generic [ref=e62]: Sair
+      - main [ref=e63]:
+        - generic [ref=e236]:
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - heading "Aprovação de Conteúdo" [level=1] [ref=e241]
+              - paragraph [ref=e242]: Revise o conteúdo gerado por IA antes da publicação
+            - generic [ref=e243]:
+              - button "Limpar Duplicados" [ref=e244] [cursor=pointer]:
+                - img
+                - text: Limpar Duplicados
+              - button "Sincronizar" [ref=e245] [cursor=pointer]:
+                - img
+                - text: Sincronizar
+          - generic [ref=e246]:
+            - tablist [ref=e247]:
+              - tab "Pendentes (33)" [selected] [ref=e248] [cursor=pointer]
+              - tab "Blogs (5)" [ref=e249] [cursor=pointer]
+              - tab "LinkedIn (18)" [ref=e250] [cursor=pointer]
+              - tab "Instagram (9)" [ref=e251] [cursor=pointer]
+              - tab "Recursos (1)" [ref=e252] [cursor=pointer]
+              - tab "Aprovados (0)" [ref=e253] [cursor=pointer]
+              - tab "Rejeitados (12)" [ref=e254] [cursor=pointer]
+            - tabpanel "Pendentes (33)" [ref=e255]:
+              - generic [ref=e256]:
+                - generic [ref=e259]:
+                  - generic [ref=e260]:
+                    - img [ref=e261]
+                    - heading "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga" [level=3] [ref=e265]
+                  - paragraph [ref=e266]: Seu implante falhou no teste de fadiga?
+                - generic [ref=e267]:
+                  - button "Ver" [ref=e268] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e269] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e270] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e271] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e272] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e273]:
+                - generic [ref=e276]:
+                  - generic [ref=e277]:
+                    - img [ref=e278]
+                    - heading "Checklist DFM (Design for Manufacturing) para Implantes e Instrumentais" [level=3] [ref=e282]
+                  - paragraph [ref=e283]: Padrão é suficiente para todos os pacientes?
+                - generic [ref=e284]:
+                  - button "Ver" [ref=e285] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e286] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e287] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e288] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e289] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e290]:
+                - generic [ref=e293]:
+                  - generic [ref=e294]:
+                    - img [ref=e295]
+                    - 'heading "Are you missing a step? Checklist: Quando Faz Sentido Produzir Local explained." [level=3] [ref=e299]'
+                  - paragraph [ref=e300]: "Are you missing a step? Checklist: Quando Faz Sentido Produzir Local explained."
+                - generic [ref=e301]:
+                  - button "Ver" [ref=e302] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e303] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e304] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e305] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e306] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e307]:
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - img [ref=e312]
+                    - 'heading "Deep Dive: Manual de Metrologia e Inspeção de Alta Precisão" [level=3] [ref=e316]'
+                  - paragraph [ref=e317]: "Deep Dive: Manual de Metrologia e Inspeção de Alta Precisão"
+                - generic [ref=e318]:
+                  - button "Ver" [ref=e319] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e320] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e321] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e322] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e323] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e324]:
+                - generic [ref=e327]:
+                  - generic [ref=e328]:
+                    - img [ref=e329]
+                    - 'heading "Deep Dive: Guia: Sala Limpa ISO 7 e Montagem de Kits" [level=3] [ref=e333]'
+                  - paragraph [ref=e334]: "Deep Dive: Guia: Sala Limpa ISO 7 e Montagem de Kits"
+                - generic [ref=e335]:
+                  - button "Ver" [ref=e336] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e337] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e338] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e339] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e340] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e341]:
+                - generic [ref=e344]:
+                  - generic [ref=e345]:
+                    - img [ref=e346]
+                    - heading "Are you missing a step? Checklist de Auditoria Interna ISO 13485 explained." [level=3] [ref=e350]
+                  - paragraph [ref=e351]: Are you missing a step? Checklist de Auditoria Interna ISO 13485 explained.
+                - generic [ref=e352]:
+                  - button "Ver" [ref=e353] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e354] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e355] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e356] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e357] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e358]:
+                - generic [ref=e361]:
+                  - generic [ref=e362]:
+                    - img [ref=e363]
+                    - 'heading "Deep Dive: Roadmap de 90 Dias para Migrar 1-3 SKUs" [level=3] [ref=e367]'
+                  - paragraph [ref=e368]: "Deep Dive: Roadmap de 90 Dias para Migrar 1-3 SKUs"
+                - generic [ref=e369]:
+                  - button "Ver" [ref=e370] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e371] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e372] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e373] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e374] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e375]:
+                - generic [ref=e378]:
+                  - generic [ref=e379]:
+                    - img [ref=e380]
+                    - 'heading "Deep Dive: Scorecard de Risco de Supply Chain 2026" [level=3] [ref=e384]'
+                  - paragraph [ref=e385]: "Deep Dive: Scorecard de Risco de Supply Chain 2026"
+                - generic [ref=e386]:
+                  - button "Ver" [ref=e387] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e388] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e389] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e390] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e391] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e392]:
+                - generic [ref=e395]:
+                  - generic [ref=e396]:
+                    - img [ref=e397]
+                    - heading "Are you missing a step? Checklist de Auditoria ISO 13485 para Usinagem explained." [level=3] [ref=e401]
+                  - paragraph [ref=e402]: Are you missing a step? Checklist de Auditoria ISO 13485 para Usinagem explained.
+                - generic [ref=e403]:
+                  - button "Ver" [ref=e404] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e405] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e406] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e407] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e408] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e409]:
+                - generic [ref=e412]:
+                  - generic [ref=e413]:
+                    - img [ref=e414]
+                    - 'heading "Deep Dive: Fluxo de Validacao de Fadiga" [level=3] [ref=e418]'
+                  - paragraph [ref=e419]: "Deep Dive: Fluxo de Validacao de Fadiga"
+                - generic [ref=e420]:
+                  - button "Ver" [ref=e421] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e422] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e423] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e424] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e425] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e426]:
+                - generic [ref=e429]:
+                  - generic [ref=e430]:
+                    - img [ref=e431]
+                    - 'heading "Behind the Scenes: How Swiss Turning Creates Micro-Precision Medical Parts" [level=3] [ref=e434]'
+                  - paragraph [ref=e435]: Ever wonder how a 0.5mm titanium screw is made? 🔬 This is Swiss Turning — the art of micro-precisi
+                - generic [ref=e436]:
+                  - button "Ver" [ref=e437] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e438] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e439] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e440] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e441] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e442]:
+                - generic [ref=e445]:
+                  - generic [ref=e446]:
+                    - img [ref=e447]
+                    - 'heading "Lifetrek Medical: The Precision Partner Behind Critical Medical Devices" [level=3] [ref=e450]'
+                  - paragraph [ref=e451]: Precision at scale. 🏭 For over 30 years, Lifetrek Medical has been the silent partner behind the w
+                - generic [ref=e452]:
+                  - button "Ver" [ref=e453] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e454] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e455] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e456] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e457] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e458]:
+                - generic [ref=e461]:
+                  - generic [ref=e462]:
+                    - img [ref=e463]
+                    - heading "O Custo Real da Importação vs. Fabricação Local de Dispositivos Médicos" [level=3] [ref=e466]
+                  - paragraph [ref=e467]: "Importar parece mais barato. Até você fazer as contas. 📊 Custos ocultos da importação: ❌ Lead time"
+                - generic [ref=e468]:
+                  - button "Ver" [ref=e469] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e470] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e471] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e472] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e473] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e474]:
+                - generic [ref=e477]:
+                  - generic [ref=e478]:
+                    - img [ref=e479]
+                    - 'heading "Inside Our ISO 7 Cleanroom: Where Sterile Packaging Meets Precision" [level=3] [ref=e482]'
+                  - paragraph [ref=e483]: Welcome to our ISO 7 Cleanroom. 🧪 This is where precision meets purity. After machining, every com
+                - generic [ref=e484]:
+                  - button "Ver" [ref=e485] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e486] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e487] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e488] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e489] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e490]:
+                - generic [ref=e493]:
+                  - generic [ref=e494]:
+                    - img [ref=e495]
+                    - 'heading "From Raw Titanium to Sterile Package: One-Stop Manufacturing" [level=3] [ref=e498]'
+                  - paragraph [ref=e499]: From raw titanium to sterile package. One partner. 🔄 Why manage 5 suppliers when you can trust one
+                - generic [ref=e500]:
+                  - button "Ver" [ref=e501] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e502] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e503] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e504] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e505] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e506]:
+                - generic [ref=e509]:
+                  - generic [ref=e510]:
+                    - img [ref=e511]
+                    - heading "Quality is Not a Department — It's Our Product" [level=3] [ref=e514]
+                  - paragraph [ref=e515]: Quality is not a department. It's our product. 🛡️ In our industry, a micron is the difference betw
+                - generic [ref=e516]:
+                  - button "Ver" [ref=e517] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e518] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e519] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e520] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e521] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e522]:
+                - generic [ref=e525]:
+                  - generic [ref=e526]:
+                    - img [ref=e527]
+                    - 'heading "Tour Virtual: Nossa Planta de Manufatura" [level=3] [ref=e530]'
+                  - paragraph [ref=e531]: "Por trás da precisão. 🏭 Conheça o espaço onde seus dispositivos médicos ganham vida: 4.000m² de te"
+                - generic [ref=e532]:
+                  - button "Ver" [ref=e533] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e534] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e535] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e536] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e537] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e538]:
+                - generic [ref=e541]:
+                  - generic [ref=e542]:
+                    - img [ref=e543]
+                    - heading "Do Protótipo à Produção em Escala" [level=3] [ref=e546]
+                  - paragraph [ref=e547]: De 1 peça para 10.000. Sem trocar de fornecedor. 🚀 O maior risco na jornada de um dispositivo médi
+                - generic [ref=e548]:
+                  - button "Ver" [ref=e549] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e550] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e551] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e552] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e553] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e554]:
+                - generic [ref=e557]:
+                  - generic [ref=e558]:
+                    - img [ref=e559]
+                    - 'heading "ANVISA & FDA: Navegando a Conformidade" [level=3] [ref=e562]'
+                  - paragraph [ref=e563]: Regulamentação não precisa ser um pesadelo. 📋 A conformidade com ANVISA e FDA é complexa, mas não
+                - generic [ref=e564]:
+                  - button "Ver" [ref=e565] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e566] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e567] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e568] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e569] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e570]:
+                - generic [ref=e573]:
+                  - generic [ref=e574]:
+                    - img [ref=e575]
+                    - 'heading "Guia de Precisão: Metrologia 3D e CNC Swiss" [level=3] [ref=e577]'
+                  - paragraph [ref=e578]: Como a integração entre tornos suíços de alta performance e inspeção tridimensional garante zero falhas em implantes complexos.
+                - generic [ref=e579]:
+                  - button "Ver" [ref=e580] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e581] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e582] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e583] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e584]:
+                - generic [ref=e587]:
+                  - generic [ref=e588]:
+                    - img [ref=e589]
+                    - 'heading "OEMs Ortopédicos: Montanha Russa Regulatória" [level=3] [ref=e593]'
+                  - paragraph [ref=e594]: "OEMs Ortopédicos: Cansados da Montanha Russa Regulatória?"
+                - generic [ref=e595]:
+                  - button "Ver" [ref=e596] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e597] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e598] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e599] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e600] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e601]:
+                - generic [ref=e604]:
+                  - generic [ref=e605]:
+                    - img [ref=e606]
+                    - heading "Checklist DFM 2026" [level=3] [ref=e610]
+                  - paragraph [ref=e611]: Usinável ou Não? 3 Erros de DFM
+                - generic [ref=e612]:
+                  - button "Ver" [ref=e613] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e614] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e615] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e616] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e617] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e618]:
+                - generic [ref=e621]:
+                  - generic [ref=e622]:
+                    - img [ref=e623]
+                    - heading "Metrologia ZEN (Zeiss Contura)" [level=3] [ref=e627]
+                  - paragraph [ref=e628]: "Precisão Micron-Level: ZEISS Contura"
+                - generic [ref=e629]:
+                  - button "Ver" [ref=e630] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e631] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e632] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e633] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e634] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e635]:
+                - generic [ref=e638]:
+                  - generic [ref=e639]:
+                    - img [ref=e640]
+                    - heading "Redução de Riscos em Testes de Fadiga de Implantes" [level=3] [ref=e644]
+                  - paragraph [ref=e645]: Seu implante falhou na fadiga? 📉
+                - generic [ref=e646]:
+                  - button "Ver" [ref=e647] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e648] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e649] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e650] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e651] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e652]:
+                - generic [ref=e655]:
+                  - generic [ref=e656]:
+                    - img [ref=e657]
+                    - 'heading "Mandato UDI da ANVISA: Navegando na Conformidade com a Lifetrek" [level=3] [ref=e660]'
+                  - paragraph [ref=e661]: A implementação da Identificação Única de Dispositivos (UDI) pela ANVISA representa um marco regulatório no Brasil, com impacto significativo para fabricantes de dispositivos médicos. Este artigo técnico explora os desafios e as oportunidades da UDI, detalhando como a Lifetrek Medical, com sua expertise técnica e infraestrutura avançada, é seu parceiro estratégico para garantir a conformidade e impulsionar a inovação no setor.
+                - generic [ref=e662]:
+                  - button "Ver" [ref=e663] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e664] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e665] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e666] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e667]:
+                - generic [ref=e670]:
+                  - generic [ref=e671]:
+                    - img [ref=e672]
+                    - 'heading "Impressão 3D + CNC: A Parceria Perfeita para Inovação Médica" [level=3] [ref=e676]'
+                  - paragraph [ref=e677]: Impressão 3D ou CNC?
+                - generic [ref=e678]:
+                  - button "Ver" [ref=e679] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e680] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e681] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e682] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e683] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e684]:
+                - generic [ref=e687]:
+                  - generic [ref=e688]:
+                    - img [ref=e689]
+                    - 'heading "O Futuro é Personalizado: Dispositivos Médicos Sob Medida" [level=3] [ref=e693]'
+                  - paragraph [ref=e694]: Padrão é Bom o Suficiente?
+                - generic [ref=e695]:
+                  - button "Ver" [ref=e696] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e697] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e698] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e699] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e700] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e701]:
+                - generic [ref=e704]:
+                  - generic [ref=e705]:
+                    - img [ref=e706]
+                    - 'heading "Decifrando a RDC 751/2022 da ANVISA: Guia Essencial para Dispositivos Médicos" [level=3] [ref=e709]'
+                  - paragraph [ref=e710]: A navegação no ambiente regulatório brasileiro para dispositivos médicos é um desafio complexo. Este artigo explora as diretrizes da RDC 751/2022, a Agenda Regulatória 2026-2027 e como a Lifetrek Medical oferece suporte técnico para garantir a conformidade e agilizar o registro de seus produtos perante a ANVISA.
+                - generic [ref=e711]:
+                  - button "Ver" [ref=e712] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e713] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e714] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e715] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e716]:
+                - generic [ref=e719]:
+                  - generic [ref=e720]:
+                    - img [ref=e721]
+                    - 'heading "Verificação de Dispositivos Médicos: Essencial para Conformidade ANVISA" [level=3] [ref=e724]'
+                  - paragraph [ref=e725]: A verificação de dispositivos médicos é a espinha dorsal da segurança e conformidade regulatória. Este artigo explora como a Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, ajuda as empresas a navegar pelo rigoroso cenário regulatório brasileiro, garantindo que seus produtos atendam às mais altas exigências de desempenho e segurança.
+                - generic [ref=e726]:
+                  - button "Ver" [ref=e727] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e728] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e729] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e730] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e731]:
+                - generic [ref=e734]:
+                  - generic [ref=e735]:
+                    - img [ref=e736]
+                    - 'heading "ANVISA Brasil: Redefinindo Fabricação de Dispositivos Médicos" [level=3] [ref=e739]'
+                  - paragraph [ref=e740]: A ANVISA está transformando o cenário regulatório de dispositivos médicos no Brasil, com uma reestruturação baseada em risco que impacta diretamente os cronogramas de aprovação e as exigências documentais. A Lifetrek Medical, com sua infraestrutura de ponta e expertise técnica, oferece a parceira ideal para navegar por essas mudanças, garantindo conformidade e otimizando o time-to-market. Entenda como nossa abordagem pode acelerar sua entrada no mercado brasileiro.
+                - generic [ref=e741]:
+                  - button "Ver" [ref=e742] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e743] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e744] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e745] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e746]:
+                - generic [ref=e749]:
+                  - generic [ref=e750]:
+                    - img [ref=e751]
+                    - 'heading "ANVISA RDC 751 & UDI: Desafios e Soluções para Dispositivos Médicos" [level=3] [ref=e754]'
+                  - paragraph [ref=e755]: Navegar pelas regulamentações da ANVISA, especialmente a RDC 751/2022 e a iminente obrigatoriedade do UDI para dispositivos Classe III, é um desafio complexo. Este artigo explora as diretrizes, armadilhas comuns e como a Lifetrek Medical se posiciona como um parceiro estratégico, fornecendo expertise técnica e infraestrutura avançada para garantir a conformidade e a competitividade no mercado brasileiro de MedTech.
+                - generic [ref=e756]:
+                  - button "Ver" [ref=e757] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Preview Site" [ref=e758] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e759] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e760] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e761]:
+                - generic [ref=e764]:
+                  - generic [ref=e765]:
+                    - img [ref=e766]
+                    - 'heading "Reference: goodslides2" [level=3] [ref=e770]'
+                  - paragraph [ref=e771]: "Recovered Reference: goodslides2"
+                - generic [ref=e772]:
+                  - button "Ver" [ref=e773] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e774] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e775] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e776] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e777] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+              - generic [ref=e778]:
+                - generic [ref=e781]:
+                  - generic [ref=e782]:
+                    - img [ref=e783]
+                    - 'heading "Reference: Ideia 3" [level=3] [ref=e787]'
+                  - paragraph [ref=e788]: "Recovered Reference: Ideia 3"
+                - generic [ref=e789]:
+                  - button "Ver" [ref=e790] [cursor=pointer]:
+                    - img
+                    - text: Ver
+                  - button "Design" [ref=e791] [cursor=pointer]:
+                    - img
+                    - text: Design
+                  - button "Preview Site" [ref=e792] [cursor=pointer]:
+                    - img
+                    - text: Preview Site
+                  - button "Aprovar" [ref=e793] [cursor=pointer]:
+                    - img
+                    - text: Aprovar
+                  - button "Rejeitar" [ref=e794] [cursor=pointer]:
+                    - img
+                    - text: Rejeitar
+  - generic [ref=e235]: "24"

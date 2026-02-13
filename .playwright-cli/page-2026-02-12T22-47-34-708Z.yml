@@ -1,0 +1,222 @@
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T"
+    - generic:
+      - banner:
+        - generic:
+          - link:
+            - /url: /admin
+            - generic:
+              - generic: LT
+            - generic: Admin
+          - navigation:
+            - link:
+              - /url: /admin
+              - img
+              - generic: Dashboard
+            - link:
+              - /url: /admin/inbox
+              - img
+              - generic: Inbox
+            - link:
+              - /url: /admin/chatbot-inbox
+              - img
+              - generic: Chatbot
+            - button [expanded]:
+              - img
+              - generic: Conteúdo
+              - img
+            - button:
+              - img
+              - generic: Analytics
+              - img
+            - link:
+              - /url: /admin/leads
+              - img
+              - generic: Leads
+          - generic:
+            - generic: Rafael (iCloud)
+            - generic:
+              - img
+              - generic: Super
+            - button:
+              - img
+              - generic: Sair
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=2]:
+                  - text: LIFETREK INSIGHTS
+                  - generic: Admin
+                - paragraph: Análise de performance para Rafael (iCloud).
+              - button:
+                - text: Ver Todos os Leads
+                - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - paragraph: Total Leads
+                      - heading [level=3]: "21"
+                    - generic:
+                      - img
+                  - paragraph: +0 úteis 24h
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - paragraph: Alta Prioridade
+                      - heading [level=3]: "0"
+                    - generic:
+                      - img
+                  - paragraph: Ação imediata
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - paragraph: Conteúdos
+                      - heading [level=3]: "0"
+                    - generic:
+                      - img
+                  - paragraph: Aguardando review
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - paragraph: Meta Mensal
+                      - heading [level=3]: 72%
+                    - generic:
+                      - img
+                  - paragraph: vs. mês anterior
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=3]:
+                    - img
+                    - text: Funil de Vendas (Status)
+                  - paragraph: Distribuição de leads por estágio do pipeline.
+                - generic:
+                  - generic:
+                    - generic:
+                      - img:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: new
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: "0"
+                            - generic:
+                              - generic: "6"
+                            - generic:
+                              - generic: "12"
+                            - generic:
+                              - generic: "18"
+                            - generic:
+                              - generic: "24"
+              - generic:
+                - generic:
+                  - heading [level=3]:
+                    - img
+                    - text: To-Do Executivo
+                  - paragraph: Ações estratégicas.
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic: Finalizar vídeo da fábrica/sala limpa (1.5 min)
+                    - listitem:
+                      - generic: Preparar recursos de IG para Vanessa
+                    - listitem:
+                      - generic: Follow-up com Márcio (Logo, Fotos, Docs)
+                    - listitem:
+                      - generic: Melhorar Design do Sales Deck do Márcio
+                    - listitem:
+                      - generic: Compartilhar link do One-Pager com Vanessa
+                    - listitem:
+                      - generic: Criar vídeos 'how-to' do website para Vanessa
+                  - button:
+                    - text: Review Aprovações
+                    - img
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=3]:
+                    - img
+                    - text: Distribuição por Segmento
+                  - paragraph: Tipos de projetos mais requisitados.
+                - generic:
+                  - generic:
+                    - generic:
+                      - img:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                            - generic:
+                              - img
+                            - generic:
+                              - img
+                            - generic:
+                              - img
+                            - generic:
+                              - img
+                      - generic:
+                        - list:
+                          - listitem:
+                            - img
+                            - text: DISPOSITIVOS MÉDICOS
+                          - listitem:
+                            - img
+                            - text: ORTHOPEDIC IMPLANTS
+                          - listitem:
+                            - img
+                            - text: OTHER MEDICAL
+                          - listitem:
+                            - img
+                            - text: ORCAMENTO
+                          - listitem:
+                            - img
+                            - text: TRANSFORMAÇÃO DIGITAL
+            - generic:
+              - generic:
+                - generic:
+                  - generic: "SYSTEM HEALTH: OPTIMAL"
+                  - heading [level=4]: Orquestrador Inteligente Ativo
+                  - paragraph: Todos os agentes (P&D, Vendas, Qualidade) estão operacionais e processando leads em tempo real.
+                - generic:
+                  - generic:
+                    - paragraph: Uptime
+                    - paragraph: 99.9%
+                  - generic:
+                    - paragraph: API Latency
+                    - paragraph: 240ms
+  - generic: "24"
+  - menu "Conteúdo" [active] [ref=e243]:
+    - generic [ref=e244]: Conteúdo
+    - separator [ref=e245]
+    - menuitem "Social Workspace" [ref=e246] [cursor=pointer]:
+      - img [ref=e247]
+      - text: Social Workspace
+    - menuitem "Orchestrator" [ref=e249] [cursor=pointer]:
+      - img [ref=e250]
+      - text: Orchestrator
+    - menuitem "Gestor Conteúdo" [ref=e252] [cursor=pointer]:
+      - img [ref=e253]
+      - text: Gestor Conteúdo
+    - menuitem "Aprovação" [ref=e256] [cursor=pointer]:
+      - img [ref=e257]
+      - text: Aprovação
+    - menuitem "Calendário" [ref=e260] [cursor=pointer]:
+      - img [ref=e261]
+      - text: Calendário
+    - menuitem "Video Studio" [ref=e265] [cursor=pointer]:
+      - img [ref=e266]
+      - text: Video Studio
+    - menuitem "One Pager" [ref=e271] [cursor=pointer]:
+      - img [ref=e272]
+      - text: One Pager

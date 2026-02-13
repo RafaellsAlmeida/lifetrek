@@ -1,0 +1,62 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - navigation [ref=e5]:
+        - link "Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" [ref=e6] [cursor=pointer]:
+          - /url: /#top
+          - img "Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" [ref=e7]
+        - generic [ref=e8]:
+          - link "Início" [ref=e9] [cursor=pointer]:
+            - /url: /#top
+          - link "Quem Somos" [ref=e10] [cursor=pointer]:
+            - /url: /about#top
+          - link "O que Fazemos" [ref=e11] [cursor=pointer]:
+            - /url: /what-we-do#top
+          - link "Produtos" [ref=e12] [cursor=pointer]:
+            - /url: /products#top
+          - link "Recursos" [ref=e13] [cursor=pointer]:
+            - /url: /resources#top
+          - link "Infraestrutura" [ref=e14] [cursor=pointer]:
+            - /url: /capabilities#top
+          - link "Quem Atendemos" [ref=e15] [cursor=pointer]:
+            - /url: /clients#top
+          - link "Contato" [ref=e16] [cursor=pointer]:
+            - /url: /contact#top
+        - generic [ref=e18]:
+          - button "🇺🇸 EN" [ref=e19] [cursor=pointer]
+          - button "🇧🇷 PT" [ref=e20] [cursor=pointer]
+    - main [ref=e21]
+    - contentinfo [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - img "Lifetrek Medical logo" [ref=e32]
+            - paragraph [ref=e33]: Desenvolva componentes médicos de precisão com nossa fabricação certificada ISO 13485, tecnologia CNC de última geração e instalações de sala limpa.
+          - generic [ref=e34]:
+            - heading "Contato" [level=3] [ref=e35]
+            - generic [ref=e36]:
+              - link "vmartin@lifetrek-medical.com" [ref=e38] [cursor=pointer]:
+                - /url: mailto:vmartin@lifetrek-medical.com
+              - link "+55 11 94533-6226" [ref=e40] [cursor=pointer]:
+                - /url: tel:+5511945336226
+              - generic [ref=e42]: Indaiatuba / SP, Brasil
+              - generic [ref=e43]:
+                - link "LinkedIn (Lifetrek Medical)" [ref=e44] [cursor=pointer]:
+                  - /url: https://www.linkedin.com/company/109570674/
+                  - img [ref=e45]
+                  - text: LinkedIn (Lifetrek Medical)
+                - link "Instagram (@lifetrekmedical)" [ref=e49] [cursor=pointer]:
+                  - /url: https://www.instagram.com/lifetrekmedical
+                  - img [ref=e50]
+                  - text: Instagram (@lifetrekmedical)
+          - generic [ref=e53]:
+            - heading "Certificações" [level=3] [ref=e54]
+            - generic [ref=e56]:
+              - img "ISO 13485:2016 Medical Device Quality Management certification" [ref=e57]
+              - generic [ref=e58]: ISO 13485:2016
+        - paragraph [ref=e60]: © 2026 Lifetrek Medical. Todos os direitos reservados.
+    - button "Chat disponível na página inicial" [ref=e61]:
+      - img

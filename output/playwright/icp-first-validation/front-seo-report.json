@@ -1,0 +1,15 @@
+{
+  "report": {
+    "noBlogTitlePlaceholder": true,
+    "noBlogReadMorePlaceholder": true,
+    "blogHeaderPresent": false,
+    "seoTitlePresent": false,
+    "seoDescriptionPresent": false,
+    "ogTitlePresent": false,
+    "ogDescriptionPresent": false,
+    "ogImagePresent": false,
+    "twitterCardPresent": false,
+    "detailHasForbiddenAsc": false
+  },
+  "seo": {}
+}

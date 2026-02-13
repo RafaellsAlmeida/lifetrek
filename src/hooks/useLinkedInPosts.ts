@@ -423,9 +423,9 @@ export function useApprovedContentItems() {
 
             const { data: linkedInCarousels, error: linkedInError } = await supabase
                 .from("linkedin_carousels")
-                .select("id, topic, status, created_at, updated_at, target_audience, caption, scheduled_for")
+                .select("id, topic, status, created_at, target_audience, caption, slides, scheduled_date")
                 .in("status", ["approved", "published", "scheduled"])
-                .order("updated_at", { ascending: false })
+                .order("created_at", { ascending: false })
                 .limit(50);
 
             if (linkedInError) throw linkedInError;
@@ -466,7 +466,7 @@ export function useApprovedContentItems() {
                     content_preview: carousel.slides?.[0]?.headline || carousel.caption?.substring(0, 100) || '',
                     status: carousel.status,
                     created_at: carousel.created_at,
-                    approved_at: carousel.updated_at,
+                    approved_at: carousel.scheduled_date || carousel.created_at,
                     ai_generated: true,
                     full_data: carousel,
                 })),

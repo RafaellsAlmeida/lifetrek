@@ -1,0 +1,170 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T":
+      - list:
+        - listitem [ref=e21]:
+          - img [ref=e23]
+          - generic [ref=e26]: Login realizado com sucesso!
+    - generic [ref=e27]:
+      - banner [ref=e28]:
+        - generic [ref=e29]:
+          - link "LT Admin" [ref=e30] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e32]: LT
+            - generic [ref=e33]: Admin
+          - navigation [ref=e34]:
+            - link "Dashboard" [ref=e35] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e36]
+              - generic [ref=e41]: Dashboard
+            - link "Inbox" [ref=e42] [cursor=pointer]:
+              - /url: /admin/inbox
+              - img [ref=e43]
+              - generic [ref=e46]: Inbox
+            - link "Chatbot" [ref=e47] [cursor=pointer]:
+              - /url: /admin/chatbot-inbox
+              - img [ref=e48]
+              - generic [ref=e50]: Chatbot
+            - button "Conteúdo" [ref=e51] [cursor=pointer]:
+              - img
+              - generic [ref=e52]: Conteúdo
+              - img
+            - button "Analytics" [ref=e53] [cursor=pointer]:
+              - img
+              - generic [ref=e54]: Analytics
+              - img
+            - link "Leads" [ref=e55] [cursor=pointer]:
+              - /url: /admin/leads
+              - img [ref=e56]
+              - generic [ref=e60]: Leads
+          - generic [ref=e61]:
+            - generic [ref=e62]: Rafael (iCloud)
+            - generic [ref=e63]:
+              - img [ref=e64]
+              - generic [ref=e66]: Super
+            - button "Sair" [ref=e67] [cursor=pointer]:
+              - img
+              - generic [ref=e68]: Sair
+      - main [ref=e69]:
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - heading "LIFETREK INSIGHTS Admin" [level=2] [ref=e74]:
+                - text: LIFETREK INSIGHTS
+                - generic [ref=e75]: Admin
+              - paragraph [ref=e76]: Análise de performance para Rafael (iCloud).
+            - button "Ver Todos os Leads" [ref=e77] [cursor=pointer]:
+              - text: Ver Todos os Leads
+              - img
+          - generic [ref=e78]:
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]:
+                  - paragraph [ref=e83]: Total Leads
+                  - heading "21" [level=3] [ref=e84]
+                - img [ref=e86]
+              - paragraph [ref=e91]: +0 úteis 24h
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e95]:
+                  - paragraph [ref=e96]: Alta Prioridade
+                  - heading "0" [level=3] [ref=e97]
+                - img [ref=e99]
+              - paragraph [ref=e101]: Ação imediata
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - paragraph [ref=e106]: Conteúdos
+                  - heading "0" [level=3] [ref=e107]
+                - img [ref=e109]
+              - paragraph [ref=e112]: Aguardando review
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - generic [ref=e116]:
+                  - paragraph [ref=e117]: Meta Mensal
+                  - heading "72%" [level=3] [ref=e118]
+                - img [ref=e120]
+              - paragraph [ref=e123]: vs. mês anterior
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - heading "Funil de Vendas (Status)" [level=3] [ref=e127]:
+                  - img [ref=e128]
+                  - text: Funil de Vendas (Status)
+                - paragraph [ref=e130]: Distribuição de leads por estágio do pipeline.
+              - generic [ref=e133]:
+                - img [ref=e134]:
+                  - generic [ref=e140]: new
+                  - generic [ref=e142]:
+                    - generic [ref=e144]: "0"
+                    - generic [ref=e146]: "6"
+                    - generic [ref=e148]: "12"
+                    - generic [ref=e150]: "18"
+                    - generic [ref=e152]: "24"
+                - generic:
+                  - generic:
+                    - paragraph
+                    - list:
+                      - listitem: "value : 21"
+            - generic [ref=e158]:
+              - generic [ref=e159]:
+                - heading "To-Do Executivo" [level=3] [ref=e160]:
+                  - img [ref=e161]
+                  - text: To-Do Executivo
+                - paragraph [ref=e164]: Ações estratégicas.
+              - generic [ref=e165]:
+                - list [ref=e166]:
+                  - listitem [ref=e167]:
+                    - generic [ref=e169]: Finalizar vídeo da fábrica/sala limpa (1.5 min)
+                  - listitem [ref=e170]:
+                    - generic [ref=e172]: Preparar recursos de IG para Vanessa
+                  - listitem [ref=e173]:
+                    - generic [ref=e175]: Follow-up com Márcio (Logo, Fotos, Docs)
+                  - listitem [ref=e176]:
+                    - generic [ref=e178]: Melhorar Design do Sales Deck do Márcio
+                  - listitem [ref=e179]:
+                    - generic [ref=e181]: Compartilhar link do One-Pager com Vanessa
+                  - listitem [ref=e182]:
+                    - generic [ref=e184]: Criar vídeos 'how-to' do website para Vanessa
+                - button "Review Aprovações" [ref=e185] [cursor=pointer]:
+                  - text: Review Aprovações
+                  - img
+          - generic [ref=e187]:
+            - generic [ref=e188]:
+              - heading "Distribuição por Segmento" [level=3] [ref=e189]:
+                - img [ref=e190]
+                - text: Distribuição por Segmento
+              - paragraph [ref=e193]: Tipos de projetos mais requisitados.
+            - generic [ref=e196]:
+              - img [ref=e197]
+              - list [ref=e199]:
+                - listitem [ref=e200]:
+                  - img [ref=e201]
+                  - text: DISPOSITIVOS MÉDICOS
+                - listitem [ref=e203]:
+                  - img [ref=e204]
+                  - text: ORTHOPEDIC IMPLANTS
+                - listitem [ref=e206]:
+                  - img [ref=e207]
+                  - text: OTHER MEDICAL
+                - listitem [ref=e209]:
+                  - img [ref=e210]
+                  - text: ORCAMENTO
+                - listitem [ref=e212]:
+                  - img [ref=e213]
+                  - text: TRANSFORMAÇÃO DIGITAL
+          - generic [ref=e217]:
+            - generic [ref=e218]:
+              - generic [ref=e219]: "SYSTEM HEALTH: OPTIMAL"
+              - heading "Orquestrador Inteligente Ativo" [level=4] [ref=e220]
+              - paragraph [ref=e221]: Todos os agentes (P&D, Vendas, Qualidade) estão operacionais e processando leads em tempo real.
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - paragraph [ref=e224]: Uptime
+                - paragraph [ref=e225]: 99.9%
+              - generic [ref=e226]:
+                - paragraph [ref=e227]: API Latency
+                - paragraph [ref=e228]: 240ms
+  - generic [ref=e229]: "24"

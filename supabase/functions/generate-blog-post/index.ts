@@ -149,12 +149,17 @@ function sanitizeForbiddenClientMentions(text: string): string {
   return text
     .replace(/amorim\s*stout\s*consulting\s*\(asc\)/gi, "Lifetrek Medical")
     .replace(/amorim\s*stout\s*consulting/gi, "Lifetrek Medical")
-    .replace(/\bmetodologia\s*4p\s*da\s*asc\b/gi, "abordagem de 4 pilares da Lifetrek Medical")
-    .replace(/\bframework\s*4p\b/gi, "framework técnico de 4 pilares")
+    .replace(/\bmetodologia\s*4p\s*da\s*asc\b/gi, "modelo técnico de execução da Lifetrek Medical")
+    .replace(/\bmetodologia\s*4p\b/gi, "modelo técnico de execução da Lifetrek Medical")
+    .replace(/\bframework\s*4p\b/gi, "modelo técnico de execução")
     .replace(/\bna\s+asc\b/gi, "na Lifetrek Medical")
     .replace(/\bda\s+asc\b/gi, "da Lifetrek Medical")
     .replace(/\ba\s+asc\b/gi, "a Lifetrek Medical")
-    .replace(/\bASC\b/g, "Lifetrek Medical");
+    .replace(/\bASC\b/g, "Lifetrek Medical")
+    .replace(/\bCRM\b/g, "sistema interno de gestão")
+    .replace(/\bintelig[eê]ncia\s*artificial\b/gi, "engenharia de processo")
+    .replace(/\bAI\b/g, "engenharia de processo")
+    .replace(/\bIA\b/g, "engenharia de processo");
 }
 
 serve(async (req) => {
@@ -387,7 +392,8 @@ ${sourceContext}
     - For non-regulatory topics, focus on process, metrology, quality, manufacturing performance, and supply chain risk reduction.
     - Goal: Make reader learn something valuable about manufacturing.
     - NEVER mention other clients, consulting firms, competitors, or external brand names not explicitly provided as approved references.
-    - Forbidden terms: "Amorim Stout Consulting", "ASC", "Framework 4P", "Metodologia 4P da ASC".
+    - Avoid terms unrelated to Lifetrek offering such as generic CRM/AI playbooks when not core to manufacturing execution.
+    - Forbidden terms: "Amorim Stout Consulting", "ASC", "Framework 4P", "Metodologia 4P da ASC", "CRM", "AI", "IA", "inteligência artificial".
     - If a forbidden term appears in drafts, replace with "Lifetrek Medical" and rewrite the sentence to keep it technical and neutral.
     - Include one section named "Referências" with 4-8 credible links in HTML list format (<ul><li>...</li></ul>).
     - Include one section named "Perguntas frequentes" with at least 3 practical Q&A items (h3 + p).
