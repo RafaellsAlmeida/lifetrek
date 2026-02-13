@@ -110,11 +110,39 @@ export async function searchKnowledgeBase(
   }
 }
 
+// ─── Similar Instagram Posts ────────────────────────────────────────────────
+
+export async function searchSimilarInstagramPosts(
+  supabase: SupabaseClient,
+  queryEmbedding: number[],
+  matchThreshold: number = 0.5,
+  matchCount: number = 3
+): Promise<any[]> {
+  try {
+    const { data, error } = await supabase.rpc("match_successful_instagram_posts", {
+      query_embedding: queryEmbedding,
+      match_threshold: matchThreshold,
+      match_count: matchCount,
+    });
+
+    if (error) {
+      console.error("   Similar Instagram post search error:", error.message);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("   Similar Instagram post search error:", error);
+    return [];
+  }
+}
+
 // ─── Deep Research (Perplexity) ─────────────────────────────────────────────
 
 export async function deepResearch(
   query: string,
-  maxTimeMs: number = 15000
+  maxTimeMs: number = 15000,
+  platform: "linkedin" | "instagram" = "linkedin"
 ): Promise<string | null> {
   try {
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
@@ -122,6 +150,10 @@ export async function deepResearch(
       console.warn("   Research: No PERPLEXITY_API_KEY, skipping");
       return null;
     }
+
+    const platformContext = platform === "instagram"
+      ? `a B2B Instagram post (visual-first, 1080x1080 carousel or feed) about medical device manufacturing`
+      : `a B2B LinkedIn carousel about medical device manufacturing`;
 
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
@@ -133,7 +165,7 @@ export async function deepResearch(
         model: "sonar-reasoning",
         messages: [{
           role: "user",
-          content: `Research this topic for a B2B LinkedIn carousel about medical device manufacturing. Provide: 1) Latest industry trends/statistics (${new Date().getFullYear()}), 2) Key pain points for OEM decision makers, 3) Technical facts and regulatory updates. Keep it concise (3-4 key points). Topic: ${query}`,
+          content: `Research this topic for ${platformContext}. Provide: 1) Latest industry trends/statistics (${new Date().getFullYear()}), 2) Key pain points for OEM decision makers, 3) Technical facts and regulatory updates. Keep it concise (3-4 key points). Topic: ${query}`,
         }],
         max_tokens: 500,
         temperature: 0.3,
