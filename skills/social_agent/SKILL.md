@@ -1,35 +1,64 @@
 ---
 name: Social Content Orchestrator
-description: Generates high-quality social media content (LinkedIn/Instagram) using an Agentic Workflow (Strategist -> Copywriter) via CLI.
+description: Generates high-quality social media content (LinkedIn/Instagram) using an AI Design Agency multi-agent pipeline via CLI.
 ---
 
 # Social Content Orchestrator Skill
 
 This skill allows you to generate professional B2B social media content for Lifetrek Medical using a multi-agent workflow running explicitly in your terminal.
 
+## Architecture (AI Design Agency Pattern)
+
+The pipeline follows the Design Agency model — specialists that each own their lane, retrieval that teaches by example, and a critic that loops until quality is met:
+
+1. **RAG Context** — Searches knowledge base, finds similar successful carousels, loads rejection history
+2. **Strategist Agent** — Plans narrative arc, hook, key messages (enriched with KB + research context)
+3. **Style Brief Agent** — Analyzes top-performing past carousels to extract reusable patterns
+4. **Copywriter Agent** — Writes headlines and body copy (PT-BR), guided by style brief
+5. **Designer Agent** — Creates art direction per slide, guided by visual mood from style brief
+6. **Analyst Agent** — Quality gate with selective re-routing (up to 3 critique rounds)
+7. **Ranker Agent** — When using `--variations`, picks the best variation
+
 ## How to Run
 
-1.  **Ensure you have Deno installed** (Built-in to Supabase logic, likely available).
-2.  **Run the script** with a topic:
-
 ```bash
-deno run --allow-net --allow-read --allow-env scripts/generate_social_agent.ts "Your Topic Here"
+deno run --allow-all scripts/generate_social_agent.ts "Your Topic Here"
 ```
 
-## Workflow Steps
-1.  **Strategist Agent**: Uses the production `STRATEGIST_SYSTEM_PROMPT` to analyze the topic, narrative arc, and key messages.
-2.  **Copywriter Agent**: Uses the `COPYWRITER_SYSTEM_PROMPT` to draft the actual post caption and slide content based on the strategy.
-3.  **Analyst Agent**: Reviews the content using the `ANALYST_SYSTEM_PROMPT` to assign a quality score and feedback.
-4.  **Output**: Prints the Caption, Slides, and Visual Prompts to stdout.
+## CLI Flags
+
+| Flag | Description |
+|------|-------------|
+| `--dry-run` | Generate content without saving to Supabase or triggering image gen |
+| `--research` | Enable Perplexity deep research for industry trends and stats |
+| `--variations=N` | Generate N creative variations, ranked by a dedicated Ranker agent |
 
 ## Examples
 
-**Generate a post about Quality Control:**
+**Basic generation:**
 ```bash
-deno run --allow-net --allow-read --allow-env scripts/generate_social_agent.ts "100% CMM Inspection benefit"
+deno run --allow-all scripts/generate_social_agent.ts "100% CMM Inspection benefit"
 ```
 
-**Generate a post about Cleanroom Packaging:**
+**With deep research:**
 ```bash
-deno run --allow-net --allow-read --allow-env scripts/generate_social_agent.ts "ISO 7 Cleanroom Packaging"
+deno run --allow-all scripts/generate_social_agent.ts "ISO 7 Cleanroom Packaging" --research
 ```
+
+**3 variations with ranking (dry run):**
+```bash
+deno run --allow-all scripts/generate_social_agent.ts "Precisão CNC em Implantes" --variations=3 --dry-run
+```
+
+**Full pipeline with research + variations:**
+```bash
+deno run --allow-all scripts/generate_social_agent.ts "ANVISA Compliance" --research --variations=3
+```
+
+## Key Features
+
+- **Critique Loop (up to 3 rounds)**: Analyst scores content and selectively routes back to only the agent that needs fixing (copywriter, designer, or both). Stops early on diminishing returns.
+- **RAG Integration**: Queries knowledge base and successful past carousels before generation. Style brief extracted from top performers.
+- **Rejection Feedback**: Loads admin rejection reasons from Supabase and injects them as "patterns to avoid" into all agent prompts.
+- **Multi-Variation + Ranking**: Generate 3-5 creative variations with different temperatures, then a Ranker agent picks the winner.
+- **Generation Metadata**: Saves pipeline version, RAG usage, critique rounds, and variation scores to `generation_metadata` JSONB column.
