@@ -276,10 +276,11 @@ async function run() {
     .order("created_at", { ascending: true });
   if (error) throw new Error(error.message);
 
+  const force = String(process.env.FORCE || "").trim() === "1";
   const candidates = posts.filter((p) => {
     const meta = p.generation_metadata || {};
     const already = meta && typeof meta === "object" && meta.square_v1_generated_at;
-    return !already;
+    return force ? true : !already;
   });
 
   const browser = await chromium.launch({ headless: true });
