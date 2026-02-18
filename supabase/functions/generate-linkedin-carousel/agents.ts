@@ -22,9 +22,18 @@ import {
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 
-// Load Inter font for Satori
-const fontData = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf").then((res) => res.arrayBuffer());
-const fontDataRegular = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf").then((res) => res.arrayBuffer());
+// Font cache for Satori
+let fontData: ArrayBuffer | null = null;
+let fontDataRegular: ArrayBuffer | null = null;
+
+async function loadFonts() {
+  if (fontData && fontDataRegular) return;
+  console.log("📥 Loading fonts for Satori...");
+  [fontData, fontDataRegular] = await Promise.all([
+    fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf").then((res) => res.arrayBuffer()),
+    fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf").then((res) => res.arrayBuffer())
+  ]);
+}
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
@@ -657,6 +666,7 @@ export async function compositorAgent(
       };
 
       // Generate SVG
+      await loadFonts();
       const svg = await satori(
         element,
         {
@@ -665,13 +675,13 @@ export async function compositorAgent(
           fonts: [
             {
               name: 'Inter',
-              data: fontData,
+              data: fontData!,
               weight: 800,
               style: 'normal',
             },
             {
               name: 'Inter',
-              data: fontDataRegular,
+              data: fontDataRegular!,
               weight: 400,
               style: 'normal',
             },

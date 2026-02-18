@@ -13,18 +13,22 @@ let SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Simple .env loader
 function loadEnv(filePath) {
-    if (fs.existsSync(filePath)) {
-        console.log(`📡 Carregando variáveis de ${filePath}`);
-        const content = fs.readFileSync(filePath, 'utf8');
-        content.split('\n').forEach(line => {
-            const parts = line.split('=');
-            if (parts.length === 2) {
-                const key = parts[0].trim();
-                const value = parts[1].trim().replace(/^["']|["']$/g, '');
-                process.env[key] = value;
-                if (key === 'SUPABASE_SERVICE_ROLE_KEY') SUPABASE_SERVICE_ROLE_KEY = value;
-            }
-        });
+    try {
+        if (fs.existsSync(filePath)) {
+            console.log(`📡 Carregando variáveis de ${filePath}`);
+            const content = fs.readFileSync(filePath, 'utf8');
+            content.split('\n').forEach(line => {
+                const parts = line.split('=');
+                if (parts.length === 2) {
+                    const key = parts[0].trim();
+                    const value = parts[1].trim().replace(/^["']|["']$/g, '');
+                    process.env[key] = value;
+                    if (key === 'SUPABASE_SERVICE_ROLE_KEY') SUPABASE_SERVICE_ROLE_KEY = value;
+                }
+            });
+        }
+    } catch (e) {
+        console.warn(`⚠️  Aviso: Não foi possível carregar ${filePath}: ${e.message}`);
     }
 }
 
