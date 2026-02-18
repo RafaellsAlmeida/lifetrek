@@ -52,7 +52,7 @@ export default function Clients() {
     { src: toride, alt: "Toride - Medical manufacturing client" },
     { src: ultradent, alt: "Ultradent Products - Dental device manufacturer" },
     { src: vincula, alt: "Vincula - Medical device manufacturer client" },
-    { src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants" },
+    { src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants", scale: 1.5 },
   ];
 
   const clientTypes = [
@@ -130,6 +130,7 @@ export default function Clients() {
                   src={logo.src}
                   alt={logo.alt}
                   className="max-h-12 w-auto object-contain"
+                  style={{ transform: (logo as any).scale ? `scale(${(logo as any).scale})` : 'none' }}
                   loading="lazy"
                 />
               </div>

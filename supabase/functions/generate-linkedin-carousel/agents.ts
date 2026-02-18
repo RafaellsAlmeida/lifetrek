@@ -639,7 +639,7 @@ export async function compositorAgent(
                           type: 'img',
                           props: {
                             src: logoBase64,
-                            width: 225,
+                            width: 150,
                             style: { objectFit: 'contain' }
                           }
                         }
@@ -650,7 +650,7 @@ export async function compositorAgent(
                             style: {
                               color: '#004F8F',
                               fontWeight: 800,
-                              fontSize: '36px'
+                              fontSize: '24px'
                             },
                             children: 'LIFETREK'
                           }
