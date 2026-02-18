@@ -24,7 +24,7 @@ import techimport from "@/assets/clients/techimport-new.png";
 import toride from "@/assets/clients/toride-new.png";
 import ultradent from "@/assets/clients/ultradent-new.png";
 import vincula from "@/assets/clients/vincula-new.png";
-import vetmaker from "@/assets/clients/vetmaker-new.png";
+import vetmaker from "@/assets/clients/vetmaker.png";
 
 export default function Clients() {
   const { t } = useLanguage();
@@ -105,7 +105,7 @@ export default function Clients() {
       {/* Client Logos Section */}
       <section id="client-logos" className="py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background to-secondary/20">
         <div className="container mx-auto px-4 sm:px-6">
-          <div 
+          <div
             ref={logosAnimation.elementRef}
             className={`text-center mb-12 sm:mb-16 scroll-reveal ${logosAnimation.isVisible ? 'visible' : ''}`}
           >
@@ -117,21 +117,20 @@ export default function Clients() {
               {t("clients.partners.subtitle")}
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 max-w-7xl mx-auto">
             {clientLogos.map((logo, index) => (
               <div
                 key={index}
-                className={`flex items-center justify-center p-4 bg-card rounded-lg border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 grayscale hover:grayscale-0 ${
-                  logosAnimation.isVisible ? 'animate-fade-in' : 'opacity-0'
-                }`}
+                className={`flex items-center justify-center p-4 bg-card rounded-lg border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 grayscale hover:grayscale-0 ${logosAnimation.isVisible ? 'animate-fade-in' : 'opacity-0'
+                  }`}
                 style={{ animationDelay: `${index * 50}ms`, willChange: logosAnimation.isVisible ? 'auto' : 'opacity, transform' }}
               >
-                <img 
-                  src={logo.src} 
-                  alt={logo.alt} 
-                  className="max-h-12 w-auto object-contain" 
-                  loading="lazy" 
+                <img
+                  src={logo.src}
+                  alt={logo.alt}
+                  className="max-h-12 w-auto object-contain"
+                  loading="lazy"
                 />
               </div>
             ))}
@@ -148,7 +147,7 @@ export default function Clients() {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             {t("clients.types.subtitle")}
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {clientTypes.map((client, index) => (
               <div

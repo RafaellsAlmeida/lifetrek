@@ -21,7 +21,7 @@ const translations = {
     "nav.culture": "Culture",
     "nav.clients": "Who We Work With",
     "nav.contact": "Contact",
-    
+
     // Home
     "home.hero.title": "Accelerate Your Product Development",
     "home.hero.subtitle": "Get precision medical components to market faster with our ISO 13485 certified manufacturing, leading edge CNC technology, and cleanroom facilities.",
@@ -50,7 +50,7 @@ const translations = {
     "blog.subtitle": "Insights on medical manufacturing, supply chain and innovation.",
     "blog.readMore": "Read more",
     "blog.empty": "No published articles at the moment.",
-    
+
     // About
     "about.title": "About Us",
     "about.intro": "Our trajectory in Brazil began with the acquisition of the Brazilian subsidiary of an American company with over 30 years of experience.",
@@ -67,13 +67,13 @@ const translations = {
     "about.values.ethics.text": "Transparency and integrity in all relationships.",
     "about.values.respect": "Respect",
     "about.values.respect.text": "Valuing people and teamwork.",
-    
+
     // What We Do
     "whatWeDo.title": "What We Do",
     "whatWeDo.text": "We provide manufacturing services using state-of-the-art CNC machines such as multi-axis lathes, machining centers, and grinders. Our processes include cleanrooms (ISO certified), electropolishing, passivation, and laser marking.",
     "whatWeDo.precision": "Medical Precision Manufacturing",
     "whatWeDo.cleanroom": "Cleanroom Technology",
-    
+
     // Products
     "products.title": "Products That Improve Patient Outcomes",
     "products.hero.subtitle": "Precision-engineered components that help you deliver better surgical results and faster patient recovery.",
@@ -92,7 +92,7 @@ const translations = {
     "products.cta.title": "Need Custom Manufacturing?",
     "products.cta.text": "We partner with medical device companies to develop and manufacture components that meet exact specifications.",
     "products.cta.button": "Discuss Your Project",
-    
+
     // Capabilities (Merged Quality + Infrastructure)
     "capabilities.title": "Manufacturing Capabilities That De-Risk Your Supply Chain",
     "capabilities.subtitle": "Reduce supplier issues with certified quality, advanced equipment, and rigorous process controls.",
@@ -100,29 +100,29 @@ const translations = {
     "capabilities.iso": "ISO 13485:2016 Certified",
     "capabilities.continuous": "Continuous Improvement",
     "capabilities.traceability": "Full Batch Traceability",
-    
+
     "capabilities.cleanrooms.title": "ISO 7 Cleanroom Manufacturing",
     "capabilities.cleanrooms.benefit": "Eliminate Contamination Risk",
     "capabilities.cleanrooms.text": "Two 60m² cleanrooms among Brazil's most advanced—ensuring sterile component production for implants and critical instruments.",
-    
+
     "capabilities.metrology.title": "Advanced Metrology Lab",
     "capabilities.metrology.benefit": "Guaranteed Dimensional Accuracy",
     "capabilities.metrology.text": "State-of-the-art equipment, Hardness Vickers, and optical measurement systems verify every critical dimension before shipping.",
-    
+
     "capabilities.equipment.title": "Swiss-Type CNC Technology",
     "capabilities.equipment.benefit": "Complex Geometries Made Simple",
     "capabilities.equipment.text": "Citizen, Tornos, and Walter multi-axis machines produce intricate medical components with micron-level precision in a single setup.",
-    
+
     "capabilities.finishing.title": "Medical-Grade Surface Treatment",
     "capabilities.finishing.benefit": "Enhanced Biocompatibility",
     "capabilities.finishing.text": "In-house electropolishing and passivation deliver smooth, corrosion-resistant surfaces that meet ASTM standards for implantable devices.",
-    
+
     // Equipment sections
     "capabilities.equipment.cnc.title": "State-of-the-Art CNC Manufacturing Equipment",
     "capabilities.equipment.metrology.title": "Advanced Metrology Laboratory",
     "capabilities.equipment.sample.title": "Sample Preparation Equipment",
     "capabilities.equipment.finishing.title": "Surface Finishing & Marking",
-    
+
     // Equipment categories
     "equipment.category.swiss": "Swiss-Type CNC",
     "equipment.category.grinder": "Tool Grinder",
@@ -133,7 +133,7 @@ const translations = {
     "equipment.category.analysis": "Analysis",
     "equipment.category.surface": "Surface Treatment",
     "equipment.category.identification": "Identification",
-    
+
     // Equipment names
     "equipment.name.polishing": "Polishing Machine",
     "equipment.name.cutting": "Cutting Machine",
@@ -155,7 +155,7 @@ const translations = {
     "equipment.name.robodrill": "FANUC Robodrill",
     "equipment.name.lab": "Laboratory Overview",
     "equipment.name.zeiss": "ZEISS Contura",
-    
+
     "equipment.subtitle.surgical": "Precision Medical Instruments",
     "equipment.subtitle.citizen": "Citizen Precision Lathe",
     "equipment.subtitle.opticalcnc": "Precision Measurement System",
@@ -173,7 +173,7 @@ const translations = {
     "equipment.subtitle.electropolish": "Surface Finishing System",
     "equipment.subtitle.lab": "Complete Metrology Lab",
     "equipment.subtitle.zeiss": "3D Coordinate Measuring Machine",
-    
+
     "equipment.specs.surgical.precision": "High precision manufacturing",
     "equipment.specs.surgical.quality": "Quality control validated",
     "equipment.specs.surgical.control": "Dimensional accuracy guaranteed",
@@ -225,7 +225,7 @@ const translations = {
     "equipment.specs.zeiss.accuracy": "Accuracy: 1.9 + L/300 μm",
     "equipment.specs.zeiss.measuring": "Measuring range: 700 x 1000 x 600mm",
     "equipment.specs.zeiss.automated": "Fully automated inspection",
-    
+
     // Quality
     "quality.title": "Quality & Compliance",
     "quality.intro": "Our commitment to quality excellence is demonstrated through international certifications, advanced metrology capabilities, and rigorous process controls.",
@@ -237,13 +237,13 @@ const translations = {
     "quality.metrology.text": "State-of-the-art measurement equipment, Hardness Vickers, and optical measurement systems verify every critical dimension.",
     "quality.electropolishing.title": "Medical-Grade Surface Treatment",
     "quality.electropolishing.text": "In-house electropolishing and passivation deliver smooth, corrosion-resistant surfaces that meet ASTM standards for implantable devices.",
-    
+
     // Culture
     "culture.title": "Our Culture",
     "culture.cleanliness": "Cleanliness, organization, and continuous professional development are the foundations of our culture.",
     "culture.quality": "Strong quality discipline embedded throughout the work environment.",
     "culture.training": "Continuous training and professional growth opportunities.",
-    
+
     // Contact
     "contact.title": "Contact Us for Your Quote",
     "contact.subtitle": "Get a personalized quote",
@@ -261,11 +261,11 @@ const translations = {
     "contact.info.phone": "Phone",
     "contact.info.address": "Address",
     "contact.location": "Indaiatuba / SP, Brazil",
-    
+
     // Footer
     "footer.certifications": "Certifications",
     "footer.rights": "All rights reserved.",
-    
+
     // Clients
     "clients.title": "Who We Work With",
     "clients.intro": "We partner with leading medical device manufacturers, healthcare institutions, and OEM partners worldwide to deliver precision-engineered components and implants that meet the highest quality standards.",
@@ -499,6 +499,59 @@ const translations = {
     "leadCapture.form.processingButton": "Processing...",
     "leadCapture.form.submitButton": "Send My Detailed Report",
     "leadCapture.form.privacyText": "We respect your privacy. Your information is secure and will never be shared.",
+
+    // OnePager
+    "onepager.hero.title": "Precision Manufacturing for Medical Devices",
+    "onepager.hero.subtitle": "Implants • Surgical Instruments • Medical Components",
+    "onepager.stats.experience": "Years Experience",
+    "onepager.stats.clients": "Active Clients",
+    "onepager.stats.tolerance": "Tolerance",
+    "onepager.stats.traceability": "Traceability",
+    "onepager.why.title": "Why Lifetrek?",
+    "onepager.why.leadtime.label": "Reduced Lead Time",
+    "onepager.why.leadtime.text": "From 90+ days to 2-4 weeks",
+    "onepager.why.compliance.label": "Total Compliance",
+    "onepager.why.compliance.text": "ISO 13485, GMP, ANVISA/FDA traceability",
+    "onepager.why.nearshoring.label": "Nearshoring",
+    "onepager.why.nearshoring.text": "Reduce exchange rate exposure and logistical risks",
+    "onepager.why.metrology.label": "Advanced Metrology",
+    "onepager.why.metrology.text": "ZEISS Contura + complete validation",
+    "onepager.products.title": "Products",
+    "onepager.products.spinal": "Spinal",
+    "onepager.products.dental": "Dental",
+    "onepager.products.instrumental": "Instrumental",
+    "onepager.connect.title": "Connect With Us",
+    "onepager.factory.exterior": "Own Factory • Indaiatuba, SP",
+    "onepager.cleanroom.title": "ISO 7 Certified Cleanroom",
+    "onepager.reception.title": "Reception",
+    "onepager.footer.tagline": "Precision that Transforms Lives",
+    "onepager.footer.page": "Page",
+    "onepager.page2.title": "Equipment & Capabilities",
+    "onepager.machinepark.title": "Machine Park ($ 1.5M+ Invested)",
+    "onepager.machine.swiss5": "Swiss-Type CNC (5-Axis)",
+    "onepager.machine.swissHigh": "Swiss-Type (High Capacity)",
+    "onepager.machine.vertical": "Vertical Machining Center",
+    "onepager.machine.turning": "Turning Center",
+    "onepager.machine.cmm": "CMM Metrology Lab",
+    "onepager.machine.udi": "UDI Traceability",
+    "onepager.machine.automated": "Automated Line",
+    "onepager.capabilities.machining": "Machining",
+    "onepager.capabilities.finishing": "Finishing",
+    "onepager.capabilities.metrology": "Metrology",
+    "onepager.capabilities.electropolish": "Automated Electropolishing",
+    "onepager.capabilities.passivation": "Passivation & Anodization",
+    "onepager.capabilities.laser": "Laser Marking & Sandblasting",
+    "onepager.capabilities.ultrasonic": "Ultrasonic Cleaning",
+    "onepager.capabilities.optical": "Optical Comparator",
+    "onepager.capabilities.olympus": "Olympus Microscopy",
+    "onepager.capabilities.hardness": "Vickers/Rockwell Hardness",
+    "onepager.materials.title": "Processed Materials",
+    "onepager.materials.list": "Ti-6Al-4V (Grade 5), Ti CP (Grades 1-4), Stainless Steel 316L/316LVM, CoCrMo, PEEK, UHMWPE",
+    "onepager.cta.title": "Ready to Start?",
+    "onepager.cta.subtitle": "Schedule a technical conversation and receive a personalized proposal.",
+    "onepager.cta.location": "Indaiatuba, São Paulo",
+    "onepager.cta.industrial": "Industrial District",
+    "onepager.button.download": "Download PDF",
   },
   pt: {
     // Navigation
@@ -512,7 +565,7 @@ const translations = {
     "nav.culture": "Cultura",
     "nav.clients": "Quem Atendemos",
     "nav.contact": "Contato",
-    
+
     // Home
     "home.hero.title": "Acelere o Desenvolvimento do Seu Produto",
     "home.hero.subtitle": "Desenvolva componentes médicos de precisão com nossa fabricação certificada ISO 13485, tecnologia CNC de última geração e instalações de sala limpa.",
@@ -541,7 +594,7 @@ const translations = {
     "blog.subtitle": "Insights sobre manufatura médica, supply chain e inovação.",
     "blog.readMore": "Ler mais",
     "blog.empty": "Nenhum artigo publicado no momento.",
-    
+
     // About
     "about.title": "Quem Somos",
     "about.intro": "Nossa trajetória no Brasil iniciou-se com a aquisição da subsidiária brasileira de uma empresa americana com mais de 30 anos de experiência.",
@@ -558,13 +611,13 @@ const translations = {
     "about.values.ethics.text": "Transparência e integridade em todas as relações.",
     "about.values.respect": "Respeito",
     "about.values.respect.text": "Valorização das pessoas e do trabalho em equipe.",
-    
+
     // What We Do
     "whatWeDo.title": "O que Fazemos",
     "whatWeDo.text": "Oferecemos aos nossos clientes serviços de manufatura com utilização de máquinas CNC ultra precisas de última geração como tornos multi-eixos, centros de usinagem e retíficas além de salas limpas certificadas, eletropolimento, passivação, gravação a laser.",
     "whatWeDo.precision": "Manufatura Médica de Precisão",
     "whatWeDo.cleanroom": "Tecnologia de Sala Limpa",
-    
+
     // Products
     "products.title": "Produtos Que Melhoram os Resultados dos Pacientes",
     "products.hero.subtitle": "Componentes de precisão que ajudam você a entregar melhores resultados cirúrgicos e recuperação mais rápida do paciente.",
@@ -583,7 +636,7 @@ const translations = {
     "products.cta.title": "Precisa de Fabricação Personalizada?",
     "products.cta.text": "Fazemos parcerias com empresas da área médica para desenvolver e fabricar componentes que atendem especificações exatas.",
     "products.cta.button": "Discuta Seu Projeto",
-    
+
     // Capabilities (Merged Quality + Infrastructure)
     "capabilities.title": "Capacidades de Fabricação Que Reduzem o Risco da Sua Cadeia de Suprimentos",
     "capabilities.subtitle": "Reduza problemas com fornecedores através de qualidade certificada, equipamentos avançados e controles rigorosos de processo.",
@@ -591,29 +644,29 @@ const translations = {
     "capabilities.iso": "Certificado ISO 13485:2016",
     "capabilities.continuous": "Melhoria Contínua",
     "capabilities.traceability": "Rastreabilidade Completa de Lote",
-    
+
     "capabilities.cleanrooms.title": "Fabricação em Sala Limpa ISO 7",
     "capabilities.cleanrooms.benefit": "Elimine Risco de Contaminação",
     "capabilities.cleanrooms.text": "Duas salas limpas de 60m² entre as mais avançadas do Brasil—garantindo produção de componentes para implantes e instrumentos críticos.",
-    
+
     "capabilities.metrology.title": "Laboratório de Metrologia Avançado",
     "capabilities.metrology.benefit": "Precisão Dimensional Garantida",
     "capabilities.metrology.text": "Equipamentos de última geração, Hardness Vickers e sistemas de medição óptica verificam cada dimensão crítica antes do envio.",
-    
+
     "capabilities.equipment.title": "Tecnologia CNC de Última Geração",
     "capabilities.equipment.benefit": "Geometrias Complexas",
     "capabilities.equipment.text": "Máquinas multi-eixos Citizen Tornos e Walter que tem capacidade de produzir componentes médicos complexos com precisão micrométrica.",
-    
+
     "capabilities.finishing.title": "Tratamento de Superfície de Grau Médico",
     "capabilities.finishing.benefit": "Biocompatibilidade Aprimorada",
     "capabilities.finishing.text": "Eletropolimento e passivação internos entregam superfícies lisas e resistentes à corrosão que atendem aos padrões ASTM para dispositivos implantáveis.",
-    
+
     // Equipment sections
     "capabilities.equipment.cnc.title": "Equipamento de Fabricação CNC de Última Geração",
     "capabilities.equipment.metrology.title": "Laboratório de Metrologia Avançado",
     "capabilities.equipment.sample.title": "Equipamento de Preparação de Amostras",
     "capabilities.equipment.finishing.title": "Acabamento de Superfície e Marcação",
-    
+
     // Equipment categories
     "equipment.category.swiss": "CNC de Última Geração",
     "equipment.category.grinder": "Retificadora de Ferramentas",
@@ -624,7 +677,7 @@ const translations = {
     "equipment.category.analysis": "Análise",
     "equipment.category.surface": "Tratamento de Superfície",
     "equipment.category.identification": "Identificação",
-    
+
     // Equipment names
     "equipment.name.polishing": "Máquina de Polimento",
     "equipment.name.cutting": "Máquina de Corte",
@@ -646,7 +699,7 @@ const translations = {
     "equipment.name.robodrill": "FANUC Robodrill",
     "equipment.name.lab": "Visão Geral do Laboratório",
     "equipment.name.zeiss": "ZEISS Contura",
-    
+
     "equipment.subtitle.surgical": "Instrumentos Médicos de Precisão",
     "equipment.subtitle.citizen": "Torno de Precisão Citizen",
     "equipment.subtitle.opticalcnc": "Sistema de Medição de Precisão",
@@ -664,7 +717,7 @@ const translations = {
     "equipment.subtitle.electropolish": "Sistema de Acabamento Superficial",
     "equipment.subtitle.lab": "Laboratório de Metrologia Completo",
     "equipment.subtitle.zeiss": "Máquina de Medição por Coordenadas 3D",
-    
+
     "equipment.specs.surgical.precision": "Fabricação de alta precisão",
     "equipment.specs.surgical.quality": "Controle de qualidade certificado",
     "equipment.specs.surgical.control": "Precisão dimensional garantida",
@@ -716,7 +769,7 @@ const translations = {
     "equipment.specs.zeiss.accuracy": "Precisão: 1.9 + L/300 μm",
     "equipment.specs.zeiss.measuring": "Faixa de medição: 700 x 1000 x 600mm",
     "equipment.specs.zeiss.automated": "Inspeção totalmente automatizada",
-    
+
     // Quality
     "quality.title": "Qualidade e Conformidade",
     "quality.intro": "Nosso compromisso com a excelência em qualidade é demonstrado através de certificações internacionais, capacidades avançadas de metrologia e controles rigorosos de processo.",
@@ -728,13 +781,13 @@ const translations = {
     "quality.metrology.text": "Equipamentos de medição de última geração, Hardness Vickers e sistemas de medição óptica verificam cada dimensão crítica.",
     "quality.electropolishing.title": "Tratamento de Superfície de Grau Médico",
     "quality.electropolishing.text": "Eletropolimento e passivação internos entregam superfícies lisas e resistentes à corrosão que atendem aos padrões ASTM para dispositivos implantáveis.",
-    
+
     // Culture
     "culture.title": "Nossa Cultura",
     "culture.cleanliness": "Limpeza, organização e desenvolvimento profissional contínuo são os fundamentos da nossa cultura.",
     "culture.quality": "Cultura de qualidade fortemente sedimentada em todo o ambiente de trabalho.",
     "culture.training": "Contínuas oportunidades para desenvolvimento e crescimento profissional.",
-    
+
     // Contact
     "contact.title": "Entre em contato conosco",
     "contact.subtitle": "Receba uma cotação personalizada",
@@ -752,11 +805,11 @@ const translations = {
     "contact.info.phone": "Telefone",
     "contact.info.address": "Endereço",
     "contact.location": "Indaiatuba / SP, Brasil",
-    
+
     // Footer
     "footer.certifications": "Certificações",
     "footer.rights": "Todos os direitos reservados.",
-    
+
     // Clients
     "clients.title": "Quem Atendemos",
     "clients.intro": "Fazemos parcerias com os principais fabricantes da área médica, instituições de saúde e parceiros OEM em todo o mundo para fornecer componentes e implantes de precisão que atendem aos mais altos padrões de qualidade.",
@@ -990,6 +1043,59 @@ const translations = {
     "leadCapture.form.processingButton": "Processando...",
     "leadCapture.form.submitButton": "Enviar Meu Relatório Detalhado",
     "leadCapture.form.privacyText": "Respeitamos sua privacidade. Suas informações são seguras e nunca serão compartilhadas.",
+
+    // OnePager
+    "onepager.hero.title": "Fabricação de Precisão para Dispositivos Médicos",
+    "onepager.hero.subtitle": "Implantes • Instrumentais Cirúrgicos • Componentes Médicos",
+    "onepager.stats.experience": "Anos de Experiência",
+    "onepager.stats.clients": "Clientes Ativos",
+    "onepager.stats.tolerance": "Tolerância",
+    "onepager.stats.traceability": "Rastreabilidade",
+    "onepager.why.title": "Por que a Lifetrek?",
+    "onepager.why.leadtime.label": "Lead Time Reduzido",
+    "onepager.why.leadtime.text": "De 90+ dias para 2-4 semanas",
+    "onepager.why.compliance.label": "Compliance Total",
+    "onepager.why.compliance.text": "ISO 13485, GMP, rastreabilidade ANVISA/FDA",
+    "onepager.why.nearshoring.label": "Nearshoring",
+    "onepager.why.nearshoring.text": "Reduza exposição cambial e riscos logísticos",
+    "onepager.why.metrology.label": "Metrologia Avançada",
+    "onepager.why.metrology.text": "ZEISS Contura + validação completa",
+    "onepager.products.title": "Produtos",
+    "onepager.products.spinal": "Espinhal",
+    "onepager.products.dental": "Dental",
+    "onepager.products.instrumental": "Instrumental",
+    "onepager.connect.title": "Conecte-se Conosco",
+    "onepager.factory.exterior": "Fábrica Própria • Indaiatuba, SP",
+    "onepager.cleanroom.title": "Sala Limpa ISO 7 Certificada",
+    "onepager.reception.title": "Recepção",
+    "onepager.footer.tagline": "Precisão que Transforma Vidas",
+    "onepager.footer.page": "Página",
+    "onepager.page2.title": "Equipamentos & Capacidades",
+    "onepager.machinepark.title": "Parque de Máquinas (R$ 1.5M+ Investidos)",
+    "onepager.machine.swiss5": "Swiss-Type CNC (5-Eixos)",
+    "onepager.machine.swissHigh": "Swiss-Type (Alta Capacidade)",
+    "onepager.machine.vertical": "Centro de Usinagem Vertical",
+    "onepager.machine.turning": "Centro de Torneamento",
+    "onepager.machine.cmm": "Laboratório de Metrologia CMM",
+    "onepager.machine.udi": "Rastreabilidade UDI",
+    "onepager.machine.automated": "Linha Automatizada",
+    "onepager.capabilities.machining": "Usinagem",
+    "onepager.capabilities.finishing": "Acabamento",
+    "onepager.capabilities.metrology": "Metrologia",
+    "onepager.capabilities.electropolish": "Eletropolimento automatizado",
+    "onepager.capabilities.passivation": "Passivação & Anodização",
+    "onepager.capabilities.laser": "Marcação a laser & Jateamento",
+    "onepager.capabilities.ultrasonic": "Limpeza Ultrassônica",
+    "onepager.capabilities.optical": "Comparador óptico",
+    "onepager.capabilities.olympus": "Microscopia Olympus",
+    "onepager.capabilities.hardness": "Dureza Vickers/Rockwell",
+    "onepager.materials.title": "Materiais Processados",
+    "onepager.materials.list": "Ti-6Al-4V (Grau 5), Ti CP (Grau 1-4), Aço Inox 316L/316LVM, CoCrMo, PEEK, UHMWPE",
+    "onepager.cta.title": "Pronto para Começar?",
+    "onepager.cta.subtitle": "Agende uma conversa técnica e receba uma proposta personalizada.",
+    "onepager.cta.location": "Indaiatuba, São Paulo",
+    "onepager.cta.industrial": "Distrito Industrial",
+    "onepager.button.download": "Baixar PDF",
   },
 };
 

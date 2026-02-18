@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Download, Linkedin, Facebook, Instagram, MapPin, Globe, Mail, Phone, CheckCircle2 } from "lucide-react";
+import { Download, Linkedin, Facebook, Instagram, MapPin, Globe, Mail, Phone, CheckCircle2, Languages } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo-optimized.webp";
 import isoLogo from "@/assets/certifications/iso.webp";
 import factoryExterior from "@/assets/facility/exterior-hero.webp";
@@ -32,6 +33,8 @@ import osseaNew from "@/assets/clients/ossea-new.jpg";
 import orthometricNew from "@/assets/clients/orthometric-new.png";
 
 const OnePager = () => {
+  const { t, language, setLanguage } = useLanguage();
+
   const handleDownloadPDF = () => {
     window.print();
   };
@@ -39,10 +42,30 @@ const OnePager = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-primary/10">
       {/* Download Button - Print only */}
-      <div className="fixed top-4 right-4 z-50 no-print">
-        <Button onClick={handleDownloadPDF} className="bg-primary hover:bg-primary-dark shadow-xl hover:shadow-2xl transition-all">
+      <div className="fixed top-4 right-4 z-50 no-print flex gap-2">
+        <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm border shadow-lg rounded-full p-1 mr-2">
+          <button
+            onClick={() => setLanguage("en")}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "en"
+              ? "bg-primary text-white"
+              : "text-slate-600 hover:text-primary"
+              }`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLanguage("pt")}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "pt"
+              ? "bg-primary text-white"
+              : "text-slate-600 hover:text-primary"
+              }`}
+          >
+            PT
+          </button>
+        </div>
+        <Button onClick={handleDownloadPDF} className="bg-primary hover:bg-primary-dark shadow-xl hover:shadow-2xl transition-all h-10 px-6 font-bold">
           <Download className="w-4 h-4 mr-2" />
-          Baixar PDF
+          {t("onepager.button.download")}
         </Button>
       </div>
 
@@ -83,10 +106,10 @@ const OnePager = () => {
         {/* Hero Title - Reduced MB */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold text-primary mb-2 tracking-tight">
-            Fabricação de Precisão para Dispositivos Médicos
+            {t("onepager.hero.title")}
           </h1>
           <p className="text-lg text-slate-500 font-medium">
-            Implantes • Instrumentais Cirúrgicos • Componentes Médicos
+            {t("onepager.hero.subtitle")}
           </p>
         </div>
 
@@ -94,19 +117,19 @@ const OnePager = () => {
         <div className="flex justify-between px-10 mb-10">
           <div className="text-center">
             <div className="text-4xl font-extrabold text-primary mb-1">30+</div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Anos de Experiência</div>
+            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">{t("onepager.stats.experience")}</div>
           </div>
           <div className="text-center">
             <div className="text-4xl font-extrabold text-green-600 mb-1">30+</div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Clientes Ativos</div>
+            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">{t("onepager.stats.clients")}</div>
           </div>
           <div className="text-center">
             <div className="text-4xl font-extrabold text-accent-orange mb-1">±0.005mm</div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Tolerância</div>
+            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">{t("onepager.stats.tolerance")}</div>
           </div>
           <div className="text-center">
             <div className="text-4xl font-extrabold text-primary mb-1">100%</div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Rastreabilidade</div>
+            <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">{t("onepager.stats.traceability")}</div>
           </div>
         </div>
 
@@ -118,14 +141,14 @@ const OnePager = () => {
             {/* Por que a Lifetrek? */}
             <div>
               <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-primary pl-3">
-                Por que a Lifetrek?
+                {t("onepager.why.title")}
               </h2>
               <ul className="space-y-3">
                 {[
-                  { label: "Lead Time Reduzido", text: "De 90+ dias para 2-4 semanas" },
-                  { label: "Compliance Total", text: "ISO 13485, GMP, rastreabilidade ANVISA/FDA" },
-                  { label: "Nearshoring", text: "Reduza exposição cambial e riscos logísticos" },
-                  { label: "Metrologia Avançada", text: "ZEISS Contura + validação completa" }
+                  { label: t("onepager.why.leadtime.label"), text: t("onepager.why.leadtime.text") },
+                  { label: t("onepager.why.compliance.label"), text: t("onepager.why.compliance.text") },
+                  { label: t("onepager.why.nearshoring.label"), text: t("onepager.why.nearshoring.text") },
+                  { label: t("onepager.why.metrology.label"), text: t("onepager.why.metrology.text") }
                 ].map((item, idx) => (
                   <li key={idx} className="flex gap-3 items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -141,26 +164,26 @@ const OnePager = () => {
             {/* Produtos */}
             <div>
               <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-green-600 pl-3">
-                Produtos
+                {t("onepager.products.title")}
               </h2>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center group">
                   <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                    <img src={spinalImplants} alt="Espinhal" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                    <img src={spinalImplants} alt={t("onepager.products.spinal")} className="max-h-full max-w-full object-contain mix-blend-multiply" />
                   </div>
-                  <span className="text-xs font-bold text-slate-700">Espinhal</span>
+                  <span className="text-xs font-bold text-slate-700">{t("onepager.products.spinal")}</span>
                 </div>
                 <div className="text-center group">
                   <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                    <img src={dentalImplants} alt="Dental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                    <img src={dentalImplants} alt={t("onepager.products.dental")} className="max-h-full max-w-full object-contain mix-blend-multiply" />
                   </div>
-                  <span className="text-xs font-bold text-slate-700">Dental</span>
+                  <span className="text-xs font-bold text-slate-700">{t("onepager.products.dental")}</span>
                 </div>
                 <div className="text-center group">
                   <div className="bg-slate-50 rounded-lg p-2 mb-2 h-20 flex items-center justify-center border border-slate-100 group-hover:border-primary/20 transition-colors">
-                    <img src={instrumental} alt="Instrumental" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                    <img src={instrumental} alt={t("onepager.products.instrumental")} className="max-h-full max-w-full object-contain mix-blend-multiply" />
                   </div>
-                  <span className="text-xs font-bold text-slate-700">Instrumental</span>
+                  <span className="text-xs font-bold text-slate-700">{t("onepager.products.instrumental")}</span>
                 </div>
               </div>
             </div>
@@ -168,7 +191,7 @@ const OnePager = () => {
             {/* Contato & Redes */}
             <div>
               <h2 className="text-xl font-bold text-primary mb-4 border-l-4 border-accent-orange pl-3">
-                Conecte-se Conosco
+                {t("onepager.connect.title")}
               </h2>
               <div className="flex flex-col gap-3">
                 <a href="https://www.lifetrek-medical.com" target="_blank" className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-lg border border-slate-100 hover:border-primary/30 transition-colors group no-underline text-slate-800">
@@ -196,29 +219,29 @@ const OnePager = () => {
             <div className="rounded-xl overflow-hidden shadow-lg border border-primary/20 bg-primary group relative">
               <img
                 src={factoryExterior}
-                alt="Fábrica Lifetrek"
+                alt={t("onepager.factory.exterior")}
                 className="w-full h-40 object-cover"
               />
               <div className="bg-primary text-white py-2 px-4 text-center text-sm font-bold">
-                Fábrica Própria • Indaiatuba, SP
+                {t("onepager.factory.exterior")}
               </div>
             </div>
 
             {/* CLEAN ROOM */}
             <div className="rounded-xl overflow-hidden shadow-lg border border-green-600/20 group">
-              <img src={cleanroomHero} alt="Sala Limpa" className="w-full h-40 object-cover" />
+              <img src={cleanroomHero} alt={t("onepager.cleanroom.title")} className="w-full h-40 object-cover" />
               <div className="bg-green-600 text-white py-2 px-4 text-center text-sm font-bold">
-                Sala Limpa ISO 7 Certificada
+                {t("onepager.cleanroom.title")}
               </div>
             </div>
 
             {/* RECEPTION - Fixed height to avoid cut */}
             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 group flex-1 bg-slate-100 flex flex-col h-full min-h-0">
               <div className="flex-1 relative overflow-hidden">
-                <img src={receptionHero} alt="Recepção" className="w-full h-full object-cover absolute inset-0" />
+                <img src={receptionHero} alt={t("onepager.reception.title")} className="w-full h-full object-cover absolute inset-0" />
               </div>
               <div className="bg-slate-100 text-slate-600 py-2 px-4 text-center text-sm font-bold border-t border-slate-200 z-10 relative">
-                Recepção
+                {t("onepager.reception.title")}
               </div>
             </div>
           </div>
@@ -228,8 +251,8 @@ const OnePager = () => {
         {/* Footer Page 1 */}
         <div className="mt-auto pt-8 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
           <span>© 2026 Lifetrek Medical</span>
-          <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
-          <span>Página 1/2</span>
+          <span className="text-primary font-bold">{t("onepager.footer.tagline")}</span>
+          <span>{t("onepager.footer.page")} 1/2</span>
         </div>
       </div>
 
@@ -243,24 +266,24 @@ const OnePager = () => {
         {/* Header Page 2 */}
         <div className="flex items-center justify-between mb-12 border-b-2 border-primary pb-6">
           <img src={logo} alt="Lifetrek Medical" className="h-10" />
-          <h2 className="text-xl font-bold text-primary">Equipamentos & Capacidades</h2>
+          <h2 className="text-xl font-bold text-primary">{t("onepager.page2.title")}</h2>
         </div>
 
         {/* Machine Park (Expanded) */}
         <div className="mb-8">
           <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-primary pl-3">
-            Parque de Máquinas (R$ 1.5M+ Investidos)
+            {t("onepager.machinepark.title")}
           </h3>
           <div className="grid grid-cols-4 gap-4">
             {[
-              { img: citizenL20X, title: "Citizen L20-X", sub: "Swiss-Type CNC (5-Axis)" },
-              { img: citizenL32, title: "Citizen L32", sub: "Swiss-Type (High Capacity)" },
-              { img: fanucRobodrill, title: "Fanuc Robodrill", sub: "Vertical Machining Center" },
-              { img: tornosG26, title: "Tornos G26", sub: "Swiss-Type CNC" },
-              { img: doosanNew, title: "Doosan LYNX", sub: "CNC Turning Center" },
-              { img: zeissContura, title: "Zeiss Contura", sub: "CMM Metrology Lab" },
-              { img: laserMarking, title: "Laser Marking", sub: "Rastreabilidade UDI" },
-              { img: electropolishLine, title: "Eletropolimento", sub: "Linha Automatizada" }
+              { img: citizenL20X, title: "Citizen L20-X", sub: t("onepager.machine.swiss5") },
+              { img: citizenL32, title: "Citizen L32", sub: t("onepager.machine.swissHigh") },
+              { img: fanucRobodrill, title: "Fanuc Robodrill", sub: t("onepager.machine.vertical") },
+              { img: tornosG26, title: "Tornos G26", sub: t("onepager.machine.swiss5") },
+              { img: doosanNew, title: "Doosan LYNX", sub: t("onepager.machine.turning") },
+              { img: zeissContura, title: "Zeiss Contura", sub: t("onepager.machine.cmm") },
+              { img: laserMarking, title: "Laser Marking", sub: t("onepager.machine.udi") },
+              { img: electropolishLine, title: "Eletropolimento", sub: t("onepager.machine.automated") }
             ].map((m, i) => (
               <div key={i} className="bg-white border rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center">
                 <div className="h-28 w-full mb-3 flex items-center justify-center p-2 bg-slate-50 rounded-lg overflow-hidden">
@@ -276,11 +299,11 @@ const OnePager = () => {
         {/* Capacidades Técnicas */}
         <div className="mb-12">
           <h3 className="text-xl font-bold text-primary mb-6 border-l-4 border-green-600 pl-3">
-            Capacidades Técnicas
+            {t("assessment.steps.projectDetails")}
           </h3>
           <div className="grid grid-cols-3 gap-10">
             <div>
-              <h4 className="text-lg font-bold text-green-600 mb-4">Usinagem</h4>
+              <h4 className="text-lg font-bold text-green-600 mb-4">{t("onepager.capabilities.machining")}</h4>
               <ul className="text-sm space-y-2 text-slate-600 font-medium">
                 <li>• Swiss-Type (Citizen L20, L20X)</li>
                 <li>• Multi-Axis (Citizen M32)</li>
@@ -289,21 +312,21 @@ const OnePager = () => {
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-bold text-green-600 mb-4">Acabamento</h4>
+              <h4 className="text-lg font-bold text-green-600 mb-4">{t("onepager.capabilities.finishing")}</h4>
               <ul className="text-sm space-y-2 text-slate-600 font-medium">
-                <li>• Eletropolimento automatizado</li>
-                <li>• Passivação & Anodização</li>
-                <li>• Marcação a laser & Jateamento</li>
-                <li>• Limpeza Ultrassônica</li>
+                <li>• {t("onepager.capabilities.electropolish")}</li>
+                <li>• {t("onepager.capabilities.passivation")}</li>
+                <li>• {t("onepager.capabilities.laser")}</li>
+                <li>• {t("onepager.capabilities.ultrasonic")}</li>
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-bold text-green-600 mb-4">Metrologia</h4>
+              <h4 className="text-lg font-bold text-green-600 mb-4">{t("onepager.capabilities.metrology")}</h4>
               <ul className="text-sm space-y-2 text-slate-600 font-medium">
                 <li>• CMM ZEISS Contura</li>
-                <li>• Comparador óptico</li>
-                <li>• Microscopia Olympus</li>
-                <li>• Dureza Vickers/Rockwell</li>
+                <li>• {t("onepager.capabilities.optical")}</li>
+                <li>• {t("onepager.capabilities.olympus")}</li>
+                <li>• {t("onepager.capabilities.hardness")}</li>
               </ul>
             </div>
           </div>
@@ -311,9 +334,9 @@ const OnePager = () => {
 
         {/* Materials Row */}
         <div className="mb-12 bg-slate-50 p-6 rounded-xl border border-slate-100">
-          <h4 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">Materiais Processados</h4>
+          <h4 className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">{t("onepager.materials.title")}</h4>
           <div className="flex flex-wrap gap-3">
-            {["Ti-6Al-4V (Grau 5)", "Ti CP (Grau 1-4)", "Aço Inox 316L/316LVM", "CoCrMo", "PEEK", "UHMWPE"].map((mat, i) => (
+            {t("onepager.materials.list").split(", ").map((mat, i) => (
               <span key={i} className="px-4 py-1.5 bg-white border border-slate-200 rounded text-xs font-bold text-slate-700 shadow-sm">
                 {mat}
               </span>
@@ -329,9 +352,9 @@ const OnePager = () => {
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
             <div className="lg:col-span-1">
-              <h3 className="text-2xl font-bold mb-2">Pronto para Começar?</h3>
+              <h3 className="text-2xl font-bold mb-2">{t("onepager.cta.title")}</h3>
               <p className="text-primary-foreground/80 text-sm mb-6 max-w-xs">
-                Agende uma conversa técnica e receba uma proposta personalizada.
+                {t("onepager.cta.subtitle")}
               </p>
               <div className="space-y-3">
                 <a href="mailto:vmartin@lifetrek-medical.com" className="flex items-center gap-3 hover:text-accent-orange transition-colors group">
@@ -353,8 +376,8 @@ const OnePager = () => {
               <div className="flex items-start gap-3 mb-4">
                 <MapPin className="w-5 h-5 text-accent-orange mt-1" />
                 <div>
-                  <div className="font-bold text-sm">Indaiatuba, São Paulo</div>
-                  <div className="text-xs opacity-70">Distrito Industrial</div>
+                  <div className="font-bold text-sm">{t("onepager.cta.location")}</div>
+                  <div className="text-xs opacity-70">{t("onepager.cta.industrial")}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -385,8 +408,8 @@ const OnePager = () => {
         {/* Footer Page 2 */}
         <div className="mt-auto pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400 font-medium">
           <span>© 2026 Lifetrek Medical</span>
-          <span className="text-primary font-bold">Precisão que Transforma Vidas</span>
-          <span>Página 2/2</span>
+          <span className="text-primary font-bold">{t("onepager.footer.tagline")}</span>
+          <span>{t("onepager.footer.page")} 2/2</span>
         </div>
 
       </div>

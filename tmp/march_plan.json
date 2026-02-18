@@ -1,0 +1,82 @@
+[
+    {
+        "topic": "Custo da Não-Conformidade",
+        "targetAudience": "Qualidade, Operações, Compras",
+        "painPoint": "Retrabalho, lotes rejeitados, atraso regulatório",
+        "desiredOutcome": "Mostrar o custo oculto de falhas de qualidade",
+        "ctaAction": "Comente 'QUALIDADE' para receber checklist de prevenção",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-03"
+    },
+    {
+        "topic": "Checklist de Validação ISO 13485",
+        "targetAudience": "Gestores de Qualidade",
+        "painPoint": "Auditorias inconsistentes e fornecedores frágeis",
+        "desiredOutcome": "Posicionar Lifetrek como referência ISO 13485",
+        "ctaAction": "Link na bio para baixar o checklist",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-05"
+    },
+    {
+        "topic": "Swiss Turning: Tolerâncias Reais",
+        "targetAudience": "Eng. de Produção e P&D",
+        "painPoint": "Tolerâncias apertadas em peças finas e longas",
+        "desiredOutcome": "Educar sobre usinagem suíça e precisão real",
+        "ctaAction": "DM 'SWISS' para ver exemplos de tolerâncias",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-10"
+    },
+    {
+        "topic": "Time-to-Market em 30 Dias",
+        "targetAudience": "Gerentes de Produto, Startups MedTech",
+        "painPoint": "Atrasos de protótipo para produção",
+        "desiredOutcome": "Demonstrar agilidade e previsibilidade",
+        "ctaAction": "Agende uma revisão de escopo",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-12"
+    },
+    {
+        "topic": "DFM: O Fornecedor Como Co-Engenheiro",
+        "targetAudience": "P&D, Engenharia",
+        "painPoint": "Falta de feedback técnico no design",
+        "desiredOutcome": "Mostrar colaboração técnica e co-engenharia",
+        "ctaAction": "Comente 'DFM' para nosso guia de revisão",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-17"
+    },
+    {
+        "topic": "Metrologia ZEISS e Evidência de Qualidade",
+        "targetAudience": "Qualidade, Regulatórios",
+        "painPoint": "Falta de rastreabilidade e evidência dimensional",
+        "desiredOutcome": "Provar controle e validação rigorosa",
+        "ctaAction": "Peça um sample report dimensional",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-19"
+    },
+    {
+        "topic": "Resiliência da Cadeia Local",
+        "targetAudience": "Supply Chain, Diretores",
+        "painPoint": "Dependência de importação e riscos logísticos",
+        "desiredOutcome": "Mostrar segurança da produção local",
+        "ctaAction": "DM 'LOCAL' para mapa de capacidade",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-24"
+    },
+    {
+        "topic": "Importação vs Local: TCO Atualizado",
+        "targetAudience": "Procurement, Financeiro",
+        "painPoint": "Custos ocultos e capital parado",
+        "desiredOutcome": "Comparativo objetivo de custos",
+        "ctaAction": "Comente 'TCO' e enviamos o comparativo",
+        "postType": "value",
+        "format": "carousel",
+        "scheduledDate": "2026-03-26"
+    }
+]
