@@ -119,19 +119,6 @@ export const AIChatbot = () => {
     }
   };
 
-  // Don't render chat window on non-landing pages
-  if (!isLandingPage) {
-    return (
-      <Button
-        onClick={() => toast.info("Chat disponível apenas na página inicial")}
-        size="lg"
-        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg transition-all duration-300 z-50 bg-primary/50 cursor-not-allowed opacity-60"
-        aria-label="Chat disponível na página inicial"
-      >
-        <MessageCircle className="h-7 w-7" />
-      </Button>
-    );
-  }
 
   return (
     <>
@@ -181,8 +168,8 @@ export const AIChatbot = () => {
                 <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground"
                       }`}
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
