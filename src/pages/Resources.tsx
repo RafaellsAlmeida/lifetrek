@@ -45,11 +45,14 @@ export default function Resources() {
 
         /* 
            User request: "Deixe so o 3d + CNC e o roadmap e o DFM Checklist por enquanto."
-           Filtering logic:
+           Filtering logic: Case-insensitive and inclusive
         */
+        const titleLower = resource.title.toLowerCase();
         const isApproved =
-            resource.title.toLowerCase().includes("dfm") ||
-            resource.title.toLowerCase().includes("roadmap");
+            titleLower.includes("dfm") ||
+            titleLower.includes("roadmap") ||
+            titleLower.includes("3d") ||
+            titleLower.includes("cnc");
 
         return matchesSearch && matchesType && isApproved;
     });
