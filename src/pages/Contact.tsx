@@ -271,7 +271,7 @@ export default function Contact() {
                     Precisa de atendimento personalizado ou urgente?
                   </p>
                   <a
-                    href="https://wa.me/5511945336226?text=Olá! Gostaria de mais informações sobre os serviços da Lifetrek Medical."
+                    href="https://wa.me/551939367193?text=Olá! Gostaria de mais informações sobre os serviços da Lifetrek Medical."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[#25D366] hover:bg-[#20BA5C] text-white font-medium transition-colors"
@@ -300,20 +300,20 @@ export default function Contact() {
                 <div className="border-l-4 border-primary pl-6">
                   <h3 className="font-bold text-lg mb-2">{t("contact.info.email")}</h3>
                   <a
-                    href="mailto:vmartin@lifetrek-medical.com"
+                    href="mailto:contato@lifetrek-medical.com"
                     className="text-muted-foreground text-lg hover:text-primary transition-colors"
                   >
-                    vmartin@lifetrek-medical.com
+                    contato@lifetrek-medical.com
                   </a>
                 </div>
 
                 <div className="border-l-4 border-accent pl-6">
                   <h3 className="font-bold text-lg mb-2">{t("contact.info.phone")}</h3>
                   <a
-                    href="tel:+5511945336226"
+                    href="tel:+551939367193"
                     className="text-muted-foreground text-lg hover:text-primary transition-colors"
                   >
-                    +55 11 94533-6226
+                    +55 19 3936-7193
                   </a>
                 </div>
 

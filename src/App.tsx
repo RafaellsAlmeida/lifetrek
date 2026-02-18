@@ -111,6 +111,8 @@ const App = () => (
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/resources/fatigue-validation-guide" element={<FatigueValidationGuide />} />
                   <Route path="/resources/:slug" element={<ResourceDetail />} />
+                  <Route path="/recursos" element={<Resources />} />
+                  <Route path="/recursos/:slug" element={<ResourceDetail />} />
                   <Route path="/blog/:slug" element={<BlogPostDetails />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>

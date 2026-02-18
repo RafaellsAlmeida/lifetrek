@@ -28,13 +28,13 @@ export const Footer = () => {
             <h3 className="font-bold mb-4 text-foreground">{t("nav.contact")}</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div>
-                <a href="mailto:vmartin@lifetrek-medical.com" className="hover:text-primary transition-colors block">
-                  vmartin@lifetrek-medical.com
+                <a href="mailto:contato@lifetrek-medical.com" className="hover:text-primary transition-colors block">
+                  contato@lifetrek-medical.com
                 </a>
               </div>
               <div>
-                <a href="tel:+5511945336226" className="hover:text-primary transition-colors block">
-                  +55 11 94533-6226
+                <a href="tel:+551939367193" className="hover:text-primary transition-colors block">
+                  +55 19 3936-7193
                 </a>
               </div>
               <div>
