@@ -4,7 +4,7 @@ This is the mirrored repository for the Lifetrek Medical application.
 
 ## Project Info
 
-**URL**: https://lifetrek-mirror.lovable.app/
+**URL**: https://lifetrek-medical.com
 
 ## Setup & Development
 
