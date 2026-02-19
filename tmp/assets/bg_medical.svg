@@ -1,0 +1,17 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#004F8F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#001a33;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="hexagons" width="50" height="86.6" patternUnits="userSpaceOnUse">
+      <path d="M25 0 L50 14.4 L50 43.3 L25 57.7 L0 43.3 L0 14.4 Z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#grad)" />
+  <rect width="1080" height="1080" fill="url(#hexagons)" />
+  
+  <!-- Subtle tech accents -->
+  <circle cx="900" cy="200" r="300" fill="radial-gradient(circle, rgba(74, 222, 128, 0.1) 0%, transparent 70%)" />
+  <circle cx="100" cy="900" r="400" fill="radial-gradient(circle, rgba(0, 79, 143, 0.2) 0%, transparent 70%)" />
+</svg>
