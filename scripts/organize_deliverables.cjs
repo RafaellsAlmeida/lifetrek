@@ -25,35 +25,46 @@ const files = fs.readdirSync(BRAIN_DIR).filter(f => f.includes('_slide_') && f.e
 
 console.log(`Found ${files.length} slide images.`);
 
-files.forEach(file => {
-    // Expected format: topic_slide_N_timestamp.png
-    // e.g. cnc_slide_1_1771461933618.png
 
+// Group files by key "topic_slide_N" to find the latest version
+const latestFiles = {};
+
+files.forEach(file => {
     // Find which topic matches the start of the filename
     const topic = topics.find(t => file.startsWith(t + '_'));
-
-    if (!topic) {
-        console.warn(`Could not identify topic for file: ${file}`);
-        return;
-    }
+    if (!topic) return;
 
     // Extract slide number
-    // Split by '_' -> [topic, 'slide', '1', 'timestamp.png']
     const parts = file.split('_');
     const slideIndex = parts.indexOf('slide');
-    if (slideIndex === -1 || parts.length <= slideIndex + 1) {
-        console.warn(`Could not parse slide number: ${file}`);
-        return;
-    }
-
+    if (slideIndex === -1 || parts.length <= slideIndex + 1) return;
     const slideNum = parts[slideIndex + 1];
 
-    const destPath = path.join(DEST_DIR, topic, `slide_${slideNum}.png`);
+    // Extract timestamp (last part before extension)
+    const lastPart = parts[parts.length - 1];
+    const timestamp = parseInt(lastPart.split('.')[0]);
 
-    // Copy file (don't move, to keep artifact reference if needed, or move to clean up? Copy is safer)
-    // User asked to "save those locally", copy is fine.
-    fs.copyFileSync(path.join(BRAIN_DIR, file), destPath);
-    console.log(`Saved: ${topic}/slide_${slideNum}.png`);
+    if (isNaN(timestamp)) return;
+
+    const key = `${topic}_slide_${slideNum}`;
+
+    if (!latestFiles[key] || timestamp > latestFiles[key].timestamp) {
+        latestFiles[key] = {
+            file: file,
+            topic: topic,
+            slideNum: slideNum,
+            timestamp: timestamp
+        };
+    }
 });
+
+console.log(`Identified ${Object.keys(latestFiles).length} unique latest slides.`);
+
+Object.values(latestFiles).forEach(item => {
+    const destPath = path.join(DEST_DIR, item.topic, `slide_${item.slideNum}.png`);
+    fs.copyFileSync(path.join(BRAIN_DIR, item.file), destPath);
+    console.log(`Saved: ${item.topic}/slide_${item.slideNum}.png (from ${item.file})`);
+});
+
 
 console.log('Organization complete.');
