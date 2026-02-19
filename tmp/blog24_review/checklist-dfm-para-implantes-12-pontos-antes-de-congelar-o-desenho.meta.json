@@ -1,0 +1,120 @@
+{
+  "id": "9e060afd-3a81-4153-9af6-9655e78c2dc2",
+  "title": "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho",
+  "slug": "checklist-dfm-para-implantes-12-pontos-antes-de-congelar-o-desenho",
+  "excerpt": "A metodologia DFM (Design for Manufacturing) é crucial na produção de implantes e instrumentais médicos. Um checklist bem estruturado garante a qualidade, reduz custos e acelera o time-to-market. Descubra como aplicar o DFM de forma eficaz em sua empresa.",
+  "seo_title": "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o",
+  "seo_description": "Entenda checklist dfm para implantes: 12 pontos antes de congelar o desenho com foco em engenharia, qualidade e operação para decisões mais seguras em dispos...",
+  "keywords": [
+    "checklist DFM",
+    "implantes médicos",
+    "design for manufacturing",
+    "engenharia"
+  ],
+  "created_at": "2026-02-12T22:31:50.209107+00:00",
+  "updated_at": "2026-02-12T22:31:50.209107+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "resource_optional",
+    "strategy": [
+      {
+        "angle": "Proactive DFM reduces costs and time-to-market.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Introduction: The High Cost of Late-Stage Design Changes",
+            "key_points": "Explain the challenges and importance of DFM."
+          },
+          {
+            "tag": "h2",
+            "title": "Checklist DFM para Implantes: 12 Pontos Essenciais",
+            "key_points": "Present the 12 DFM checklist items with detailed explanations."
+          },
+          {
+            "tag": "h3",
+            "title": "Material Selection Considerations",
+            "key_points": "Discuss material properties, biocompatibility, and sterilization compatibility."
+          },
+          {
+            "tag": "h3",
+            "title": "Tolerance Analysis and GD&T",
+            "key_points": "Highlight the importance of tolerance analysis and GD&T for functional performance."
+          },
+          {
+            "tag": "h3",
+            "title": "Manufacturing Process Selection",
+            "key_points": "Discuss considerations for machining, casting, and additive manufacturing."
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study: Optimizing Lifetrek Medical Implants",
+            "key_points": "Share real-world example Lifetrek benefits. Do not mention Lifetrek Medical."
+          },
+          {
+            "tag": "h3",
+            "title": "Streamlining Production and Improving Quality",
+            "key_points": "Quantify benefits, such as reduced defects. Do not mention Lifetrek Medical."
+          },
+          {
+            "tag": "h2",
+            "title": "Leveraging DFM for Regulatory Compliance",
+            "key_points": "Mention FDA guidelines (cite reference if applicable)."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Implementing a Robust DFM Process",
+            "key_points": "Summarize the benefits of proactive DFM. Avoid direct calls to action (e.g., contact Lifetrek Medical)."
+          }
+        ],
+        "target_persona": "Engineering Manager at a medical device manufacturer.",
+        "visual_concept": "Close-up of a precision-engineered implant under inspection."
+      }
+    ],
+    "icp_primary": "MI",
+    "target_date": "2026-03-07T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "CM",
+      "OD"
+    ],
+    "expected_topic": "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho",
+    "pillar_keyword": "DFM para dispositivos médicos",
+    "content_cluster": "dfm_engineering",
+    "entity_keywords": [
+      "design for manufacturing",
+      "usinagem CNC médica",
+      "tolerâncias funcionais",
+      "handoff engenharia produção"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:56.805Z",
+    "source_linkedin": {
+      "id": "eae08c83-4549-482b-8d04-3cf820a6aafd",
+      "topic": "Are you missing a step? Checklist DFM para Implantes e Instrumentais explained.",
+      "folder": "are-you-missing-a-step-checklist-dfm-para-implantes-e-instrumentais-explained--eae08c83",
+      "status": "archived",
+      "caption_excerpt": "Draft created for resource promotion: Checklist DFM para Implantes e Instrumentais"
+    },
+    "title_aligned_at": "2026-02-12T22:40:43.818Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:46.595Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:44.653Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:16.365Z",
+    "marketing_assets_plan_id": "ma-dfm-01",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:01.543Z"
+  }
+}

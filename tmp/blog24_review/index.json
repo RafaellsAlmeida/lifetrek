@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "3-erros-que-fazem-seu-implante-falhar-no-teste-de-fadiga",
+    "title": "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga",
+    "id": "5cb0657f-f6d7-4cc9-85c1-1d25750271ab"
+  },
+  {
+    "slug": "validacao-de-fadiga-em-implantes-do-cad-ao-ensaio-dinamico",
+    "title": "Validação de Fadiga em Implantes: do CAD ao Ensaio Dinâmico",
+    "id": "b06f1cc4-94bc-4b1a-b669-68423a63c950"
+  },
+  {
+    "slug": "como-reduzir-iteracoes-caras-em-testes-de-fadiga-de-implantes",
+    "title": "Como Reduzir Iterações Caras em Testes de Fadiga de Implantes",
+    "id": "c7a14ea8-873c-4661-b75e-d3907e014f24"
+  },
+  {
+    "slug": "geometria-rugosidade-e-transicoes-o-que-mais-impacta-a-fadiga",
+    "title": "Geometria, Rugosidade e Transições: o que mais impacta a fadiga",
+    "id": "c0ea8876-0428-4dab-938d-5c22e23149ef"
+  },
+  {
+    "slug": "checklist-dfm-para-implantes-12-pontos-antes-de-congelar-o-desenho",
+    "title": "Checklist DFM para Implantes: 12 Pontos Antes de Congelar o Desenho",
+    "id": "9e060afd-3a81-4153-9af6-9655e78c2dc2"
+  },
+  {
+    "slug": "dfm-sem-comprometer-performance-como-cortar-custo-com-seguranca",
+    "title": "DFM sem Comprometer Performance: como cortar custo com segurança",
+    "id": "4cb32972-7d74-4f3e-a289-46b892e8a511"
+  },
+  {
+    "slug": "handoff-de-engenharia-para-producao-sem-retrabalho-em-dispositivos-medicos",
+    "title": "Handoff de Engenharia para Produção sem Retrabalho em Dispositivos Médicos",
+    "id": "5fbc1ac9-a185-4208-b56e-403919d68786"
+  },
+  {
+    "slug": "tolerancias-funcionais-como-revisar-desenho-para-usinagem-de-precisao",
+    "title": "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão",
+    "id": "8a8708e7-9c75-42b1-8a76-32f05a6b001f"
+  },
+  {
+    "slug": "zero-defect-na-pratica-metrologia-que-sustenta-a-liberacao-de-lote",
+    "title": "Zero-Defect na Prática: metrologia que sustenta a liberação de lote",
+    "id": "1ca60879-3390-4746-a170-2a300a894a26"
+  },
+  {
+    "slug": "rastreabilidade-total-em-dispositivos-medicos-material-processo-e-inspecao",
+    "title": "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção",
+    "id": "02401daf-65e5-4031-a029-c7adba546b87"
+  },
+  {
+    "slug": "plano-de-controle-com-cmm-como-reduzir-risco-dimensional-em-features-criticas",
+    "title": "Plano de Controle com CMM: como reduzir risco dimensional em features críticas",
+    "id": "e19332d1-46aa-422c-a309-d6390fc06dea"
+  },
+  {
+    "slug": "capa-orientado-a-processo-prevenindo-recorrencia-de-nao-conformidades",
+    "title": "CAPA orientado a processo: prevenindo recorrência de não conformidades",
+    "id": "bd00ddb1-4ebe-4a97-9c45-cd3b6324ed21"
+  },
+  {
+    "slug": "print-to-pack-fluxo-integrado-da-usinagem-a-embalagem-esteril",
+    "title": "Print to Pack: fluxo integrado da usinagem à embalagem estéril",
+    "id": "440c160d-ac87-4559-8bb7-aca753280a06"
+  },
+  {
+    "slug": "quando-internalizar-acabamento-limpeza-e-embalagem-em-projetos-medicos",
+    "title": "Quando internalizar acabamento, limpeza e embalagem em projetos médicos",
+    "id": "1691abe8-4638-45e8-8ea2-f135c691ed34"
+  },
+  {
+    "slug": "iso-7-na-pratica-pontos-de-controle-para-montagem-e-preparacao-de-kits",
+    "title": "ISO 7 na prática: pontos de controle para montagem e preparação de kits",
+    "id": "2a7a09d7-4502-4410-b651-0c03b8c80d4c"
+  },
+  {
+    "slug": "plano-piloto-de-90-dias-migrando-skus-criticos-para-producao-local",
+    "title": "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local",
+    "id": "6084cd0e-0e8c-426e-b8c4-616718118e10"
+  },
+  {
+    "slug": "quais-skus-migrar-primeiro-metodo-pratico-para-reduzir-risco-de-abastecimento",
+    "title": "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento",
+    "id": "50bef788-25d3-4a79-b598-0b03044a3583"
+  },
+  {
+    "slug": "governanca-da-transicao-local-kpis-que-importam-no-primeiro-trimestre",
+    "title": "Governança da transição local: KPIs que importam no primeiro trimestre",
+    "id": "835df3b5-4119-47c3-a124-ce816c136ac6"
+  },
+  {
+    "slug": "modelo-de-qualificacao-tecnica-para-parceiro-local-em-manufatura-medica",
+    "title": "Modelo de qualificação técnica para parceiro local em manufatura médica",
+    "id": "161f0f48-2d68-4cad-9720-5c3371af4e13"
+  },
+  {
+    "slug": "the-precision-partner-na-pratica-como-a-lifetrek-opera-com-oems",
+    "title": "The Precision Partner na prática: como a Lifetrek opera com OEMs",
+    "id": "a6289c9a-8a57-405a-ac94-50d8f5d07624"
+  },
+  {
+    "slug": "quem-somos-em-termos-tecnicos-processo-etica-e-compromisso-com-qualidade",
+    "title": "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade",
+    "id": "d28b63f6-9ec7-4a9b-b7df-573771869bf4"
+  },
+  {
+    "slug": "expansao-de-5-000m-como-aumentar-capacidade-sem-perder-controle",
+    "title": "Expansão de 5.000m²: como aumentar capacidade sem perder controle",
+    "id": "72d69ac1-ccda-460c-8f81-5ba6562ec3f4"
+  },
+  {
+    "slug": "launch-com-metodo-readiness-tecnico-para-escalar-producao-medica",
+    "title": "Launch com método: readiness técnico para escalar produção médica",
+    "id": "19a34de3-7dc5-4e1e-b746-5a2d8f88b073"
+  },
+  {
+    "slug": "single-source-partnership-quando-consolidar-fornecedores-faz-sentido",
+    "title": "Single-source partnership: quando consolidar fornecedores faz sentido",
+    "id": "0f103fd7-6b55-4eeb-9b76-cb01e7af4f7c"
+  }
+]

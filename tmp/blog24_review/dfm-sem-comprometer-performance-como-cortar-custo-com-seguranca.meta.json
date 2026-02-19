@@ -1,0 +1,105 @@
+{
+  "id": "4cb32972-7d74-4f3e-a289-46b892e8a511",
+  "title": "DFM sem Comprometer Performance: como cortar custo com segurança",
+  "slug": "dfm-sem-comprometer-performance-como-cortar-custo-com-seguranca",
+  "excerpt": "O Design for Manufacturing (DFM) é crucial na fabricação de implantes e instrumentais médicos. Este artigo explora um checklist completo para otimizar processos, reduzir custos e garantir a qualidade.",
+  "seo_title": "DFM sem Comprometer Performance: como cortar custo com segur",
+  "seo_description": "Entenda dfm sem comprometer performance: como cortar custo com segurança com foco em engenharia, qualidade e operação para decisões mais seguras em dispositi...",
+  "keywords": [
+    "DFM",
+    "custo de manufatura",
+    "desempenho do implante",
+    "engenharia médica"
+  ],
+  "created_at": "2026-02-12T22:32:13.694912+00:00",
+  "updated_at": "2026-02-12T22:32:13.694912+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "diagnostico",
+    "strategy": [
+      {
+        "angle": "Mostrar como o Design for Manufacturing (DFM) pode ser implementado estrategicamente para reduzir custos *sem* impactar negativamente a performance do produto ou a qualidade, destacando um processo consultivo.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Introdução: O Que é DFM e Por Que Ele é Crucial?",
+            "key_points": "Definição concisa de DFM; Benefícios (redução de custos, melhoria da qualidade, otimização de processos); Importância do DFM no contexto atual da indústria."
+          },
+          {
+            "tag": "h2",
+            "title": "Os 4 Pilares do DFM para Redução de Custos Segura",
+            "key_points": "Mapeamento de todos os processos e produtos. Análise da concorrência e da regulação. Planejar e executar testes e simulações. Otimização dos recursos e da produção."
+          },
+          {
+            "tag": "h2",
+            "title": "Checklist Prático: Implementando DFM na Sua Fábrica",
+            "key_points": "Passos detalhados e acionáveis para implementar o DFM; Ferramentas e tecnologias úteis; Exemplos de sucesso (sem mencionar clientes específicos). "
+          },
+          {
+            "tag": "h2",
+            "title": "Mitos Comuns Sobre DFM e Por Que Ignorá-los",
+            "key_points": "Desmistificar equívocos sobre o DFM (complexidade, custo inicial, tempo de implementação); Demonstrar o ROI a longo prazo. Mostrar como o DFM se integra às melhores práticas."
+          },
+          {
+            "tag": "h2",
+            "title": "Medindo o Sucesso: KPIs Essenciais para Avaliar o DFM",
+            "key_points": "Identificar KPIs relevantes (custos de produção, taxas de defeito, tempo de ciclo); Métodos de coleta e análise de dados; Dicas para monitoramento contínuo."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusão: DFM Como um Investimento Estratégico",
+            "key_points": "Reforçar a importância do DFM para a competitividade e o crescimento sustentável; Incentivar os leitores a explorar o DFM em suas operações. Próximos passos e materiais complementares."
+          }
+        ],
+        "target_persona": "Engenheiros de Produção, Gerentes de Operações, e Diretores de Engenharia em indústrias de construção e manufatura.",
+        "visual_concept": "Imagem clean, talvez um diagrama de processo ou um fluxograma sutilmente representando as etapas do DFM, sem texto sobreposto."
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-03-12T17:00:00.000Z",
+    "funnel_stage": "BOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "DFM sem Comprometer Performance: como cortar custo com segurança",
+    "pillar_keyword": "DFM para dispositivos médicos",
+    "content_cluster": "dfm_engineering",
+    "entity_keywords": [
+      "design for manufacturing",
+      "usinagem CNC médica",
+      "tolerâncias funcionais",
+      "handoff engenharia produção"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:56.605Z",
+    "source_linkedin": {
+      "id": "eae08c83-4549-482b-8d04-3cf820a6aafd",
+      "topic": "Are you missing a step? Checklist DFM para Implantes e Instrumentais explained.",
+      "folder": "are-you-missing-a-step-checklist-dfm-para-implantes-e-instrumentais-explained--eae08c83",
+      "status": "archived",
+      "caption_excerpt": "Draft created for resource promotion: Checklist DFM para Implantes e Instrumentais"
+    },
+    "title_aligned_at": "2026-02-12T22:40:43.685Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:46.746Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:44.845Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:16.503Z",
+    "marketing_assets_plan_id": "ma-dfm-02",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:01.400Z"
+  }
+}

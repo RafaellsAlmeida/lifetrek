@@ -44,28 +44,91 @@ async function run() {
 
 
             const lowerTitle = (carousel.topic || '').toLowerCase();
+
+            // Default asset list
+            let assetImages = ['product-display.png'];
+
             if (lowerTitle.includes('não-conformidade')) {
-                assetFilename = 'surgical-parts-optimized.webp';
+                assetImages = [
+                    'surgical-parts-optimized.webp',
+                    'surgical-instruments-measuring.png',
+                    'medical-screw-hero.webp',
+                    'surgical-instruments-new.webp',
+                    'surgical-parts-optimized.webp'
+                ];
             } else if (lowerTitle.includes('iso 13485')) {
-                assetFilename = 'surgical-instruments-measuring.png';
+                assetImages = [
+                    'surgical-instruments-measuring.png',
+                    'measuring-tools-optimized.webp',
+                    'laser-marking.webp',
+                    'dental-components-correct.webp',
+                    'surgical-instruments-set-2.png'
+                ];
             } else if (lowerTitle.includes('swiss turning')) {
-                assetFilename = 'citizen-l20.webp';
-                assetFolder = equipmentPath;
+                assetImages = [
+                    'citizen-l20.webp',
+                    'tornos-gt26.webp',
+                    'citizen-l32.webp',
+                    'citizen-new.png',
+                    'tornos-g13.png'
+                ];
             } else if (lowerTitle.includes('time-to-market')) {
-                assetFilename = 'product-display.png';
+                assetImages = [
+                    'medical-screw-hero.webp',
+                    'spinal-implants-optimized.webp',
+                    'surgical-instruments-new.webp',
+                    'dental-implants-diagram.webp',
+                    'product-display.png'
+                ];
             } else if (lowerTitle.includes('dfm')) {
-                assetFilename = 'medical-implants-diagram-enhanced.webp';
+                assetImages = [
+                    'medical-implants-diagram-enhanced.webp',
+                    'dental-implants-diagram.webp',
+                    'medical-screw-hero.webp',
+                    'orthopedic-screws-optimized.webp',
+                    'medical-implants-diagram.webp'
+                ];
             } else if (lowerTitle.includes('zeiss')) {
-                assetFilename = 'measuring-tools-optimized.webp';
+                assetImages = [
+                    'measuring-tools-optimized.webp',
+                    'surgical-instruments-measuring.png',
+                    'micro-instruments-optimized.webp',
+                    'dental-brocas.png',
+                    'measuring-tools.jpg'
+                ];
             } else if (lowerTitle.includes('resiliência') || lowerTitle.includes('local')) {
-                assetFilename = 'citizen-new.png';
-                assetFolder = equipmentPath;
+                assetImages = [
+                    'citizen-new.png',
+                    'surgical-instruments-set.png',
+                    'orthopedic-components-2.png',
+                    'surgical-drills.png',
+                    'product-applications.png'
+                ];
             } else if (lowerTitle.includes('importação')) {
-                assetFilename = 'surgical-instruments-set.png';
+                assetImages = [
+                    'surgical-instruments-set.png',
+                    'dental-angulados.png',
+                    'medical-screw.png',
+                    'surgical-pins.jpg',
+                    'product-display.png'
+                ];
             }
 
-            // Use absolute path for reliable local rendering
-            const bgUrl = `file://${assetFolder}/${assetFilename}`;
+            // Select image based on slide index
+            assetFilename = assetImages[i % assetImages.length];
+
+            // Determine folder (Equipment vs Products)
+            let finalAssetPath;
+            // Keywords that imply equipment/machinery
+            const equipmentKeywords = ['citizen', 'tornos', 'doosan', 'robodrill', 'laser', 'electropolish', 'walter', 'mounting'];
+
+            if (equipmentKeywords.some(k => assetFilename.toLowerCase().includes(k))) {
+                finalAssetPath = path.join(equipmentPath, assetFilename);
+            } else {
+                finalAssetPath = path.join(productsPath, assetFilename);
+            }
+
+            const bgUrl = `file://${finalAssetPath}`;
 
             slidesHtml += `
             <div class="slide" style="background-image: url('${bgUrl}')">
@@ -76,7 +139,6 @@ async function run() {
                 </div>
                 <div class="branding-line"></div>
                 <div class="top-branding">
-                    <img src="${ISO_SRC}" class="iso-badge" />
                     <div class="logo-box">
                         <img src="${LOGO_SRC}" class="logo" />
                     </div>

@@ -1,0 +1,99 @@
+{
+  "id": "440c160d-ac87-4559-8bb7-aca753280a06",
+  "title": "Print to Pack: fluxo integrado da usinagem à embalagem estéril",
+  "slug": "print-to-pack-fluxo-integrado-da-usinagem-a-embalagem-esteril",
+  "excerpt": "Na manufatura médica, a eficiência e a confiabilidade da cadeia de suprimentos são cruciais. Este artigo explora como a otimização da cadeia de suprimentos pode impulsionar a inovação, garantir a qualidade e reduzir custos, com foco em casos práticos e metodologias comprovadas.",
+  "seo_title": "Print to Pack: fluxo integrado da usinagem à embalagem estér",
+  "seo_description": "Descubra como otimizar sua cadeia de suprimentos na manufatura médica para inovação, qualidade e conformidade regulatória. Estratégias e melhores práticas.",
+  "keywords": [
+    "print to pack",
+    "embalagem estéril",
+    "manufatura integrada",
+    "dispositivos médicos"
+  ],
+  "created_at": "2026-02-12T22:34:54.490464+00:00",
+  "updated_at": "2026-02-12T22:34:54.490464+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.iso.org/standard/53394.html",
+      "https://www.iso.org/standard/70799.html",
+      "https://www.iso.org/standard/81823.html",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "Streamlining manufacturing and sterilization processes using a value chain approach to reduce operational costs and improve product quality.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Challenge: Fragmented Manufacturing and Sterile Packaging",
+            "key_points": "Discuss the common issues of managing multiple suppliers for machining, cleaning, and packaging; the increased lead times, higher costs, and quality control challenges."
+          },
+          {
+            "tag": "h2",
+            "title": "Lifetrek Medical's Integrated 'Print to Pack' Solution: A Streamlined Approach",
+            "key_points": "Introduce Lifetrek Medical's integrated solution, emphasizing the value of a single point of contact for the entire process (Swiss Turning, 5-Axis Machining, ISO 7 Cleanroom). Highlight the benefits of reduced complexity, improved coordination, and faster time-to-market."
+          },
+          {
+            "tag": "h2",
+            "title": "Technical Deep Dive: From Precision Machining to Sterile Packaging",
+            "key_points": "Explain the technical details of each stage (Swiss Turning for complex micro-parts, 5-Axis for organic geometries, ISO 7 Cleanroom for validated cleaning and sterile packaging). Focus on the importance of precision, control, and compliance at each step."
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study: Achieving Operational Excellence with Integrated Manufacturing",
+            "key_points": "Show real results by doing a case study with measurable results; e.g., reduced lead times, cost savings, and improved product quality. Focus on how the integrated approach solved specific challenges. Include specific metrics."
+          },
+          {
+            "tag": "h2",
+            "title": "Future-Proofing Your Manufacturing Process with Lifetrek Medical",
+            "key_points": "Offer a forward-looking perspective. Discuss how Lifetrek Medical can help manufacturers adapt to changing market demands, improve supply chain resilience, and maintain a competitive edge. End with a clear call to action."
+          }
+        ],
+        "target_persona": "Operations Director at a medical device manufacturer",
+        "visual_concept": "A graphical representation of an integrated manufacturing process, transitioning from raw material to sterile packaging, with a visual emphasis on seamless integration."
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-04-12T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Print to Pack: fluxo integrado da usinagem à embalagem estéril",
+    "pillar_keyword": "print to pack em manufatura médica",
+    "content_cluster": "print_pack_ops",
+    "entity_keywords": [
+      "sala limpa ISO 7",
+      "embalagem estéril",
+      "print to pack",
+      "controle ambiental"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:55.584Z",
+    "source_linkedin": {
+      "id": "ce0080b2-eaf5-43f9-a5ea-cce20b051b3e",
+      "topic": "Capabilities: Print to Pack",
+      "folder": "capabilities-print-to-pack--ce0080b2",
+      "status": "archived",
+      "caption_excerpt": "From raw titanium to sterile package. One partner. 🔄\n\nWhy manage 5 suppliers when you can trust one?\n🔹 **Swiss Turning**: Complex micro-parts (0.5mm+) on Citizen Cincom machines.\n🔹 **5-Axis**: For organic orthopedic geometries.\n🔹 **ISO 7 Cleanroom**: Validated cleaning and sterile packaging.\n\nWe handle the complexity so you can focus on innovation.\n\n#MedicalManufacturing #SwissLathe #Cleanroom #SterilePackaging #Orthopedics #DentalImplants #SupplyChainOptimization"
+    },
+    "title_aligned_at": "2026-02-12T22:40:42.782Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:47.812Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:31:52.283Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 3,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:17.483Z",
+    "marketing_assets_plan_id": "ma-printpack-01",
+    "cleaned_scope_terms_version": "v2-management-framework-strip"
+  }
+}

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #111;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 1080px;
+            height: 1080px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            background: #001020;
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide .bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .slide .grad {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg, rgba(0, 20, 50, 0.94) 0%, rgba(0, 20, 50, 0.88) 35%, rgba(0, 20, 50, 0.45) 65%, rgba(0, 20, 50, 0.1) 100%);
+            z-index: 1;
+        }
+
+        .glass {
+            position: absolute;
+            left: 55px;
+            top: 110px;
+            width: 560px;
+            background: rgba(0, 60, 120, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 48px 52px;
+            z-index: 2;
+            color: white;
+        }
+
+        .tag {
+            color: #4ade80;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 46px;
+            line-height: 1.08;
+            font-weight: 900;
+            margin-bottom: 24px;
+        }
+
+        .body {
+            font-size: 22px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .checklist {
+            list-style: none;
+            margin-top: 18px;
+        }
+
+        .checklist li {
+            font-size: 20px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.88);
+            padding: 7px 0 7px 32px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: '✅';
+            position: absolute;
+            left: 0;
+            top: 7px;
+            font-size: 16px;
+        }
+
+        .logo-wrap {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            z-index: 3;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .logo-wrap img {
+            width: 140px;
+            display: block;
+        }
+
+        .bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #004F8F 0%, #1A7A3E 100%);
+            z-index: 3;
+        }
+
+        .site {
+            position: absolute;
+            bottom: 22px;
+            left: 55px;
+            z-index: 3;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .badges {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SLIDE 1: Hook -->
+    <div class="slide active" id="slide-1">
+        <img class="bg"
+            src="file:///Users/rafaelalmeida/lifetrek/src/assets/products/medical-implants-diagram-enhanced.webp" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass">
+            <div class="tag">DESTAQUE</div>
+            <h1>Otimize Seus Projetos com DFM: Reduza Custos, Melhore a Qualidade!</h1>
+            <p class="body">Maximize a eficiência e minimize os riscos na produção de implantes e instrumentais
+                cirúrgicos! 🚀<br><br>Um DFM robusto é a chave para otimizar seus projetos, reduzir custos e acelerar o
+                time-to-market.</p>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+
+    <!-- SLIDE 2: Passo 1 -->
+    <div class="slide" id="slide-2">
+        <img class="bg" src="file:///Users/rafaelalmeida/lifetrek/src/assets/equipment/citizen-new.png" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass" style="top: 130px;">
+            <div class="tag">PASSO 1</div>
+            <h1>Seleção de Materiais e Processos de Fabricação</h1>
+            <p class="body">A escolha de materiais biocompatíveis e a otimização para processos de fabricação
+                específicos (usinagem, impressão 3D, etc.) são etapas essenciais do DFM.</p>
+            <ul class="checklist">
+                <li>Garanta a conformidade regulatória desde o início</li>
+                <li>Considere a esterilização e durabilidade do material</li>
+                <li>Otimize para o processo de fabricação ideal</li>
+            </ul>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+
+    <!-- SLIDE 3: Passo 2 -->
+    <div class="slide" id="slide-3">
+        <img class="bg"
+            src="file:///Users/rafaelalmeida/lifetrek/src/assets/products/surgical-instruments-measuring.png" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass" style="top: 130px;">
+            <div class="tag">PASSO 2</div>
+            <h1>Validação da Manufaturabilidade</h1>
+            <p class="body">Valide a manufaturabilidade com simulações (FEA) e prototipagem rápida para identificar e
+                corrigir problemas de design antes da produção em massa.</p>
+            <ul class="checklist">
+                <li>Detecte interferências e pontos de tensão</li>
+                <li>Identifique gargalos na fabricação</li>
+                <li>Invista em simulações para evitar surpresas dispendiosas</li>
+            </ul>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+
+    <!-- SLIDE 4: Passo 3 -->
+    <div class="slide" id="slide-4">
+        <img class="bg" src="file:///Users/rafaelalmeida/lifetrek/src/assets/products/measuring-tools-optimized.webp" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass" style="top: 130px;">
+            <div class="tag">PASSO 3</div>
+            <h1>Análise de Tolerâncias e Ajustes</h1>
+            <p class="body">A análise de tolerâncias garante o ajuste e a funcionalidade adequados dos componentes,
+                minimizando o retrabalho e o desperdício.</p>
+            <ul class="checklist">
+                <li>Defina tolerâncias realistas para o processo escolhido</li>
+                <li>Utilize ferramentas de análise para otimizar desempenho</li>
+                <li>A precisão é fundamental para o sucesso do produto</li>
+            </ul>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+
+    <!-- SLIDE 5: CTA -->
+    <div class="slide" id="slide-5">
+        <img class="bg" src="file:///Users/rafaelalmeida/lifetrek/src/assets/products/product-display.png" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass">
+            <div class="tag">RESULTADO</div>
+            <h1>Otimize Seu DFM com a Lifetrek Medical!</h1>
+            <p class="body">Tratamentos de superfície adequados afetam diretamente a durabilidade, a esterilização e o
+                desempenho do implante/instrumental.<br><br>🛡️ Consulte nossos especialistas para otimizar seu DFM e
+                garantir o sucesso do seu produto!</p>
+            <div class="badges">
+                <div class="badge"
+                    style="background: rgba(74,222,128,0.12); border: 1.5px solid rgba(74,222,128,0.3); color: #4ade80;">
+                    🏆 Biocompatibilidade garantida</div><br>
+                <div class="badge"
+                    style="background: rgba(0,79,143,0.15); border: 1.5px solid rgba(96,165,250,0.3); color: #60a5fa;">
+                    ⚙️ Engenharia de precisão médica</div>
+            </div>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+
+    <script>
+        // Switch slide via URL hash: ?slide=2
+        const params = new URLSearchParams(window.location.search);
+        const slideNum = params.get('slide');
+        if (slideNum) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('slide-' + slideNum);
+            if (target) target.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

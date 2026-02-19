@@ -1,0 +1,95 @@
+{
+  "id": "d28b63f6-9ec7-4a9b-b7df-573771869bf4",
+  "title": "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade",
+  "slug": "quem-somos-em-termos-tecnicos-processo-etica-e-compromisso-com-qualidade",
+  "excerpt": "A Lifetrek Medical se destaca no setor de dispositivos médicos pela sua busca incessante por excelência. Através de tecnologia avançada, processos otimizados e um forte compromisso com a qualidade, a empresa impulsiona a inovação e garante produtos de alta performance para melhorar a vida dos pacientes.",
+  "seo_title": "Quem Somos em termos técnicos: processo, ética e compromisso",
+  "seo_description": "Descubra como a Lifetrek Medical lidera a manufatura de dispositivos médicos com tecnologia de ponta, inovação contínua e compromisso com a qualidade.",
+  "keywords": [
+    "quem somos Lifetrek",
+    "qualidade médica",
+    "ética industrial",
+    "manufatura de precisão"
+  ],
+  "created_at": "2026-02-12T22:37:54.193099+00:00",
+  "updated_at": "2026-02-12T22:37:54.193099+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "Focus on Lifetrek Medical's modelo técnico de execução (Process, Professional Ethics, Promise, Perfection) showing how each contributes to operational excellence and high-quality outcomes.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Lifetrek Medical: Engineering Excellence Through Process Innovation",
+            "key_points": "Detail Lifetrek's sophisticated manufacturing processes. Cover specific methodologies used to ensure precision, efficiency, and consistency (e.g., Lean Manufacturing, Six Sigma). Provide concrete examples showcasing how the processes minimize waste, maximize output, and contribute to overall product quality. Explain how optimized processes lead to better products, faster delivery, and increased cost-effectiveness"
+          },
+          {
+            "tag": "h2",
+            "title": "Unwavering Professional Ethics: The Foundation of Lifetrek's Quality",
+            "key_points": "Highlight the importance of ethics in medical device manufacturing. Describe how Lifetrek's commitment to ethical practices ensures product safety, regulatory compliance, and builds trust with customers and stakeholders. Go into detail about ethical sourcing, thorough testing, responsible manufacturing practices, and transparency in data and reporting. Offer real-world examples illustrating Lifetrek's ethical approach to challenging situations."
+          },
+          {
+            "tag": "h2",
+            "title": "The Promise Delivered: Lifetrek's Commitment to High-Performance Products",
+            "key_points": "Explain Lifetrek's explicit promises to its clients related to product performance, reliability, and safety. Explain the promise, detailing how each contributes to customer success.. Showcase specific cases where Lifetrek exceeded expectations and delivered exceptional results. Emphasize consistent performance, long-term relationships, and the mutual benefits derived from fulfilled commitments."
+          },
+          {
+            "tag": "h2",
+            "title": "Perfection in Practice: Lifetrek's Pursuit of Flawless Manufacturing",
+            "key_points": "Discuss Lifetrek's relentless pursuit of perfection in manufacturing. Showcase the specific strategies they use to achieve this goal, such as advanced quality control systems, continuous improvement initiatives, and employee training programs. Highlight statistical data demonstrating the consistently high levels of quality achieved. Provide examples of how Lifetrek identifies and corrects defects, minimizes errors, and ensures that every product meets the highest standards."
+          }
+        ],
+        "target_persona": "Operations Director at a Medical Device Manufacturer",
+        "visual_concept": "A clean, minimalist image showcasing a high-tech manufacturing environment; focus on automated processes, quality control measures, or R&D lab – conveying advanced technology and precision."
+      }
+    ],
+    "icp_primary": "MI",
+    "target_date": "2026-05-18T17:00:00.000Z",
+    "funnel_stage": "TOFU",
+    "icp_secondary": [
+      "CM",
+      "OD"
+    ],
+    "expected_topic": "Quem Somos em termos técnicos: processo, ética e compromisso com qualidade",
+    "pillar_keyword": "parceria OEM em manufatura médica",
+    "content_cluster": "brand_capability_scale",
+    "entity_keywords": [
+      "OEM medical manufacturing Brazil",
+      "single-source partnership",
+      "capacidade produtiva",
+      "manufatura médica de precisão"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:54.415Z",
+    "source_linkedin": {
+      "id": "9c48c28d-b4b2-4445-b735-b3e582dbe1a8",
+      "topic": "Quem Somos - Lifetrek Medical",
+      "folder": "quem-somos-lifetrek-medical--9c48c28d",
+      "status": "archived",
+      "caption_excerpt": "Quem Somos: Uma trajetória de excelência e compromisso com a vida.\n\nNossa missão é ser líder na manufatura de produtos de alta performance, aliando tecnologia de ponta, inovação e ética.\n\n#LifetrekMedical #QuemSomos #Missão #Visão #MedTech #ISO13485"
+    },
+    "title_aligned_at": "2026-02-12T22:40:41.705Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:49.009Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:47.003Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 4,
+      "HS": 3,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:18.591Z",
+    "marketing_assets_plan_id": "ma-brand-02",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:42:59.684Z"
+  }
+}

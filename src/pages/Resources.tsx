@@ -43,7 +43,7 @@ export default function Resources() {
             resource.description.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = activeTab === "all" || resource.type === activeTab;
 
-        /* 
+        /*
            User request: "Deixe so o 3d + CNC e o roadmap e o DFM Checklist por enquanto."
            Filtering logic: Case-insensitive and inclusive
         */

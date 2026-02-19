@@ -1,0 +1,115 @@
+{
+  "id": "50bef788-25d3-4a79-b598-0b03044a3583",
+  "title": "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento",
+  "slug": "quais-skus-migrar-primeiro-metodo-pratico-para-reduzir-risco-de-abastecimento",
+  "excerpt": "A expansão de instalações de manufatura representa um marco crucial para empresas de dispositivos médicos. Este artigo explora como essa expansão estratégica pode otimizar processos, aumentar a capacidade produtiva e garantir a qualidade, com foco em resultados mensuráveis e retorno sobre o investimento.",
+  "seo_title": "Quais SKUs migrar primeiro: método prático para reduzir risc",
+  "seo_description": "Entenda quais skus migrar primeiro: método prático para reduzir risco de abastecimento com foco em engenharia, qualidade e operação para decisões mais segura...",
+  "keywords": [
+    "priorização de SKU",
+    "risco de abastecimento",
+    "medical devices",
+    "planejamento"
+  ],
+  "created_at": "2026-02-12T22:36:21.98662+00:00",
+  "updated_at": "2026-02-12T22:36:21.98662+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.oecd.org/en/publications/2025/06/oecd-supply-chain-resilience-review_9930d256.html",
+      "https://www.fda.gov/medical-devices/medical-device-safety/medical-device-supply-chain-and-shortages",
+      "https://www.fda.gov/medical-devices/medical-device-supply-chain-and-shortages/medical-device-shortages-list",
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare"
+    ],
+    "cta_mode": "resource_optional",
+    "strategy": [
+      {
+        "angle": "Prioritizing SKU migration based on risk mitigation and strategic alignment, leveraging the '4P Framework' (Product, Procurement, Production, and People)",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Challenge of SKU Migration: Minimizing Supply Chain Disruption",
+            "key_points": "Overview of the risks involved in migrating SKUs; potential impact on supply chain stability and customer fulfillment; importance of a structured approach"
+          },
+          {
+            "tag": "h2",
+            "title": "Introducing the '4P Framework' for Prioritized SKU Migration",
+            "key_points": "Explanation of the 4Ps: Product, Procurement, Production, People; how the framework ensures holistic risk assessment"
+          },
+          {
+            "tag": "h3",
+            "title": "Product: Assessing SKU Criticality and Demand Volatility",
+            "key_points": "Categorizing SKUs based on revenue contribution and strategic importance; analyzing demand patterns and forecasting accuracy; identifying SKUs with stable demand for initial migration"
+          },
+          {
+            "tag": "h3",
+            "title": "Procurement: Evaluating Supplier Risk and Lead Times",
+            "key_points": "Assessing supplier reliability using historical data and risk assessment tools; analyzing lead times and exploring alternative sourcing options; prioritizing SKUs with diversified supply base and shorter lead times"
+          },
+          {
+            "tag": "h3",
+            "title": "Production: Evaluating inventory levels for critical SKUs",
+            "key_points": "Impact of SKU migration on production schedules and tooling requirements; identifying SKUs with flexible manufacturing processes and minimal changeover times; mitigating impact by aligning and adapting the production schedules"
+          },
+          {
+            "tag": "h3",
+            "title": "People: Managing Knowledge Transfer and Training",
+            "key_points": "Importance of cross-functional collaboration and knowledge sharing; training personnel on new processes and systems; addressing employee concerns and promoting buy-in for a successful migration"
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study: Applying the 4P Framework in a Manufacturing Setting",
+            "key_points": "A real-world example of how the 4P framework was used to prioritize SKU migration; highlighting successful outcomes and lessons learned"
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Mitigating Risks and Optimizing Your Supply Chain with Strategic SKU Migration",
+            "key_points": "Recap of the benefits of a structured approach; emphasizing the importance of continuous monitoring and adaptation; a call to action for readers to contact Lifetrek Medical for expert guidance on supply chain optimization and risk mitigation"
+          }
+        ],
+        "target_persona": "Supply Chain Managers and Procurement Directors in manufacturing and construction companies",
+        "visual_concept": "A digitally-rendered network diagram illustrating SKU flows and interdependencies, highlighting critical paths and potential bottlenecks; use Lifetrek Medical brand color scheme"
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-04-30T17:00:00.000Z",
+    "funnel_stage": "BOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento",
+    "pillar_keyword": "transição local de supply chain médica",
+    "content_cluster": "supply_chain_transition",
+    "entity_keywords": [
+      "nacionalização de supply chain",
+      "migração de SKUs",
+      "qualificação de fornecedor",
+      "resiliência de abastecimento"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:55.002Z",
+    "source_linkedin": {
+      "id": "62b7ef53-8198-47d1-96b8-49e538ab7e78",
+      "topic": "Lifetrek Medical Launch & Vision",
+      "folder": "lifetrek-medical-launch-vision--62b7ef53",
+      "status": "archived",
+      "caption_excerpt": "It's time to level up. 🚀\n\nWe are thrilled to announce that Lifetrek Medical has officially acquired a new 50,000 sqft manufacturing facility.\n\nThis isn't just about space.\n\nIt's about:\n✅ 3x Production Capacity\n✅ Advanced Cleanroom Environments\n✅ Rapid Prototyping Capabilities\n\nFor our OEM partners, this means faster lead times and zero compromise on quality.\n\nWe are ready to scale with you.\n\n#MedicalDevices #Manufacturing #Expansion #LifetrekMedical #Growth"
+    },
+    "title_aligned_at": "2026-02-12T22:40:42.260Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:48.410Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:46.402Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:18.053Z",
+    "marketing_assets_plan_id": "ma-supply-02",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:00.122Z"
+  }
+}

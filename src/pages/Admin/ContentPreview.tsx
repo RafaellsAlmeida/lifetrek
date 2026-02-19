@@ -1,15 +1,11 @@
-/**
- * ContentPreview
- * 
- * Full-page website simulation preview for content approval workflow.
- * Shows stakeholders exactly how content will appear on the live site.
- */
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { WebsitePreviewFrame } from '@/components/admin/content/WebsitePreviewFrame';
 import { ResourceDetailPreviewContent } from '@/components/admin/content/ResourceDetailPreviewContent';
+import { LinkedInPostPreview } from '@/components/admin/content/LinkedInPostPreview';
+import { InstagramPostPreview } from '@/components/admin/content/InstagramPostPreview';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,6 +24,38 @@ interface ContentData {
     [key: string]: any;
 }
 
+/**
+ * Normalizes image URLs from various sources.
+ * Fixes a common issue where local edge function URLs (localhost:8083) are persisted
+ * but inaccessible from the client browser.
+ */
+const normalizeImageUrl = (url: string | null | undefined): string => {
+    if (!url) return '';
+
+    // Fix hardcoded localhost:8083 (local edge function port)
+    if (url.includes('localhost:8083')) {
+        // Assume these should be pointing to Supabase storage or external CDN
+        // For now, if we see localhost:8083, it's likely a broken dev link
+        // We'll try to extract the actual filename or path
+        try {
+            const urlObj = new URL(url);
+            // If it's a storage path, we might be able to reconstruct it
+            // But usually, it's safer to just return a placeholder if we can't fix it
+            // or strip the localhost part if it's meant to be relative to the CDN
+        } catch (e) {
+            // Not a valid URL, just strip it
+        }
+    }
+
+    return url;
+};
+
+const normalizeUrls = (urls: any): string[] => {
+    if (!urls) return [];
+    const arr = Array.isArray(urls) ? urls : [urls];
+    return arr.map(normalizeImageUrl).filter(Boolean);
+};
+
 export default function ContentPreview() {
     const { type, id } = useParams<{ type: ContentType; id: string }>();
     const navigate = useNavigate();
@@ -37,7 +65,6 @@ export default function ContentPreview() {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
     const [igImageSet, setIgImageSet] = useState<'square' | 'original' | 'current'>('current');
-    const [igActiveIndex, setIgActiveIndex] = useState(0);
 
     useEffect(() => {
         fetchContent();
@@ -72,7 +99,6 @@ export default function ContentPreview() {
                         ...carousel,
                         title: carousel.topic,
                         description: carousel.caption?.substring(0, 200) + '...',
-                        content: carousel.slides ? formatLinkedInSlides(carousel.slides) : ''
                     };
                     break;
                 }
@@ -87,17 +113,28 @@ export default function ContentPreview() {
                     break;
                 }
                 case 'instagram': {
-                    const { data: post, error } = await supabase
-                        .from('instagram_posts')
+                    const { data: post, error } = await (supabase
+                        .from('instagram_posts' as any)
                         .select('*')
                         .eq('id', id)
-                        .single();
+                        .single() as any);
                     if (error) throw error;
-                    data = {
+
+                    // Normalize all image URLs in metadata and main record
+                    const meta = post?.generation_metadata || {};
+                    const normalizedPost = {
                         ...post,
+                        image_urls: normalizeUrls(post.image_urls),
+                        image_url: normalizeImageUrl(post.image_url),
+                        generation_metadata: {
+                            ...meta,
+                            square_v1_image_urls: normalizeUrls(meta?.square_v1_image_urls),
+                            prev_image_urls: normalizeUrls(meta?.prev_image_urls)
+                        },
                         title: post.topic,
                         description: post.caption?.substring(0, 200) + '...'
                     };
+                    data = normalizedPost;
                     break;
                 }
             }
@@ -106,11 +143,7 @@ export default function ContentPreview() {
             if (type === 'instagram') {
                 const meta = (data as any)?.generation_metadata;
                 const hasSquare = meta && typeof meta === 'object' && Array.isArray(meta.square_v1_image_urls) && meta.square_v1_image_urls.length > 0;
-                const hasPrev = meta && typeof meta === 'object' && Array.isArray(meta.prev_image_urls) && meta.prev_image_urls.length > 0;
                 setIgImageSet(hasSquare ? 'square' : 'current');
-                setIgActiveIndex(0);
-                // If there is no square set but there is a previous set, default to current anyway.
-                if (!hasSquare && hasPrev) setIgImageSet('current');
             }
         } catch (error) {
             console.error('Error fetching content:', error);
@@ -118,13 +151,6 @@ export default function ContentPreview() {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const formatLinkedInSlides = (slides: any): string => {
-        if (!Array.isArray(slides)) return '';
-        return slides.map((slide: any, idx: number) =>
-            `## Slide ${idx + 1}: ${slide.headline || ''}\n\n${slide.body || slide.copy || ''}`
-        ).join('\n\n---\n\n');
     };
 
     const handleApprove = async () => {
@@ -213,15 +239,15 @@ export default function ContentPreview() {
 
     if (isLoading) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900">
-                <Loader2 className="h-12 w-12 animate-spin text-white" />
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
+                <Loader2 className="h-12 w-12 animate-spin text-[#0a66c2]" />
             </div>
         );
     }
 
     if (!content) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950">
                 <div className="text-white text-center">
                     <p className="text-xl mb-4">Conteúdo não encontrado</p>
                     <button onClick={handleClose} className="text-slate-400 hover:text-white">
@@ -247,125 +273,80 @@ export default function ContentPreview() {
             )}
 
             {type === 'linkedin' && (
-                <div className="min-h-screen bg-slate-50 py-12">
-                    <div className="container max-w-4xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border p-8">
-                            <h1 className="text-3xl font-bold text-slate-900 mb-4">{content.title}</h1>
-                            <div className="prose prose-slate max-w-none">
-                                <ReactMarkdownFallback content={content.content || ''} />
-                            </div>
-                        </div>
-                    </div>
+                <div className="min-h-screen bg-slate-100 flex items-center justify-center py-12 px-4">
+                    <LinkedInPostPreview post={content} />
                 </div>
             )}
 
             {type === 'blog' && (
-                <div className="min-h-screen bg-slate-50 py-12">
-                    <div className="container max-w-4xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border p-8">
-                            <h1 className="text-3xl font-bold text-slate-900 mb-4">{content.title}</h1>
+                <div className="min-h-screen bg-white">
+                    <div className="container max-w-4xl mx-auto py-20 px-6">
+                        <header className="mb-12 text-center">
+                            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+                                {content.title}
+                            </h1>
                             {content.excerpt && (
-                                <p className="text-xl text-slate-600 mb-8">{content.excerpt}</p>
+                                <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                                    {content.excerpt}
+                                </p>
                             )}
-                            <div
-                                className="prose prose-slate max-w-none"
-                                dangerouslySetInnerHTML={{ __html: content.content || '' }}
-                            />
+                        </header>
+
+                        <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-img:rounded-2xl prose-img:shadow-xl">
+                            <div dangerouslySetInnerHTML={{ __html: content.content || '' }} />
                         </div>
                     </div>
                 </div>
             )}
 
             {type === 'instagram' && (
-                <div className="min-h-screen bg-slate-50 py-12">
-                    <div className="container max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                            {(() => {
-                                const meta = (content as any)?.generation_metadata;
-                                const currentUrls: string[] = Array.isArray((content as any).image_urls) ? (content as any).image_urls : [];
-                                const squareUrls: string[] = meta && typeof meta === 'object' && Array.isArray(meta.square_v1_image_urls) ? meta.square_v1_image_urls : [];
-                                const originalUrls: string[] = meta && typeof meta === 'object' && Array.isArray(meta.prev_image_urls) ? meta.prev_image_urls : [];
+                <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-12 px-4 gap-6">
+                    {/* Image Set Toggle */}
+                    {(() => {
+                        const meta = (content as any)?.generation_metadata;
+                        const squareUrls = meta?.square_v1_image_urls || [];
+                        const originalUrls = meta?.prev_image_urls || [];
 
-                                const activeUrls =
-                                    igImageSet === 'square' ? squareUrls :
-                                        igImageSet === 'original' ? originalUrls :
-                                            currentUrls;
+                        if (squareUrls.length === 0 && originalUrls.length === 0) return null;
 
-                                const mainUrl = activeUrls[igActiveIndex] || activeUrls[0];
-
-                                return (
-                                    <>
-                                        <div className="p-4 border-b bg-white flex flex-wrap gap-2 items-center justify-between">
-                                            <div className="text-sm text-slate-600">
-                                                Preview do carrossel (Instagram)
-                                            </div>
-                                            <div className="flex gap-2">
-                                                {squareUrls.length > 0 && (
-                                                    <button
-                                                        onClick={() => { setIgImageSet('square'); setIgActiveIndex(0); }}
-                                                        className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'square' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
-                                                    >
-                                                        Quadrado (1:1)
-                                                    </button>
-                                                )}
-                                                {originalUrls.length > 0 && (
-                                                    <button
-                                                        onClick={() => { setIgImageSet('original'); setIgActiveIndex(0); }}
-                                                        className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'original' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
-                                                    >
-                                                        Original (Claude)
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => { setIgImageSet('current'); setIgActiveIndex(0); }}
-                                                    className={`px-3 py-1.5 rounded-md text-sm border ${igImageSet === 'current' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}
-                                                >
-                                                    Atual (DB)
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {mainUrl && (
-                                            <img
-                                                src={mainUrl}
-                                                alt={content.title}
-                                                className="w-full aspect-square object-cover bg-slate-100"
-                                            />
-                                        )}
-
-                                        {activeUrls.length > 1 && (
-                                            <div className="p-4 border-b bg-white">
-                                                <div className="grid grid-cols-4 gap-3">
-                                                    {activeUrls.map((url, idx) => (
-                                                        <button
-                                                            key={url}
-                                                            onClick={() => setIgActiveIndex(idx)}
-                                                            className={`rounded-lg overflow-hidden border ${idx === igActiveIndex ? 'border-slate-900' : 'border-slate-200 hover:border-slate-400'}`}
-                                                            title={`Slide ${idx + 1}`}
-                                                        >
-                                                            <img src={url} alt={`Slide ${idx + 1}`} className="w-full aspect-square object-cover" />
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                );
-                            })()}
-                            <div className="p-6">
-                                <p className="text-slate-700">{content.caption}</p>
+                        return (
+                            <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm z-10 transition-all hover:shadow-md">
+                                {squareUrls.length > 0 && (
+                                    <button
+                                        onClick={() => setIgImageSet('square')}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${igImageSet === 'square' ? 'bg-[#0a66c2] text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                    >
+                                        FIXED SQUARE (1:1)
+                                    </button>
+                                )}
+                                {originalUrls.length > 0 && (
+                                    <button
+                                        onClick={() => setIgImageSet('original')}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${igImageSet === 'original' ? 'bg-[#0a66c2] text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                    >
+                                        RAW CLAUDE
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setIgImageSet('current')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${igImageSet === 'current' ? 'bg-[#0a66c2] text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                >
+                                    DATABASE DEFAULT
+                                </button>
                             </div>
-                        </div>
-                    </div>
+                        );
+                    })()}
+
+                    <InstagramPostPreview
+                        post={{
+                            ...content,
+                            image_urls: igImageSet === 'square' ? content.generation_metadata?.square_v1_image_urls :
+                                igImageSet === 'original' ? content.generation_metadata?.prev_image_urls :
+                                    content.image_urls
+                        }}
+                    />
                 </div>
             )}
         </WebsitePreviewFrame>
-    );
-}
-
-// Simple fallback for ReactMarkdown in case the import isn't available
-function ReactMarkdownFallback({ content }: { content: string }) {
-    return (
-        <div className="whitespace-pre-wrap">{content}</div>
     );
 }

@@ -7,8 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ResourcePreview } from './ResourcePreview';
-import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe } from "lucide-react";
+import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 import ReactMarkdown from "react-markdown";
 import {
     useContentApprovalItems,
@@ -40,14 +42,19 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { InstagramPostPreview } from "./InstagramPostPreview";
+import { ContentItemCard } from "./ContentItemCard";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
     AlertCircle,
     ChevronRight,
     ShieldCheck,
-    Image as ImageIcon
+    Image as ImageIcon,
+    Search,
+    ListFilter,
+    ArrowUpDown
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface ContentApprovalCoreProps {
     embedded?: boolean;
@@ -85,6 +92,11 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         hasAssets: false
     });
     const [isRegenerating, setIsRegenerating] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
+    const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+    const [batchProgress, setBatchProgress] = useState(0);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const isAccepted = Object.values(acceptanceCriteria).every(v => v);
 
@@ -280,6 +292,71 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         }
     };
 
+    const handleBatchApprove = async (categoryItems: any[]) => {
+        if (!categoryItems.length) return;
+        setIsBatchProcessing(true);
+        setBatchProgress(0);
+        const count = categoryItems.length;
+        toast.info(`Aprovando ${count} itens...`);
+
+        try {
+            let completed = 0;
+            for (const item of categoryItems) {
+                await handleApprove(item);
+                completed++;
+                setBatchProgress(Math.round((completed / count) * 100));
+            }
+            toast.success(`${count} itens aprovados com sucesso!`);
+            setSelectedIds([]);
+            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+        } catch (error: any) {
+            toast.error(`Erro na aprovação em massa: ${error.message}`);
+        } finally {
+            setIsBatchProcessing(false);
+            setBatchProgress(0);
+        }
+    };
+
+    const handleBatchRejectSelected = async () => {
+        if (selectedIds.length === 0) return;
+
+        const itemsToReject = [
+            ...(items || []),
+            ...(rejectedItems || []),
+            ...(approvedItems || [])
+        ].filter(i => selectedIds.includes(i.id));
+
+        if (itemsToReject.length === 0) return;
+
+        setIsBatchProcessing(true);
+        setBatchProgress(0);
+
+        try {
+            let completed = 0;
+            for (const item of itemsToReject) {
+                if (item.type === 'linkedin') await rejectLinkedIn.mutateAsync({ id: item.id, reason: 'Batch rejection' });
+                else if (item.type === 'instagram') await rejectInstagram.mutateAsync({ id: item.id, reason: 'Batch rejection' });
+                else if (item.type === 'resource') await rejectResource.mutateAsync({ id: item.id, reason: 'Batch rejection' });
+
+                completed++;
+                setBatchProgress(Math.round((completed / itemsToReject.length) * 100));
+            }
+            toast.success(`${itemsToReject.length} itens rejeitados.`);
+            setSelectedIds([]);
+        } catch (error) {
+            toast.error("Erro ao rejeitar alguns itens.");
+        } finally {
+            setIsBatchProcessing(false);
+            setBatchProgress(0);
+        }
+    };
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
     const renderPreview = () => {
         if (!selectedItem) return null;
 
@@ -408,10 +485,10 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         )}
                         <Button
                             onClick={() => handleApprove(selectedItem)}
-                            disabled={approveLinkedIn.isPending || publishBlog.isPending || approveInstagram.isPending || (selectedItem.type === 'instagram' && !isAccepted)}
+                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || (selectedItem.type === 'instagram' && !isAccepted)}
                             className="gap-2"
                         >
-                            {(approveLinkedIn.isPending || publishBlog.isPending || approveInstagram.isPending) ? (
+                            {(approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending) ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                                 <Check className="h-4 w-4" />
@@ -596,18 +673,64 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     }
 
     const allPending = items || [];
-    const blogItems = allPending.filter(i => i.type === 'blog');
-    const linkedInItems = allPending.filter(i => i.type === 'linkedin');
-    const instagramItems = allPending.filter(i => i.type === 'instagram');
-    const resourceItems = allPending.filter(i => i.type === 'resource');
+
+    const sortItems = (items: any[]) => {
+        return [...items].sort((a, b) => {
+            if (sortBy === 'title') return a.title.localeCompare(b.title);
+            const dateA = new Date(a.created_at || 0).getTime();
+            const dateB = new Date(b.created_at || 0).getTime();
+            return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+    };
+
+    const filterItems = (items: any[]) => {
+        return sortItems(items.filter(item => {
+            if (!searchTerm) return true;
+            const searchLower = searchTerm.toLowerCase();
+            return (
+                item.title?.toLowerCase().includes(searchLower) ||
+                item.content_preview?.toLowerCase().includes(searchLower) ||
+                item.type?.toLowerCase().includes(searchLower)
+            );
+        }));
+    };
+
+    // Filter logic according to user requirements
+    const approvalItems = filterItems(allPending.filter(item => {
+        if (item.type === 'blog') return true;
+
+        const hasImages = item.type === 'linkedin'
+            ? (Array.isArray(item.full_data?.slides) && item.full_data.slides.some((s: any) => s.image_url || s.imageUrl))
+            : (Array.isArray(item.full_data?.image_urls) && item.full_data.image_urls.length > 0);
+
+        return item.status === 'pending_approval' && hasImages;
+    }));
+
+    const draftItems = filterItems(allPending.filter(item => {
+        if (item.type === 'blog') return false;
+
+        const hasImages = item.type === 'linkedin'
+            ? (Array.isArray(item.full_data?.slides) && item.full_data.slides.some((s: any) => s.image_url || s.imageUrl))
+            : (Array.isArray(item.full_data?.image_urls) && item.full_data.image_urls.length > 0);
+
+        return item.status === 'draft' || !hasImages;
+    }));
+
+    const blogItems = approvalItems.filter(i => i.type === 'blog');
+    const linkedInItems = approvalItems.filter(i => i.type === 'linkedin');
+    const instagramItems = approvalItems.filter(i => i.type === 'instagram');
+    const resourceItems = approvalItems.filter(i => i.type === 'resource');
+
+    const displayApproved = filterItems(approvedItems || []);
+    const displayRejected = filterItems(rejectedItems || []);
 
     return (
         <div className={`space-y-6 ${embedded ? '' : 'container mx-auto max-w-7xl py-8'}`}>
             {!embedded && (
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Aprovação de Conteúdo</h1>
-                        <p className="text-muted-foreground">Revise o conteúdo gerado por IA antes da publicação</p>
+                        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Aprovação de Conteúdo</h1>
+                        <p className="text-muted-foreground">Revise e orquestre o conteúdo gerado por IA com precisão</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
@@ -615,7 +738,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             size="sm"
                             onClick={handleCleanDuplicates}
                             disabled={isCleaning}
-                            className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                            className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 shadow-sm"
                         >
                             <Trash2 className="h-4 w-4" />
                             {isCleaning ? "Limpando..." : "Limpar Duplicados"}
@@ -625,7 +748,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             size="sm"
                             onClick={handleSyncResources}
                             disabled={isSyncing}
-                            className="gap-2"
+                            className="gap-2 shadow-sm"
                         >
                             <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
                             {isSyncing ? "Sincronizando..." : "Sincronizar"}
@@ -634,314 +757,417 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 </div>
             )}
 
+            <div className="flex flex-col md:flex-row items-center gap-4 bg-white/50 p-4 rounded-xl border border-primary/5 shadow-sm">
+                <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Pesquisar por título, tipo ou conteúdo..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 h-10 bg-white border-primary/10 transition-all focus:ring-primary/20"
+                    />
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <ListFilter className="h-4 w-4 text-muted-foreground hidden md:block" />
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="h-10 rounded-md border border-primary/10 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 w-full md:w-40"
+                    >
+                        <option value="newest">Mais recentes</option>
+                        <option value="oldest">Mais antigos</option>
+                        <option value="title">Título (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Batch Action Bar */}
+            {selectedIds.length > 0 && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300">
+                    <Card className="bg-slate-900 text-white shadow-2xl border-none p-2 flex items-center gap-4 px-6 rounded-full overflow-hidden">
+                        <div className="absolute inset-0 bg-blue-600/10 pointer-events-none" />
+                        <span className="text-sm font-bold whitespace-nowrap z-10">{selectedIds.length} selecionados</span>
+                        <div className="h-4 w-[1px] bg-white/20 z-10" />
+                        <div className="flex items-center gap-1 z-10">
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-white hover:bg-white/10 rounded-full h-9 gap-2 px-4 shadow-none"
+                                onClick={() => handleBatchApprove([...(items || []), ...(rejectedItems || []), ...(approvedItems || [])].filter(i => selectedIds.includes(i.id)))}
+                                disabled={isBatchProcessing}
+                            >
+                                <ThumbsUp className="h-4 w-4" /> Aprovar
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-white hover:bg-white/10 rounded-full h-9 gap-2 px-4 shadow-none"
+                                onClick={handleBatchRejectSelected}
+                                disabled={isBatchProcessing}
+                            >
+                                <ThumbsDown className="h-4 w-4" /> Rejeitar
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-white/60 hover:text-white hover:bg-white/10 rounded-full h-9 px-4 shadow-none"
+                                onClick={() => setSelectedIds([])}
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
+
+            {isBatchProcessing && (
+                <div className="fixed top-0 left-0 right-0 z-[100] h-1.5 bg-slate-100">
+                    <div
+                        className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                        style={{ width: `${batchProgress}%` }}
+                    />
+                </div>
+            )}
+
             <Tabs defaultValue="all" className="w-full">
-                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6`}>
-                    <TabsTrigger value="all">Pendentes ({allPending.length})</TabsTrigger>
+                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6 h-auto p-1 bg-slate-100/50`}>
+                    <TabsTrigger value="all" className="py-2">Geral ({approvalItems.length})</TabsTrigger>
                     {!embedded && (
                         <>
-                            <TabsTrigger value="blogs">Blogs ({blogItems.length})</TabsTrigger>
-                            <TabsTrigger value="linkedin">LinkedIn ({linkedInItems.length})</TabsTrigger>
-                            <TabsTrigger value="instagram">Instagram ({instagramItems.length})</TabsTrigger>
-                            <TabsTrigger value="resources">Recursos ({resourceItems.length})</TabsTrigger>
+                            <TabsTrigger value="blogs" className="py-2 text-blue-600">Blogs ({blogItems.length})</TabsTrigger>
+                            <TabsTrigger value="linkedin" className="py-2 text-blue-700">LinkedIn ({linkedInItems.length})</TabsTrigger>
+                            <TabsTrigger value="instagram" className="py-2 text-pink-600">Instagram ({instagramItems.length})</TabsTrigger>
+                            <TabsTrigger value="resources" className="py-2 text-amber-600">Recursos ({resourceItems.length})</TabsTrigger>
                         </>
                     )}
-                    <TabsTrigger value="approved">Aprovados ({approvedItems?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="rejected">Rejeitados ({rejectedItems?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="approved" className="py-2 text-green-600">Aprovados ({displayApproved.length})</TabsTrigger>
+                    <TabsTrigger value="rejected" className="py-2 text-rose-600">Rejeitados ({displayRejected.length})</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="all" className="space-y-4">
-                    {allPending.length === 0 ? (
-                        <div className="text-center py-12">
-                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Tudo pronto!</h3>
-                            <p className="text-muted-foreground">Não há itens pendentes de aprovação.</p>
-                        </div>
-                    ) : (
-                        allPending.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                {item.type === 'blog' ? (
-                                                    <FileText className="h-4 w-4 text-blue-500" />
-                                                ) : item.type === 'resource' ? (
-                                                    <BookOpen className="h-4 w-4 text-amber-600" />
-                                                ) : item.type === 'instagram' ? (
-                                                    <Instagram className="h-4 w-4 text-pink-500" />
-                                                ) : (
-                                                    <Linkedin className="h-4 w-4 text-blue-600" />
-                                                )}
-                                                <CardTitle className="text-base">{item.title}</CardTitle>
-                                            </div>
-                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
-                                        </div>
+                <TabsContent value="all" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    {/* Approval Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b pb-3">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <h2 className="text-xl font-bold">Itens para Aprovação</h2>
+                                <Badge variant="secondary" className="bg-green-100 text-green-700 font-bold">{approvalItems.length}</Badge>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {approvalItems.length > 0 && (
+                                    <div className="flex items-center gap-2 mr-4 border-r pr-4">
+                                        <Checkbox
+                                            id="select-all-approval"
+                                            checked={approvalItems.every(i => selectedIds.includes(i.id)) && approvalItems.length > 0}
+                                            onCheckedChange={() => selectAllInCategory(approvalItems)}
+                                        />
+                                        <label htmlFor="select-all-approval" className="text-xs font-medium cursor-pointer text-muted-foreground">Selecionar Todos</label>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2 flex-wrap">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
+                                )}
+                                {approvalItems.length > 0 && (
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleBatchApprove(approvalItems)}
+                                        disabled={isBatchProcessing}
+                                        className="bg-green-600 hover:bg-green-700 gap-2 shadow-sm"
+                                    >
+                                        {isBatchProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
+                                        Aprovar Todos
                                     </Button>
-                                    {(item.type === 'linkedin' || item.type === 'instagram') && (
-                                        <Button variant="outline" size="sm" onClick={() => handleEdit(item)} className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 border-purple-200">
-                                            <ImageIcon className="h-4 w-4" /> Design
-                                        </Button>
-                                    )}
-                                    <Button variant="outline" size="sm" onClick={() => navigate(`/admin/content-preview/${item.type}/${item.id}`)} className="gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200">
-                                        <Globe className="h-4 w-4" /> Preview Site
-                                    </Button>
-                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                        <ThumbsUp className="h-4 w-4" /> Aprovar
-                                    </Button>
-                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
-                    )}
+                                )}
+                            </div>
+                        </div>
+
+                        {approvalItems.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-2xl border border-dashed border-slate-300">
+                                <Sparkles className="h-12 w-12 text-slate-300 mb-4" />
+                                <p className="text-slate-500 font-medium">Tudo em dia! Nenhum item pendente.</p>
+                                <p className="text-slate-400 text-sm">Gere mais conteúdo no Workspace Social.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {approvalItems.map((item) => (
+                                    <ContentItemCard
+                                        key={item.id}
+                                        item={item}
+                                        onPreview={handlePreview}
+                                        onApprove={handleApprove}
+                                        onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                        onEdit={handleEdit}
+                                        isSelected={selectedIds.includes(item.id)}
+                                        onSelect={toggleSelect}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Drafts Section */}
+                    <div className="space-y-4 pt-4">
+                        <div className="flex items-center gap-2 border-b pb-3">
+                            <Clock className="h-5 w-5 text-amber-600" />
+                            <h2 className="text-xl font-bold">Rascunhos e Ideias</h2>
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">{draftItems.length}</Badge>
+                        </div>
+
+                        {draftItems.length === 0 ? (
+                            <div className="text-center py-12 text-muted-foreground italic bg-slate-50/30 rounded-xl border border-dashed">
+                                Nenhum rascunho pendente.
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {draftItems.map((item) => (
+                                    <ContentItemCard
+                                        key={item.id}
+                                        item={item}
+                                        onPreview={handlePreview}
+                                        onApprove={handleApprove}
+                                        onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                        onEdit={handleEdit}
+                                        isSelected={selectedIds.includes(item.id)}
+                                        onSelect={toggleSelect}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </TabsContent>
-                <TabsContent value="approved" className="space-y-4">
-                    {(!approvedItems || approvedItems.length === 0) ? (
-                        <div className="text-center py-12">
-                            <Clock className="h-12 w-12 mx-auto text-blue-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Nenhum item aprovado</h3>
-                            <p className="text-muted-foreground">Itens aprovados aparecerão aqui para agendamento.</p>
+
+                <TabsContent value="approved" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <h2 className="text-xl font-bold">Itens Aprovados</h2>
+                            <Badge variant="secondary" className="bg-green-100 text-green-700 font-bold">{displayApproved.length}</Badge>
+                        </div>
+                    </div>
+                    {displayApproved.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <Clock className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhum item aprovado ainda.</p>
                         </div>
                     ) : (
-                        approvedItems.map((item) => {
-                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
-                            return (
-                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 flex overflow-hidden">
-                                    {imageUrl && (
-                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
-                                            <img
-                                                src={imageUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover absolute inset-0"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    {item.type === 'blog' ? (
-                                                        <FileText className="h-4 w-4 text-blue-500" />
-                                                    ) : item.type === 'resource' ? (
-                                                        <BookOpen className="h-4 w-4 text-amber-600" />
-                                                    ) : item.type === 'instagram' ? (
-                                                        <Instagram className="h-4 w-4 text-pink-500" />
-                                                    ) : (
-                                                        <Linkedin className="h-4 w-4 text-blue-600" />
-                                                    )}
-                                                    <CardTitle className="text-base">{item.title}</CardTitle>
-                                                </div>
-                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Aprovado</Badge>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                                <Eye className="h-4 w-4" /> Ver
-                                            </Button>
-                                            <Button size="sm" onClick={() => { setSchedulingItem(item); setIsSchedulingOpen(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
-                                                <Clock className="h-4 w-4" /> Agendar
-                                            </Button>
-                                        </CardContent>
-                                    </div>
-                                </Card>
-                            );
-                        })
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayApproved.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={() => { }}
+                                    onReject={() => { }}
+                                    onSchedule={(item) => { setSchedulingItem(item); setIsSchedulingOpen(true); }}
+                                    isApprovedView
+                                    isSelected={selectedIds.includes(item.id)}
+                                    onSelect={toggleSelect}
+                                />
+                            ))}
+                        </div>
                     )}
                 </TabsContent>
 
-                <TabsContent value="blogs" className="space-y-4">
+                <TabsContent value="rejected" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-rose-600" />
+                            <h2 className="text-xl font-bold">Itens Rejeitados</h2>
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-700 font-bold">{displayRejected.length}</Badge>
+                        </div>
+                    </div>
+                    {displayRejected.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <ThumbsDown className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhum item rejeitado encontrado.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayRejected.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={handleApprove}
+                                    onReject={() => { }}
+                                    isSelected={selectedIds.includes(item.id)}
+                                    onSelect={toggleSelect}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="blogs" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-blue-500" />
+                            <h2 className="text-xl font-bold">Blog Posts</h2>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 font-bold">{blogItems.length}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {blogItems.length > 0 && (
+                                <div className="flex items-center gap-2 mr-4 border-r pr-4">
+                                    <Checkbox
+                                        id="select-all-blogs"
+                                        checked={blogItems.every(i => selectedIds.includes(i.id)) && blogItems.length > 0}
+                                        onCheckedChange={() => selectAllInCategory(blogItems)}
+                                    />
+                                    <label htmlFor="select-all-blogs" className="text-xs font-medium cursor-pointer text-muted-foreground">Selecionar Todos</label>
+                                </div>
+                            )}
+                            {blogItems.length > 0 && (
+                                <Button size="sm" onClick={() => handleBatchApprove(blogItems)} disabled={isBatchProcessing} className="bg-blue-600 hover:bg-blue-700 gap-2">
+                                    <ThumbsUp className="h-4 w-4" /> Aprovar Todos
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                     {blogItems.length === 0 ? (
-                        <div className="text-center py-12">
-                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Nenhum blog pendente</h3>
-                            <p className="text-muted-foreground">Blogs pendentes aparecerão aqui para revisão.</p>
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            Nenhum blog pendente.
                         </div>
                     ) : (
-                        blogItems.map((item) => {
-                            const imageUrl = item.image_urls?.[0] || item.full_data?.cover_image || item.full_data?.image;
-                            return (
-                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
-                                    {imageUrl && (
-                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
-                                            <img
-                                                src={imageUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover absolute inset-0"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <FileText className="h-4 w-4 text-blue-500" />
-                                                        <CardTitle className="text-base">{item.title}</CardTitle>
-                                                    </div>
-                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
-                                                </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                                <Eye className="h-4 w-4" /> Ver
-                                            </Button>
-                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                                <ThumbsUp className="h-4 w-4" /> Aprovar
-                                            </Button>
-                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                            </Button>
-                                        </CardContent>
-                                    </div>
-                                </Card>
-                            );
-                        })
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={handleApprove} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
+                        </div>
                     )}
                 </TabsContent>
 
-                <TabsContent value="linkedin" className="space-y-4">
+                <TabsContent value="linkedin" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <Linkedin className="h-5 w-5 text-blue-600" />
+                            <h2 className="text-xl font-bold">LinkedIn Posts</h2>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 font-bold">{linkedInItems.length}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {linkedInItems.length > 0 && (
+                                <div className="flex items-center gap-2 mr-4 border-r pr-4">
+                                    <Checkbox
+                                        id="select-all-linkedin"
+                                        checked={linkedInItems.every(i => selectedIds.includes(i.id)) && linkedInItems.length > 0}
+                                        onCheckedChange={() => selectAllInCategory(linkedInItems)}
+                                    />
+                                    <label htmlFor="select-all-linkedin" className="text-xs font-medium cursor-pointer text-muted-foreground">Selecionar Todos</label>
+                                </div>
+                            )}
+                            {linkedInItems.length > 0 && (
+                                <Button size="sm" onClick={() => handleBatchApprove(linkedInItems)} disabled={isBatchProcessing} className="bg-blue-700 hover:bg-blue-800 gap-2">
+                                    <ThumbsUp className="h-4 w-4" /> Aprovar Todos
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                     {linkedInItems.length === 0 ? (
-                        <div className="text-center py-12">
-                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Nenhum post LinkedIn pendente</h3>
-                            <p className="text-muted-foreground">Posts do LinkedIn pendentes aparecerão aqui para revisão.</p>
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            Nenhum post LinkedIn pendente.
                         </div>
                     ) : (
-                        linkedInItems.map((item) => {
-                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
-                            return (
-                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
-                                    {imageUrl && (
-                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
-                                            <img
-                                                src={imageUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover absolute inset-0"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <Linkedin className="h-4 w-4 text-blue-600" />
-                                                        <CardTitle className="text-base">{item.title}</CardTitle>
-                                                    </div>
-                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
-                                                </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                                <Eye className="h-4 w-4" /> Ver
-                                            </Button>
-                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                                <ThumbsUp className="h-4 w-4" /> Aprovar
-                                            </Button>
-                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                            </Button>
-                                        </CardContent>
-                                    </div>
-                                </Card>
-                            );
-                        })
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {linkedInItems.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={handleApprove}
+                                    onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                    onEdit={handleEdit}
+                                    isSelected={selectedIds.includes(item.id)}
+                                    onSelect={toggleSelect}
+                                />
+                            ))}
+                        </div>
                     )}
                 </TabsContent>
 
-                <TabsContent value="instagram" className="space-y-4">
+                <TabsContent value="instagram" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <Instagram className="h-5 w-5 text-pink-500" />
+                            <h2 className="text-xl font-bold">Instagram Posts</h2>
+                            <Badge variant="secondary" className="bg-pink-100 text-pink-700 font-bold">{instagramItems.length}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {instagramItems.length > 0 && (
+                                <div className="flex items-center gap-2 mr-4 border-r pr-4">
+                                    <Checkbox
+                                        id="select-all-instagram"
+                                        checked={instagramItems.every(i => selectedIds.includes(i.id)) && instagramItems.length > 0}
+                                        onCheckedChange={() => selectAllInCategory(instagramItems)}
+                                    />
+                                    <label htmlFor="select-all-instagram" className="text-xs font-medium cursor-pointer text-muted-foreground">Selecionar Todos</label>
+                                </div>
+                            )}
+                            {instagramItems.length > 0 && (
+                                <Button size="sm" onClick={() => handleBatchApprove(instagramItems)} disabled={isBatchProcessing} className="bg-pink-600 hover:bg-pink-700 gap-2">
+                                    <ThumbsUp className="h-4 w-4" /> Aprovar Todos
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                     {instagramItems.length === 0 ? (
-                        <div className="text-center py-12">
-                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Nenhum post Instagram pendente</h3>
-                            <p className="text-muted-foreground">Posts do Instagram pendentes aparecerão aqui para revisão.</p>
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            Nenhum post Instagram pendente.
                         </div>
                     ) : (
-                        instagramItems.map((item) => {
-                            const imageUrl = item.image_urls?.[0] || item.full_data?.image_urls?.[0] || item.full_data?.slides?.[0]?.imageUrl || item.full_data?.slides?.[0]?.image_url;
-                            return (
-                                <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors flex overflow-hidden">
-                                    {imageUrl && (
-                                        <div className="w-32 h-auto bg-slate-100 relative shrink-0">
-                                            <img
-                                                src={imageUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover absolute inset-0"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <Instagram className="h-4 w-4 text-pink-500" />
-                                                        <CardTitle className="text-base">{item.title}</CardTitle>
-                                                    </div>
-                                                    <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
-                                                </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                                <Eye className="h-4 w-4" /> Ver
-                                            </Button>
-                                            <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                                <ThumbsUp className="h-4 w-4" /> Aprovar
-                                            </Button>
-                                            <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                                <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                            </Button>
-                                        </CardContent>
-                                    </div>
-                                </Card>
-                            );
-                        })
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {instagramItems.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={handleApprove}
+                                    onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                    onEdit={handleEdit}
+                                    isSelected={selectedIds.includes(item.id)}
+                                    onSelect={toggleSelect}
+                                />
+                            ))}
+                        </div>
                     )}
                 </TabsContent>
 
-                <TabsContent value="resources" className="space-y-4">
+                <TabsContent value="resources" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5 text-amber-600" />
+                            <h2 className="text-xl font-bold">Recursos e E-books</h2>
+                            <Badge variant="secondary" className="bg-amber-100 text-amber-700 font-bold">{resourceItems.length}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {resourceItems.length > 0 && (
+                                <div className="flex items-center gap-2 mr-4 border-r pr-4">
+                                    <Checkbox
+                                        id="select-all-resources"
+                                        checked={resourceItems.every(i => selectedIds.includes(i.id)) && resourceItems.length > 0}
+                                        onCheckedChange={() => selectAllInCategory(resourceItems)}
+                                    />
+                                    <label htmlFor="select-all-resources" className="text-xs font-medium cursor-pointer text-muted-foreground">Selecionar Todos</label>
+                                </div>
+                            )}
+                            {resourceItems.length > 0 && (
+                                <Button size="sm" onClick={() => handleBatchApprove(resourceItems)} disabled={isBatchProcessing} className="bg-amber-600 hover:bg-amber-700 gap-2">
+                                    <ThumbsUp className="h-4 w-4" /> Aprovar Todos
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                     {resourceItems.length === 0 ? (
-                        <div className="text-center py-12">
-                            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Nenhum recurso pendente</h3>
-                            <p className="text-muted-foreground">Recursos pendentes aparecerão aqui para revisão.</p>
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            Nenhum recurso pendente.
                         </div>
                     ) : (
-                        resourceItems.map((item) => (
-                            <Card key={item.id} className="bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-colors">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <BookOpen className="h-4 w-4 text-amber-600" />
-                                                <CardTitle className="text-base">{item.title}</CardTitle>
-                                            </div>
-                                            <CardDescription className="line-clamp-2">{item.content_preview}</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handlePreview(item)} className="gap-2">
-                                        <Eye className="h-4 w-4" /> Ver
-                                    </Button>
-                                    <Button size="sm" onClick={() => handleApprove(item)} className="gap-2 bg-green-600 hover:bg-green-700">
-                                        <ThumbsUp className="h-4 w-4" /> Aprovar
-                                    </Button>
-                                    <Button variant="destructive" size="sm" onClick={() => { setSelectedItem(item); setRejectDialogOpen(true); }} className="gap-2">
-                                        <ThumbsDown className="h-4 w-4" /> Rejeitar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {resourceItems.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={handleApprove}
+                                    onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                    isSelected={selectedIds.includes(item.id)}
+                                    onSelect={toggleSelect}
+                                />
+                            ))}
+                        </div>
                     )}
                 </TabsContent>
             </Tabs>

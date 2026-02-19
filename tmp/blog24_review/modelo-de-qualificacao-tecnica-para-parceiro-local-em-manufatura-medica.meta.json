@@ -1,0 +1,115 @@
+{
+  "id": "161f0f48-2d68-4cad-9720-5c3371af4e13",
+  "title": "Modelo de qualificação técnica para parceiro local em manufatura médica",
+  "slug": "modelo-de-qualificacao-tecnica-para-parceiro-local-em-manufatura-medica",
+  "excerpt": "A expansão de uma fábrica de dispositivos médicos é um marco que exige uma revisão completa da cadeia de suprimentos. Este artigo explora como otimizar sua cadeia de suprimentos, desde a avaliação de fornecedores até a implementação de tecnologias avançadas, garantindo resiliência e crescimento sustentável.",
+  "seo_title": "Modelo de qualificação técnica para parceiro local em manufa",
+  "seo_description": "Otimize sua cadeia de suprimentos na fabricação de dispositivos médicos. Estratégias e tecnologias para resiliência e crescimento sustentável.",
+  "keywords": [
+    "qualificação de fornecedor",
+    "parceiro local",
+    "manufatura médica",
+    "auditoria técnica"
+  ],
+  "created_at": "2026-02-12T22:37:05.228878+00:00",
+  "updated_at": "2026-02-12T22:37:05.228878+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.oecd.org/en/publications/2025/06/oecd-supply-chain-resilience-review_9930d256.html",
+      "https://www.fda.gov/medical-devices/medical-device-safety/medical-device-supply-chain-and-shortages",
+      "https://www.fda.gov/medical-devices/medical-device-supply-chain-and-shortages/medical-device-shortages-list",
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "Leveraging a structured qualification framework (4P) to mitigate supply chain risks and ensure quality when selecting local manufacturing partners",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Challenge of Local Partner Qualification in Medical Device Manufacturing",
+            "key_points": "Risks associated with poorly qualified local partners (quality, regulatory compliance, supply chain disruption), increasing complexity in global supply chains; short introduction to Lifetrek"
+          },
+          {
+            "tag": "h2",
+            "title": "Introducing the 4P Qualification Framework",
+            "key_points": "Overview of the 4Ps: People, Process, Plant, Performance; explain how each element impacts partner selection and ongoing relationship management"
+          },
+          {
+            "tag": "h3",
+            "title": "People: Assessing Expertise and Cultural Alignment",
+            "key_points": "Evaluating the partner's team (skills, experience, certifications), importance of cultural fit and communication protocols, defining roles and responsibilities with clear line of sight."
+          },
+          {
+            "tag": "h3",
+            "title": "Process: Ensuring Robust Quality Management Systems (QMS)",
+            "key_points": "Auditing the partner's QMS; compliance with relevant standards (ISO 13485, FDA regulations); validation processes, documentation and change control. Mention ANVISA if relevant, avoid pushing it."
+          },
+          {
+            "tag": "h3",
+            "title": "Plant: Evaluating Facility and Equipment Capabilities",
+            "key_points": "Assessing the partner's production capacity, technology infrastructure, equipment maintenance programs; cleanroom standards and environmental controls relevant to medical device manufacturing."
+          },
+          {
+            "tag": "h3",
+            "title": "Performance: Establishing Key Performance Indicators (KPIs) and Monitoring",
+            "key_points": "Defining performance metrics (on-time delivery, defect rates, cost efficiency), implementing monitoring and reporting systems, establishing feedback loops and continuous improvement processes. (Cite OECD supply chain resilience review.)"
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study: Lifetrek Medical's Successful Partner Qualification",
+            "key_points": "Briefly describe Lifetrek Medical's partner qualification process using the 4P framework (without specific details that could compromise confidentiality), highlight positive outcomes (improved quality, reduced risk, enhanced supply chain resilience)."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Building a Resilient Supply Chain Through Strategic Partner Qualification",
+            "key_points": "Recap the benefits of the 4P approach, reiterate the importance of thorough due diligence, and suggest further reading/resources for readers."
+          }
+        ],
+        "target_persona": "VP of Operations or Supply Chain Director at a medical device manufacturing company",
+        "visual_concept": "Clean, modern image of a globally connected supply chain network focusing on a medical device manufacturing facility; avoid overly technical or cluttered designs"
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-05-09T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Modelo de qualificação técnica para parceiro local em manufatura médica",
+    "pillar_keyword": "transição local de supply chain médica",
+    "content_cluster": "supply_chain_transition",
+    "entity_keywords": [
+      "nacionalização de supply chain",
+      "migração de SKUs",
+      "qualificação de fornecedor",
+      "resiliência de abastecimento"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:54.710Z",
+    "source_linkedin": {
+      "id": "703c5790-3da4-4188-bdf8-13e8ca89951f",
+      "topic": "Lifetrek Medical Launch (Composited)",
+      "folder": "lifetrek-medical-launch-composited--703c5790",
+      "status": "archived",
+      "caption_excerpt": "We Have Arrived. Lifetrek Medical expands with a new 50,000 sqft facility. #Lifetrek #MedicalManufacturing"
+    },
+    "title_aligned_at": "2026-02-12T22:40:41.982Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:48.712Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:46.705Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:18.316Z",
+    "marketing_assets_plan_id": "ma-supply-04",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:42:59.825Z"
+  }
+}

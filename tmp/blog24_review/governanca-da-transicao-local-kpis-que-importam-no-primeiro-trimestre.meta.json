@@ -1,0 +1,105 @@
+{
+  "id": "835df3b5-4119-47c3-a124-ce816c136ac6",
+  "title": "Governança da transição local: KPIs que importam no primeiro trimestre",
+  "slug": "governanca-da-transicao-local-kpis-que-importam-no-primeiro-trimestre",
+  "excerpt": "A expansão de uma fábrica de dispositivos médicos é um marco que envolve planejamento estratégico, otimização de processos e a adoção de tecnologias avançadas. Este artigo detalha como a Lifetrek Medical, e outras empresas do setor, podem garantir uma escalabilidade bem-sucedida e sustentável em suas operações.",
+  "seo_title": "Governança da transição local: KPIs que importam no primeiro",
+  "seo_description": "Descubra como a expansão estratégica impulsiona a manufatura de dispositivos médicos. Gestão de projetos, otimização de processos e tecnologia de ponta.",
+  "keywords": [
+    "KPIs de supply chain",
+    "transição local",
+    "lead time",
+    "resiliência"
+  ],
+  "created_at": "2026-02-12T22:36:44.525242+00:00",
+  "updated_at": "2026-02-12T22:36:44.525242+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.oecd.org/en/publications/2025/06/oecd-supply-chain-resilience-review_9930d256.html",
+      "https://www.fda.gov/medical-devices/medical-device-safety/medical-device-supply-chain-and-shortages",
+      "https://www.fda.gov/medical-devices/medical-device-supply-chain-and-shortages/medical-device-shortages-list",
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare"
+    ],
+    "cta_mode": "diagnostico",
+    "strategy": [
+      {
+        "angle": "Focus on practical KPI implementation for supply chain and risk management during facility expansion, leveraging a 'Plan-Prepare-Perform-Protect' (4P) framework",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Introduction: The Significance of Q1 KPIs in Facility Transitions",
+            "key_points": "Briefly introduce Lifetrek Medical's expansion. Highlight the criticality of well-defined KPIs in the first quarter for successful supply chain and risk mitigation during facility launches (citing OECD)."
+          },
+          {
+            "tag": "h2",
+            "title": "The 'Plan' Phase: Defining KPIs for Strategic Alignment",
+            "key_points": "Focus on initial planning KPIs: Supplier Readiness Score, Budget Adherence, Timeline Compliance. Emphasize how clear planning KPIs set the foundation for the entire transition."
+          },
+          {
+            "tag": "h2",
+            "title": "The 'Prepare' Phase: KPIs for Operational Readiness",
+            "key_points": "Describe KPIs related to setting up the facility and processes: Equipment Installation Completion Rate, Initial Inventory Levels, Training Completion metrics. Discuss the importance of operational readiness for supply chain efficiency."
+          },
+          {
+            "tag": "h2",
+            "title": "The 'Perform' Phase: KPIs for Initial Output and Efficiency",
+            "key_points": "Cover KPIs for initial production runs: Production Volume, Defect Rate, On-Time Delivery. Analyze how these KPIs reflect initial supply chain performance and identify areas for optimization."
+          },
+          {
+            "tag": "h2",
+            "title": "The 'Protect' Phase: KPIs for Risk Mitigation and Continuity",
+            "key_points": "Discuss metrics to safeguard the supply chain: Supplier Risk Assessment Score, Redundancy Implementation Rate, Cybersecurity Incident Response Time. Outline the importance of proactive risk mitigation."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Optimizing Transition Governance Through Strategic KPIs",
+            "key_points": "Summarize the importance of the 4P framework and its related KPIs for successful facility launches. Reiterate that early-stage KPI monitoring is crucial for lasting success.  Conclude with a call to action focused on implementing similar KPI strategies."
+          }
+        ],
+        "target_persona": "Supply Chain Managers and Operations Directors in Manufacturing",
+        "visual_concept": "Clean, minimalist image depicting a modern factory or supply chain network. Avoid overt textual elements."
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-05-04T17:00:00.000Z",
+    "funnel_stage": "BOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Governança da transição local: KPIs que importam no primeiro trimestre",
+    "pillar_keyword": "transição local de supply chain médica",
+    "content_cluster": "supply_chain_transition",
+    "entity_keywords": [
+      "nacionalização de supply chain",
+      "migração de SKUs",
+      "qualificação de fornecedor",
+      "resiliência de abastecimento"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:54.855Z",
+    "source_linkedin": {
+      "id": "6863ac69-e10d-4b3f-8a48-ad8b807659b0",
+      "topic": "Lifetrek Medical Launch (Real Asset + PT)",
+      "folder": "lifetrek-medical-launch-real-asset-pt--6863ac69",
+      "status": "archived",
+      "caption_excerpt": "Chegamos. A Lifetrek Medical tem o prazer de anunciar nossa nova fábrica de 5.000m². Mais capacidade, mais precisão, mesma qualidade.\n\n#LifetrekMedical #Manufatura #Expansão #DispositivosMedicos"
+    },
+    "title_aligned_at": "2026-02-12T22:40:42.113Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:48.567Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:46.566Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:18.182Z",
+    "marketing_assets_plan_id": "ma-supply-03",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:42:59.977Z"
+  }
+}

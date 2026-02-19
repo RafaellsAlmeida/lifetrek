@@ -1,0 +1,115 @@
+{
+  "id": "72d69ac1-ccda-460c-8f81-5ba6562ec3f4",
+  "title": "Expansão de 5.000m²: como aumentar capacidade sem perder controle",
+  "slug": "expansao-de-5-000m-como-aumentar-capacidade-sem-perder-controle",
+  "excerpt": "A expansão de uma fábrica de dispositivos médicos é um passo crucial que exige planejamento estratégico e otimização de processos. Descubra como maximizar o ROI através de metodologias comprovadas e tecnologia de ponta.",
+  "seo_title": "Expansão de 5.000m²: como aumentar capacidade sem perder con",
+  "seo_description": "Estratégias para expansão na manufatura de dispositivos médicos, otimizando processos e garantindo ROI. Insights sobre gestão, tecnologia e qualidade.",
+  "keywords": [
+    "expansão industrial",
+    "capacidade produtiva",
+    "dispositivos médicos",
+    "Lifetrek"
+  ],
+  "created_at": "2026-02-12T22:38:17.451237+00:00",
+  "updated_at": "2026-02-12T22:38:17.451237+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "How to strategically scale infrastructure (5000m²+ expansions) using a '4P' framework (People, Process, Plant, Performance) to maintain control and quality.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Challenge: Scaling Without Sacrificing Control",
+            "key_points": "Common pitfalls during expansion (5000m²+ focus). Discuss the risks: quality degradation, process bottlenecks, increased costs, project slowdown/delay. Example: discuss US Trade.gov info on expansion challenges."
+          },
+          {
+            "tag": "h2",
+            "title": "Introducing the 4P Framework for Controlled Expansion",
+            "key_points": "Briefly introduce the 4Ps: People, Process, Plant, and Performance. Position it as a holistic system."
+          },
+          {
+            "tag": "h2",
+            "title": "People: Building a Scalable Team and Culture",
+            "key_points": "Talent acquisition and retention during growth. Training and development programs. Clear communication strategies. Emphasize a culture of quality and accountability."
+          },
+          {
+            "tag": "h2",
+            "title": "Process: Optimizing Workflows for Increased Capacity",
+            "key_points": "Process mapping and improvement techniques. Identify and eliminate bottlenecks. Implement standardized operating procedures (SOPs). Importance of documentation."
+          },
+          {
+            "tag": "h2",
+            "title": "Plant: Designing an Efficient and Flexible Facility",
+            "key_points": "Facility layout and design principles for optimal workflow. Equipment selection and maintenance strategies. Incorporating scalability into the physical plant. Automation considerations."
+          },
+          {
+            "tag": "h2",
+            "title": "Performance: Measuring and Monitoring Key Metrics",
+            "key_points": "Key performance indicators (KPIs) for tracking expansion progress. Real-time data monitoring and analysis. Setting up audit checks/balances for deviations."
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study (Inspired by Lifetrek Launch): Real-World Application",
+            "key_points": "Present a hypothetical case study of a manufacturing company successfully scaling using the 4P framework. Highlight specific examples of how each 'P' was implemented. Quantitative results where possible (e.g., reduced cycle time, improved quality metrics). Fictional company."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Maintaining Control in a Growth Environment",
+            "key_points": "Recap the benefits of the 4P Framework. Emphasize the importance of proactive planning and controlled execution. Positioning statement that large scale expansion is possible with the right methodology."
+          }
+        ],
+        "target_persona": "Construction & Manufacturing CEOs/COOs, Operations Directors, Plant Managers",
+        "visual_concept": "Aerial view of a streamlined, modern construction/manufacturing facility (Lifetrek Medical inspired, but generic). Focus on scale and efficiency."
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-05-22T17:00:00.000Z",
+    "funnel_stage": "TOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Expansão de 5.000m²: como aumentar capacidade sem perder controle",
+    "pillar_keyword": "parceria OEM em manufatura médica",
+    "content_cluster": "brand_capability_scale",
+    "entity_keywords": [
+      "OEM medical manufacturing Brazil",
+      "single-source partnership",
+      "capacidade produtiva",
+      "manufatura médica de precisão"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:54.264Z",
+    "source_linkedin": {
+      "id": "6863ac69-e10d-4b3f-8a48-ad8b807659b0",
+      "topic": "Lifetrek Medical Launch (Real Asset + PT)",
+      "folder": "lifetrek-medical-launch-real-asset-pt--6863ac69",
+      "status": "archived",
+      "caption_excerpt": "Chegamos. A Lifetrek Medical tem o prazer de anunciar nossa nova fábrica de 5.000m². Mais capacidade, mais precisão, mesma qualidade.\n\n#LifetrekMedical #Manufatura #Expansão #DispositivosMedicos"
+    },
+    "title_aligned_at": "2026-02-12T22:40:41.559Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:49.159Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:47.156Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 3,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:18.725Z",
+    "marketing_assets_plan_id": "ma-brand-03",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:42:59.509Z"
+  }
+}

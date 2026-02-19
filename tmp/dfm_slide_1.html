@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 1080px;
+            height: 1080px;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .slide {
+            width: 1080px;
+            height: 1080px;
+            position: relative;
+            overflow: hidden;
+            background: #001020;
+        }
+
+        .slide .bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .slide .grad {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg, rgba(0, 20, 50, 0.94) 0%, rgba(0, 20, 50, 0.88) 35%, rgba(0, 20, 50, 0.45) 65%, rgba(0, 20, 50, 0.1) 100%);
+            z-index: 1;
+        }
+
+        .glass {
+            position: absolute;
+            left: 55px;
+            top: 110px;
+            width: 560px;
+            background: rgba(0, 60, 120, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 48px 52px;
+            z-index: 2;
+            color: white;
+        }
+
+        .tag {
+            color: #4ade80;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 46px;
+            line-height: 1.08;
+            font-weight: 900;
+            margin-bottom: 24px;
+        }
+
+        .body {
+            font-size: 22px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .logo-wrap {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            z-index: 3;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .logo-wrap img {
+            width: 140px;
+            display: block;
+        }
+
+        .bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #004F8F 0%, #1A7A3E 100%);
+            z-index: 3;
+        }
+
+        .site {
+            position: absolute;
+            bottom: 22px;
+            left: 55px;
+            z-index: 3;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="slide">
+        <img class="bg"
+            src="file:///Users/rafaelalmeida/lifetrek/src/assets/products/medical-implants-diagram-enhanced.webp" />
+        <div class="grad"></div>
+        <div class="logo-wrap"><img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" /></div>
+        <div class="glass">
+            <div class="tag">DESTAQUE</div>
+            <h1>Otimize Seus Projetos com DFM: Reduza Custos, Melhore a Qualidade!</h1>
+            <p class="body">Maximize a eficiência e minimize os riscos na produção de implantes e instrumentais
+                cirúrgicos! 🚀<br><br>Um DFM robusto é a chave para otimizar seus projetos, reduzir custos e acelerar o
+                time-to-market.</p>
+        </div>
+        <div class="bar"></div>
+        <div class="site">www.lifetrek-medical.com</div>
+    </div>
+</body>
+
+</html>

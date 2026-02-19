@@ -1,0 +1,101 @@
+{
+  "id": "c0ea8876-0428-4dab-938d-5c22e23149ef",
+  "title": "Geometria, Rugosidade e Transições: o que mais impacta a fadiga",
+  "slug": "geometria-rugosidade-e-transicoes-o-que-mais-impacta-a-fadiga",
+  "excerpt": "Falhas inesperadas em testes de fadiga de implantes representam um problema sério, gerando custos elevados e atrasos significativos. Este artigo explora os principais erros que levam a essas falhas e apresenta um processo estruturado para garantir a validação eficaz de implantes, otimizando tempo, recursos e a conformidade regulatória.",
+  "seo_title": "Geometria, Rugosidade e Transições: o que mais impacta a fad",
+  "seo_description": "Entenda geometria, rugosidade e transições: o que mais impacta a fadiga com foco em engenharia, qualidade e operação para decisões mais seguras em dispositiv...",
+  "keywords": [
+    "geometria de implante",
+    "rugosidade superficial",
+    "falha por fadiga",
+    "qualidade de usinagem"
+  ],
+  "created_at": "2026-02-12T22:31:27.419001+00:00",
+  "updated_at": "2026-02-12T22:31:27.419001+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.iso.org/standard/61997.html",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC6888446/",
+      "https://www.gov.br/anvisa/pt-br/setorregulado/regularizacao/produtos-para-saude/conceitos-e-definicoes/classificacao-de-implantes",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "How understanding geometry, roughness, and transitions can drastically reduce product validation failures & time to market, framed by Lifetrek Medical's 4P Framework (People, Process, Plant, Product)",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Hidden Cost of Fatigue Test Failures",
+            "key_points": "Financial impact (rework, delays), Regulatory hurdles (ANVISA/FDA), The common misconception: Design vs. Validation issues."
+          },
+          {
+            "tag": "h2",
+            "title": "Decoding the Culprits: Geometry, Roughness, and Transitions",
+            "key_points": "Geometry: Importance of pre-CNC validation and accurate modeling. Roughness: Surface finish effects on stress concentration and fatigue life. Transitions: Stress risers at junctions and sharp corners."
+          },
+          {
+            "tag": "h2",
+            "title": "The 4P Framework for Fatigue Validation",
+            "key_points": "People: Training and expertise in materials science and fatigue analysis. Process: Structured validation workflow, from design to testing. Plant: Use of calibrated equipment for precision. Product: Testing material representative to production, tolerance correctly specfied."
+          },
+          {
+            "tag": "h2",
+            "title": "Case Studies: Real-World Impact",
+            "key_points": "Anonymized examples of companies facing fatigue failure challenges, Lifetrek Medical's intervention, and positive outcomes."
+          },
+          {
+            "tag": "h2",
+            "title": "Optimize Your Validation with Lifetrek Medical",
+            "key_points": "How Lifetrek Medical helps companies avoid common validation errors, reduce time to market, and improve product reliability. Call to action: schedule a consultation or download a resource."
+          }
+        ],
+        "target_persona": "Product Development Engineers/Managers in Medical Device Manufacturing",
+        "visual_concept": "Abstract view of a metal surface highlighting roughness and geometric transitions; emphasis on imperfections."
+      }
+    ],
+    "icp_primary": "MI",
+    "target_date": "2026-03-03T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "OD",
+      "VT"
+    ],
+    "expected_topic": "Geometria, Rugosidade e Transições: o que mais impacta a fadiga",
+    "pillar_keyword": "validação de fadiga em implantes",
+    "content_cluster": "fatigue_validation",
+    "entity_keywords": [
+      "implantes ortopédicos",
+      "ensaio dinâmico",
+      "ISO 14801",
+      "falha por fadiga",
+      "rugosidade superficial"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:56.950Z",
+    "source_linkedin": {
+      "id": "f567e3bb-fb0c-447a-ae2a-4dfddaa6eb19",
+      "topic": "3 Erros que Fazem Seu Implante Falhar no Teste de Fadiga",
+      "folder": "3-erros-que-fazem-seu-implante-falhar-no-teste-de-fadiga--f567e3bb",
+      "status": "archived",
+      "caption_excerpt": "Falhas no teste de fadiga custam caro.\n\nNão apenas em dinheiro - R$50k+ por iteração.\nMas em tempo: meses de atraso no registro ANVISA/FDA.\n\nA análise de centenas de projetos de implantes revela um padrão:\n\nA maioria das falhas NÃO são problemas de design.\nSão problemas de validação.\n\n→ Geometria não testada antes do CNC\n→ Protótipo em material \"similar\" (que invalida os dados)\n→ Regiões críticas sem especificação de tolerância\n\nCada erro desses poderia ser evitado com um processo estruturado.\n\nO Fluxo de Validação de Fadiga é um guia visual + checklist técnico para validar implantes ANTES do ensaio destrutivo.\n\nDo CAD ao teste, passo a passo.\n\nLink nos comentários.\n\n#DispositivosMedicos #ImplantesOrtopedicos #ANVISA #ISO13485"
+    },
+    "title_aligned_at": "2026-02-12T22:40:43.949Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:46.455Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:44.472Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 4,
+      "HS": 2,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:16.223Z",
+    "marketing_assets_plan_id": "ma-fatigue-04",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:01.683Z"
+  }
+}

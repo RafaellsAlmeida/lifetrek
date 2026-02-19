@@ -1,0 +1,112 @@
+{
+  "id": "8a8708e7-9c75-42b1-8a76-32f05a6b001f",
+  "title": "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão",
+  "slug": "tolerancias-funcionais-como-revisar-desenho-para-usinagem-de-precisao",
+  "excerpt": "Um Checklist DFM (Design for Manufacturing) bem estruturado é crucial para garantir a qualidade, reduzir custos e otimizar a produção de implantes e instrumentais médicos. Descubra como implementar este processo de forma eficaz em sua empresa.",
+  "seo_title": "Tolerâncias Funcionais: como revisar desenho para usinagem d",
+  "seo_description": "Maximize a qualidade de seus implantes e instrumentais médicos com um Checklist DFM eficaz. Reduza custos e melhore a segurança do paciente.",
+  "keywords": [
+    "tolerâncias",
+    "usinagem de precisão",
+    "implantes",
+    "controle dimensional"
+  ],
+  "created_at": "2026-02-12T22:33:03.513591+00:00",
+  "updated_at": "2026-02-12T22:33:03.513591+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "Lifetrek Medical's modelo técnico de execução: People, Process, Planning, Performance. Precision machining's success hinges on robust tolerances using these 4 elements",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Introduction: The Imperative of Functional Tolerances in Precision Machining",
+            "key_points": "Define functional tolerances and their critical role in ensuring the performance, reliability, and manufacturability of precision-machined components. Briefly contrast traditional vs functional tolerancing."
+          },
+          {
+            "tag": "h2",
+            "title": "People: Building the Team and Knowledge Base",
+            "key_points": "Importance of cross-functional collaboration (design, manufacturing, quality). Discuss necessary training and skills for engineers to accurately define and interpret functional tolerances."
+          },
+          {
+            "tag": "h2",
+            "title": "Process: Implementing a Robust Review Workflow",
+            "key_points": "Detail a structured review process for engineering drawings focused on functional tolerances. Consider checklist points, DfM (Design for Manufacturing) and DfA (Design for Assembly) integration, and software tools for tolerance analysis."
+          },
+          {
+            "tag": "h2",
+            "link": "To CAD software functionalities",
+            "title": "Planning: Setting Tolerance Strategies Early",
+            "key_points": "Emphasize proactive planning when defining tolerance strategies in the design phase. Include tolerance stack-up analysis, considering process capabilities, and cost implications of tight tolerances. Links to CAD software functionalities."
+          },
+          {
+            "tag": "h2",
+            "title": "Performance: Measuring and Improving Tolerance Effectiveness",
+            "key_points": "Outline methods for verifying that parts meet functional tolerance requirements. Discuss feedback loops (e.g., SPC data) for continuous improvement of tolerance strategies and machining processes. Performance KPIs and impact on financial outcomes."
+          },
+          {
+            "tag": "h2",
+            "title": "modelo técnico de execução Applied - Case Study (Lifetrek): Engineering Precision in the Medical Implants Sector",
+            "key_points": "Illustrate benefits of design review process using a medical implant example (Lifetrek). How functional tolerance reviews impacted a project, challenges faced, and quantitive results.",
+            "internal_note": "Don't cite Lifetrek Medical or any other client than Lifetrek Medical."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Optimizing Precision Machining through Functional Tolerances",
+            "key_points": "Recap the key benefits of a robust functional tolerance review process. How strategic tolerances contribute to cost savings, improved product quality, and faster time-to-market. Suggest consulting firms like Lifetrek Medical for help with implementation.",
+            "internal_note": "Avoid self-promotion."
+          }
+        ],
+        "target_persona": "Product Engineer/Engineering Manager at Manufacturing Companies",
+        "visual_concept": "Blueprint overlaying a high-precision machined part, emphasizing tight tolerances and quality control, using colors that represent quality and precision."
+      }
+    ],
+    "icp_primary": "MI",
+    "target_date": "2026-03-21T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "OD",
+      "VT"
+    ],
+    "expected_topic": "Tolerâncias Funcionais: como revisar desenho para usinagem de precisão",
+    "pillar_keyword": "DFM para dispositivos médicos",
+    "content_cluster": "dfm_engineering",
+    "entity_keywords": [
+      "design for manufacturing",
+      "usinagem CNC médica",
+      "tolerâncias funcionais",
+      "handoff engenharia produção"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:56.303Z",
+    "source_linkedin": {
+      "id": "eae08c83-4549-482b-8d04-3cf820a6aafd",
+      "topic": "Are you missing a step? Checklist DFM para Implantes e Instrumentais explained.",
+      "folder": "are-you-missing-a-step-checklist-dfm-para-implantes-e-instrumentais-explained--eae08c83",
+      "status": "archived",
+      "caption_excerpt": "Draft created for resource promotion: Checklist DFM para Implantes e Instrumentais"
+    },
+    "title_aligned_at": "2026-02-12T22:40:43.427Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:47.059Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:45.244Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 4,
+      "HS": 2,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:16.792Z",
+    "marketing_assets_plan_id": "ma-dfm-04",
+    "cleaned_scope_terms_version": "v2-management-framework-strip"
+  }
+}

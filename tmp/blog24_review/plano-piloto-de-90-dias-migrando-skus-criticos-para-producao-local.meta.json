@@ -1,0 +1,120 @@
+{
+  "id": "6084cd0e-0e8c-426e-b8c4-616718118e10",
+  "title": "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local",
+  "slug": "plano-piloto-de-90-dias-migrando-skus-criticos-para-producao-local",
+  "excerpt": "A expansão da Lifetrek Medical ilustra um caso de sucesso em que o aumento da capacidade produtiva é acompanhado por otimização de processos e mitigação de riscos. Este artigo explora as estratégias e metodologias adotadas para garantir a resiliência da cadeia de suprimentos e a excelência operacional.",
+  "seo_title": "Plano Piloto de 90 Dias: migrando SKUs críticos para produçã",
+  "seo_description": "Descubra como a Lifetrek Medical triplicou sua capacidade de produção, otimizou processos e mitigou riscos na fabricação de dispositivos médicos.",
+  "keywords": [
+    "produção local",
+    "plano de 90 dias",
+    "migração de SKUs",
+    "supply chain"
+  ],
+  "created_at": "2026-02-12T22:36:01.363694+00:00",
+  "updated_at": "2026-02-12T22:36:01.363694+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.oecd.org/en/publications/2025/06/oecd-supply-chain-resilience-review_9930d256.html",
+      "https://www.fda.gov/medical-devices/medical-device-safety/medical-device-supply-chain-and-shortages",
+      "https://www.fda.gov/medical-devices/medical-device-supply-chain-and-shortages/medical-device-shortages-list",
+      "https://www.trade.gov/country-commercial-guides/brazil-healthcare"
+    ],
+    "cta_mode": "resource_optional",
+    "strategy": [
+      {
+        "angle": "Applying a 90-Day Pilot Plan to Reshore Critical SKUs in Manufacturing",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Supply Chain Challenge: Why Reshoring Critical SKUs Matters",
+            "key_points": "Discuss rising shipping costs, geopolitical risks, quality control issues, and the need for supply chain resilience—cite relevant industry data."
+          },
+          {
+            "tag": "h2",
+            "title": "Introducing the 90-Day Pilot Plan Framework",
+            "key_points": "Present Lifetrek Medical's structured approach to reshoring; this will be described in detail."
+          },
+          {
+            "tag": "h3",
+            "title": "Phase 1: Product Selection and Feasibility Analysis - (Primeira Fase)",
+            "key_points": "Focus on identifying high-impact SKUs for local production, considering factors like volume, criticality, and manufacturing complexity. Analyze costs, capabilities, and potential ROI."
+          },
+          {
+            "tag": "h3",
+            "title": "Phase 2: Vendor Assessment and Onboarding - (Segunda Fase)",
+            "key_points": "Detail the process of identifying, vetting, and onboarding local suppliers. Include quality control measures and risk assessment strategies."
+          },
+          {
+            "tag": "h3",
+            "title": "Phase 3: Pilot Production and Optimization - (Terceira Fase)",
+            "key_points": "Describe the execution of a pilot production run, emphasizing data collection, performance monitoring, and iterative improvements."
+          },
+          {
+            "tag": "h3",
+            "title": "Phase 4: Scaling and Integration - (Quarta Fase)",
+            "key_points": "Outline steps for scaling local production based on pilot results, integrating the newly reshored SKUs into the existing supply chain, and establishing long-term monitoring systems."
+          },
+          {
+            "tag": "h2",
+            "title": "Case Study: [Hypothetical Company X] Success with the 90-Day Plan",
+            "key_points": "Share a fictionalized case study showcasing a manufacturing client who successfully reshored critical SKUs using Lifetrek Medical's framework. Quantify the benefits achieved (cost savings, lead time reduction, etc.)."
+          },
+          {
+            "tag": "h2",
+            "title": "Conclusion: Building a Resilient, Localized Supply Chain",
+            "key_points": "Summarize the benefits of reshoring and highlight Lifetrek Medical's expertise in facilitating successful transitions."
+          },
+          {
+            "tag": "h2",
+            "title": "Next Steps: Ready to Transform Your Supply Chain?",
+            "key_points": "Include a call to action, inviting readers to contact Lifetrek Medical for a consultation or to learn more about their supply chain optimization services."
+          }
+        ],
+        "target_persona": "Supply Chain Director/VP at mid-sized manufacturing firm",
+        "visual_concept": "Clean image showing a disassembled product; different parts originating from different places and being put together"
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-04-25T17:00:00.000Z",
+    "funnel_stage": "BOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Plano Piloto de 90 Dias: migrando SKUs críticos para produção local",
+    "pillar_keyword": "transição local de supply chain médica",
+    "content_cluster": "supply_chain_transition",
+    "entity_keywords": [
+      "nacionalização de supply chain",
+      "migração de SKUs",
+      "qualificação de fornecedor",
+      "resiliência de abastecimento"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:55.152Z",
+    "source_linkedin": {
+      "id": "62b7ef53-8198-47d1-96b8-49e538ab7e78",
+      "topic": "Lifetrek Medical Launch & Vision",
+      "folder": "lifetrek-medical-launch-vision--62b7ef53",
+      "status": "archived",
+      "caption_excerpt": "It's time to level up. 🚀\n\nWe are thrilled to announce that Lifetrek Medical has officially acquired a new 50,000 sqft manufacturing facility.\n\nThis isn't just about space.\n\nIt's about:\n✅ 3x Production Capacity\n✅ Advanced Cleanroom Environments\n✅ Rapid Prototyping Capabilities\n\nFor our OEM partners, this means faster lead times and zero compromise on quality.\n\nWe are ready to scale with you.\n\n#MedicalDevices #Manufacturing #Expansion #LifetrekMedical #Growth"
+    },
+    "title_aligned_at": "2026-02-12T22:40:42.396Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:48.264Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:46.260Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 2,
+      "MI": 4,
+      "OD": 3,
+      "VT": 3
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:17.913Z",
+    "marketing_assets_plan_id": "ma-supply-01",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:00.252Z"
+  }
+}

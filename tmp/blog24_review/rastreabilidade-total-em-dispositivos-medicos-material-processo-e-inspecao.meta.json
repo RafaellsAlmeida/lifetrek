@@ -1,0 +1,105 @@
+{
+  "id": "02401daf-65e5-4031-a029-c7adba546b87",
+  "title": "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção",
+  "slug": "rastreabilidade-total-em-dispositivos-medicos-material-processo-e-inspecao",
+  "excerpt": "Na busca por excelência, a 'tolerância zero' não é apenas um ideal, mas um catalisador para o crescimento sustentável. Entenda como essa filosofia, aplicada rigorosamente, transforma processos, eleva a qualidade e impulsiona resultados tangíveis nas indústrias de construção e manufatura.",
+  "seo_title": "Rastreabilidade Total em Dispositivos Médicos: material, pro",
+  "seo_description": "Descubra como a busca pela qualidade zero defeitos impulsiona o crescimento, a eficiência e a inovação nas indústrias de construção e manufatura.",
+  "keywords": [
+    "rastreabilidade",
+    "controle de processo",
+    "dispositivos médicos",
+    "qualidade"
+  ],
+  "created_at": "2026-02-12T22:33:45.55558+00:00",
+  "updated_at": "2026-02-12T22:33:45.55558+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.nist.gov/metrology/metrological-traceability",
+      "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022",
+      "https://www.iso.org/standard/59752.html"
+    ],
+    "cta_mode": "resource_optional",
+    "strategy": [
+      {
+        "angle": "How end-to-end traceability, beyond compliance, drives efficiency and reduces risk, increasing market confidence in medical devices with use of Lifetrek Medical's modelo técnico de execução (People, Process, Product and Performance).",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "The Evolving Landscape of Medical Device Traceability",
+            "key_points": "Discuss increasing regulatory demands (FDA, ANVISA), patient safety concerns, and market competition requiring higher transparency."
+          },
+          {
+            "tag": "h2",
+            "title": "Beyond Compliance: The Business Value of Full Traceability",
+            "key_points": "Explain how traceability reduces recalls, improves root cause analysis, enhances supply chain management, and builds brand trust. Quantify the ROI."
+          },
+          {
+            "tag": "h2",
+            "title": "Material, Process, and Inspection: The Traceability Triad",
+            "key_points": "Detail each element: how to track materials from origin, monitor each process step, and integrate inspection data for a complete device history."
+          },
+          {
+            "tag": "h2",
+            "title": "Lifetrek Medical’s 4P Framework for Traceability Implementation",
+            "key_points": "Introduce the framework (People, Process, Product, Performance). Explain very brefly each aspect and give examples of practical strategies for implementation. (e.g. process: digital solution)"
+          },
+          {
+            "tag": "h2",
+            "title": "Real-World Results: Case Studies of Optimized Traceability",
+            "key_points": "Showcase Lifetrek Medical’s success stories (anonymized) in helping medical device manufacturers improve traceability and achieve business outcomes. Emphasize metrics such as defect reduction, time to market, and cost optimization."
+          },
+          {
+            "tag": "h2",
+            "title": "Next Steps: Partnering with Lifetrek Medical for Enhanced Traceability",
+            "key_points": "Offer a call to action: free consultation, traceability assessment, or workshop. Position Lifetrek Medical as the expert to guide manufacturers in achieving end-to-end traceability."
+          }
+        ],
+        "target_persona": "Quality Assurance Manager/Director in Medical Device Manufacturing",
+        "visual_concept": "Clean, professional image conveying precision and interconnectedness; close-up of a medical device component being measured with high-tech equipment, with visual elements that subtly hint at connections and data flow."
+      }
+    ],
+    "icp_primary": "CM",
+    "target_date": "2026-03-30T17:00:00.000Z",
+    "funnel_stage": "BOFU",
+    "icp_secondary": [
+      "MI",
+      "OD"
+    ],
+    "expected_topic": "Rastreabilidade Total em Dispositivos Médicos: material, processo e inspeção",
+    "pillar_keyword": "metrologia e qualidade em dispositivos médicos",
+    "content_cluster": "quality_metrology",
+    "entity_keywords": [
+      "metrologia CMM",
+      "rastreabilidade de lote",
+      "CAPA",
+      "ISO 13485"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:56.010Z",
+    "source_linkedin": {
+      "id": "919426f3-6e38-499c-8f1a-1f6b6b920deb",
+      "topic": "Trust: The Zero-Defect Standard",
+      "folder": "trust-the-zero-defect-standard--919426f3",
+      "status": "archived",
+      "caption_excerpt": "Quality is not a department. It's our product. 🛡️\n\nIn our industry, a micron is the difference between success and failure. That's why every Lifetrek component undergoes rigorous validation:\n✅ 100% CMM Inspection\n✅ Full Material Traceability\n✅ ANVISA & FDA Compliance Support\n\nSleep soundly knowing your devices are made to the highest global standards.\n\n#QualityControl #CMM #Metrology #PatientSafety #MedicalDevices #ZeroDefect #ContractManufacturing"
+    },
+    "title_aligned_at": "2026-02-12T22:40:43.166Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:47.362Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:45.614Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 5,
+      "HS": 3,
+      "MI": 5,
+      "OD": 4,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:17.075Z",
+    "marketing_assets_plan_id": "ma-quality-02",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:00.982Z"
+  }
+}

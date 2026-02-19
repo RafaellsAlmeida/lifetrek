@@ -1,0 +1,100 @@
+{
+  "id": "2a7a09d7-4502-4410-b651-0c03b8c80d4c",
+  "title": "ISO 7 na prática: pontos de controle para montagem e preparação de kits",
+  "slug": "iso-7-na-pratica-pontos-de-controle-para-montagem-e-preparacao-de-kits",
+  "excerpt": "Gerenciar múltiplos fornecedores na manufatura médica pode ser um desafio. Descubra como consolidar parceiros para otimizar sua cadeia de suprimentos, reduzir custos e garantir a qualidade em cada etapa do processo.",
+  "seo_title": "ISO 7 na prática: pontos de controle para montagem e prepara",
+  "seo_description": "Descubra como otimizar sua cadeia de fornecimento na manufatura médica para reduzir custos, garantir qualidade e acelerar a inovação com um único parceiro.",
+  "keywords": [
+    "ISO 7",
+    "sala limpa",
+    "montagem de kits",
+    "controle ambiental"
+  ],
+  "created_at": "2026-02-12T22:35:37.281394+00:00",
+  "updated_at": "2026-02-12T22:35:37.281394+00:00",
+  "metadata": {
+    "sources": [
+      "https://www.iso.org/standard/53394.html",
+      "https://www.iso.org/standard/70799.html",
+      "https://www.iso.org/standard/81823.html",
+      "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/rdc-665-de-2022"
+    ],
+    "cta_mode": "article_only",
+    "strategy": [
+      {
+        "angle": "How to leverage ISO Class 7 cleanrooms to reduce risks and improve yields, increasing operational efficiency.",
+        "outline": [
+          {
+            "tag": "h2",
+            "title": "Understanding ISO Class 7 Cleanrooms: Meeting Critical Standards",
+            "key_points": "Explain what ISO Class 7 is, which activities it caters to (assembly, packaging, etc.), and why it is important for medical device manufacturing. Include reference to ISO 14644-1:2015."
+          },
+          {
+            "tag": "h2",
+            "title": "Key Control Points in ISO 7 Cleanroom Setup for Kit Assembly",
+            "key_points": "Detail environmental condition requirements and best practices for air quality, surface cleanliness, temperature and humidity. Discuss how to choose the best filtration, air handling, and monitoring systems to maintain integrity by the modelo técnico de execução: People, Places, Procedures, Process."
+          },
+          {
+            "tag": "h2",
+            "title": "Implementing Effective Monitoring and Control Processes",
+            "key_points": "Explain how to establish robust procedures for regular monitoring, environmental sampling, and personnel training to ensure constant compliance and risk mitigation. Monitoring Frequency, types of tests, action limits, alert limits, Root cause analysis (RCA), CAPA etc. Discuss real-time monitoring technologies."
+          },
+          {
+            "tag": "h2",
+            "title": "Human Factors: Training and Best Practices for Personnel Behavior",
+            "key_points": "Highlight the role of personnel in maintaining cleanroom integrity. Best practices for gowning/de-gowning, movement within the cleanroom, and general behavior patterns that minimize contamination risks. Training and Qualification programs required for different tasks."
+          },
+          {
+            "tag": "h2",
+            "title": "Lifetrek Medical's Expertise in ISO 7 Cleanroom Optimization",
+            "key_points": "Showcase how Lifetrek Medical's consulting services can improve processes, reduce costs, and ensure compliance with ISO 7 standards. Customer Case Studies, ROI examples, Proven Methodologies, etc."
+          }
+        ],
+        "target_persona": "Quality Assurance Manager at a Medical Device Manufacturer",
+        "visual_concept": "A highly clean and organized ISO Class 7 cleanroom environment, showcasing sterile equipment and personnel in protective gear."
+      }
+    ],
+    "icp_primary": "HS",
+    "target_date": "2026-04-21T17:00:00.000Z",
+    "funnel_stage": "MOFU",
+    "icp_secondary": [
+      "MI",
+      "VT"
+    ],
+    "expected_topic": "ISO 7 na prática: pontos de controle para montagem e preparação de kits",
+    "pillar_keyword": "print to pack em manufatura médica",
+    "content_cluster": "print_pack_ops",
+    "entity_keywords": [
+      "sala limpa ISO 7",
+      "embalagem estéril",
+      "print to pack",
+      "controle ambiental"
+    ],
+    "seo_enriched_at": "2026-02-12T22:41:55.306Z",
+    "source_linkedin": {
+      "id": "ce0080b2-eaf5-43f9-a5ea-cce20b051b3e",
+      "topic": "Capabilities: Print to Pack",
+      "folder": "capabilities-print-to-pack--ce0080b2",
+      "status": "archived",
+      "caption_excerpt": "From raw titanium to sterile package. One partner. 🔄\n\nWhy manage 5 suppliers when you can trust one?\n🔹 **Swiss Turning**: Complex micro-parts (0.5mm+) on Citizen Cincom machines.\n🔹 **5-Axis**: For organic orthopedic geometries.\n🔹 **ISO 7 Cleanroom**: Validated cleaning and sterile packaging.\n\nWe handle the complexity so you can focus on innovation.\n\n#MedicalManufacturing #SwissLathe #Cleanroom #SterilePackaging #Orthopedics #DentalImplants #SupplyChainOptimization"
+    },
+    "title_aligned_at": "2026-02-12T22:40:42.526Z",
+    "generation_origin": "marketing_assets_linkedin_expansion",
+    "schedule_window_end": "2026-05-31T23:59:59.000Z",
+    "icp_first_applied_at": "2026-02-12T23:36:48.108Z",
+    "cleaned_scope_terms_at": "2026-02-13T15:35:46.101Z",
+    "icp_first_plan_version": "2026-02-12",
+    "icp_specificity_scores": {
+      "CM": 4,
+      "HS": 4,
+      "MI": 4,
+      "OD": 3,
+      "VT": 4
+    },
+    "schedule_rebalanced_at": "2026-02-13T00:09:17.756Z",
+    "marketing_assets_plan_id": "ma-printpack-03",
+    "cleaned_scope_terms_version": "v2-management-framework-strip",
+    "cleaned_cross_client_mentions_at": "2026-02-12T22:43:00.399Z"
+  }
+}
