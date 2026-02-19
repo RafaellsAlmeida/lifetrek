@@ -381,7 +381,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     <div>
                         <h3 className="text-2xl font-bold mb-2">{carousel?.topic || selectedItem.title}</h3>
                         <div className="flex gap-2 items-center">
-                            <Badge variant="secondary">LinkedIn Carousel</Badge>
+                            <Badge variant="secondary">Carrossel LinkedIn</Badge>
                             <Badge variant="secondary" className="gap-1">
                                 <Sparkles className="h-3 w-3" />
                                 IA
@@ -391,8 +391,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
                     <div className="space-y-2">
                         <p className="text-sm"><strong>Público-alvo:</strong> {carousel?.target_audience || selectedItem.full_data?.target_audience || 'N/A'}</p>
-                        <p className="text-sm"><strong>Pain Point:</strong> {carousel?.pain_point || selectedItem.full_data?.pain_point || 'N/A'}</p>
-                        <p className="text-sm"><strong>Outcome Desejado:</strong> {carousel?.desired_outcome || 'N/A'}</p>
+                        <p className="text-sm"><strong>Dor do Cliente:</strong> {carousel?.pain_point || selectedItem.full_data?.pain_point || 'N/A'}</p>
+                        <p className="text-sm"><strong>Resultado Desejado:</strong> {carousel?.desired_outcome || 'N/A'}</p>
                     </div>
 
                     <div className="border-t pt-4">
@@ -577,10 +577,10 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 Detalhes e Raciocínio
                             </h4>
                             <div className="space-y-3">
-                                <p className="text-sm"><strong>Público:</strong> {post?.target_audience || 'N/A'}</p>
-                                <p className="text-sm"><strong>Pain Point:</strong> {post?.pain_point || 'N/A'}</p>
-                                <p className="text-sm"><strong>Resultado:</strong> {post?.desired_outcome || 'N/A'}</p>
-                                <p className="text-sm"><strong>CTA:</strong> {post?.cta_action || 'N/A'}</p>
+                                <p className="text-sm"><strong>Público-alvo:</strong> {post?.target_audience || 'N/A'}</p>
+                                <p className="text-sm"><strong>Dor do Cliente:</strong> {post?.pain_point || 'N/A'}</p>
+                                <p className="text-sm"><strong>Resultado Desejado:</strong> {post?.desired_outcome || 'N/A'}</p>
+                                <p className="text-sm"><strong>Chamada para Ação:</strong> {post?.cta_action || 'N/A'}</p>
                             </div>
 
                             <div className="bg-muted/30 p-4 rounded-lg border border-primary/5">
@@ -698,6 +698,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     // Filter logic according to user requirements
     const approvalItems = filterItems(allPending.filter(item => {
         if (item.type === 'blog') return true;
+        if (item.type === 'resource') return true;
 
         const hasImages = item.type === 'linkedin'
             ? (Array.isArray(item.full_data?.slides) && item.full_data.slides.some((s: any) => s.image_url || s.imageUrl))

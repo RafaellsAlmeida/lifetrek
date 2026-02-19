@@ -1,20 +1,3 @@
-import React from 'react';
-import { X, ExternalLink, Globe, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-
-interface WebsitePreviewFrameProps {
-    url: string;
-    children: React.ReactNode;
-    onClose?: () => void;
-    onApprove?: () => void;
-    onReject?: () => void;
-    isApproving?: boolean;
-    isRejecting?: boolean;
-    title?: string;
-}
-
-
 import React, { useState } from 'react';
 import { X, ExternalLink, Globe, ChevronLeft, ChevronRight, RotateCw, Monitor, Smartphone, Tablet, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
