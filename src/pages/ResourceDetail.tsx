@@ -16,6 +16,10 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 // import remarkGfm from 'remark-gfm';
 import SupplierAuditCalculator from "@/components/resources/SupplierAuditCalculator";
+import ToleranceLookup from "@/components/resources/ToleranceLookup";
+import CleanRoomClassifier from "@/components/resources/CleanRoomClassifier";
+import SwissVsConventionalTool from "@/components/resources/SwissVsConventionalTool";
+import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 
 export default function ResourceDetail() {
     const { slug } = useParams();
@@ -78,6 +82,16 @@ export default function ResourceDetail() {
         trackResourceView(resource.slug, resource.title);
     }, [resource?.slug, resource?.title]);
 
+    useEffect(() => {
+        void flushPendingLeads();
+        const handleOnline = () => {
+            void flushPendingLeads();
+        };
+
+        window.addEventListener("online", handleOnline);
+        return () => window.removeEventListener("online", handleOnline);
+    }, []);
+
     if (isLoading) return <LoadingSpinner />;
     if (error || !resource) return <div className="p-8 text-center">Recurso não encontrado.</div>;
 
@@ -85,20 +99,51 @@ export default function ResourceDetail() {
         e.preventDefault();
         setIsUnlocking(true);
 
-        // Simulate API call or just save to localStorage for now
-        // In a real app, this would submit to Supabase
-        setTimeout(() => {
+        const unlockLocally = () => {
             if (slug) {
                 localStorage.setItem(`resource_unlocked_${slug}`, "true");
-                setHasAccess(true);
-                setIsModalOpen(false);
+            }
+            setHasAccess(true);
+            setIsModalOpen(false);
+        };
+
+        try {
+            const saveResult = await saveLeadWithCompat({
+                name: formData.name,
+                email: formData.email,
+                company: formData.company || undefined,
+                phone: "Nao informado",
+                project_type: "other_medical",
+                project_types: ["other_medical"],
+                technical_requirements: `Resource unlock: ${resolvedSlug}`,
+                message: `Mini auth unlock for /resources/${resolvedSlug}`,
+                source: "website",
+            });
+
+            unlockLocally();
+
+            if (saveResult.status === "saved") {
                 toast({
                     title: "Recurso desbloqueado!",
                     description: "Boa leitura.",
                 });
+            } else {
+                toast({
+                    title: "Recurso desbloqueado!",
+                    description: "Sincronizacao do lead pendente. Vamos tentar novamente automaticamente.",
+                });
             }
+        } catch (error) {
+            console.error("Unexpected error while unlocking resource:", error);
+            unlockLocally();
+            toast({
+                title: "Recurso desbloqueado!",
+                description: "Sincronizacao do lead pendente. Vamos tentar novamente automaticamente.",
+            });
+        } finally {
             setIsUnlocking(false);
-        }, 1000);
+            void flushPendingLeads();
+        }
     };
 
     const scorecardTotal = Object.values(scorecard).reduce((a, b) => a + b, 0);
@@ -431,11 +476,26 @@ export default function ResourceDetail() {
                         )}
 
                         {/* Supplier Audit Checklist - Interactive Scoring Calculator */}
-                        {(resource.slug === "checklist-auditoria-iso-13485" || resource.slug === "checklist-auditoria-fornecedores") && (
+                        {(resource.slug === "checklist-auditoria-iso-13485" || resource.slug === "checklist-auditoria-fornecedores" || resource.slug === "checklist-auditoria-fornecedores-medicos") && (
                             <SupplierAuditCalculator
                                 formData={formData}
                                 setIsModalOpen={setIsModalOpen}
                             />
+                        )}
+
+                        {/* Tolerance Lookup - for metrology guides */}
+                        {(resource.slug === "guia-metrologia-alta-precisao" || resource.slug === "guia-metrologia-3d-cnc-swiss") && (
+                            <ToleranceLookup />
+                        )}
+
+                        {/* Clean Room Classifier - for sala limpa guides */}
+                        {(resource.slug === "guia-sala-limpa-iso-7" || resource.slug === "guia-sala-limpa-dispositivos-medicos") && (
+                            <CleanRoomClassifier />
+                        )}
+
+                        {/* Swiss vs Conventional Tool - for whitepaper */}
+                        {resource.slug === "whitepaper-usinagem-suica-dispositivos-medicos" && (
+                            <SwissVsConventionalTool />
                         )}
 
                         {/* CTA Footer */}

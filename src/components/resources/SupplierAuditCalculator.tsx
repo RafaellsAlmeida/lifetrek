@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertTriangle, XCircle, ClipboardCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { saveLeadWithCompat } from "@/utils/contactLeadCapture";
 
 interface FormData {
     name: string;
@@ -168,39 +168,38 @@ export default function SupplierAuditCalculator({ formData, setIsModalOpen }: Su
         setIsSaving(true);
 
         try {
-            const { error } = await supabase
-                .from("contact_leads")
-                .insert({
-                    name: formData.name,
-                    email: formData.email,
-                    company: formData.company,
-                    phone: "Nao informado",
-                    project_type: "other_medical",
-                    technical_requirements: `Audit Scorecard: ${getTotalScore()}/${TOTAL_ITEMS} (${getPercentage()}%) - ${classification.label}`,
-                    message: `Supplier Audit Checklist. Responses: ${JSON.stringify(payload)}`
-                });
-
-            if (error) throw error;
-
-            toast({
-                title: "Avaliação salva",
-                description: "Resultados registrados no CRM."
+            const saveResult = await saveLeadWithCompat({
+                name: formData.name,
+                email: formData.email,
+                company: formData.company || undefined,
+                phone: "Nao informado",
+                project_type: "other_medical",
+                project_types: ["other_medical"],
+                technical_requirements: `Audit Scorecard: ${getTotalScore()}/${TOTAL_ITEMS} (${getPercentage()}%) - ${classification.label}`,
+                message: `Supplier Audit Checklist. Responses: ${JSON.stringify(payload)}`,
+                source: "website",
             });
-            setStatus("Avaliação salva com sucesso!");
+
+            if (saveResult.status === "saved") {
+                toast({
+                    title: "Avaliação salva",
+                    description: "Resultados registrados no CRM."
+                });
+                setStatus("Avaliação salva com sucesso!");
+            } else {
+                toast({
+                    title: "Avaliação salva",
+                    description: "Resultados registrados localmente e serão sincronizados."
+                });
+                setStatus("Avaliação salva localmente. Sincronização pendente.");
+            }
         } catch (err) {
             console.error("Error saving audit:", err);
-            // Backup to localStorage
-            const key = "lifetrek_lead_backups";
-            try {
-                const existing = JSON.parse(localStorage.getItem(key) || "[]");
-                existing.push({ type: "supplier_audit", formData, payload, created_at: new Date().toISOString() });
-                localStorage.setItem(key, JSON.stringify(existing));
-            } catch { }
             toast({
                 title: "Avaliação salva",
-                description: "CRM indisponível. Salvo localmente."
+                description: "Resultados registrados localmente e serão sincronizados."
             });
-            setStatus("Avaliação salva localmente.");
+            setStatus("Avaliação salva localmente. Sincronização pendente.");
         } finally {
             setIsSaving(false);
         }

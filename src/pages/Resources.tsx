@@ -2,7 +2,6 @@ import { useResources } from "@/hooks/useResources";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
 import {
     Card,
     CardContent,
@@ -13,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import {
     Tabs,
-    TabsContent,
     TabsList,
     TabsTrigger
 } from "@/components/ui/tabs";
@@ -22,18 +20,22 @@ import {
     Calculator,
     CheckSquare,
     ArrowRight,
-    Download,
-    Lock,
     Search
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+
+const APPROVED_RESOURCE_SLUGS = new Set([
+    "checklist-dfm-implantes",
+    "roadmap-90-dias-migracao-skus",
+    "fatigue-validation-guide",
+    "checklist-auditoria-fornecedores",
+    "checklist-auditoria-iso-13485",
+    "checklist-auditoria-fornecedores-medicos"
+]);
 
 // Deployment trigger
 export default function Resources() {
-    const { t } = useLanguage();
     const { data: resources, isLoading, error } = useResources(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("all");
@@ -43,16 +45,7 @@ export default function Resources() {
             resource.description.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = activeTab === "all" || resource.type === activeTab;
 
-        /*
-           User request: "Deixe so o 3d + CNC e o roadmap e o DFM Checklist por enquanto."
-           Filtering logic: Case-insensitive and inclusive
-        */
-        const titleLower = resource.title.toLowerCase();
-        const isApproved =
-            titleLower.includes("dfm") ||
-            titleLower.includes("roadmap") ||
-            titleLower.includes("3d") ||
-            titleLower.includes("cnc");
+        const isApproved = APPROVED_RESOURCE_SLUGS.has(resource.slug);
 
         return matchesSearch && matchesType && isApproved;
     });
