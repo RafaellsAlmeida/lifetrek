@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ImageOff } from "lucide-react";
 
 interface ProgressiveImageProps {
   src: string;
@@ -22,16 +23,35 @@ export const ProgressiveImage = ({
   sizes
 }: ProgressiveImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [currentSrc, setCurrentSrc] = useState("");
 
   useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+    setCurrentSrc("");
+
     const img = new Image();
     img.src = src;
     img.onload = () => {
       setCurrentSrc(src);
       setIsLoaded(true);
     };
+    img.onerror = () => {
+      setHasError(true);
+    };
   }, [src]);
+
+  if (hasError) {
+    return (
+      <div className={`relative overflow-hidden ${className}`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-400 gap-2">
+          <ImageOff className="h-8 w-8" />
+          <span className="text-xs">Imagem indisponivel</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative overflow-hidden">
@@ -57,6 +77,7 @@ export const ProgressiveImage = ({
           isLoaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-lg scale-105"
         }`}
         onLoad={() => setIsLoaded(true)}
+        onError={() => setHasError(true)}
       />
     </div>
   );

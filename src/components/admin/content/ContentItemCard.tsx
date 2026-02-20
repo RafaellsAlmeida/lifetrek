@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ import {
     Instagram,
     FileText,
     BookOpen,
-    Clock
+    Clock,
+    ImageOff
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
@@ -40,6 +42,14 @@ export function ContentItemCard({
     onSelect
 }: ContentItemCardProps) {
     const navigate = useNavigate();
+    const [imageError, setImageError] = useState(false);
+
+    const getStatusBadge = () => {
+        const status = item.status || item.full_data?.status;
+        if (status === 'published') return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-[10px]">Ao Vivo</Badge>;
+        if (status === 'scheduled') return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px]">Agendado</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">Aprovado</Badge>;
+    };
 
     const getPlatformIcon = () => {
         switch (item.type) {
@@ -81,11 +91,19 @@ export function ContentItemCard({
             )}
             {isApprovedView && imageUrl && (
                 <div className="w-32 h-auto bg-slate-100 relative shrink-0 overflow-hidden">
-                    <img
-                        src={imageUrl}
-                        alt={item.title}
-                        className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110"
-                    />
+                    {imageError ? (
+                        <div className="w-full h-full absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-1">
+                            <ImageOff className="h-6 w-6" />
+                            <span className="text-[9px]">Indisponivel</span>
+                        </div>
+                    ) : (
+                        <img
+                            src={imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-110"
+                            onError={() => setImageError(true)}
+                        />
+                    )}
                 </div>
             )}
 
@@ -98,9 +116,7 @@ export function ContentItemCard({
                                 <CardTitle className={`text-base font-semibold group-hover:text-primary transition-colors`}>
                                     {item.title}
                                 </CardTitle>
-                                {isApprovedView && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">Aprovado</Badge>
-                                )}
+                                {isApprovedView && getStatusBadge()}
                             </div>
                             <CardDescription className="line-clamp-2 text-xs opacity-80">
                                 {item.content_preview || item.excerpt || 'Sem prévia disponível'}

@@ -6,9 +6,22 @@ import { WebsitePreviewFrame } from '@/components/admin/content/WebsitePreviewFr
 import { ResourceDetailPreviewContent } from '@/components/admin/content/ResourceDetailPreviewContent';
 import { LinkedInPostPreview } from '@/components/admin/content/LinkedInPostPreview';
 import { InstagramPostPreview } from '@/components/admin/content/InstagramPostPreview';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Clock, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogDescription,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { ImageWithFallback } from '@/components/ui/ImageFallback';
 
 type ContentType = 'resource' | 'linkedin' | 'blog' | 'instagram';
 
@@ -65,6 +78,8 @@ export default function ContentPreview() {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
     const [igImageSet, setIgImageSet] = useState<'square' | 'original' | 'current'>('current');
+    const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
 
     useEffect(() => {
         fetchContent();
@@ -181,11 +196,16 @@ export default function ContentPreview() {
         }
     };
 
-    const handleReject = async () => {
-        if (!content || !type || !id) return;
+    const openRejectDialog = () => {
+        setRejectionReason("");
+        setRejectDialogOpen(true);
+    };
 
-        const reason = prompt('Motivo da rejeição:');
-        if (!reason) return;
+    const handleReject = async () => {
+        if (!content || !type || !id || !rejectionReason.trim()) {
+            toast.error("Por favor, informe o motivo da rejeicao");
+            return;
+        }
 
         setIsRejecting(true);
         try {
@@ -197,13 +217,14 @@ export default function ContentPreview() {
                 .from(tableName as any)
                 .update({
                     status: 'rejected',
-                    rejection_reason: reason
+                    rejection_reason: rejectionReason
                 } as any)
                 .eq('id', id);
 
             if (error) throw error;
 
-            toast.success('Conteúdo rejeitado');
+            setRejectDialogOpen(false);
+            toast.success('Conteudo rejeitado');
             await queryClient.invalidateQueries({ queryKey: ['content_approval_items'] });
             await queryClient.invalidateQueries({ queryKey: ['rejected_content_items'] });
             navigate('/admin/content-approval');
@@ -264,7 +285,7 @@ export default function ContentPreview() {
             title={content.title}
             onClose={handleClose}
             onApprove={handleApprove}
-            onReject={handleReject}
+            onReject={openRejectDialog}
             isApproving={isApproving}
             isRejecting={isRejecting}
         >
@@ -278,26 +299,104 @@ export default function ContentPreview() {
                 </div>
             )}
 
-            {type === 'blog' && (
-                <div className="min-h-screen bg-white">
-                    <div className="container max-w-4xl mx-auto py-20 px-6">
-                        <header className="mb-12 text-center">
-                            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-                                {content.title}
-                            </h1>
-                            {content.excerpt && (
-                                <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                                    {content.excerpt}
-                                </p>
-                            )}
-                        </header>
+            {type === 'blog' && (() => {
+                const plainText = (content.content || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+                const readTime = Math.max(1, Math.ceil(wordCount / 200));
+                const publishedAt = content.published_at || content.created_at;
+                const displayAuthor = content.author_name || 'Equipe Lifetrek Medical';
 
-                        <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-img:rounded-2xl prose-img:shadow-xl">
-                            <div dangerouslySetInnerHTML={{ __html: content.content || '' }} />
+                return (
+                    <div className="min-h-screen bg-white">
+                        {/* Hero Section */}
+                        <div className="bg-slate-50 pt-16 pb-20 border-b">
+                            <div className="container mx-auto px-4 max-w-4xl">
+                                <div className="flex gap-3 mb-6">
+                                    {content.category?.name && (
+                                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
+                                            {content.category.name}
+                                        </Badge>
+                                    )}
+                                    {content.category && !content.category.name && typeof content.category === 'string' && (
+                                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
+                                            {content.category}
+                                        </Badge>
+                                    )}
+                                    <span className="flex items-center text-sm text-slate-500 gap-2">
+                                        <Clock className="w-4 h-4" />
+                                        {readTime} min de leitura
+                                    </span>
+                                </div>
+
+                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight">
+                                    {content.title}
+                                </h1>
+
+                                {content.excerpt && (
+                                    <p className="text-xl text-slate-500 max-w-2xl leading-relaxed mb-8">
+                                        {content.excerpt}
+                                    </p>
+                                )}
+
+                                <div className="flex items-center border-t border-slate-200 pt-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
+                                            <User className="w-5 h-5 text-slate-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-900">{displayAuthor}</p>
+                                            {publishedAt && (
+                                                <p className="text-xs text-slate-500">
+                                                    {format(new Date(publishedAt), "d 'de' MMMM, yyyy", { locale: ptBR })}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Featured Image */}
+                        {content.featured_image && (
+                            <div className="container mx-auto px-4 max-w-5xl -mt-10 mb-12">
+                                <ImageWithFallback
+                                    src={content.featured_image}
+                                    alt={content.title}
+                                    className="w-full h-[400px] object-cover rounded-xl shadow-lg"
+                                    fallbackClassName="w-full h-[400px] rounded-xl shadow-lg"
+                                />
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="container mx-auto px-4 max-w-3xl py-12">
+                            <article
+                                className="prose prose-slate prose-lg max-w-none
+                                    prose-headings:text-slate-900 prose-headings:font-bold
+                                    prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
+                                    prose-p:text-slate-700 prose-p:leading-8 prose-p:mb-6
+                                    prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2 prose-ul:mb-6
+                                    prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-slate-50 prose-blockquote:p-6 prose-blockquote:rounded-r"
+                                dangerouslySetInnerHTML={{ __html: content.content || '' }}
+                            />
+
+                            {/* Tags / Keywords */}
+                            {content.keywords?.length > 0 && (
+                                <div className="mt-12 pt-8 border-t">
+                                    <p className="text-sm font-semibold text-slate-500 mb-3">Tags:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {content.keywords.map((tag: string) => (
+                                            <Badge key={tag} variant="secondary" className="bg-slate-100 text-slate-600">
+                                                #{tag}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
             {type === 'instagram' && (
                 <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-12 px-4 gap-6">
@@ -347,6 +446,29 @@ export default function ContentPreview() {
                     />
                 </div>
             )}
+            {/* Reject Dialog */}
+            <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Rejeitar Conteudo</DialogTitle>
+                        <DialogDescription>
+                            Explique o motivo da rejeicao para que o sistema ou o autor possa ajustar o conteudo.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <textarea
+                        className="w-full h-32 p-3 rounded-md border text-sm"
+                        placeholder="Por que este conteudo foi rejeitado?"
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                    />
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" onClick={handleReject} disabled={!rejectionReason.trim() || isRejecting}>
+                            {isRejecting ? 'Rejeitando...' : 'Confirmar Rejeicao'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </WebsitePreviewFrame>
     );
 }

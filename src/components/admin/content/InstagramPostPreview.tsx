@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Instagram, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 
 interface InstagramPostPreviewProps {
     post: any;
@@ -10,6 +10,7 @@ interface InstagramPostPreviewProps {
 
 export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
     const hashtags = Array.isArray(post?.hashtags)
         ? post.hashtags
         : (typeof post?.hashtags === 'string' ? post.hashtags.split(',').map((s: string) => s.trim()) : []);
@@ -48,11 +49,19 @@ export function InstagramPostPreview({ post }: InstagramPostPreviewProps) {
             <div className="aspect-square bg-slate-100 relative group overflow-hidden">
                 {imageUrls.length > 0 ? (
                     <>
-                        <img
-                            src={imageUrls[activeIndex]}
-                            alt={`Post slide ${activeIndex + 1}`}
-                            className="w-full h-full object-cover transition-opacity duration-300"
-                        />
+                        {imageErrors.has(activeIndex) ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400 gap-2">
+                                <ImageOff className="h-10 w-10" />
+                                <span className="text-xs">Imagem indisponivel</span>
+                            </div>
+                        ) : (
+                            <img
+                                src={imageUrls[activeIndex]}
+                                alt={`Post slide ${activeIndex + 1}`}
+                                className="w-full h-full object-cover transition-opacity duration-300"
+                                onError={() => setImageErrors(prev => new Set(prev).add(activeIndex))}
+                            />
+                        )}
 
                         {isCarousel && (
                             <>

@@ -41,6 +41,17 @@ import {
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ImageWithFallback } from "@/components/ui/ImageFallback";
 import { InstagramPostPreview } from "./InstagramPostPreview";
 import { ContentItemCard } from "./ContentItemCard";
 import { format } from "date-fns";
@@ -97,6 +108,27 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const [isBatchProcessing, setIsBatchProcessing] = useState(false);
     const [batchProgress, setBatchProgress] = useState(0);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [approvalConfirmItem, setApprovalConfirmItem] = useState<any | null>(null);
+    const [batchApprovalConfirmItems, setBatchApprovalConfirmItems] = useState<any[] | null>(null);
+    const [batchRejectDialogOpen, setBatchRejectDialogOpen] = useState(false);
+    const [batchRejectReason, setBatchRejectReason] = useState("");
+    const [linkedInChecklistForType, setLinkedInChecklistForType] = useState({
+        correctLogo: false,
+        brandIdentity: false,
+        textQuality: false,
+        slideRelevance: false,
+    });
+    const [blogChecklist, setBlogChecklist] = useState({
+        seoFields: false,
+        textQuality: false,
+        featuredImage: false,
+        contentComplete: false,
+    });
+    const [resourceChecklist, setResourceChecklist] = useState({
+        textQuality: false,
+        contentComplete: false,
+        interactiveElements: false,
+    });
 
     const isAccepted = Object.values(acceptanceCriteria).every(v => v);
 
@@ -163,7 +195,12 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0`);
     };
 
+    const requestApproval = (item: any) => {
+        setApprovalConfirmItem(item);
+    };
+
     const handleApprove = async (item: any) => {
+        const previousStatus = item.status || item.full_data?.status || 'pending_approval';
         try {
             if (item.type === 'blog') {
                 await approveBlog.mutateAsync(item.id);
@@ -174,30 +211,90 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             } else if (item.type === 'resource') {
                 await approveResource.mutateAsync(item.id);
             }
+            toast.success(`"${item.title}" aprovado.`, {
+                action: {
+                    label: "Desfazer",
+                    onClick: async () => {
+                        try {
+                            const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
+                                item.type === 'blog' ? 'blog_posts' :
+                                    item.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                            await (supabase.from(tableName as any).update({ status: previousStatus } as any) as any).eq('id', item.id);
+                            toast.info("Acao desfeita.");
+                            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+                            await queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+                        } catch {
+                            toast.error("Erro ao desfazer.");
+                        }
+                    },
+                },
+                duration: 8000,
+            });
         } catch (error) {
             console.error('Error approving:', error);
         }
     };
 
+    const handleConfirmApproval = async () => {
+        if (approvalConfirmItem) {
+            await handleApprove(approvalConfirmItem);
+            setApprovalConfirmItem(null);
+            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+        }
+    };
+
+    const requestBatchApproval = (categoryItems: any[]) => {
+        if (!categoryItems.length) return;
+        setBatchApprovalConfirmItems(categoryItems);
+    };
+
+    const handleConfirmBatchApproval = async () => {
+        if (batchApprovalConfirmItems) {
+            await handleBatchApprove(batchApprovalConfirmItems);
+            setBatchApprovalConfirmItems(null);
+        }
+    };
+
     const handleReject = async () => {
         if (!selectedItem || !rejectionReason.trim()) {
-            toast.error("Por favor, informe o motivo da rejeição");
+            toast.error("Por favor, informe o motivo da rejeicao");
             return;
         }
 
+        const item = selectedItem;
+        const previousStatus = item.status || item.full_data?.status || 'pending_approval';
         try {
-            if (selectedItem.type === 'blog') {
-                await updateBlog.mutateAsync({ id: selectedItem.id, status: 'rejected' });
-            } else if (selectedItem.type === 'linkedin') {
-                await rejectLinkedIn.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
-            } else if (selectedItem.type === 'instagram') {
-                await rejectInstagram.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
-            } else if (selectedItem.type === 'resource') {
-                await rejectResource.mutateAsync({ id: selectedItem.id, reason: rejectionReason });
+            if (item.type === 'blog') {
+                await updateBlog.mutateAsync({ id: item.id, status: 'rejected' });
+            } else if (item.type === 'linkedin') {
+                await rejectLinkedIn.mutateAsync({ id: item.id, reason: rejectionReason });
+            } else if (item.type === 'instagram') {
+                await rejectInstagram.mutateAsync({ id: item.id, reason: rejectionReason });
+            } else if (item.type === 'resource') {
+                await rejectResource.mutateAsync({ id: item.id, reason: rejectionReason });
             }
             setRejectDialogOpen(false);
             setRejectionReason("");
             setSelectedItem(null);
+            toast.success(`"${item.title}" rejeitado.`, {
+                action: {
+                    label: "Desfazer",
+                    onClick: async () => {
+                        try {
+                            const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
+                                item.type === 'blog' ? 'blog_posts' :
+                                    item.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                            await (supabase.from(tableName as any).update({ status: previousStatus } as any) as any).eq('id', item.id);
+                            toast.info("Acao desfeita.");
+                            await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
+                            await queryClient.invalidateQueries({ queryKey: ["rejected_content_items"] });
+                        } catch {
+                            toast.error("Erro ao desfazer.");
+                        }
+                    },
+                },
+                duration: 8000,
+            });
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error) {
             console.error('Error rejecting:', error);
@@ -317,8 +414,17 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         }
     };
 
-    const handleBatchRejectSelected = async () => {
+    const openBatchRejectDialog = () => {
         if (selectedIds.length === 0) return;
+        setBatchRejectReason("");
+        setBatchRejectDialogOpen(true);
+    };
+
+    const handleBatchRejectSelected = async () => {
+        if (selectedIds.length === 0 || !batchRejectReason.trim()) {
+            toast.error("Por favor, informe o motivo da rejeicao");
+            return;
+        }
 
         const itemsToReject = [
             ...(items || []),
@@ -328,21 +434,24 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
         if (itemsToReject.length === 0) return;
 
+        setBatchRejectDialogOpen(false);
         setIsBatchProcessing(true);
         setBatchProgress(0);
 
         try {
             let completed = 0;
             for (const item of itemsToReject) {
-                if (item.type === 'linkedin') await rejectLinkedIn.mutateAsync({ id: item.id, reason: 'Batch rejection' });
-                else if (item.type === 'instagram') await rejectInstagram.mutateAsync({ id: item.id, reason: 'Batch rejection' });
-                else if (item.type === 'resource') await rejectResource.mutateAsync({ id: item.id, reason: 'Batch rejection' });
+                if (item.type === 'linkedin') await rejectLinkedIn.mutateAsync({ id: item.id, reason: batchRejectReason });
+                else if (item.type === 'instagram') await rejectInstagram.mutateAsync({ id: item.id, reason: batchRejectReason });
+                else if (item.type === 'resource') await rejectResource.mutateAsync({ id: item.id, reason: batchRejectReason });
+                else if (item.type === 'blog') await updateBlog.mutateAsync({ id: item.id, status: 'rejected' });
 
                 completed++;
                 setBatchProgress(Math.round((completed / itemsToReject.length) * 100));
             }
             toast.success(`${itemsToReject.length} itens rejeitados.`);
             setSelectedIds([]);
+            setBatchRejectReason("");
         } catch (error) {
             toast.error("Erro ao rejeitar alguns itens.");
         } finally {
@@ -356,6 +465,26 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
         );
     };
+
+    const selectAllInCategory = (categoryItems: any[]) => {
+        const allIds = categoryItems.map(item => item.id);
+        const allSelected = allIds.every(id => selectedIds.includes(id));
+        if (allSelected) {
+            setSelectedIds(prev => prev.filter(id => !allIds.includes(id)));
+        } else {
+            setSelectedIds(prev => [...new Set([...prev, ...allIds])]);
+        }
+    };
+
+    const getChecklistForType = (type: string) => {
+        if (type === 'instagram') return Object.values(acceptanceCriteria).every(v => v);
+        if (type === 'linkedin') return Object.values(linkedInChecklistForType).every(v => v);
+        if (type === 'blog') return Object.values(blogChecklist).every(v => v);
+        if (type === 'resource') return Object.values(resourceChecklist).every(v => v);
+        return true;
+    };
+
+    const isChecklistComplete = selectedItem ? getChecklistForType(selectedItem.type) : true;
 
     const renderPreview = () => {
         if (!selectedItem) return null;
@@ -405,10 +534,11 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     <Card key={idx} className="overflow-hidden border-primary/10 shadow-sm hover:shadow-md transition-shadow">
                                         <div className="aspect-square bg-slate-100 relative">
                                             {(slide.image_url || slide.imageUrl) ? (
-                                                <img
+                                                <ImageWithFallback
                                                     src={slide.image_url || slide.imageUrl}
                                                     alt={slide.headline}
                                                     className="w-full h-full object-cover"
+                                                    fallbackClassName="w-full h-full"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-slate-200">
@@ -451,7 +581,29 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </div>
                     )}
 
-                    <div className="flex justify-end pt-4">
+                    <div className="bg-muted/30 p-4 rounded-lg border border-primary/5">
+                        <h5 className="text-xs font-bold uppercase text-muted-foreground mb-2">Checklist de Aprovacao</h5>
+                        <div className="space-y-3">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={linkedInChecklistForType.correctLogo} onChange={(e) => setLinkedInChecklistForType(prev => ({ ...prev, correctLogo: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Logo correto ou ausente</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={linkedInChecklistForType.brandIdentity} onChange={(e) => setLinkedInChecklistForType(prev => ({ ...prev, brandIdentity: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Identidade visual Lifetrek</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={linkedInChecklistForType.textQuality} onChange={(e) => setLinkedInChecklistForType(prev => ({ ...prev, textQuality: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Texto sem erros e com qualidade</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={linkedInChecklistForType.slideRelevance} onChange={(e) => setLinkedInChecklistForType(prev => ({ ...prev, slideRelevance: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Slides relevantes ao tema</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end pt-4 gap-2">
                         <Button
                             variant="outline"
                             className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
@@ -484,8 +636,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <p className="text-muted-foreground italic">{blog.excerpt}</p>
                         )}
                         <Button
-                            onClick={() => handleApprove(selectedItem)}
-                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || (selectedItem.type === 'instagram' && !isAccepted)}
+                            onClick={() => requestApproval(selectedItem)}
+                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || !isChecklistComplete}
                             className="gap-2"
                         >
                             {(approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending) ? (
@@ -493,7 +645,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             ) : (
                                 <Check className="h-4 w-4" />
                             )}
-                            {selectedItem.type === 'instagram' && !isAccepted ? "Aprovação Bloqueada" : "Aprovar Conteúdo"}
+                            {!isChecklistComplete ? "Complete o Checklist" : "Aprovar Conteudo"}
                         </Button>
                         <div className="flex gap-2 items-center mt-2">
                             <Badge variant="secondary">Blog</Badge>
@@ -533,6 +685,28 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm whitespace-nowrap">
                             Falar com Especialista
                         </Button>
+                    </div>
+
+                    <div className="bg-muted/30 p-4 rounded-lg border border-primary/5">
+                        <h5 className="text-xs font-bold uppercase text-muted-foreground mb-2">Checklist de Aprovacao</h5>
+                        <div className="space-y-3">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={blogChecklist.seoFields} onChange={(e) => setBlogChecklist(prev => ({ ...prev, seoFields: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Campos SEO preenchidos</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={blogChecklist.textQuality} onChange={(e) => setBlogChecklist(prev => ({ ...prev, textQuality: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Texto sem erros e com qualidade</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={blogChecklist.featuredImage} onChange={(e) => setBlogChecklist(prev => ({ ...prev, featuredImage: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Imagem de capa presente</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={blogChecklist.contentComplete} onChange={(e) => setBlogChecklist(prev => ({ ...prev, contentComplete: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Conteudo completo</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div className="flex justify-end pt-4 border-t mt-4">
@@ -646,6 +820,23 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             return (
                 <div className="space-y-4">
                     <ResourcePreview resource={selectedItem} />
+                    <div className="bg-muted/30 p-4 rounded-lg border border-primary/5 mx-4">
+                        <h5 className="text-xs font-bold uppercase text-muted-foreground mb-2">Checklist de Aprovacao</h5>
+                        <div className="space-y-3">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={resourceChecklist.textQuality} onChange={(e) => setResourceChecklist(prev => ({ ...prev, textQuality: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Texto sem erros e com qualidade</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={resourceChecklist.contentComplete} onChange={(e) => setResourceChecklist(prev => ({ ...prev, contentComplete: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Conteudo completo</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" checked={resourceChecklist.interactiveElements} onChange={(e) => setResourceChecklist(prev => ({ ...prev, interactiveElements: e.target.checked }))} className="rounded border-slate-300 text-primary focus:ring-primary" />
+                                <span className="text-sm group-hover:text-primary transition-colors">Elementos interativos funcionais</span>
+                            </label>
+                        </div>
+                    </div>
                     <div className="flex justify-end px-4 pb-4">
                         <Button
                             variant="outline"
@@ -700,11 +891,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (item.type === 'blog') return true;
         if (item.type === 'resource') return true;
 
-        const hasImages = item.type === 'linkedin'
-            ? (Array.isArray(item.full_data?.slides) && item.full_data.slides.some((s: any) => s.image_url || s.imageUrl))
-            : (Array.isArray(item.full_data?.image_urls) && item.full_data.image_urls.length > 0);
-
-        return item.status === 'pending_approval' && hasImages;
+        return item.status === 'pending_approval';
     }));
 
     const draftItems = filterItems(allPending.filter(item => {
@@ -794,7 +981,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 size="sm"
                                 variant="ghost"
                                 className="text-white hover:bg-white/10 rounded-full h-9 gap-2 px-4 shadow-none"
-                                onClick={() => handleBatchApprove([...(items || []), ...(rejectedItems || []), ...(approvedItems || [])].filter(i => selectedIds.includes(i.id)))}
+                                onClick={() => requestBatchApproval([...(items || []), ...(rejectedItems || []), ...(approvedItems || [])].filter(i => selectedIds.includes(i.id)))}
                                 disabled={isBatchProcessing}
                             >
                                 <ThumbsUp className="h-4 w-4" /> Aprovar
@@ -803,7 +990,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 size="sm"
                                 variant="ghost"
                                 className="text-white hover:bg-white/10 rounded-full h-9 gap-2 px-4 shadow-none"
-                                onClick={handleBatchRejectSelected}
+                                onClick={openBatchRejectDialog}
                                 disabled={isBatchProcessing}
                             >
                                 <ThumbsDown className="h-4 w-4" /> Rejeitar
@@ -868,7 +1055,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 {approvalItems.length > 0 && (
                                     <Button
                                         size="sm"
-                                        onClick={() => handleBatchApprove(approvalItems)}
+                                        onClick={() => requestBatchApproval(approvalItems)}
                                         disabled={isBatchProcessing}
                                         className="bg-green-600 hover:bg-green-700 gap-2 shadow-sm"
                                     >
@@ -892,7 +1079,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                         key={item.id}
                                         item={item}
                                         onPreview={handlePreview}
-                                        onApprove={handleApprove}
+                                        onApprove={requestApproval}
                                         onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                         onEdit={handleEdit}
                                         isSelected={selectedIds.includes(item.id)}
@@ -922,7 +1109,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                         key={item.id}
                                         item={item}
                                         onPreview={handlePreview}
-                                        onApprove={handleApprove}
+                                        onApprove={requestApproval}
                                         onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                         onEdit={handleEdit}
                                         isSelected={selectedIds.includes(item.id)}
@@ -986,7 +1173,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     key={item.id}
                                     item={item}
                                     onPreview={handlePreview}
-                                    onApprove={handleApprove}
+                                    onApprove={requestApproval}
                                     onReject={() => { }}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
@@ -1015,7 +1202,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 </div>
                             )}
                             {blogItems.length > 0 && (
-                                <Button size="sm" onClick={() => handleBatchApprove(blogItems)} disabled={isBatchProcessing} className="bg-blue-600 hover:bg-blue-700 gap-2">
+                                <Button size="sm" onClick={() => requestBatchApproval(blogItems)} disabled={isBatchProcessing} className="bg-blue-600 hover:bg-blue-700 gap-2">
                                     <ThumbsUp className="h-4 w-4" /> Aprovar Todos
                                 </Button>
                             )}
@@ -1027,7 +1214,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={handleApprove} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
+                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={requestApproval} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
                         </div>
                     )}
                 </TabsContent>
@@ -1051,7 +1238,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 </div>
                             )}
                             {linkedInItems.length > 0 && (
-                                <Button size="sm" onClick={() => handleBatchApprove(linkedInItems)} disabled={isBatchProcessing} className="bg-blue-700 hover:bg-blue-800 gap-2">
+                                <Button size="sm" onClick={() => requestBatchApproval(linkedInItems)} disabled={isBatchProcessing} className="bg-blue-700 hover:bg-blue-800 gap-2">
                                     <ThumbsUp className="h-4 w-4" /> Aprovar Todos
                                 </Button>
                             )}
@@ -1068,7 +1255,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     key={item.id}
                                     item={item}
                                     onPreview={handlePreview}
-                                    onApprove={handleApprove}
+                                    onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                     onEdit={handleEdit}
                                     isSelected={selectedIds.includes(item.id)}
@@ -1098,7 +1285,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 </div>
                             )}
                             {instagramItems.length > 0 && (
-                                <Button size="sm" onClick={() => handleBatchApprove(instagramItems)} disabled={isBatchProcessing} className="bg-pink-600 hover:bg-pink-700 gap-2">
+                                <Button size="sm" onClick={() => requestBatchApproval(instagramItems)} disabled={isBatchProcessing} className="bg-pink-600 hover:bg-pink-700 gap-2">
                                     <ThumbsUp className="h-4 w-4" /> Aprovar Todos
                                 </Button>
                             )}
@@ -1115,7 +1302,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     key={item.id}
                                     item={item}
                                     onPreview={handlePreview}
-                                    onApprove={handleApprove}
+                                    onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                     onEdit={handleEdit}
                                     isSelected={selectedIds.includes(item.id)}
@@ -1145,7 +1332,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                 </div>
                             )}
                             {resourceItems.length > 0 && (
-                                <Button size="sm" onClick={() => handleBatchApprove(resourceItems)} disabled={isBatchProcessing} className="bg-amber-600 hover:bg-amber-700 gap-2">
+                                <Button size="sm" onClick={() => requestBatchApproval(resourceItems)} disabled={isBatchProcessing} className="bg-amber-600 hover:bg-amber-700 gap-2">
                                     <ThumbsUp className="h-4 w-4" /> Aprovar Todos
                                 </Button>
                             )}
@@ -1162,7 +1349,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     key={item.id}
                                     item={item}
                                     onPreview={handlePreview}
-                                    onApprove={handleApprove}
+                                    onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
@@ -1236,6 +1423,72 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsSchedulingOpen(false)}>Cancelar</Button>
                         <Button onClick={handleSchedule} className="bg-blue-600 hover:bg-blue-700">Confirmar Agendamento</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Single Approval Confirmation */}
+            <AlertDialog open={!!approvalConfirmItem} onOpenChange={(open) => { if (!open) setApprovalConfirmItem(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar Aprovacao</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Deseja aprovar "{approvalConfirmItem?.title}"? O conteudo sera marcado como aprovado e ficara disponivel para publicacao.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmApproval}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            Confirmar Aprovacao
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Batch Approval Confirmation */}
+            <AlertDialog open={!!batchApprovalConfirmItems} onOpenChange={(open) => { if (!open) setBatchApprovalConfirmItems(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Aprovar em Massa</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Deseja aprovar {batchApprovalConfirmItems?.length || 0} itens? Todos serao marcados como aprovados.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmBatchApproval}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            Aprovar {batchApprovalConfirmItems?.length || 0} Itens
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Batch Reject Dialog */}
+            <Dialog open={batchRejectDialogOpen} onOpenChange={setBatchRejectDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Rejeitar {selectedIds.length} Itens</DialogTitle>
+                        <DialogDescription>
+                            Informe o motivo da rejeicao. Este motivo sera aplicado a todos os {selectedIds.length} itens selecionados.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <textarea
+                        className="w-full h-32 p-3 rounded-md border text-sm"
+                        placeholder="Motivo da rejeicao em massa..."
+                        value={batchRejectReason}
+                        onChange={(e) => setBatchRejectReason(e.target.value)}
+                    />
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setBatchRejectDialogOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" onClick={handleBatchRejectSelected} disabled={!batchRejectReason.trim()}>
+                            Rejeitar {selectedIds.length} Itens
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
