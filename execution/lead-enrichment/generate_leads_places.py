@@ -7,8 +7,12 @@ import requests
 import pandas as pd
 import time
 import json
+import os
 
-API_KEY = "AIzaSyD77EtOG-LLgVz_avv_1Q4sq2h6tm3tWuE"
+API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+if not API_KEY:
+    raise SystemExit("Missing GOOGLE_MAPS_API_KEY environment variable.")
 
 def search_google_places_new(query, api_key):
     """Search using Places API (New)"""

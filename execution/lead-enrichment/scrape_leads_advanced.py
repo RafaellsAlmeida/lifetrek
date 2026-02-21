@@ -14,8 +14,11 @@ import os
 import json
 
 # ================= CONFIGURATION =================
-# Uses the same API key as existing similar scripts
-API_KEY = "AIzaSyD77EtOG-LLgVz_avv_1Q4sq2h6tm3tWuE"
+# Uses env var for API key
+API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+if not API_KEY:
+    raise SystemExit("Missing GOOGLE_MAPS_API_KEY environment variable.")
 
 OUTPUT_FILE = "../../.tmp/new_leads_advanced.csv"
 MASTER_FILE = "../../.tmp/MASTER_ENRICHED_LEADS.csv"
