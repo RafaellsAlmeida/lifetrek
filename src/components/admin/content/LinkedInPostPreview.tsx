@@ -9,8 +9,17 @@ interface LinkedInPostPreviewProps {
 
 export function LinkedInPostPreview({ post }: LinkedInPostPreviewProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    // Track selected variant index per slide: { slideIndex → variantIndex }
+    const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
     const slides = Array.isArray(post?.slides) ? post.slides : [];
     const hasSlides = slides.length > 0;
+    const imageUrls = Array.isArray(post?.image_urls) ? post.image_urls : [];
+    const siteUrl = "https://www.lifetrek-medical.com";
+    const resolveUrl = (value?: string) => {
+        if (!value) return "";
+        if (value.startsWith("/")) return `${siteUrl}${value}`;
+        return value.replace(/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, siteUrl);
+    };
 
     const nextSlide = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -23,6 +32,15 @@ export function LinkedInPostPreview({ post }: LinkedInPostPreviewProps) {
     };
 
     const currentSlide = slides[activeIndex] || {};
+    const variants: string[] = Array.isArray(currentSlide.image_variants) ? currentSlide.image_variants : [];
+    // Default to last variant (most recently generated); fall back to image_url
+    const defaultVariantIdx = variants.length > 0 ? variants.length - 1 : -1;
+    const activeVariantIdx = selectedVariants[activeIndex] ?? defaultVariantIdx;
+    const currentImage =
+        (activeVariantIdx >= 0 ? resolveUrl(variants[activeVariantIdx]) : "") ||
+        resolveUrl(currentSlide.imageUrl || currentSlide.image_url || currentSlide.backgroundImage) ||
+        resolveUrl(imageUrls[activeIndex]) ||
+        resolveUrl(imageUrls[0]);
     const mainHeadline = currentSlide.headline || post.topic || "LinkedIn Post Headline";
     const mainContent = currentSlide.content || post.caption || "Conteúdo do post será exibido aqui...";
 
@@ -33,7 +51,7 @@ export function LinkedInPostPreview({ post }: LinkedInPostPreviewProps) {
                 <div className="flex gap-2">
                     <div className="relative">
                         <Avatar className="h-12 w-12 rounded-none">
-                            <AvatarImage src="/assets/branding/logo_icon.png" className="object-contain bg-white border border-slate-100 p-1" />
+                            <AvatarImage src={`${siteUrl}/assets/branding/logo_icon.png`} className="object-contain bg-white border border-slate-100 p-1" />
                             <AvatarFallback className="rounded-none bg-slate-100 text-slate-400 font-bold">LT</AvatarFallback>
                         </Avatar>
                     </div>
@@ -75,26 +93,40 @@ export function LinkedInPostPreview({ post }: LinkedInPostPreviewProps) {
             <div className="relative bg-[#f3f6f8] border-y border-[#e0e0e0] group">
                 {hasSlides ? (
                     <div className="relative animate-in fade-in duration-500">
-                        <div className="aspect-[4/5] md:aspect-square flex flex-col items-center justify-center p-12 bg-gradient-to-br from-[#0a66c2] to-[#004182] text-white text-center shadow-inner overflow-hidden">
+                        <div className="aspect-[4/5] md:aspect-square flex flex-col items-center justify-center bg-gradient-to-br from-[#0a66c2] to-[#004182] text-white text-center shadow-inner overflow-hidden">
+                            {currentImage && (
+                                <img
+                                    src={currentImage}
+                                    alt={mainHeadline}
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                />
+                            )}
+                            <div className={`absolute inset-0 ${currentImage ? "bg-black/5" : "bg-black/15"}`} />
                             {/* Decorative Elements */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-xl" />
-                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-24 -mb-24 blur-xl" />
+                            {!currentImage && (
+                                <>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-xl" />
+                                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-24 -mb-24 blur-xl" />
+                                </>
+                            )}
 
-                            <div className="relative z-10 space-y-8 max-w-[90%] flex flex-col items-center">
-                                <h2 className="text-3xl md:text-4xl font-extrabold leading-[1.15] tracking-tight drop-shadow-sm">
-                                    {mainHeadline}
-                                </h2>
-                                <div className="h-1.5 w-16 bg-white/60 rounded-full shadow-sm" />
-                                <p className="text-base md:text-lg opacity-90 leading-relaxed font-medium max-w-[85%]">
-                                    {currentSlide.body || currentSlide.copy || currentSlide.content}
-                                </p>
-                            </div>
+                            {!currentImage && (
+                                <div className="relative z-10 space-y-8 max-w-[90%] flex flex-col items-center">
+                                    <h2 className="text-3xl md:text-4xl font-extrabold leading-[1.15] tracking-tight drop-shadow-sm">
+                                        {mainHeadline}
+                                    </h2>
+                                    <div className="h-1.5 w-16 bg-white/60 rounded-full shadow-sm" />
+                                    <p className="text-base md:text-lg opacity-90 leading-relaxed font-medium max-w-[85%]">
+                                        {currentSlide.body || currentSlide.copy || currentSlide.content}
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Brand bar */}
                             <div className="absolute bottom-0 left-0 right-0 h-16 bg-white/10 backdrop-blur-sm flex items-center justify-between px-8 border-t border-white/5">
                                 <div className="flex items-center gap-2">
                                     <div className="h-8 w-8 bg-white rounded flex items-center justify-center p-1 shadow-sm">
-                                        <img src="/assets/branding/logo_icon.png" className="object-contain" alt="Logo" />
+                                        <img src={`${siteUrl}/assets/branding/logo_icon.png`} className="object-contain" alt="Logo" />
                                     </div>
                                     <span className="text-[10px] font-extrabold tracking-[0.2em] text-white/90">LIFETREK MEDICAL</span>
                                 </div>
@@ -128,7 +160,26 @@ export function LinkedInPostPreview({ post }: LinkedInPostPreviewProps) {
                             {activeIndex + 1} / {slides.length}
                         </div>
 
-                        {/* Full-screen toggle mock */}
+                        {/* Image variant picker — shown when multiple versions exist */}
+                        {variants.length > 1 && (
+                            <div className="absolute bottom-20 left-3 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                                {variants.map((url, vi) => (
+                                    <button
+                                        key={vi}
+                                        onClick={(e) => { e.stopPropagation(); setSelectedVariants(prev => ({ ...prev, [activeIndex]: vi })); }}
+                                        title={`Variant ${vi + 1} of ${variants.length}`}
+                                        className={`w-10 h-10 rounded-md overflow-hidden border-2 transition-all shadow-md ${activeVariantIdx === vi ? 'border-white scale-110' : 'border-white/30 hover:border-white/70'}`}
+                                    >
+                                        <img src={resolveUrl(url)} className="w-full h-full object-cover" alt={`v${vi + 1}`} />
+                                    </button>
+                                ))}
+                                <div className="text-[9px] text-white/70 text-center font-bold tracking-wide">
+                                    {activeVariantIdx + 1}/{variants.length}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Download */}
                         <div className="absolute bottom-20 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all">
                             <div className="p-2 bg-black/30 backdrop-blur-md rounded-lg text-white/80 hover:text-white cursor-pointer transition-colors shadow-lg">
                                 <Download className="h-4 w-4" />

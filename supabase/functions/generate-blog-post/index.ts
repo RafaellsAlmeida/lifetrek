@@ -387,6 +387,10 @@ ${sourceContext}
     
     INSTRUCTIONS:
     - Write a technical article (800-1200 words).
+    - Keep structure natural: prefer 3-5 meaningful headings total for the whole article.
+    - Avoid heading-heavy formatting ("one heading every few lines").
+    - Prioritize connected paragraphs with clear transitions and practical narrative flow.
+    - Use a warmer, partnership-oriented voice while staying technical and objective.
     - Use specific machine names (Citizen L20, Zeiss CMM).
     - Mention ANVISA/RDC only when the topic is directly about regulation/compliance.
     - For non-regulatory topics, focus on process, metrology, quality, manufacturing performance, and supply chain risk reduction.

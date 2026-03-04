@@ -17,6 +17,7 @@ import {
     ImageOff
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { detectMixedLanguage, normalizeExcerptForCard } from "./contentApprovalUtils";
 
 interface ContentItemCardProps {
     item: any;
@@ -28,6 +29,7 @@ interface ContentItemCardProps {
     isApprovedView?: boolean;
     isSelected?: boolean;
     onSelect?: (id: string) => void;
+    navigationQuery?: string;
 }
 
 export function ContentItemCard({
@@ -39,7 +41,8 @@ export function ContentItemCard({
     onSchedule,
     isApprovedView = false,
     isSelected = false,
-    onSelect
+    onSelect,
+    navigationQuery
 }: ContentItemCardProps) {
     const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);
@@ -77,6 +80,9 @@ export function ContentItemCard({
         item.full_data?.slides?.[0]?.image_url ||
         item.full_data?.cover_image ||
         item.full_data?.image;
+
+    const previewText = normalizeExcerptForCard(item.content_preview || item.excerpt);
+    const isMixedLanguage = detectMixedLanguage(item.content_preview || item.excerpt);
 
     return (
         <Card className={`group relative overflow-hidden border-primary/5 hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md ${isApprovedView ? 'flex' : ''} ${isSelected ? 'ring-2 ring-primary border-primary/30' : ''}`}>
@@ -117,9 +123,14 @@ export function ContentItemCard({
                                     {item.title}
                                 </CardTitle>
                                 {isApprovedView && getStatusBadge()}
+                                {isMixedLanguage && (
+                                    <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">
+                                        Idioma misto
+                                    </Badge>
+                                )}
                             </div>
                             <CardDescription className="line-clamp-2 text-xs opacity-80">
-                                {item.content_preview || item.excerpt || 'Sem prévia disponível'}
+                                {previewText}
                             </CardDescription>
                         </div>
                     </div>
@@ -146,7 +157,15 @@ export function ContentItemCard({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => navigate(`/admin/content-preview/${item.type}/${item.id}`)}
+                                onClick={() => {
+                                    const params = new URLSearchParams();
+                                    if (navigationQuery) {
+                                        params.set("returnTo", "/admin/content-approval");
+                                        params.set("stateKey", navigationQuery);
+                                    }
+                                    const qs = params.toString();
+                                    navigate(`/admin/content-preview/${item.type}/${item.id}${qs ? `?${qs}` : ''}`);
+                                }}
                                 className="h-8 gap-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
                             >
                                 <Globe className="h-3.5 w-3.5" /> Site

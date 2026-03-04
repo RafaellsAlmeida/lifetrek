@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -66,6 +66,13 @@ import {
     ArrowUpDown
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+    ContentApprovalSort,
+    ContentApprovalViewState,
+    loadApprovalViewState,
+    saveApprovalViewState,
+    serializeApprovalStateToQuery
+} from "./contentApprovalState";
 
 interface ContentApprovalCoreProps {
     embedded?: boolean;
@@ -74,6 +81,7 @@ interface ContentApprovalCoreProps {
 export function ContentApprovalCore({ embedded = false }: ContentApprovalCoreProps) {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const { data: items, isLoading } = useContentApprovalItems();
     const { data: rejectedItems, isLoading: isLoadingRejected } = useRejectedContentItems();
@@ -103,8 +111,21 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         hasAssets: false
     });
     const [isRegenerating, setIsRegenerating] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
+    const initialState = useMemo<ContentApprovalViewState>(() => {
+        const fallback = loadApprovalViewState() || { tab: "all", query: "", sort: "newest" as ContentApprovalSort };
+        if (embedded) return fallback;
+
+        return {
+            tab: searchParams.get("tab") || fallback.tab,
+            query: searchParams.get("q") || fallback.query,
+            sort: (searchParams.get("sort") as ContentApprovalSort) || fallback.sort,
+            anchor: searchParams.get("anchor") || fallback.anchor
+        };
+    }, [embedded, searchParams]);
+
+    const [activeTab, setActiveTab] = useState(initialState.tab || "all");
+    const [searchTerm, setSearchTerm] = useState(initialState.query || "");
+    const [sortBy, setSortBy] = useState<ContentApprovalSort>(initialState.sort || "newest");
     const [isBatchProcessing, setIsBatchProcessing] = useState(false);
     const [batchProgress, setBatchProgress] = useState(0);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -190,9 +211,47 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         setPreviewDialogOpen(true);
     };
 
+    const getNavigationQuery = () => {
+        const state: ContentApprovalViewState = {
+            tab: activeTab,
+            query: searchTerm,
+            sort: sortBy,
+            anchor: Math.round(window.scrollY)
+        };
+        return serializeApprovalStateToQuery(state);
+    };
+
+    useEffect(() => {
+        const state: ContentApprovalViewState = {
+            tab: activeTab,
+            query: searchTerm,
+            sort: sortBy,
+            anchor: Math.round(window.scrollY)
+        };
+        saveApprovalViewState(state);
+
+        if (!embedded) {
+            const next = new URLSearchParams(searchParams);
+            next.set("tab", activeTab);
+            if (searchTerm) next.set("q", searchTerm);
+            else next.delete("q");
+            next.set("sort", sortBy);
+            setSearchParams(next, { replace: true });
+        }
+    }, [activeTab, searchTerm, sortBy, embedded]);
+
+    useEffect(() => {
+        if (embedded) return;
+        const anchor = initialState.anchor;
+        if (!anchor) return;
+        const value = typeof anchor === "string" ? Number(anchor) : anchor;
+        if (!Number.isFinite(value)) return;
+        window.requestAnimationFrame(() => window.scrollTo({ top: Number(value), behavior: "auto" }));
+    }, [embedded]);
+
     const handleEdit = (item: any) => {
-        // Navigate to Social Workspace with params
-        navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0`);
+        const navigationQuery = getNavigationQuery();
+        navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0&returnTo=/admin/content-approval&stateKey=${encodeURIComponent(navigationQuery)}`);
     };
 
     const requestApproval = (item: any) => {
@@ -959,7 +1018,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     <ListFilter className="h-4 w-4 text-muted-foreground hidden md:block" />
                     <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
+                        onChange={(e) => setSortBy(e.target.value as ContentApprovalSort)}
                         className="h-10 rounded-md border border-primary/10 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 w-full md:w-40"
                     >
                         <option value="newest">Mais recentes</option>
@@ -1017,7 +1076,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 </div>
             )}
 
-            <Tabs defaultValue="all" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6 h-auto p-1 bg-slate-100/50`}>
                     <TabsTrigger value="all" className="py-2">Geral ({approvalItems.length})</TabsTrigger>
                     {!embedded && (
@@ -1082,6 +1141,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                         onApprove={requestApproval}
                                         onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                         onEdit={handleEdit}
+                                        navigationQuery={getNavigationQuery()}
                                         isSelected={selectedIds.includes(item.id)}
                                         onSelect={toggleSelect}
                                     />
@@ -1112,6 +1172,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                         onApprove={requestApproval}
                                         onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                         onEdit={handleEdit}
+                                        navigationQuery={getNavigationQuery()}
                                         isSelected={selectedIds.includes(item.id)}
                                         onSelect={toggleSelect}
                                     />
@@ -1144,6 +1205,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onApprove={() => { }}
                                     onReject={() => { }}
                                     onSchedule={(item) => { setSchedulingItem(item); setIsSchedulingOpen(true); }}
+                                    navigationQuery={getNavigationQuery()}
                                     isApprovedView
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
@@ -1175,6 +1237,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onPreview={handlePreview}
                                     onApprove={requestApproval}
                                     onReject={() => { }}
+                                    navigationQuery={getNavigationQuery()}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
                                 />
@@ -1214,7 +1277,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={requestApproval} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
+                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={requestApproval} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} navigationQuery={getNavigationQuery()} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
                         </div>
                     )}
                 </TabsContent>
@@ -1258,6 +1321,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                     onEdit={handleEdit}
+                                    navigationQuery={getNavigationQuery()}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
                                 />
@@ -1305,6 +1369,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
                                     onEdit={handleEdit}
+                                    navigationQuery={getNavigationQuery()}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
                                 />
@@ -1351,6 +1416,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onPreview={handlePreview}
                                     onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                    navigationQuery={getNavigationQuery()}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}
                                 />

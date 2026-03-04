@@ -183,18 +183,27 @@ serve(async (req: Request) => {
         ? { thumbnail_url: generatedUrl, updated_at: new Date().toISOString() }
         : { image_url: generatedUrl, updated_at: new Date().toISOString() };
     } else if (typeof slide_index === 'number') {
-      // Single slide update
+      // Single slide update — accumulate in image_variants, never overwrite history
       console.log(`[REGEN] Updating slide ${slide_index}...`);
       const currentSlides = [...(carousel.slides || [])];
 
-      // Need to find which index in processedSlides corresponds to this single slide.
-      // Since we filtered slidesToProcess, it's index 0 of processedSlides.
       if (currentSlides[slide_index]) {
         const newSlideData = processedSlides[0];
-        // Preserve existing non-image data if needed, but handler returns full slide object
-        currentSlides[slide_index] = newSlideData;
+        const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
+
+        // Preserve all previously generated variants
+        const existingVariants: string[] = currentSlides[slide_index].image_variants || [];
+        const updatedVariants = newImageUrl
+          ? [...existingVariants.filter((v: string) => v !== newImageUrl), newImageUrl]
+          : existingVariants;
+
+        currentSlides[slide_index] = {
+          ...newSlideData,
+          image_variants: updatedVariants.filter(Boolean),
+        };
+
         const currentImageUrls = carousel.image_urls || [];
-        currentImageUrls[slide_index] = newSlideData.imageUrl;
+        currentImageUrls[slide_index] = newImageUrl;
 
         updateData = {
           slides: currentSlides,
@@ -203,21 +212,28 @@ serve(async (req: Request) => {
         };
       }
     } else {
-      // Batch update (Full Regeneration)
-      // processedSlides matches requested slidesToProcess (which might be truncated)
-      // If we truncated, we need to be careful not to lose other slides??
-      // The truncation logic created a NEW array. We should probably only update the slides we touched?
-      // For simplicity in batch mode used by "regenerate all", we usually replace everything generated.
-      // BUT if we truncated, we are replacing the WHOLE slide array with the truncated version. 
-      // This is existing behavior from the Refactored code.
+      // Batch update — accumulate variants on each slide
+      const currentSlides = [...(carousel.slides || [])];
+      const imageUrls: string[] = [];
 
-      const imageUrls = processedSlides
-        .map(s => s.imageUrl || s.image_url || '')
-        .filter(Boolean);
+      for (let i = 0; i < processedSlides.length; i++) {
+        const newSlideData = processedSlides[i];
+        const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
+        const existingVariants: string[] = currentSlides[i]?.image_variants || [];
+        const updatedVariants = newImageUrl
+          ? [...existingVariants.filter((v: string) => v !== newImageUrl), newImageUrl]
+          : existingVariants;
 
-      console.log(`[REGEN] Updating ${imageUrls.length} slides...`);
+        currentSlides[i] = {
+          ...newSlideData,
+          image_variants: updatedVariants.filter(Boolean),
+        };
+        if (newImageUrl) imageUrls.push(newImageUrl);
+      }
+
+      console.log(`[REGEN] Updating ${imageUrls.length} slides (with variants)...`);
       updateData = {
-        slides: processedSlides,
+        slides: currentSlides,
         image_urls: imageUrls,
         updated_at: new Date().toISOString()
       };

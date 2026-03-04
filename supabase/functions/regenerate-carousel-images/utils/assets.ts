@@ -61,6 +61,54 @@ export class AssetLoader {
             .filter(Boolean) as string[];
     }
 
+    /**
+     * Pick the most semantically relevant real facility photo for a slide.
+     * Uses keyword matching on slide headline/body, falls back to slide-index rotation.
+     */
+    getFacilityPhotoForSlide(slideIndex: number, headline: string = '', body: string = ''): string | null {
+        const facilityAssets = this.assets.filter(a => a.type === 'facility' && a.url);
+        if (facilityAssets.length === 0) return null;
+
+        const combined = `${headline} ${body}`.toLowerCase();
+
+        // Semantic keyword map: keywords → preferred photo name fragments (in priority order)
+        const keywordMap: { keywords: string[]; names: string[] }[] = [
+            { keywords: ['zeiss', 'cmm', 'metrologia', 'medição', 'dimensional', 'coordenada', 'inspeção'], names: ['production-floor'] },
+            { keywords: ['swiss', 'torneamento', 'torno', 'eixo', 'cincom', 'citizen', '12 eixos', 'multi-eixo'], names: ['water-treatment', 'grinding-room'] },
+            { keywords: ['cnc', 'usinagem', 'fresagem', 'fresadora', 'dfm', 'co-engenharia', 'co-engineer'], names: ['production-overview', 'water-treatment', 'grinding-room'] },
+            { keywords: ['laser', 'marcação', 'rastreabilidade', 'traceability'], names: ['laser-marking'] },
+            { keywords: ['electropolish', 'eletropolis', 'superfície', 'acabamento', 'surface', 'tratamento'], names: ['electropolish-line-new', 'polishing-manual'] },
+            { keywords: ['polimento', 'polishing', 'polish'], names: ['polishing-manual'] },
+            { keywords: ['implante', 'ortopédico', 'dental', 'osso', 'titanium', 'titânio', 'peek', 'biocompatibilidade'], names: ['clean-room-6', 'clean-room-2', 'cleanroom-hero'] },
+            { keywords: ['sala limpa', 'clean room', 'cleanroom', 'sala-limpa', 'sanitária'], names: ['clean-room-6', 'clean-room-2', 'cleanroom-hero'] },
+            { keywords: ['iso', 'conformidade', 'qualidade', 'auditoria', 'validação', 'certificação', 'anvisa', 'fda', 'regulat'], names: ['clean-room-6', 'production-floor', 'clean-room-1'] },
+            { keywords: ['importação', 'nacional', 'resiliência', 'cadeia', 'supply chain', 'tco', 'custo total'], names: ['exterior', 'production-overview'] },
+            { keywords: ['time-to-market', 'prazo', 'atraso', 'velocidade', 'lead time'], names: ['production-overview', 'grinding-room'] },
+        ];
+
+        for (const { keywords, names } of keywordMap) {
+            if (keywords.some(k => combined.includes(k))) {
+                for (const name of names) {
+                    const found = facilityAssets.find(a => (a.name || '').toLowerCase().includes(name));
+                    if (found?.url) {
+                        console.log(`[ASSET_LOADER] 🎯 Matched "${name}" for slide "${headline}"`);
+                        return found.url;
+                    }
+                }
+            }
+        }
+
+        // Fallback: rotate through manufacturing photos (exclude reception, exterior, office)
+        const manufacturingPhotos = facilityAssets.filter(a => {
+            const n = (a.name || '').toLowerCase();
+            return !n.includes('reception') && !n.includes('exterior') && !n.includes('office');
+        });
+        const pool = manufacturingPhotos.length > 0 ? manufacturingPhotos : facilityAssets;
+        const chosen = pool[slideIndex % pool.length];
+        console.log(`[ASSET_LOADER] 🔄 Fallback rotation → ${chosen.name}`);
+        return chosen.url ?? null;
+    }
+
     getLogo(): string | null {
         // Prefer "Lifetrek Logo" exact match or contains "logo"
         const exact = this.assets.find(a => a.name?.toLowerCase() === "lifetrek logo");

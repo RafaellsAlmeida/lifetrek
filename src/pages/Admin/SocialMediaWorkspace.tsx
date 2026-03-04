@@ -260,9 +260,22 @@ export default function SocialMediaWorkspace() {
 }
 
 function ImageEditorEmbed({ postId, postType, slideIndex }: { postId?: string | null, postType?: any, slideIndex?: number }) {
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  const stateKey = searchParams.get("stateKey");
+  const backUrl = returnTo
+    ? `${returnTo}${stateKey ? `?${decodeURIComponent(stateKey)}` : ""}`
+    : null;
+
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
-      <ImageEditorCore embedded={true} postId={postId} postType={postType} slideIndex={slideIndex} />
+      <ImageEditorCore
+        embedded={true}
+        postId={postId}
+        postType={postType}
+        slideIndex={slideIndex}
+        onBack={backUrl ? () => window.location.assign(backUrl) : undefined}
+      />
     </div>
   );
 }

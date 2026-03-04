@@ -152,31 +152,46 @@ export async function generateOverlay(
         });
     }
 
-    // Build root children
-    const rootChildren: any[] = [
-        // Glassmorphism Card (no background image - just the card overlay)
-        {
+    // Glassmorphism card (text content)
+    const cardNode = {
+        type: 'div',
+        props: {
+            style: {
+                display: 'flex',
+                flexDirection: 'column',
+                width: '65%',
+                backgroundColor: 'rgba(8, 18, 35, 0.80)',
+                borderRadius: '20px',
+                padding: '40px',
+                marginLeft: '40px',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)',
+            },
+            children: cardChildren,
+        },
+    };
+
+    // NOTE: Logo and ISO badge images are intentionally excluded from Satori.
+    // Satori's image fetching can cause stack overflow on large/remote images.
+
+    // When using a real photo background, wrap content in a blue-tint overlay layer
+    // (nested flex div avoids position:absolute compatibility issues in Satori)
+    const contentWrapper = backgroundUrl
+        ? {
             type: 'div',
             props: {
                 style: {
                     display: 'flex',
-                    flexDirection: 'column',
-                    width: '65%',
-                    backgroundColor: 'rgba(10, 22, 40, 0.75)',
-                    borderRadius: '20px',
-                    padding: '40px',
-                    marginLeft: '40px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    width: '100%',
+                    height: '100%',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0, 20, 65, 0.58)',
                 },
-                children: cardChildren,
+                children: [cardNode],
             },
-        },
-    ];
-
-    // NOTE: Logo and ISO badge images are intentionally excluded.
-    // Satori's image fetching can cause stack overflow on large/remote images.
-    // These will be added in a future iteration using a different compositing approach.
+        }
+        : cardNode;
 
     // Render SVG with Satori
     const svg = await satori(
@@ -190,17 +205,14 @@ export async function generateOverlay(
                     height: '100%',
                     justifyContent: 'center',
                     alignItems: 'flex-start',
-                    position: 'relative',
-                    // Use AI-generated background if available, gradient as fallback.
-                    // The backgroundUrl should be an optimized/resized image (720x900, quality 60)
-                    // to avoid Satori stack overflow on large images.
                     backgroundColor: BRAND_COLORS.darkBlueStart,
                     backgroundImage: backgroundUrl
                         ? `url(${backgroundUrl})`
                         : `linear-gradient(135deg, ${BRAND_COLORS.darkBlueStart}, ${BRAND_COLORS.darkBlueEnd})`,
-                    backgroundSize: '100% 100%',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center center',
                 },
-                children: rootChildren,
+                children: [contentWrapper],
             },
         },
         {

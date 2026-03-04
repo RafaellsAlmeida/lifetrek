@@ -48,6 +48,40 @@ SUPABASE_SERVICE_ROLE_KEY=<from .env - NEVER commit this>
 - Check Supabase logs after Edge Function calls
 - Never run bulk operations without asking first
 
+## Image Generation — Versioning Rule (CRITICAL)
+
+**NEVER overwrite existing carousel images. Always create new versions.**
+
+When regenerating carousel images (via the `regenerate-carousel-images` edge function or any script):
+- Save new images with a new timestamp/filename — do NOT replace the existing `image_url` in slides
+- The goal is to accumulate multiple versions so the user can compare and choose the best one
+- This applies to both AI-generated and real-photo approaches
+
+Rationale: We are always experimenting with content styles and need flexibility to pick winners.
+
+## Image Generation Preferences
+
+**Two valid approaches — AI generation and real photos. Both are useful:**
+
+1. **AI-generated backgrounds** (current default `mode: "hybrid"`): Good for posts about market pains, ICP challenges, industry trends, and topics where we don't have specific photos. AI can generate relevant abstract or industrial imagery. The `slide_2` from the Swiss Turning carousel is a good example of great AI output.
+
+2. **Real Lifetrek facility photos** (implemented in `AssetLoader.getFacilityPhotoForSlide()`): Good for posts explicitly about Lifetrek's capabilities, equipment, or facility. Uses semantic keyword matching (e.g., "ZEISS" → CMM photo, "Swiss Turning" → CNC lathe photo).
+
+**Preferred visual style (both approaches should match this):**
+Reference: `marketing-assets/instagram/anvisa-fda-navegando-a-conformidade--59217224/slide_4.png`
+- Dark blue/navy semi-transparent overlay (~60%) over the background
+- Clean white text hierarchy: small green label → bold headline → body copy
+- Lifetrek Medical logo top-right (slide 1 and last slide)
+- Glassmorphism card on the left (~65% width) with `rgba(8, 18, 35, 0.80)` background
+
+**Key implementation files:**
+- `supabase/functions/regenerate-carousel-images/handlers/hybrid.ts` — main handler (uses real photos)
+- `supabase/functions/regenerate-carousel-images/utils/assets.ts` — `getFacilityPhotoForSlide()` for semantic photo matching
+- `supabase/functions/regenerate-carousel-images/generators/satori.ts` — text overlay compositor
+
+**Available facility photos** (in `product_catalog` table, category='facility'):
+`production-floor` (CMM/metrology), `production-overview` (CNC floor), `grinding-room`, `laser-marking`, `electropolish-line-new`, `polishing-manual`, `clean-room-1..7`, `cleanroom-hero`, `exterior`, `reception`, `water-treatment` (CNC with tool rack)
+
 ## Brand Guidelines
 
 Follow `docs/brand/BRAND_BOOK.md` before creating any UI.

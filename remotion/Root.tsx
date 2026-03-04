@@ -6,10 +6,19 @@ import {
   MASTER_SHOWCASE_HEIGHT,
   MASTER_SHOWCASE_WIDTH,
 } from "./compositions/MasterShowcase";
+import { LifetrekVignette, VIGNETTE_DURATION, VIGNETTE_FPS, VIGNETTE_WIDTH, VIGNETTE_HEIGHT } from "./LifetrekVignette";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="LifetrekVignette"
+        component={LifetrekVignette}
+        durationInFrames={VIGNETTE_DURATION}
+        fps={VIGNETTE_FPS}
+        width={VIGNETTE_WIDTH}
+        height={VIGNETTE_HEIGHT}
+      />
       {/* Silent version - no audio */}
       <Composition
         id="MasterShowcase"

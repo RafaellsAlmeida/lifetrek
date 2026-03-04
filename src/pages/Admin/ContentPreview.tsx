@@ -1,5 +1,5 @@
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { WebsitePreviewFrame } from '@/components/admin/content/WebsitePreviewFrame';
@@ -44,19 +44,27 @@ interface ContentData {
  */
 const normalizeImageUrl = (url: string | null | undefined): string => {
     if (!url) return '';
+    const siteUrl = 'https://www.lifetrek-medical.com';
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 
-    // Fix hardcoded localhost:8083 (local edge function port)
-    if (url.includes('localhost:8083')) {
-        // Assume these should be pointing to Supabase storage or external CDN
-        // For now, if we see localhost:8083, it's likely a broken dev link
-        // We'll try to extract the actual filename or path
+    // Always resolve root-relative assets to production domain in preview mode
+    if (url.startsWith('/')) {
+        if (url.startsWith('/storage/v1/object/public/') && supabaseUrl) {
+            return `${supabaseUrl}${url}`;
+        }
+        return `${siteUrl}${url}`;
+    }
+
+    // Fix localhost links persisted by local runs
+    if (url.includes('localhost') || url.includes('127.0.0.1')) {
         try {
-            const urlObj = new URL(url);
-            // If it's a storage path, we might be able to reconstruct it
-            // But usually, it's safer to just return a placeholder if we can't fix it
-            // or strip the localhost part if it's meant to be relative to the CDN
-        } catch (e) {
-            // Not a valid URL, just strip it
+            const parsed = new URL(url);
+            if (parsed.pathname.startsWith('/storage/v1/object/public/') && supabaseUrl) {
+                return `${supabaseUrl}${parsed.pathname}${parsed.search}`;
+            }
+            return `${siteUrl}${parsed.pathname}${parsed.search}`;
+        } catch {
+            return url.replace(/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, siteUrl);
         }
     }
 
@@ -72,6 +80,7 @@ const normalizeUrls = (urls: any): string[] => {
 export default function ContentPreview() {
     const { type, id } = useParams<{ type: ContentType; id: string }>();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const [content, setContent] = useState<ContentData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -168,6 +177,13 @@ export default function ContentPreview() {
         }
     };
 
+    const resolveReturnUrl = () => {
+        const returnTo = searchParams.get("returnTo") || "/admin/content-approval";
+        const stateKey = searchParams.get("stateKey");
+        if (!stateKey) return returnTo;
+        return `${returnTo}?${decodeURIComponent(stateKey)}`;
+    };
+
     const handleApprove = async () => {
         if (!content || !type || !id) return;
 
@@ -187,7 +203,7 @@ export default function ContentPreview() {
             toast.success('Conteúdo aprovado com sucesso!');
             await queryClient.invalidateQueries({ queryKey: ['content_approval_items'] });
             await queryClient.invalidateQueries({ queryKey: ['approved_content_items'] });
-            navigate('/admin/content-approval');
+            navigate(resolveReturnUrl());
         } catch (error: any) {
             console.error('Error approving:', error);
             toast.error(`Erro ao aprovar: ${error.message}`);
@@ -227,7 +243,7 @@ export default function ContentPreview() {
             toast.success('Conteudo rejeitado');
             await queryClient.invalidateQueries({ queryKey: ['content_approval_items'] });
             await queryClient.invalidateQueries({ queryKey: ['rejected_content_items'] });
-            navigate('/admin/content-approval');
+            navigate(resolveReturnUrl());
         } catch (error: any) {
             console.error('Error rejecting:', error);
             toast.error(`Erro ao rejeitar: ${error.message}`);
@@ -237,7 +253,7 @@ export default function ContentPreview() {
     };
 
     const handleClose = () => {
-        navigate('/admin/content-approval');
+        navigate(resolveReturnUrl());
     };
 
     const getPreviewUrl = () => {
