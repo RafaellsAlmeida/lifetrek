@@ -264,7 +264,7 @@ function ImageEditorEmbed({ postId, postType, slideIndex }: { postId?: string | 
   const returnTo = searchParams.get("returnTo");
   const stateKey = searchParams.get("stateKey");
   const backUrl = returnTo
-    ? `${returnTo}${stateKey ? `?${decodeURIComponent(stateKey)}` : ""}`
+    ? `${returnTo}${stateKey ? `?${stateKey}` : ""}`
     : null;
 
   return (

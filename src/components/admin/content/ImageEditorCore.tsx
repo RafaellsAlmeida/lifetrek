@@ -32,6 +32,7 @@ export function ImageEditorCore({ postId, postType = 'template', slideIndex = 0,
     const stageRef = useRef<any>(null);
     const [post, setPost] = useState<any>(null);
     const [text, setText] = useState("Headline Goes Here");
+    const [headlinePosition, setHeadlinePosition] = useState({ x: 100, y: 300 });
     const [canvasSize] = useState({ width: 1080, height: 1080 });
     const [bgUrl, setBgUrl] = useState("https://placehold.co/1080x1080/1a1a1a/FFF?text=Background");
     const [isEnhancing, setIsEnhancing] = useState(false);
@@ -315,8 +316,8 @@ export function ImageEditorCore({ postId, postType = 'template', slideIndex = 0,
 
                             <Text
                                 text={text}
-                                x={100}
-                                y={300}
+                                x={headlinePosition.x}
+                                y={headlinePosition.y}
                                 width={880}
                                 fontSize={80}
                                 fontFamily="Arial"
@@ -328,6 +329,14 @@ export function ImageEditorCore({ postId, postType = 'template', slideIndex = 0,
                                 shadowOpacity={0.8}
                                 align="center"
                                 draggable
+                                onDragMove={(event) => {
+                                    const node = event.target;
+                                    setHeadlinePosition({ x: node.x(), y: node.y() });
+                                }}
+                                onDragEnd={(event) => {
+                                    const node = event.target;
+                                    setHeadlinePosition({ x: node.x(), y: node.y() });
+                                }}
                             />
 
                             <Text

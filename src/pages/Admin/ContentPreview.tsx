@@ -181,7 +181,7 @@ export default function ContentPreview() {
         const returnTo = searchParams.get("returnTo") || "/admin/content-approval";
         const stateKey = searchParams.get("stateKey");
         if (!stateKey) return returnTo;
-        return `${returnTo}?${decodeURIComponent(stateKey)}`;
+        return `${returnTo}?${stateKey}`;
     };
 
     const handleApprove = async () => {
