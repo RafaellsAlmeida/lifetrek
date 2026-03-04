@@ -5,6 +5,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
   interpolate,
+  staticFile,
 } from "remotion";
 import React from "react";
 
@@ -170,10 +171,11 @@ export const LifetrekVignette: React.FC = () => {
         }}
       >
         <Img
-          src="/images/lifetrek-logo-full.png"
+          src={staticFile("logo-transparent.png")}
           style={{
             width: 480,
             objectFit: "contain",
+            filter: "brightness(0) invert(1)",  // converts navy logo → pure white
           }}
         />
       </div>
