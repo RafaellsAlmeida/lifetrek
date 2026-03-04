@@ -24,7 +24,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import UnifiedInbox from "@/pages/UnifiedInbox";
 import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
 import { AnalyticsSection } from "./AnalyticsSection";
 
@@ -146,13 +145,6 @@ export function SalesDashboard({ userName }: { userName?: string }) {
                Pipeline
              </Button>
              <Button 
-               variant={activeTab === "inbox" ? "secondary" : "ghost"} 
-               onClick={() => setActiveTab("inbox")}
-               className={`h-8 rounded-md px-3 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
-             >
-               Unified Inbox
-             </Button>
-             <Button 
                variant={activeTab === "data" ? "secondary" : "ghost"} 
                onClick={() => setActiveTab("data")}
                className={`h-8 rounded-md px-3 text-xs font-medium transition-all ${activeTab === 'data' ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
@@ -269,13 +261,6 @@ export function SalesDashboard({ userName }: { userName?: string }) {
                   </TableBody>
                 </Table>
              </div>
-          </div>
-        )}
-
-        {/* INBOX TAB */}
-        {activeTab === "inbox" && (
-          <div className="animate-in fade-in duration-200">
-             <UnifiedInbox />
           </div>
         )}
 

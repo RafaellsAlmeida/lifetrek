@@ -1,1 +1,20 @@
-Draft created for resource promotion: Roadmap de 90 Dias para Migrar 1-3 SKUs
+Deep Dive: Roadmap de 90 dias para migrar 1-3 SKUs para producao local com menor risco tecnico e regulatorio.
+
+Ponto critico antes de iniciar:
+Para projetos com impacto em registro ANVISA, a empresa precisa ter atividade fabril no Brasil (planta propria ou etapa produtiva local controlada).
+
+Na pratica, o roadmap funciona para:
+- Fabricantes de dispositivos medicos com operacao fabril no Brasil
+- Times de engenharia/qualidade que precisam validar DFM, metrologia e documentacao
+
+Nao se aplica a:
+- Distribuidores/importadores sem atividade fabril local
+- Empresas com apenas escritorio comercial no pais
+
+Estrutura resumida:
+- Semanas 1-2: selecao de SKUs + baseline de custo/risco
+- Semanas 3-6: DFM + prototipos + validacao dimensional
+- Semanas 7-12: lote piloto + estabilizacao de fornecimento
+
+Resultado esperado:
+Mais previsibilidade de supply, menor dependencia de importacao e maior controle tecnico do processo local.

@@ -398,6 +398,9 @@ export default function LinkedInCarousel() {
             proofPoints,
             ctaAction,
             format,
+            style_mode: "hybrid-composite",
+            selectedEquipment,
+            referenceImage: referenceImage || undefined,
             numberOfCarousels: 3, // Force 3 options for planning
             mode: "plan"
         },
@@ -426,6 +429,9 @@ export default function LinkedInCarousel() {
             proofPoints,
             ctaAction,
             format,
+            style_mode: "hybrid-composite",
+            selectedEquipment,
+            referenceImage: referenceImage || undefined,
             numberOfCarousels: 1,
             mode: "generate"
         },
@@ -489,6 +495,7 @@ export default function LinkedInCarousel() {
           ctaAction,
           format,
           postType,
+          style_mode: "hybrid-composite",
           numberOfCarousels,
           stream: true,
         }),
@@ -662,7 +669,8 @@ export default function LinkedInCarousel() {
           body: {
             ...campaignTopic.input,
             numberOfCarousels: 1, // Full automation: 1 high quality variation
-            mode: "generate"
+            mode: "generate",
+            style_mode: "hybrid-composite",
           },
         });
 
@@ -1125,6 +1133,7 @@ export default function LinkedInCarousel() {
                                         ctaAction: ctaValue,
                                         format: "carousel",
                                         postType: "value",
+                                        style_mode: "hybrid-composite",
                                         numberOfCarousels: 1,
                                         stream: false,
                                       }),

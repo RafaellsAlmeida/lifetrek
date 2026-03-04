@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Send, Bot, User, ShieldAlert } from "lucide-react";
+import { MessageSquare, Send, Bot, User, ShieldAlert, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FunctionsHttpError } from "@supabase/supabase-js";
@@ -145,20 +145,21 @@ export function ContentOrchestratorCore({ embedded = false, onGenerate }: Conten
                                 </div>
                                 <div className={`p-3 rounded-lg max-w-[80%] ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                                     }`}>
-                                    <ReactMarkdown
-                                        className={`prose ${m.role === "user" ? "prose-invert" : "dark:prose-invert"} max-w-none text-sm leading-relaxed whitespace-pre-wrap break-words`}
-                                        components={{
-                                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-                                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2" {...props} />,
-                                            ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2" {...props} />,
-                                            li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                                            strong: ({ node, ...props }) => <span className="font-bold" {...props} />,
-                                        }}
-                                    >
-                                        {m.content}
-                                    </ReactMarkdown>
+                                    <div className={`prose ${m.role === "user" ? "prose-invert" : "dark:prose-invert"} max-w-none text-sm leading-relaxed whitespace-pre-wrap break-words`}>
+                                        <ReactMarkdown
+                                            components={{
+                                                p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                                                ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                                                ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2" {...props} />,
+                                                li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                                strong: ({ node, ...props }) => <span className="font-bold" {...props} />,
+                                            }}
+                                        >
+                                            {m.content}
+                                        </ReactMarkdown>
+                                    </div>
                                     
-                                    {m.role === "assistant" && i === messages.length - 1 && onGenerate && (
+                                    {i === messages.length - 1 && onGenerate && (
                                         <div className="mt-4 pt-3 border-t border-primary/10">
                                             <Button 
                                                 onClick={handleGenerateClick}

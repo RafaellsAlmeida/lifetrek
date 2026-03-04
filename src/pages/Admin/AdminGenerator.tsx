@@ -1,150 +1,199 @@
-
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Users } from "lucide-react";
+import {
+  ICP_EXPERIMENT_POSTS,
+  WEBSITE_ICP_AUDIENCES,
+  type IcpExperimentPost,
+} from "@/config/linkedinIcpExperiment";
 
-const PRIORITY_TOPICS = [
-    {
-        topic: "Whitepaper: Usinagem Suíça para Dispositivos Médicos - Guia Técnico",
-        targetAudience: "Engenheiros de Manufatura e R&D",
-        painPoint: "Necessidade de alta precisão (<5 microns) em componentes complexos e pequenos",
-        desiredOutcome: "Compreender como a usinagem suíça garante repetibilidade e acabamento superior",
-        proofPoints: ["Capacidade de 12 eixos", "Micro-usinagem de titânio", "Acabamento sem rebarbas"],
-        ctaAction: "Baixe o Whitepaper Técnico",
-        profileType: "company",
-        researchLevel: "light"
-    },
-    {
-        topic: "Guia: Sala Limpa ISO 7 e Montagem de Kits",
-        targetAudience: "Gerentes de Qualidade e Operações",
-        painPoint: "Risco de contaminação e conformidade com normas ANVISA/ISO",
-        desiredOutcome: "Garantir processo de montagem estéril e seguro para kits cirúrgicos",
-        proofPoints: ["Monitoramento de partículas 24/7", "Fluxo laminar", "Equipe treinada em paramentação"],
-        ctaAction: "Conheça nossa infraestrutura de Sala Limpa",
-        profileType: "company",
-        researchLevel: "light"
-    },
-    {
-        topic: "Scorecard de Risco de Supply Chain 2026",
-        targetAudience: "Diretores de Supply Chain",
-        painPoint: "Vulnerabilidade da cadeia global e interrupções inesperadas",
-        desiredOutcome: "Avaliar e mitigar riscos de fornecimento crítico (geopolítico, logístico)",
-        proofPoints: ["Matriz de risco interativa", "Diversificação de base de fornecedores", "Estoque de segurança estratégico"],
-        ctaAction: "Avalie seu risco agora com o Scorecard",
-        profileType: "company",
-        researchLevel: "light"
-    },
-    {
-        topic: "Fluxo de Validacao de Fadiga para Implantes",
-        targetAudience: "Engenheiros de Desenvolvimento de Produto",
-        painPoint: "Falhas prematuras em implantes e longos ciclos de validação",
-        desiredOutcome: "Acelerar a validação de fadiga garantindo segurança do paciente",
-        proofPoints: ["Ensaios dinâmicos ISO", "Corpo de prova padronizado", "Análise de falha por MEV"],
-        ctaAction: "Veja o fluxo de validação completo",
-        profileType: "company",
-        researchLevel: "light"
-    },
-    {
-        topic: "Roadmap de 90 Dias para Migrar 1–3 SKUs para Produção Local",
-        targetAudience: "Diretores de Supply Chain e Gerentes de Operações",
-        painPoint: "Dependência de importação, variação cambial e longos lead times",
-        desiredOutcome: "Plano claro para nacionalizar a produção com qualidade equivalente",
-        proofPoints: ["Casos de sucesso em migração", "Redução de lead time para 30 dias", "Metrologia integrada"],
-        ctaAction: "Baixe o Roadmap e inicie sua estratégia",
-        profileType: "company",
-        researchLevel: "light"
-    }
-];
+type JobStatus = "idle" | "loading" | "success" | "error";
 
 export default function AdminGenerator() {
-    const [status, setStatus] = useState<Record<string, 'idle' | 'loading' | 'success' | 'error'>>({});
-    const [logs, setLogs] = useState<string[]>([]);
+  const [status, setStatus] = useState<Record<string, JobStatus>>({});
+  const [logs, setLogs] = useState<string[]>([]);
 
-    const addLog = (msg: string) => setLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
+  const postsByIcp = useMemo(() => {
+    return WEBSITE_ICP_AUDIENCES.map((icp) => ({
+      icp,
+      posts: ICP_EXPERIMENT_POSTS.filter((post) => post.icpCode === icp.code),
+    }));
+  }, []);
 
-    const generateItem = async (item: typeof PRIORITY_TOPICS[0]) => {
-        setStatus(prev => ({ ...prev, [item.topic]: 'loading' }));
-        addLog(`Starting generation for: ${item.topic}`);
+  const addLog = (msg: string) =>
+    setLogs((prev) => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
 
-        try {
-            const { data, error } = await supabase.functions.invoke('generate-linkedin-carousel', {
-                body: item
-            });
+  const setPostStatus = (postId: string, next: JobStatus) =>
+    setStatus((prev) => ({ ...prev, [postId]: next }));
 
-            if (error) throw error;
+  const generatePost = async (post: IcpExperimentPost) => {
+    setPostStatus(post.id, "loading");
+    addLog(`Iniciando geração [${post.icpCode}] ${post.topic}`);
 
-            addLog(`✅ Success for ${item.topic}: ${JSON.stringify(data.carousel?.caption?.substring(0, 50))}...`);
-            setStatus(prev => ({ ...prev, [item.topic]: 'success' }));
-            toast.success(`Generated: ${item.topic}`);
-        } catch (error: any) {
-            console.error(error);
-            addLog(`❌ Error for ${item.topic}: ${error.message || JSON.stringify(error)}`);
-            setStatus(prev => ({ ...prev, [item.topic]: 'error' }));
-            toast.error(`Failed: ${item.topic}`);
-        }
-    };
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
+        body: {
+          topic: post.topic,
+          targetAudience: post.targetAudience,
+          painPoint: post.painPoint,
+          desiredOutcome: post.desiredOutcome,
+          proofPoints: post.proofPoints.join("; "),
+          ctaAction: post.ctaAction,
+          format: "carousel",
+          mode: "generate",
+          numberOfCarousels: 1,
+          researchLevel: "light",
+          style_mode: "hybrid-composite",
+          selectedEquipment: post.selectedEquipment || [],
+          icpCode: post.icpCode,
+          experimentId: post.id,
+          visualDirection: post.visualDirection,
+          copyDensity: post.copyDensity,
+        },
+      });
 
-    const generateAll = async () => {
-        for (const item of PRIORITY_TOPICS) {
-            if (status[item.topic] === 'success') continue;
-            await generateItem(item);
-            // Wait 2s to allow UI updates and prevent rate limits
-            await new Promise(r => setTimeout(r, 2000));
-        }
-    };
+      if (error) throw error;
+      const generatedTopic = data?.carousels?.[0]?.topic || post.topic;
+      addLog(`✅ Gerado com sucesso: ${generatedTopic}`);
+      setPostStatus(post.id, "success");
+      toast.success(`Gerado: ${post.topic}`);
+    } catch (err: any) {
+      const message = err?.message || "Erro desconhecido";
+      addLog(`❌ Erro em ${post.topic}: ${message}`);
+      setPostStatus(post.id, "error");
+      toast.error(`Falha: ${post.topic}`);
+    }
+  };
 
-    return (
-        <div className="container mx-auto p-8 space-y-8">
-            <h1 className="text-3xl font-bold">Admin Content Generator (Force Priority)</h1>
+  const generateByIcp = async (icpCode: IcpExperimentPost["icpCode"]) => {
+    const posts = ICP_EXPERIMENT_POSTS.filter((p) => p.icpCode === icpCode);
+    for (const post of posts) {
+      await generatePost(post);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
+  };
 
-            <div className="flex gap-4">
-                <Button onClick={generateAll} size="lg" className="w-full md:w-auto">
-                    Generate All Priority Content
-                </Button>
-            </div>
+  const generateAll = async () => {
+    for (const post of ICP_EXPERIMENT_POSTS) {
+      await generatePost(post);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
+  };
 
-            <div className="grid gap-4">
-                {PRIORITY_TOPICS.map((item) => (
-                    <Card key={item.topic}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                {item.topic}
-                            </CardTitle>
-                            {status[item.topic] === 'loading' && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
-                            {status[item.topic] === 'success' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                            {status[item.topic] === 'error' && <XCircle className="h-4 w-4 text-red-500" />}
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-xs text-muted-foreground mb-4">
-                                Target: {item.targetAudience}
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => generateItem(item)}
-                                disabled={status[item.topic] === 'loading'}
-                            >
-                                Force Generate Single
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            <Card className="bg-slate-900 text-slate-50">
-                <CardHeader>
-                    <CardTitle className="text-white">Live Logs</CardTitle>
-                </CardHeader>
-                <CardContent className="font-mono text-xs space-y-1 h-64 overflow-y-auto">
-                    {logs.map((log, i) => (
-                        <div key={i}>{log}</div>
-                    ))}
-                    {logs.length === 0 && <div className="text-slate-500">Waiting for logs...</div>}
-                </CardContent>
-            </Card>
+  return (
+    <div className="container mx-auto p-8 space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">ICP Content Test Lab</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Estratégia de testes para os 5 ICPs de "Quem Atendemos", com geração via{" "}
+            <code>generate-linkedin-carousel</code> e prioridade de assets reais.
+          </p>
         </div>
-    );
+        <Button onClick={generateAll} size="lg">
+          Gerar Todos os Testes
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">ICPs Ativos</CardTitle>
+          </CardHeader>
+          <CardContent className="text-3xl font-bold flex items-center gap-2">
+            <Users className="w-6 h-6 text-primary" />
+            {WEBSITE_ICP_AUDIENCES.length}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Posts de Teste</CardTitle>
+          </CardHeader>
+          <CardContent className="text-3xl font-bold">{ICP_EXPERIMENT_POSTS.length}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Formato Padrão</CardTitle>
+          </CardHeader>
+          <CardContent className="text-3xl font-bold">Carrossel</CardContent>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        {postsByIcp.map(({ icp, posts }) => (
+          <Card key={icp.code}>
+            <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div className="space-y-1">
+                <CardTitle className="text-xl">
+                  {icp.code} · {icp.label}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">{icp.websiteSegment}</p>
+                <p className="text-xs text-muted-foreground">
+                  Buyer foco: {icp.primaryBuyer} · KPI principal: {icp.successMetric}
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => generateByIcp(icp.code)}>
+                Gerar ICP {icp.code}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {posts.map((post) => {
+                const current = status[post.id] || "idle";
+                return (
+                  <div
+                    key={post.id}
+                    className="border rounded-lg p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold">{post.topic}</p>
+                        <Badge variant={post.visualDirection === "machine_or_product" ? "default" : "secondary"}>
+                          {post.visualDirection === "machine_or_product"
+                            ? "Imagem: máquina/produto"
+                            : "Imagem: processo/facility"}
+                        </Badge>
+                        <Badge variant="outline">{post.copyDensity === "low_text" ? "Texto curto" : "Texto médio"}</Badge>
+                        <Badge variant="outline">Slides {post.slideBucket}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Público: {post.targetAudience}</p>
+                      <p className="text-xs text-muted-foreground">Hipótese: {post.hypothesis}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {current === "loading" && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {current === "success" && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                      {current === "error" && <XCircle className="w-4 h-4 text-red-500" />}
+                      <Button
+                        size="sm"
+                        onClick={() => generatePost(post)}
+                        disabled={current === "loading"}
+                      >
+                        Gerar Post
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="bg-slate-900 text-slate-50">
+        <CardHeader>
+          <CardTitle className="text-white">Log de Execução</CardTitle>
+        </CardHeader>
+        <CardContent className="font-mono text-xs space-y-1 h-64 overflow-y-auto">
+          {logs.map((log, i) => (
+            <div key={i}>{log}</div>
+          ))}
+          {logs.length === 0 && <div className="text-slate-500">Aguardando gerações...</div>}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

@@ -1,7 +1,18 @@
-O Custo Oculto da Importação
+Importar parece mais barato. Ate voce fechar a conta completa.
 
-Se a sua equipe precisa de previsibilidade (qualidade, prazo e rastreabilidade), o ponto nao e prometer: e ter processo e dados.
+Quando o time coloca na planilha:
+- lead time real (90+ dias em varios casos),
+- custo de estoque parado,
+- risco de nao conformidade/recall,
+- variacao cambial e retrabalho,
+o "barato" pode sair mais caro que um fluxo local bem controlado.
 
-Quer que a gente avalie seu desenho/roteiro e te diga onde o risco esta antes de escalar?
+Este carrossel mostra como comparar importacao vs fabricacao local com criterio tecnico e financeiro, sem achismo.
 
-Fale com a Lifetrek Medical.
+Importante (elegibilidade regulatoria):
+Este conteudo e aplicavel a fabricantes com atividade fabril no Brasil (planta propria ou etapa produtiva local controlada).
+Nao se aplica a distribuidores/importadores com apenas escritorio comercial.
+
+CTA:
+Se voce quiser, avaliamos 1 SKU critico e te devolvemos uma leitura objetiva de risco, prazo e custo para decisao.
+Comente "SKU" ou chame no direct.

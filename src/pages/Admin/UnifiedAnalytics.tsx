@@ -10,9 +10,10 @@ import { StatsCards } from "@/components/admin/analytics/StatsCards";
 import { ConnectionGrowthChart } from "@/components/admin/analytics/ConnectionGrowthChart";
 import { LeadBehaviorStats } from "@/components/admin/analytics/LeadBehaviorStats";
 import { PostPerformanceTable } from "@/components/admin/analytics/PostPerformanceTable";
+import { MonthlyMarketingReport } from "@/components/admin/analytics/MonthlyMarketingReport";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCcw, Globe, Linkedin, Link2, Users } from "lucide-react";
+import { RefreshCcw, Globe, Linkedin, Link2, Users, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function UnifiedAnalytics() {
@@ -75,6 +76,10 @@ export default function UnifiedAnalytics() {
           <TabsTrigger value="leads" className="gap-2">
             <Users className="h-4 w-4" />
             Leads
+          </TabsTrigger>
+          <TabsTrigger value="monthly" className="gap-2">
+            <CalendarRange className="h-4 w-4" />
+            Monthly Report
           </TabsTrigger>
         </TabsList>
 
@@ -157,6 +162,10 @@ export default function UnifiedAnalytics() {
         {/* Leads Tab - Internal Behavior */}
         <TabsContent value="leads" className="space-y-6">
           <LeadBehaviorStats data={internalData} loading={internalLoading} />
+        </TabsContent>
+
+        <TabsContent value="monthly" className="space-y-6">
+          <MonthlyMarketingReport />
         </TabsContent>
       </Tabs>
     </div>

@@ -26,7 +26,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UnifiedInbox from "@/pages/UnifiedInbox";
 import { WeeklyReportDashboard } from "@/components/WeeklyReportDashboard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -150,13 +149,6 @@ export function SalesDashboard() {
              Pipeline & Leads
            </Button>
            <Button 
-             variant={activeTab === "inbox" ? "secondary" : "ghost"} 
-             onClick={() => setActiveTab("inbox")}
-             className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'inbox' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
-           >
-             Unified Inbox
-           </Button>
-           <Button 
              variant={activeTab === "data" ? "secondary" : "ghost"} 
              onClick={() => setActiveTab("data")}
              className={`h-9 rounded-none border-b-2 px-4 text-xs font-medium transition-all ${activeTab === 'data' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-slate-600 hover:bg-slate-50'}`}
@@ -239,13 +231,6 @@ export function SalesDashboard() {
                   </TableBody>
                 </Table>
              </div>
-          </div>
-        )}
-
-        {/* INBOX TAB */}
-        {activeTab === "inbox" && (
-          <div className="animate-in fade-in duration-200">
-             <UnifiedInbox />
           </div>
         )}
 

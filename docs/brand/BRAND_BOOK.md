@@ -23,6 +23,14 @@
 ### Who We Are
 Lifetrek Medical is a precision manufacturing company specializing in high-quality medical and dental components. With 30+ years of experience, we are ISO 13485 certified and ANVISA approved, serving leading medical device companies worldwide.
 
+### Regulatory Eligibility Rule (Brazil)
+For commercialization under ANVISA pathways in Brazil, our core offer is positioned for companies that maintain manufacturing activity in Brazil (own plant or controlled local manufacturing step).
+
+We do not position Roadmap/local-transfer offers for:
+- Distributors without manufacturing activity in Brazil
+- Importers with only a commercial office in Brazil
+- Companies seeking ANVISA outcomes without controlling any local production step
+
 ### Brand Positioning
 **Precision Engineering for Life-Saving Technology**
 
@@ -38,6 +46,10 @@ We position ourselves as:
 - Surgical instrument brands
 - Orthopedic device companies
 - Healthcare technology innovators
+
+### Audience Qualification (Go/No-Go)
+- **Go**: Companies with manufacturing footprint in Brazil (own facility or qualified/controlled local production stage)
+- **No-Go**: Distributor-only and office-only entities in Brazil with no manufacturing operation
 
 ### Brand Personality
 - **Professional**: Serious, credible, expert

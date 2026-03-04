@@ -15,10 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 // import remarkGfm from 'remark-gfm';
-import SupplierAuditCalculator from "@/components/resources/SupplierAuditCalculator";
-import ToleranceLookup from "@/components/resources/ToleranceLookup";
-import CleanRoomClassifier from "@/components/resources/CleanRoomClassifier";
-import SwissVsConventionalTool from "@/components/resources/SwissVsConventionalTool";
+import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
 import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 
 export default function ResourceDetail() {
@@ -34,27 +31,6 @@ export default function ResourceDetail() {
         company: ""
     });
 
-    // Scorecard state
-    const [scorecard, setScorecard] = useState({
-        dependency: 3,
-        volatility: 3,
-        leadTime: 3,
-        quality: 3,
-        capital: 3
-    });
-
-    const [productionChecklist, setProductionChecklist] = useState({
-        volume: false,
-        leadTime: false,
-        impact: false,
-        quality: false,
-        capital: false
-    });
-
-    const [isSavingScorecard, setIsSavingScorecard] = useState(false);
-    const [scorecardStatus, setScorecardStatus] = useState("");
-    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
-    const [checklistStatus, setChecklistStatus] = useState("");
     const resourceContent = resource?.content ?? "";
     const resolvedSlug = resource?.slug ?? slug ?? "resource";
     const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
@@ -144,37 +120,6 @@ export default function ResourceDetail() {
             setIsUnlocking(false);
             void flushPendingLeads();
         }
-    };
-
-    const scorecardTotal = Object.values(scorecard).reduce((a, b) => a + b, 0);
-    const scorecardBand = scorecardTotal < 10 ? "Baixo Risco (Verde)" : scorecardTotal < 18 ? "Médio Risco (Amarelo)" : "Alto Risco (Vermelho)";
-    const scorecardRecommendation = scorecardTotal < 10
-        ? "Sua cadeia de suprimentos está estável. Mantenha o monitoramento."
-        : scorecardTotal < 18
-            ? "Atenção necessária. Considere diversificar fornecedores críticos."
-            : "Ação imediata recomendada. Sua operação está vulnerável a interrupções.";
-
-    const productionYesCount = Object.values(productionChecklist).filter(Boolean).length;
-    const productionRecommendation = productionYesCount >= 3
-        ? "Recomendação: ALTA VIABILIDADE para produção local. Agende uma consultoria técnica."
-        : "Recomendação: Mantenha importação por enquanto, mas monitore o volume.";
-
-    const handleScorecardSave = async () => {
-        setIsSavingScorecard(true);
-        // Simulate save
-        setTimeout(() => {
-            setIsSavingScorecard(false);
-            setScorecardStatus("Respostas salvas com sucesso!");
-        }, 1000);
-    };
-
-    const handleProductionChecklistSave = async () => {
-        setIsSavingChecklist(true);
-        // Simulate save
-        setTimeout(() => {
-            setIsSavingChecklist(false);
-            setChecklistStatus("Checklist salvo com sucesso!");
-        }, 1000);
     };
 
     const handleShare = async () => {
@@ -373,130 +318,11 @@ export default function ResourceDetail() {
                             </div>
                         )}
 
-                        {resource.slug === "scorecard-risco-supply-chain-2026" && (
-                            <div className="mt-12 rounded-xl border border-slate-200 bg-white p-6">
-                                <h3 className="text-xl font-semibold text-slate-900 mb-4">Scorecard interativo</h3>
-                                <div className="space-y-4">
-                                    {[
-                                        { id: "dependency", label: "Dependencia geografica" },
-                                        { id: "volatility", label: "Volatilidade cambial/materia-prima" },
-                                        { id: "leadTime", label: "Lead time e logistica" },
-                                        { id: "quality", label: "Qualidade/compliance fornecedor" },
-                                        { id: "capital", label: "Capital preso em estoque" }
-                                    ].map((item) => (
-                                        <div key={item.id} className="space-y-2">
-                                            <div className="flex items-center justify-between text-sm text-slate-600">
-                                                <span>{item.label}</span>
-                                                <span className="font-semibold text-slate-900">{scorecard[item.id as keyof typeof scorecard]}</span>
-                                            </div>
-                                            <input
-                                                type="range"
-                                                min={1}
-                                                max={5}
-                                                value={scorecard[item.id as keyof typeof scorecard]}
-                                                onChange={(event) =>
-                                                    setScorecard((prev) => ({
-                                                        ...prev,
-                                                        [item.id]: Number(event.target.value)
-                                                    }))
-                                                }
-                                                className="w-full accent-primary"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-600">Total</span>
-                                        <span className="text-lg font-bold text-slate-900">{scorecardTotal}</span>
-                                    </div>
-                                    <div className="mt-2 text-sm text-slate-700">
-                                        Faixa: <span className="font-semibold">{scorecardBand}</span>
-                                    </div>
-                                    <p className="mt-2 text-sm text-slate-600">{scorecardRecommendation}</p>
-                                </div>
-
-                                <div className="mt-4">
-                                    <Button onClick={handleScorecardSave} disabled={isSavingScorecard}>
-                                        {isSavingScorecard ? "Salvando..." : "Salvar respostas no CRM"}
-                                    </Button>
-                                    {scorecardStatus && (
-                                        <p className="mt-3 text-sm text-slate-600">{scorecardStatus}</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {resource.slug === "checklist-producao-local" && (
-                            <div className="mt-12 rounded-xl border border-slate-200 bg-white p-6">
-                                <h3 className="text-xl font-semibold text-slate-900 mb-4">Checklist interativo</h3>
-                                <div className="space-y-3">
-                                    {[
-                                        { id: "volume", label: "Volume anual relevante" },
-                                        { id: "leadTime", label: "Lead time de importacao > X dias" },
-                                        { id: "impact", label: "Alto impacto se faltar (linha para)" },
-                                        { id: "quality", label: "Problema recorrente de qualidade/NC" },
-                                        { id: "capital", label: "Alto valor em estoque parado" }
-                                    ].map((item) => (
-                                        <label key={item.id} className="flex items-center gap-3 text-sm text-slate-700">
-                                            <input
-                                                type="checkbox"
-                                                checked={productionChecklist[item.id as keyof typeof productionChecklist]}
-                                                onChange={(event) =>
-                                                    setProductionChecklist((prev) => ({
-                                                        ...prev,
-                                                        [item.id]: event.target.checked
-                                                    }))
-                                                }
-                                                className="h-4 w-4 accent-primary"
-                                            />
-                                            {item.label}
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-600">SIM marcados</span>
-                                        <span className="text-lg font-bold text-slate-900">{productionYesCount}</span>
-                                    </div>
-                                    <p className="mt-2 text-sm text-slate-600">{productionRecommendation}</p>
-                                </div>
-
-                                <div className="mt-4">
-                                    <Button onClick={handleProductionChecklistSave} disabled={isSavingChecklist}>
-                                        {isSavingChecklist ? "Salvando..." : "Salvar checklist no CRM"}
-                                    </Button>
-                                    {checklistStatus && (
-                                        <p className="mt-3 text-sm text-slate-600">{checklistStatus}</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Supplier Audit Checklist - Interactive Scoring Calculator */}
-                        {(resource.slug === "checklist-auditoria-iso-13485" || resource.slug === "checklist-auditoria-fornecedores" || resource.slug === "checklist-auditoria-fornecedores-medicos") && (
-                            <SupplierAuditCalculator
-                                formData={formData}
-                                setIsModalOpen={setIsModalOpen}
-                            />
-                        )}
-
-                        {/* Tolerance Lookup - for metrology guides */}
-                        {(resource.slug === "guia-metrologia-alta-precisao" || resource.slug === "guia-metrologia-3d-cnc-swiss") && (
-                            <ToleranceLookup />
-                        )}
-
-                        {/* Clean Room Classifier - for sala limpa guides */}
-                        {(resource.slug === "guia-sala-limpa-iso-7" || resource.slug === "guia-sala-limpa-dispositivos-medicos") && (
-                            <CleanRoomClassifier />
-                        )}
-
-                        {/* Swiss vs Conventional Tool - for whitepaper */}
-                        {resource.slug === "whitepaper-usinagem-suica-dispositivos-medicos" && (
-                            <SwissVsConventionalTool />
-                        )}
+                        <ResourceInteractiveBlocks
+                            slug={resource.slug}
+                            formData={formData}
+                            setIsModalOpen={setIsModalOpen}
+                        />
 
                         {/* CTA Footer */}
                         <div className="mt-16 pt-8 border-t bg-slate-50 -mx-8 -mb-8 md:-mx-12 md:-mb-12 p-8 md:p-12 text-center rounded-b-xl">

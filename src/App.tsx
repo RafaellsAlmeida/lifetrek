@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ImpersonationProvider } from "./contexts/ImpersonationContext";
 import { Header } from "./components/Header";
@@ -46,7 +46,7 @@ const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
 const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
 const UnifiedAnalytics = lazy(() => import("./pages/Admin/UnifiedAnalytics"));
-const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox"));
+// const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox")); // Paused while Unipile is disabled
 const OnePager = lazy(() => import("./pages/OnePager"));
 const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
 const ImageEditor = lazy(() => import("./pages/Admin/ImageEditor"));
@@ -135,7 +135,8 @@ const App = () => (
                     <Route path="video-studio" element={<VideoStudio />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="analytics" element={<UnifiedAnalytics />} />
-                    <Route path="inbox" element={<UnifiedInbox />} />
+                    {/* Inbox route paused while Unipile is disabled */}
+                    <Route path="inbox" element={<Navigate to="/admin/chatbot-inbox" replace />} />
                     <Route path="one-pager" element={<OnePager />} />
                     <Route path="content-manager" element={<ContentManager />} />
                     <Route path="linkedin-carousel" element={<LinkedInCarousel />} />

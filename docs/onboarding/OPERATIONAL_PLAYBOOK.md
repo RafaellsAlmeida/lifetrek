@@ -16,9 +16,10 @@
    - Localização: Brasil (priorizar SP, MG, PR, SC, RS)
 
 2. **Qualificar antes de conectar**
-   - ✅ Empresa fabrica/comercializa dispositivos médicos?
+   - ✅ Empresa fabrica dispositivos medicos (ou controla etapa produtiva local) no Brasil?
    - ✅ Cargo tem poder de decisão técnica/comercial?
    - ✅ Empresa ativa (posts recentes, vagas abertas)?
+   - ✅ Nao e distribuidor/importador com apenas escritorio comercial?
 
 3. **Enviar convite personalizado**
 
@@ -27,6 +28,8 @@
 [Nome], vi que você trabalha com [produto/segmento] na [Empresa]. 
 
 Estamos ajudando empresas como [referência do setor] a reduzir custos e lead time em componentes médicos customizados, produzindo localmente com qualidade ISO 13485.
+
+Atendemos fabricantes com atividade fabril no Brasil (propria ou etapa local controlada para requisitos ANVISA).
 
 Faria sentido trocar uma ideia?
 ```
@@ -51,6 +54,8 @@ Faria sentido trocar uma ideia?
 Obrigado por conectar, [Nome]!
 
 Estamos começando 2026 com um projeto interessante: ajudar empresas brasileiras de dispositivos médicos a FABRICAR LOCALMENTE componentes que hoje são importados.
+
+Esse fluxo e para fabricantes com planta/etapa fabril local no Brasil (nao distribuidor puro).
 
 Imagino que na [Empresa] vocês também sintam o preço e prazo da importação. Já conversou com fornecedor nacional de usinagem médica?
 ```

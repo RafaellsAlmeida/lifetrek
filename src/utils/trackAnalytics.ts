@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { isAdminPath } from "@/lib/analyticsPath";
 
 // Expanded event types for comprehensive tracking
 export type EventType = 
@@ -88,6 +89,7 @@ export const trackAnalyticsEvent = async ({
   try {
     const sessionId = getSessionId();
     const resolvedPagePath = pagePath || getPagePath();
+    if (isAdminPath(resolvedPagePath)) return;
     const referrer = getReferrer();
     const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
     const utm = getUtmParams();

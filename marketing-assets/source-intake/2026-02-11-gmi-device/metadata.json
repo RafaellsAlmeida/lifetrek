@@ -1,0 +1,20 @@
+{
+  "id": "asset-intake-gmi-device-2026-02-11",
+  "status": "pending_file_attach",
+  "source": "chat_attachment",
+  "requested_by": "Rafael Almeida",
+  "stakeholder_feedback": [
+    "ANVISA: cliente precisa de atividade fabril no BR para fluxo de producao local.",
+    "Prospect viu site + one-pager e pediu reuniao no mesmo dia."
+  ],
+  "intended_use": [
+    "LinkedIn post",
+    "Instagram single-image post",
+    "Sales one-pager proof block"
+  ],
+  "compliance_notes": [
+    "Nao afirmar elegibilidade ANVISA para distribuidor/importador sem etapa fabril local.",
+    "Confirmar autorizacao de uso de marca/artefato visual antes da publicacao."
+  ],
+  "expected_filename": "gmi-device-reference-2026-02-11.png"
+}

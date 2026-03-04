@@ -19,7 +19,6 @@ import {
     Eye,
     X,
     TrendingUp,
-    Inbox,
     Sparkles,
     type LucideIcon,
 } from "lucide-react";
@@ -67,7 +66,7 @@ type NavEntry = NavItem | NavGroup;
 
 const navStructure: NavEntry[] = [
     { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/admin/inbox", label: "Inbox", icon: Inbox },
+    // { path: "/admin/inbox", label: "Inbox", icon: Inbox }, // Paused while Unipile is disabled
     { path: "/admin/chatbot-inbox", label: "Chatbot", icon: MessageSquare },
     {
         label: "Conteúdo",

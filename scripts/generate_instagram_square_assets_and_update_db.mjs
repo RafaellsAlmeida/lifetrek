@@ -8,6 +8,10 @@ const LOGO_PATH = path.join(ROOT, "public", "images", "lifetrek-logo-full.png");
 const BG_DIR = path.join(ROOT, "output", "imagegen", "pinned_lifetrek_v2", "ai_bg");
 
 const BUCKET = "carousel-images";
+const argv = process.argv.slice(2);
+const idsArg = argv.find((a) => a.startsWith("--ids="));
+const forceRegenerate = argv.includes("--force");
+const targetIds = idsArg ? idsArg.replace("--ids=", "").split(",").map((s) => s.trim()).filter(Boolean) : null;
 
 function readEnvFile() {
   const envText = fs.readFileSync(path.join(ROOT, ".env"), "utf8");
@@ -74,6 +78,36 @@ function labelForSlide(slide) {
   if (slide?.type === "hook") return "DESTAQUE";
   if (slide?.type === "cta") return "PROXIMO PASSO";
   return "INSIGHT";
+}
+
+function translateTextToPt(v) {
+  const value = String(v || "");
+  const map = new Map([
+    ["ISO 13485 Certified", "ISO 13485:2016 Certificado"],
+    ["Rigorous quality management system. Every process documented, every part traceable.", "Sistema de gestao da qualidade rigoroso. Processo documentado e lote rastreavel."],
+    ["Global Reach, Local Excellence", "Alcance Global, Excelencia Local"],
+    ["Partner With Us", "Parceria Tecnica"],
+    ["Discover how Lifetrek can become your trusted manufacturing partner.", "Descubra como a Lifetrek pode ser seu parceiro de manufatura."],
+    ["One Partner. Complete Solution.", "Um Parceiro. Solucao Completa."],
+    ["Raw Material Control", "Controle de Materia-Prima"],
+    ["Vertical Integration", "Integracao Vertical"],
+    ["CNC machining, surface finishing, metrology, cleanroom packaging—all under one roof.", "Usinagem CNC, acabamento de superficie, metrologia e embalagem em sala limpa em um fluxo integrado."],
+    ["Simplify Your Supply Chain", "Simplifique Sua Cadeia de Suprimentos"],
+    ["See why OEMs trust Lifetrek for their most critical components.", "Veja por que OEMs confiam na Lifetrek para componentes criticos."]
+  ]);
+
+  if (map.has(value)) return map.get(value);
+  let out = value;
+  for (const [from, to] of map.entries()) out = out.replaceAll(from, to);
+  return out;
+}
+
+function translateSlideToPt(slide) {
+  return {
+    ...slide,
+    headline: translateTextToPt(slide?.headline),
+    body: translateTextToPt(slide?.body),
+  };
 }
 
 function escapeHtml(v) {
@@ -277,9 +311,10 @@ async function run() {
   if (error) throw new Error(error.message);
 
   const candidates = posts.filter((p) => {
+    if (targetIds && !targetIds.includes(p.id)) return false;
     const meta = p.generation_metadata || {};
     const already = meta && typeof meta === "object" && meta.square_v1_generated_at;
-    return !already;
+    return forceRegenerate ? true : !already;
   });
 
   const browser = await chromium.launch({ headless: true });
@@ -290,7 +325,7 @@ async function run() {
   const page = await context.newPage();
 
   for (const post of candidates) {
-    const slides = safeJsonArray(post.slides);
+    const slides = safeJsonArray(post.slides).map(translateSlideToPt);
     if (!slides.length) continue;
 
     const existingUrls = safeJsonArray(post.image_urls);
@@ -323,13 +358,14 @@ async function run() {
     nextMeta.square_v1_generated_at = new Date().toISOString();
     nextMeta.square_v1_dimensions = "1080x1080";
 
-    const caption = tailorCaption(post);
-    const hashtags = tailorHashtags(post.topic);
+    const caption = post.caption || tailorCaption(post);
+    const hashtags = (Array.isArray(post.hashtags) && post.hashtags.length) ? post.hashtags : tailorHashtags(post.topic);
 
     const { error: upErr } = await supabase
       .from("instagram_posts")
       .update({
         image_urls: newUrls,
+        slides,
         caption,
         hashtags,
         generation_metadata: nextMeta,

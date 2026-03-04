@@ -41,7 +41,13 @@ function buildParams(inputData: any): CarouselParams {
         profileType: inputData.profileType || "company",
         format: inputData.format || "carousel",
         researchLevel: inputData.researchLevel || "light",
-        style_mode: inputData.style_mode || "ai-native"
+        style_mode: inputData.style_mode || "hybrid-composite",
+        selectedEquipment: Array.isArray(inputData.selectedEquipment)
+            ? inputData.selectedEquipment.filter(Boolean)
+            : [],
+        referenceImage: typeof inputData.referenceImage === "string"
+            ? inputData.referenceImage
+            : ""
     };
 }
 

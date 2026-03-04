@@ -38,11 +38,56 @@ async function loadFonts() {
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
 const IMAGE_MODEL = "google/gemini-2.0-flash-exp:free";
+const GEMINI_TEXT_MODEL = "gemini-2.0-flash";
+
+async function callGeminiText(
+  messages: { role: string; content: string }[],
+  temperature: number = 0.7
+): Promise<string> {
+  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY not set in environment");
+  }
+
+  const mergedPrompt = messages
+    .map((m) => `${m.role.toUpperCase()}:\n${m.content}`)
+    .join("\n\n");
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: mergedPrompt }] }],
+        generationConfig: { temperature }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini Text Error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts
+    ?.map((p: any) => p?.text)
+    ?.filter(Boolean)
+    ?.join("\n") || "";
+
+  return text;
+}
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],
   temperature: number = 0.7
 ): Promise<string> {
+  if (!OPEN_ROUTER_API) {
+    console.warn("⚠️ OPEN_ROUTER_API missing, using Gemini text fallback");
+    return await callGeminiText(messages, temperature);
+  }
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -60,6 +105,11 @@ async function callOpenRouter(
 
   if (!response.ok) {
     const errorText = await response.text();
+    // OpenRouter account/key issues should not block generation
+    if (response.status === 401 || response.status === 403 || response.status >= 500) {
+      console.warn(`⚠️ OpenRouter unavailable (${response.status}), using Gemini text fallback`);
+      return await callGeminiText(messages, temperature);
+    }
     throw new Error(`OpenRouter Error: ${response.status} - ${errorText}`);
   }
 
@@ -71,6 +121,13 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
   try {
     console.log("🎨 OpenRouter Image: Calling generation via chat completions...");
 
+    const userContent = refImageUrl
+      ? [
+        { type: "text", text: prompt },
+        { type: "image_url", image_url: { url: refImageUrl } }
+      ]
+      : prompt;
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -81,7 +138,7 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
       },
       body: JSON.stringify({
         model: IMAGE_MODEL,
-        messages: [{ role: "user", content: prompt }],
+        messages: [{ role: "user", content: userContent }],
         modalities: ["image"],
       })
     });
@@ -367,6 +424,8 @@ export async function designerAgent(
   }
 
   const images: GeneratedImage[] = [];
+  const equipmentPriority = (params.selectedEquipment || []).map((item) => item.toLowerCase());
+  const hasReferenceImage = Boolean(params.referenceImage);
 
   // Decide which slides get images (Hook and last slide always, middle one if long)
   const middleIndex = Math.floor(copy.slides.length / 2);
@@ -384,6 +443,10 @@ export async function designerAgent(
     // Combine headline and visual_description for better matching
     // ENHANCED: Explicitly look for metrology, equipment, and product terms if applicable
     let assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
+
+    if (equipmentPriority.length > 0) {
+      assetQuery += ` ${equipmentPriority.join(" ")}`;
+    }
 
     // Add priority keywords if the topic suggests technical equipment
     if (assetQuery.toLowerCase().includes('precision') || assetQuery.toLowerCase().includes('quality')) {
@@ -420,10 +483,17 @@ export async function designerAgent(
       prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. Text overlay: "${slide.headline}".`.trim();
     }
 
+    if (equipmentPriority.length > 0) {
+      prompt += ` Highlight these real assets/equipment concepts when possible: ${equipmentPriority.join(", ")}.`;
+    }
+    if (hasReferenceImage) {
+      prompt += " Match composition and photographic style from the provided reference image.";
+    }
+
     try {
       // Use the shared callOpenRouterImage function for consistency
       console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
-      const imageUrl = await callOpenRouterImage(prompt) || "";
+      const imageUrl = await callGeminiImage(prompt) || "";
 
       images.push({
         slide_index: i,

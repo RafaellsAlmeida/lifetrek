@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isPublicPagePath } from "@/lib/analyticsPath";
 
 export interface GA4DailyStats {
   totalUsers: number;
@@ -112,19 +113,6 @@ export function useGA4Analytics(options: UseGA4AnalyticsOptions = {}) {
       const prevTotalUsers = prev.reduce((sum: number, d: any) => sum + (d.total_users || 0), 0);
       const prevTotalSessions = prev.reduce((sum: number, d: any) => sum + (d.sessions || 0), 0);
 
-      setStats({
-        totalUsers,
-        newUsers: totalNewUsers,
-        sessions: totalSessions,
-        engagedSessions: totalEngagedSessions,
-        avgSessionDuration,
-        engagementRate: avgEngagementRate,
-        bounceRate: avgBounceRate,
-        pageViews: totalPageViews,
-        userGrowth: prevTotalUsers > 0 ? ((totalUsers - prevTotalUsers) / prevTotalUsers) * 100 : 0,
-        sessionGrowth: prevTotalSessions > 0 ? ((totalSessions - prevTotalSessions) / prevTotalSessions) * 100 : 0,
-      });
-
       // History for chart
       setHistoryData(
         current.map((d: any) => ({
@@ -137,17 +125,20 @@ export function useGA4Analytics(options: UseGA4AnalyticsOptions = {}) {
         }))
       );
 
-      // 4. Fetch Top Pages (aggregate over period)
+      // 4. Fetch Top Pages (aggregate over period, excluding admin routes)
       const { data: pageData } = await (supabase
         .from("ga4_page_analytics" as any)
         .select("page_path, page_title, page_views, avg_time_on_page_seconds, bounce_rate")
         .gte("snapshot_date", formatDate(startDate))
+        .lte("snapshot_date", formatDate(endDate))
+        .not("page_path", "ilike", "/admin%")
         .order("page_views", { ascending: false })
-        .limit(10) as any);
+        .limit(200) as any);
 
       // Aggregate by page path
       const pageMap = new Map<string, GA4PageData>();
-      (pageData || []).forEach((p: any) => {
+      const safePageData = (pageData || []).filter((p: any) => isPublicPagePath(p.page_path));
+      safePageData.forEach((p: any) => {
         const existing = pageMap.get(p.page_path);
         if (existing) {
           existing.pageViews += p.page_views || 0;
@@ -162,10 +153,27 @@ export function useGA4Analytics(options: UseGA4AnalyticsOptions = {}) {
         }
       });
 
+      const topPagesData = Array.from(pageMap.values())
+        .sort((a, b) => b.pageViews - a.pageViews)
+        .slice(0, 10);
+
+      const publicPageViews = Array.from(pageMap.values()).reduce((sum, page) => sum + page.pageViews, 0);
+
+      setStats({
+        totalUsers,
+        newUsers: totalNewUsers,
+        sessions: totalSessions,
+        engagedSessions: totalEngagedSessions,
+        avgSessionDuration,
+        engagementRate: avgEngagementRate,
+        bounceRate: avgBounceRate,
+        pageViews: publicPageViews || totalPageViews,
+        userGrowth: prevTotalUsers > 0 ? ((totalUsers - prevTotalUsers) / prevTotalUsers) * 100 : 0,
+        sessionGrowth: prevTotalSessions > 0 ? ((totalSessions - prevTotalSessions) / prevTotalSessions) * 100 : 0,
+      });
+
       setTopPages(
-        Array.from(pageMap.values())
-          .sort((a, b) => b.pageViews - a.pageViews)
-          .slice(0, 10)
+        topPagesData
       );
 
       // 5. Fetch Traffic Sources (aggregate)

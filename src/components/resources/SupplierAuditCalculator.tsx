@@ -14,6 +14,7 @@ interface FormData {
 interface SupplierAuditCalculatorProps {
     formData: FormData;
     setIsModalOpen: (open: boolean) => void;
+    previewMode?: boolean;
 }
 
 const AUDIT_CATEGORIES = [
@@ -109,7 +110,7 @@ const AUDIT_CATEGORIES = [
 
 const TOTAL_ITEMS = 39;
 
-export default function SupplierAuditCalculator({ formData, setIsModalOpen }: SupplierAuditCalculatorProps) {
+export default function SupplierAuditCalculator({ formData, setIsModalOpen, previewMode = false }: SupplierAuditCalculatorProps) {
     const { toast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [status, setStatus] = useState<string | null>(null);
@@ -146,6 +147,15 @@ export default function SupplierAuditCalculator({ formData, setIsModalOpen }: Su
     };
 
     const handleSave = async () => {
+        if (previewMode) {
+            toast({
+                title: "Simulacao de preview",
+                description: "Em modo de aprovacao, os resultados nao sao enviados ao CRM."
+            });
+            setStatus("Simulacao concluida. Nenhum dado foi salvo.");
+            return;
+        }
+
         if (!formData.name || !formData.email) {
             setIsModalOpen(true);
             toast({
@@ -283,7 +293,7 @@ export default function SupplierAuditCalculator({ formData, setIsModalOpen }: Su
                         </div>
                     </div>
                     <Button onClick={handleSave} disabled={isSaving} size="lg">
-                        {isSaving ? "Salvando..." : "Salvar Avaliação"}
+                        {previewMode ? "Salvar (Simulacao)" : isSaving ? "Salvando..." : "Salvar Avaliacao"}
                     </Button>
                 </div>
                 {status && (

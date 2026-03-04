@@ -14,6 +14,29 @@ This document tracks the lead magnets surfaced on the public `/resources` route 
 3. Approve to publish (status becomes `published`) or reject (status becomes `rejected`).
 4. Published items render on `/resources` and `/resources/:slug`.
 
+## Current Approval Cycle (P0)
+- Cycle date: `2026-02-20`
+- Scope: approval-only (stakeholder review via `/admin/content-approval`)
+- New P0 lead magnets:
+  - `calculadora-custo-falha-qualidade` (`calculator`)
+  - `checklist-transferencia-npi-producao` (`checklist`)
+- Pending refresh set (10 existing slugs):
+  - `checklist-producao-local`
+  - `checklist-auditoria-iso-13485`
+  - `guia-sala-limpa-dispositivos-medicos`
+  - `checklist-auditoria-fornecedores-medicos`
+  - `whitepaper-usinagem-suica-dispositivos-medicos`
+  - `guia-metrologia-3d-cnc-swiss`
+  - `guia-metrologia-alta-precisao`
+  - `guia-sala-limpa-iso-7`
+  - `scorecard-risco-supply-chain-2026`
+  - `iso-13485-auditoria-usinagem`
+
+### Editorial Positioning (avoid overlap)
+- `checklist-auditoria-iso-13485`: internal SGQ audit focus.
+- `checklist-auditoria-fornecedores-medicos`: second-party supplier qualification focus.
+- `iso-13485-auditoria-usinagem`: machining + metrology process audit focus.
+
 ## Required Fields (Minimum)
 | Field | Required | Notes |
 | --- | --- | --- |
@@ -26,6 +49,15 @@ This document tracks the lead magnets surfaced on the public `/resources` route 
 | `persona` | no | Example: `Supply Chain / CFO`. |
 | `thumbnail_url` | no | Optional card image. |
 | `metadata` | no | JSON for tags or flags. |
+
+## Metadata Contract (Approval Quality)
+Use this minimum `metadata` contract for resources in approval:
+- `tags`
+- `value_promise`
+- `interactive_block`
+- `estimated_read_minutes`
+- `review_version`
+- `review_owner`
 
 ## Current Lead Magnets
 | Title | Slug | Type | Persona | Status | Route |
@@ -41,7 +73,25 @@ This document tracks the lead magnets surfaced on the public `/resources` route 
 | Manual de Metrologia e Inspecao de Alta Precisao | `guia-metrologia-alta-precisao` | guide | Qualidade/Engenharia | published | `/resources/guia-metrologia-alta-precisao` |
 | Guia de Precisao: Metrologia 3D e CNC Swiss | `guia-metrologia-3d-cnc-swiss` | guide | Engenharia/Qualidade | pending_approval | `/resources/guia-metrologia-3d-cnc-swiss` |
 
+## P0 Approval Backlog (Stakeholder Review)
+All items below are expected to remain `pending_approval` during this cycle:
+
+| Slug | Type | Interactive Block |
+| --- | --- | --- |
+| `checklist-producao-local` | checklist | `LocalProductionChecklistTool` |
+| `checklist-auditoria-iso-13485` | checklist | `SupplierAuditCalculator` |
+| `guia-sala-limpa-dispositivos-medicos` | guide | `CleanRoomClassifier` |
+| `checklist-auditoria-fornecedores-medicos` | checklist | `SupplierAuditCalculator` |
+| `whitepaper-usinagem-suica-dispositivos-medicos` | guide | `SwissVsConventionalTool` |
+| `guia-metrologia-3d-cnc-swiss` | guide | `ToleranceLookup` |
+| `guia-metrologia-alta-precisao` | guide | `ToleranceLookup` |
+| `guia-sala-limpa-iso-7` | guide | `CleanRoomClassifier` |
+| `scorecard-risco-supply-chain-2026` | guide | `SupplyChainRiskScorecard` |
+| `iso-13485-auditoria-usinagem` | checklist | `SupplierAuditCalculator` |
+| `calculadora-custo-falha-qualidade` | calculator | `CostOfQualityCalculator` |
+| `checklist-transferencia-npi-producao` | checklist | `NpiTransferChecklistTool` |
+
 ## Implementation Notes
 - `/resources` uses `status = published`. Pending items are visible only in Content Approval.
 - `fatigue-validation-guide` is a custom route with a dedicated page. All other slugs use the generic `ResourceDetail` page.
-- If a lead magnet needs interactive UI, add a slug-specific block in `src/pages/ResourceDetail.tsx`.
+- Interactive block resolution is centralized in `src/components/resources/ResourceInteractiveBlocks.tsx` and reused by public detail and admin preview.

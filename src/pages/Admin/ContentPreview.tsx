@@ -95,7 +95,7 @@ export default function ContentPreview() {
             switch (type) {
                 case 'resource': {
                     const { data: resource, error } = await supabase
-                        .from('content_templates')
+                        .from('resources')
                         .select('*')
                         .eq('id', id)
                         .single();
@@ -175,7 +175,7 @@ export default function ContentPreview() {
         try {
             const tableName = type === 'linkedin' ? 'linkedin_carousels' :
                 type === 'blog' ? 'blog_posts' :
-                    type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                    type === 'instagram' ? 'instagram_posts' : 'resources';
 
             const { error } = await supabase
                 .from(tableName as any)
@@ -211,7 +211,7 @@ export default function ContentPreview() {
         try {
             const tableName = type === 'linkedin' ? 'linkedin_carousels' :
                 type === 'blog' ? 'blog_posts' :
-                    type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                    type === 'instagram' ? 'instagram_posts' : 'resources';
 
             const { error } = await supabase
                 .from(tableName as any)
@@ -242,7 +242,7 @@ export default function ContentPreview() {
 
     const getPreviewUrl = () => {
         if (!content) return '';
-        const baseUrl = 'lifetrek-medical.com';
+        const baseUrl = 'https://www.lifetrek-medical.com';
 
         switch (type) {
             case 'resource':

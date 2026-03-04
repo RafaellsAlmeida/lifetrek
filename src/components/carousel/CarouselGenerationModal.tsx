@@ -12,7 +12,6 @@ import { Sparkles, Wand2, Loader2, Zap, Brain, LayoutTemplate } from 'lucide-rea
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { StorageImageSelector } from '../admin/StorageImageSelector';
-import { dispatchRepurposeJob, getJobStatus } from '@/lib/agents';
 import { Badge } from '@/components/ui/badge';
 
 interface CarouselGenerationModalProps {
@@ -131,47 +130,28 @@ export function CarouselGenerationModal({ open, onOpenChange, onGenerated }: Car
 
             // V2 AI-powered generation
             if (mode === 'auto') {
-                // Full Auto: Dispatch to Repurpose Content Agent (Edge Function)
-                // 1. Dispatch Job
-                const jobId = await dispatchRepurposeJob({
-                    content: autoRequest,
-                    url: autoRequest.startsWith('http') ? autoRequest : undefined,
-                    format: format,
-                    postType: postType
-                });
-
-                toast({
-                    title: "Agent Activated",
-                    description: "Repurposing content and generating carousel...",
-                });
-
-                // 2. Poll for completion
-                const checkJob = async () => {
-                    const job = await getJobStatus(jobId);
-
-                    if (job.status === 'completed') {
-                        // Success!
-                        // The result contains the carousel JSON. We need to parse/handle it.
-                        // For now, let's just notify and close.
-                        // In Next Step: Populate Editor with `job.result.carousel`
-                        console.log("Job Result:", job.result);
-
-                        onGenerated(job.result);
-                        onOpenChange(false);
-                        setIsGenerating(false);
-                        resetForm();
-                        toast({ title: "Carousel Created!", description: "High-quality carousel generated." });
-
-                    } else if (job.status === 'failed') {
-                        setIsGenerating(false);
-                        toast({ title: "Generation Failed", description: job.error, variant: "destructive" });
-
-                    } else {
-                        setTimeout(checkJob, 2000); // Poll every 2s
+                const { data, error } = await supabase.functions.invoke('generate-linkedin-carousel', {
+                    body: {
+                        topic: autoRequest,
+                        targetAudience: "OEM / Parceiros de Manufatura Contratada",
+                        format,
+                        mode: "generate",
+                        numberOfCarousels: 1,
+                        postType,
+                        researchLevel: "light",
+                        style_mode: "hybrid-composite",
                     }
-                };
+                });
 
-                checkJob();
+                if (error) {
+                    throw error;
+                }
+
+                onGenerated(data);
+                onOpenChange(false);
+                setIsGenerating(false);
+                resetForm();
+                toast({ title: "Carousel Created!", description: "Generated via generate-linkedin-carousel." });
                 return;
             }
             // Guided Mode: Call existing compositing function

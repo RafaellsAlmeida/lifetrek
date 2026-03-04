@@ -87,6 +87,48 @@ export default function SocialMediaWorkspace() {
     });
   };
 
+  const handleGenerateFromOrchestrator = async (rawTopic: string) => {
+    const topic = rawTopic?.trim() || "Plano de conteúdo técnico para OEMs de dispositivos médicos";
+    setIsGenerating(true);
+
+    try {
+      const { error } = await supabase.functions.invoke("generate-linkedin-carousel", {
+        body: {
+          topic,
+          targetAudience: "OEM / Parceiros de Manufatura Contratada (CM)",
+          painPoint: "Dependência de importação e risco de qualidade em componentes críticos",
+          desiredOutcome: "Produção local previsível com qualidade auditável e lead time menor",
+          proofPoints: [
+            "ISO 13485",
+            "Metrologia ZEISS Contura",
+            "Sala Limpa ISO 7",
+            "Usinagem CNC de precisão",
+          ],
+          ctaAction: "Comente DIAGNOSTICO para avaliar um SKU crítico",
+          format: "carousel",
+          mode: "generate",
+          numberOfCarousels: 1,
+          researchLevel: "light",
+          style_mode: "hybrid-composite",
+          selectedEquipment: ["ZEISS Contura", "Citizen M32", "Sala Limpa ISO 7"],
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Carrossel gerado e salvo. Revise em Aprovar ou LinkedIn Carousel.");
+      setActiveTab("approve");
+      setSearchParams((prev) => {
+        prev.set("tab", "approve");
+        return prev;
+      });
+    } catch (err: any) {
+      toast.error(err?.message || "Falha ao gerar carrossel");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const tabs = [
     {
       id: "create",
@@ -177,7 +219,7 @@ export default function SocialMediaWorkspace() {
               <div className="p-6 h-full">
                 <TabsContent value="create" className="mt-0 focus-visible:outline-none h-full">
                   <Suspense fallback={<TabLoading />}>
-                    <ContentOrchestratorEmbed />
+                    <ContentOrchestratorEmbed onGenerate={handleGenerateFromOrchestrator} isGenerating={isGenerating} />
                   </Suspense>
                 </TabsContent>
 
@@ -233,10 +275,21 @@ function ContentApprovalEmbed() {
   );
 }
 
-function ContentOrchestratorEmbed() {
+function ContentOrchestratorEmbed({
+  onGenerate,
+  isGenerating,
+}: {
+  onGenerate: (topic: string) => Promise<void>;
+  isGenerating: boolean;
+}) {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
-      <ContentOrchestratorCore embedded={true} />
+      {isGenerating && (
+        <div className="px-4 py-2 border-b border-slate-200 bg-blue-50 text-sm text-blue-700">
+          Gerando carrossel com assets reais...
+        </div>
+      )}
+      <ContentOrchestratorCore embedded={true} onGenerate={onGenerate} />
     </div>
   );
 }

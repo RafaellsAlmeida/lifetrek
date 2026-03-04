@@ -7,6 +7,7 @@ Este funil e exclusivamente sobre **Lifetrek Medical**.
 - Nao usar nomes de outros clientes/consultorias (ex: ASC, Amorim Stout Consulting).
 - Nao usar exemplos que desviem da proposta de valor da Lifetrek.
 - Todo conteudo deve reforcar: manufatura de precisao, qualidade, metrologia, compliance quando relevante e reducao de risco na cadeia.
+- Regra regulatoria obrigatoria (ANVISA): para materiais de "migracao para producao local", o ICP elegivel e empresa com atividade fabril no Brasil (propria ou etapa controlada). Distribuidores/importadores sem fabrica local nao sao ICP.
 
 ## Marketing Funnel (com blogs como pilar central)
 
@@ -99,6 +100,7 @@ Regra de publicacao:
 - Abertura do artigo com dor real do ICP primario.
 - Encerramento com CTA tecnico de decisao (nao CTA generico de marketing).
 - Nao forcar ANVISA em temas que nao sao regulatorios.
+- Quando citar ANVISA em tema de producao local, incluir disclaimer de elegibilidade (excluir distribuidores/escritorio comercial sem etapa fabril local).
 - Incluir secoes de referencia com fontes validas.
 - Nunca citar clientes externos nao aprovados.
 

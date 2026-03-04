@@ -12,6 +12,9 @@
 **Mission**: "To lead in the manufacture of high-performance products... with an absolute commitment to life."
 **Tagline**: "Global Reach, Local Excellence."
 **Tone**: Technical, Ethical, Confident, Partnership-Oriented.
+**Regulatory Eligibility Rule (ANVISA/Brazil)**:
+- Prioritize prospects with manufacturing activity in Brazil (own plant or controlled local manufacturing step).
+- Exclude distributor-only/importer-only prospects that only maintain commercial offices in Brazil.
 **Key Themes**:
 - **Risk Reduction**: "Manufacturing Capabilities That De-Risk Your Supply Chain".
 - **Precision**: "Micron-level accuracy", "Zero-Defect Manufacturing".
