@@ -10,21 +10,19 @@ import {
 import React from "react";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
-// 7.5-second vignette @ 30fps = 225 frames
-// Can also be used as a 5-second intro by exporting only frames 0–150.
 export const VIGNETTE_FPS = 30;
-export const VIGNETTE_DURATION = 225; // frames
-export const VIGNETTE_WIDTH = 1920;
+export const VIGNETTE_DURATION = 225; // 7.5s @ 30fps
+export const VIGNETTE_WIDTH = 1080;  // 1:1 square
 export const VIGNETTE_HEIGHT = 1080;
 
-// Brand colors (from BRAND_BOOK.md)
-const BLUE_DARK = "#004F8F";   // Corporate Blue
-const BLUE_MID = "#023d75";
+// Brand palette (BRAND_BOOK.md)
+const BLUE = "#004F8F";   // Corporate Blue
+const BLUE_MID = "#1a6bb5";   // slightly lighter for text sub
+const GREEN = "#1A7A3E";   // Innovation Green
+const ORANGE = "#F07818";   // Energy Orange
 const WHITE = "#FFFFFF";
-const ORANGE = "#F07818";     // Energy Orange (used as accent divider)
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-/** Clamp interpolation helper */
 const interp = (
   frame: number,
   [from, to]: [number, number],
@@ -35,28 +33,19 @@ const interp = (
     extrapolateRight: "clamp",
   });
 
-/** Spring-based scale/opacity entry tied to a start frame */
-const useEntry = (frame: number, fps: number, startFrame: number) => {
-  const f = frame - startFrame;
-  const scale = spring({
-    frame: f,
-    fps,
-    config: { damping: 180, stiffness: 80, mass: 0.6 },
-  });
-  const opacity = interp(frame, [startFrame, startFrame + 15], [0, 1]);
-  return { scale, opacity };
-};
-
-// ─── PILLAR COMPONENT ────────────────────────────────────────────────────────
+// ─── PILLAR ──────────────────────────────────────────────────────────────────
 const Pillar: React.FC<{
   text: string;
   sub: string;
+  accentColor: string;   // orange or green
   frame: number;
   fps: number;
   startFrame: number;
-}> = ({ text, sub, frame, fps, startFrame }) => {
-  const { scale, opacity } = useEntry(frame, fps, startFrame);
-  const translateY = interp(frame, [startFrame, startFrame + 25], [24, 0]);
+}> = ({ text, sub, accentColor, frame, fps, startFrame }) => {
+  const f = frame - startFrame;
+  const scale = spring({ frame: f, fps, config: { damping: 180, stiffness: 80, mass: 0.6 } });
+  const opacity = interp(frame, [startFrame, startFrame + 15], [0, 1]);
+  const translateY = interp(frame, [startFrame, startFrame + 25], [20, 0]);
 
   return (
     <div
@@ -67,25 +56,19 @@ const Pillar: React.FC<{
         opacity,
         transform: `scale(${scale}) translateY(${translateY}px)`,
         flex: 1,
-        padding: "0 40px",
+        padding: "0 18px",
       }}
     >
-      {/* Accent line */}
-      <div
-        style={{
-          width: 48,
-          height: 4,
-          background: ORANGE,
-          borderRadius: 4,
-          marginBottom: 20,
-        }}
-      />
+      {/* Colored accent bar */}
+      <div style={{ width: 36, height: 4, background: accentColor, borderRadius: 3, marginBottom: 14 }} />
+
+      {/* Pillar title */}
       <div
         style={{
           fontFamily: "Inter, -apple-system, sans-serif",
-          fontSize: 44,
+          fontSize: 36,
           fontWeight: 800,
-          color: WHITE,
+          color: BLUE,
           letterSpacing: "-0.03em",
           textAlign: "center",
           lineHeight: 1.1,
@@ -93,16 +76,19 @@ const Pillar: React.FC<{
       >
         {text}
       </div>
+
+      {/* Pillar subtitle */}
       <div
         style={{
           fontFamily: "Inter, -apple-system, sans-serif",
-          fontSize: 22,
-          fontWeight: 400,
-          color: "rgba(255,255,255,0.72)",
-          letterSpacing: "0.04em",
-          marginTop: 14,
+          fontSize: 14,
+          fontWeight: 500,
+          color: BLUE_MID,
+          letterSpacing: "0.06em",
+          marginTop: 10,
           textAlign: "center",
           textTransform: "uppercase",
+          opacity: 0.75,
         }}
       >
         {sub}
@@ -116,27 +102,29 @@ export const LifetrekVignette: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // ── Phase 1: Logo reveal (0–60) ──────────────────────────────────────────
+  // Phase 1: Logo enters (0→60)
   const logoOpacity = interp(frame, [0, 20], [0, 1]);
-  const logoEntry = spring({ frame, fps, config: { damping: 200, stiffness: 90, mass: 0.5 } });
+  const logoScale = spring({ frame, fps, config: { damping: 200, stiffness: 90, mass: 0.5 } });
 
-  // ── Phase 2: Logo moves up + pillars appear (70–150) ─────────────────────
-  // At frame 70 logo starts sliding upward
-  const logoY = interp(frame, [65, 110], [0, -160]);
+  // Phase 2: Logo slides up to make room for pillars (frame 55→100)
+  const logoY = interp(frame, [55, 100], [0, -120]);
 
-  // ── Phase 3: Fade out (200–225) ──────────────────────────────────────────
-  const globalOpacity = interp(frame, [200, 224], [1, 0]);
-
-  // Pillars: stagger by 18 frames each
+  // Phase 3: Pillars stagger in (frame 80+)
   const PILLAR_START = 80;
+  const dividerOpacity = interp(frame, [PILLAR_START + 20, PILLAR_START + 50], [0, 0.18]);
 
-  // Divider lines between pillars
-  const dividerOpacity = interp(frame, [PILLAR_START + 20, PILLAR_START + 45], [0, 0.25]);
+  // Tagline (frame 140+)
+  const taglineOpacity = interp(frame, [140, 170], [0, 1]);
+  const taglineY = interp(frame, [140, 170], [10, 0]);
+
+  // Global fade-out (frame 200→225)
+  const globalOpacity = interp(frame, [200, 224], [1, 0]);
 
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(135deg, ${BLUE_DARK} 0%, ${BLUE_MID} 50%, ${BLUE_DARK} 100%)`,
+        // White background with a very subtle blue radial gradient coming from top
+        background: `radial-gradient(ellipse 110% 80% at 50% -10%, hsl(210 60% 92%) 0%, ${WHITE} 65%)`,
         opacity: globalOpacity,
         display: "flex",
         flexDirection: "column",
@@ -145,38 +133,24 @@ export const LifetrekVignette: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* Subtle radial glow in the center */}
-      <div
-        style={{
-          position: "absolute",
-          width: 900,
-          height: 900,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(240,120,24,0.06) 0%, transparent 70%)",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-        }}
-      />
+
+      {/* Subtle top border accent line (orange + green) */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, display: "flex" }}>
+        <div style={{ flex: 1, background: BLUE }} />
+        <div style={{ flex: 1, background: GREEN }} />
+        <div style={{ flex: 1, background: ORANGE }} />
+      </div>
 
       {/* ── Logo ── */}
       <div
         style={{
-          transform: `translateY(${logoY}px) scale(${logoEntry})`,
+          transform: `translateY(${logoY}px) scale(${logoScale})`,
           opacity: logoOpacity,
-          display: "flex",
-          justifyContent: "center",
         }}
       >
         <Img
-          src={staticFile("logo-transparent.png")}
-          style={{
-            width: 480,
-            objectFit: "contain",
-            filter: "brightness(0) invert(1)",  // converts navy logo → pure white
-          }}
+          src={staticFile("images/lifetrek-logo-full.png")}
+          style={{ width: 420, objectFit: "contain" }}
         />
       </div>
 
@@ -188,75 +162,63 @@ export const LifetrekVignette: React.FC = () => {
           justifyContent: "center",
           alignItems: "flex-start",
           width: "100%",
-          maxWidth: 1400,
-          paddingTop: 20,
+          maxWidth: 960,
+          paddingTop: 8,
         }}
       >
         <Pillar
           text="Precisão"
-          sub="Componentes sem tolerâncias"
+          sub="Tolerâncias exatas"
+          accentColor={BLUE}
           frame={frame}
           fps={fps}
           startFrame={PILLAR_START}
         />
 
-        {/* Vertical divider */}
-        <div
-          style={{
-            width: 1,
-            height: 140,
-            background: WHITE,
-            opacity: dividerOpacity,
-            alignSelf: "center",
-            marginTop: 20,
-          }}
-        />
+        {/* Divider */}
+        <div style={{ width: 1, height: 110, background: BLUE, opacity: dividerOpacity, alignSelf: "center", marginTop: 18 }} />
 
         <Pillar
           text="Qualidade"
           sub="ISO 13485 · ANVISA"
+          accentColor={GREEN}
           frame={frame}
           fps={fps}
           startFrame={PILLAR_START + 18}
         />
 
-        {/* Vertical divider */}
-        <div
-          style={{
-            width: 1,
-            height: 140,
-            background: WHITE,
-            opacity: dividerOpacity,
-            alignSelf: "center",
-            marginTop: 20,
-          }}
-        />
+        {/* Divider */}
+        <div style={{ width: 1, height: 110, background: BLUE, opacity: dividerOpacity, alignSelf: "center", marginTop: 18 }} />
 
         <Pillar
           text="Inovação"
           sub="Tecnologia de ponta"
+          accentColor={ORANGE}
           frame={frame}
           fps={fps}
           startFrame={PILLAR_START + 36}
         />
       </div>
 
-      {/* ── Tagline beneath pillars ── */}
+      {/* ── Tagline ── */}
       <div
         style={{
           fontFamily: "Inter, -apple-system, sans-serif",
-          fontSize: 26,
+          fontSize: 18,
           fontWeight: 300,
-          color: "rgba(255,255,255,0.55)",
-          letterSpacing: "0.18em",
+          color: BLUE,
+          letterSpacing: "0.14em",
           textTransform: "uppercase",
-          marginTop: 56,
-          opacity: interp(frame, [PILLAR_START + 60, PILLAR_START + 90], [0, 1]),
-          transform: `translateY(${interp(frame, [PILLAR_START + 60, PILLAR_START + 90], [12, 0])}px)`,
+          marginTop: 40,
+          opacity: taglineOpacity,
+          transform: `translateY(${taglineY}px)`,
         }}
       >
         Engenharia de Precisão a Serviço da Vida
       </div>
+
+      {/* Subtle bottom accent line */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: ORANGE, opacity: 0.5 }} />
     </AbsoluteFill>
   );
 };
