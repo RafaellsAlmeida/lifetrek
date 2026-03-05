@@ -175,6 +175,62 @@ function scoreAsset(query: string, intent: SlideIntent, asset: LibraryAsset, nei
   };
 }
 
+function buildSmartSuggestions(
+  assets: LibraryAsset[],
+  query: string,
+  neighborUrls: string[],
+): Suggestion[] {
+  if (!assets.length) return [];
+
+  const intent = classifyIntent(query);
+  const threshold = INTENT_THRESHOLDS[intent];
+
+  const byIntent = (() => {
+    if (intent === "company_trust") {
+      return assets.filter((a) => {
+        const n = normalizeText(a.name);
+        return (
+          a.category === "facility" ||
+          ["exterior", "reception", "production-overview", "office"].some((h) => n.includes(h))
+        );
+      });
+    }
+    if (intent === "quality_machines_metrology") {
+      return assets.filter((a) => {
+        const n = normalizeText(a.name);
+        return (
+          ["equipment", "facility"].includes(a.category) ||
+          ["zeiss", "cmm", "production-floor", "water-treatment", "laser", "grinding"].some((h) => n.includes(h))
+        );
+      });
+    }
+    if (intent === "cleanroom_iso") {
+      return assets.filter((a) => {
+        const n = normalizeText(a.name);
+        return n.includes("clean") || n.includes("iso") || a.category === "facility";
+      });
+    }
+    if (intent === "vet_odonto_product") {
+      const products = assets.filter((a) => a.category === "product");
+      return products.length ? products : assets;
+    }
+    return assets;
+  })();
+
+  return byIntent
+    .map((asset) => {
+      const scored = scoreAsset(query, intent, asset, neighborUrls);
+      return {
+        ...asset,
+        score: Number(scored.score.toFixed(4)),
+        reason: `${intent} | ${scored.reason}`,
+        passThreshold: scored.score >= threshold,
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+}
+
 export function ImageEditorCore({ postId, postType = "template", slideIndex = 0, onBack, embedded = false }: ImageEditorCoreProps) {
   const stageRef = useRef<any>(null);
 
@@ -237,59 +293,10 @@ export function ImageEditorCore({ postId, postType = "template", slideIndex = 0,
     return [prevUrl, nextUrl].filter(Boolean);
   }, [post, slideIndex]);
 
-  const suggestions = useMemo(() => {
-    if (!libraryAssets.length) return [] as Suggestion[];
-
-    const intent = classifyIntent(suggestionQuery);
-    const threshold = INTENT_THRESHOLDS[intent];
-
-    const byIntent = (() => {
-      if (intent === "company_trust") {
-        return libraryAssets.filter((a) => {
-          const n = normalizeText(a.name);
-          return (
-            a.category === "facility" ||
-            ["exterior", "reception", "production-overview", "office"].some((h) => n.includes(h))
-          );
-        });
-      }
-      if (intent === "quality_machines_metrology") {
-        return libraryAssets.filter((a) => {
-          const n = normalizeText(a.name);
-          return (
-            ["equipment", "facility"].includes(a.category) ||
-            ["zeiss", "cmm", "production-floor", "water-treatment", "laser", "grinding"].some((h) => n.includes(h))
-          );
-        });
-      }
-      if (intent === "cleanroom_iso") {
-        return libraryAssets.filter((a) => {
-          const n = normalizeText(a.name);
-          return n.includes("clean") || n.includes("iso") || a.category === "facility";
-        });
-      }
-      if (intent === "vet_odonto_product") {
-        const products = libraryAssets.filter((a) => a.category === "product");
-        return products.length ? products : libraryAssets;
-      }
-      return libraryAssets;
-    })();
-
-    const ranked = byIntent
-      .map((asset) => {
-        const scored = scoreAsset(suggestionQuery, intent, asset, neighborSlideUrls as string[]);
-        return {
-          ...asset,
-          score: Number(scored.score.toFixed(4)),
-          reason: `${intent} | ${scored.reason}`,
-          passThreshold: scored.score >= threshold,
-        };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
-
-    return ranked;
-  }, [libraryAssets, suggestionQuery, neighborSlideUrls]);
+  const suggestions = useMemo(
+    () => buildSmartSuggestions(libraryAssets, suggestionQuery, neighborSlideUrls as string[]),
+    [libraryAssets, suggestionQuery, neighborSlideUrls],
+  );
 
   const filteredLibraryAssets = useMemo(() => {
     return libraryAssets.filter((asset) => {
@@ -301,7 +308,7 @@ export function ImageEditorCore({ postId, postType = "template", slideIndex = 0,
     });
   }, [libraryAssets, assetSearch, assetCategoryFilter]);
 
-  const loadAssetLibrary = async () => {
+  const loadAssetLibrary = async (): Promise<LibraryAsset[]> => {
     setIsLoadingAssets(true);
     try {
       const catalogResult = await supabase
@@ -330,9 +337,11 @@ export function ImageEditorCore({ postId, postType = "template", slideIndex = 0,
 
       const deduped = Array.from(new Map(nextAssets.map((a) => [a.url, a])).values());
       setLibraryAssets(deduped);
+      return deduped;
     } catch (error: any) {
       console.error("[ImageEditor] Failed to load asset library", error);
       toast.error(`Falha ao carregar biblioteca: ${error.message}`);
+      return [];
     } finally {
       setIsLoadingAssets(false);
     }
@@ -596,7 +605,34 @@ Texto da Imagem: ${text}`,
       toast.success(mode === "smart" ? "Fundo atualizado via seleção inteligente" : "Novo fundo gerado com IA");
     } catch (e: any) {
       console.error(e);
-      toast.error(`Erro ao regenerar: ${e.message}`);
+      const message = String(e?.message || "");
+      const isAuthFailure =
+        message.toLowerCase().includes("non-2xx") ||
+        message.toLowerCase().includes("401") ||
+        message.toLowerCase().includes("invalid jwt");
+
+      if (mode === "smart" && isAuthFailure) {
+        try {
+          const assets = libraryAssets.length ? libraryAssets : await loadAssetLibrary();
+          const localSuggestions = buildSmartSuggestions(assets, suggestionQuery, neighborSlideUrls as string[]);
+          const fallbackCandidate = localSuggestions.find((s) => s.passThreshold) || localSuggestions[0];
+
+          if (!fallbackCandidate) {
+            throw new Error("Não foi possível selecionar candidato local para fallback smart.");
+          }
+
+          await applySlideBackground({
+            url: fallbackCandidate.url,
+            assetId: fallbackCandidate.assetId,
+            reason: `smart_local_fallback | ${fallbackCandidate.reason}`,
+          });
+          toast.info("Smart fallback local aplicado (edge function indisponível para JWT atual).");
+        } catch (fallbackError: any) {
+          toast.error(`Erro ao regenerar (fallback local): ${fallbackError.message}`);
+        }
+      } else {
+        toast.error(`Erro ao regenerar: ${e.message}`);
+      }
     } finally {
       setIsRegenerating(false);
       toast.dismiss(toastId);

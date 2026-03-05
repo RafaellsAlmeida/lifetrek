@@ -22,6 +22,7 @@ Welcome to the Lifetrek project documentation. This index serves as the primary 
 - Smart background selection (`real asset` vs `AI fallback`) documented in [Content Engine Guide](./content-engine-guide.md).
 - Manual background override flow (`Trocar Fundo`) documented in [API Contracts](./api-contracts.md) and [Data Models](./data-models.md).
 - Updated validation checklist in [Social Media Workspace Testing Plan](./testing/SOCIAL_MEDIA_WORKSPACE_TESTING_PLAN.md).
+- Execution orchestration with sub-agents in [Smart Regen Orchestrator Plan](./plans/SMART_REGEN_ORCHESTRATOR_PLAN.md).
 - Added AI/LLM ranking content playbook from LinkedIn SGLang case in [LinkedIn SGLang Prefill Playbook](./content/LINKEDIN_SGLANG_PREFILL_PLAYBOOK.md).
 
 ## Technical Details

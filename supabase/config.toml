@@ -21,6 +21,9 @@ verify_jwt = true
 [functions.generate-linkedin-carousel]
 verify_jwt = true
 
+[functions.regenerate-carousel-images]
+verify_jwt = false
+
 [functions.agent-orchestrator]
 verify_jwt = false
 
@@ -28,4 +31,4 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.set-slide-background]
-verify_jwt = true
+verify_jwt = false

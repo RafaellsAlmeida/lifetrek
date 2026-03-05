@@ -34,6 +34,71 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+class HttpError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "HttpError";
+  }
+}
+
+async function assertAdminAccess(req: Request, supabase: any) {
+  const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
+    throw new HttpError(401, "Missing Authorization bearer token");
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  if (!token) {
+    throw new HttpError(401, "Missing Authorization bearer token");
+  }
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) {
+    console.error("[REGEN][AUTH] Invalid token:", authError?.message);
+    throw new HttpError(401, "Unauthorized");
+  }
+
+  const adminPermPromise = user.email
+    ? supabase
+      .from("admin_permissions")
+      .select("permission_level")
+      .eq("email", user.email)
+      .maybeSingle()
+    : Promise.resolve({ data: null, error: null });
+
+  const [adminPermResult, legacyAdminResult, roleResult] = await Promise.all([
+    adminPermPromise,
+    supabase.from("admin_users").select("permission_level").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "super_admin"])
+      .limit(1),
+  ]);
+
+  if (adminPermResult.error) {
+    console.warn("[REGEN][AUTH] admin_permissions check failed:", adminPermResult.error.message);
+  }
+  if (legacyAdminResult.error) {
+    console.warn("[REGEN][AUTH] admin_users check failed:", legacyAdminResult.error.message);
+  }
+  if (roleResult.error) {
+    console.warn("[REGEN][AUTH] user_roles check failed:", roleResult.error.message);
+  }
+
+  const hasRole = Array.isArray(roleResult.data) && roleResult.data.length > 0;
+  const isAdmin = Boolean(adminPermResult.data || legacyAdminResult.data || hasRole);
+  if (!isAdmin) {
+    throw new HttpError(403, "Forbidden: admin access required");
+  }
+
+  return user;
+}
+
 // ============================================================================
 // MAIN HANDLER
 // ============================================================================
@@ -84,6 +149,8 @@ serve(async (req: Request) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const user = await assertAdminAccess(req, supabase);
+    console.log(`[REGEN][AUTH] Authorized admin user ${user.id}`);
 
     // ========================================================================
     // FETCH CAROUSEL/POST DATA
@@ -327,6 +394,7 @@ serve(async (req: Request) => {
     // ERROR RESPONSE
     // ========================================================================
     console.error(`[REGEN] FATAL: ${error}`);
+    const status = error instanceof HttpError ? error.status : 200;
 
     return new Response(
       JSON.stringify({
@@ -335,7 +403,7 @@ serve(async (req: Request) => {
         stack: error instanceof Error ? error.stack : null,
         logs: getLogs()
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status }
     );
   }
 });
