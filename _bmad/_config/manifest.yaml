@@ -1,9 +1,51 @@
 installation:
-  version: 6.0.0-alpha.23
-  installDate: 2026-01-11T20:58:20.740Z
-  lastUpdated: 2026-01-11T20:58:20.740Z
+  version: 6.0.4
+  installDate: 2026-03-05T00:10:08.055Z
+  lastUpdated: 2026-03-05T00:10:08.055Z
 modules:
-  - core
-  - bmm
+  - name: core
+    version: 6.0.4
+    installDate: 2026-03-05T00:10:06.873Z
+    lastUpdated: 2026-03-05T00:10:06.873Z
+    source: built-in
+    npmPackage: null
+    repoUrl: null
+  - name: tea
+    version: 1.5.1
+    installDate: 2026-03-05T00:09:59.737Z
+    lastUpdated: 2026-03-05T00:10:07.200Z
+    source: external
+    npmPackage: bmad-method-test-architecture-enterprise
+    repoUrl: https://github.com/bmad-code-org/bmad-method-test-architecture-enterprise
+  - name: gds
+    version: 0.1.10
+    installDate: 2026-03-05T00:10:00.996Z
+    lastUpdated: 2026-03-05T00:10:07.507Z
+    source: external
+    npmPackage: bmad-game-dev-studio
+    repoUrl: https://github.com/bmad-code-org/bmad-module-game-dev-studio.git
+  - name: cis
+    version: 0.1.8
+    installDate: 2026-03-05T00:10:02.278Z
+    lastUpdated: 2026-03-05T00:10:07.792Z
+    source: external
+    npmPackage: bmad-creative-intelligence-suite
+    repoUrl: https://github.com/bmad-code-org/bmad-module-creative-intelligence-suite
+  - name: bmm
+    version: 6.0.4
+    installDate: 2026-03-05T00:10:02.380Z
+    lastUpdated: 2026-03-05T00:10:07.793Z
+    source: built-in
+    npmPackage: null
+    repoUrl: null
+  - name: bmb
+    version: 0.1.6
+    installDate: 2026-03-05T00:10:03.685Z
+    lastUpdated: 2026-03-05T00:10:08.055Z
+    source: external
+    npmPackage: bmad-builder
+    repoUrl: https://github.com/bmad-code-org/bmad-builder
 ides:
+  - claude-code
+  - codex
   - antigravity
