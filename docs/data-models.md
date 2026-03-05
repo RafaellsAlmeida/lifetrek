@@ -19,6 +19,7 @@ Campos relevantes em `linkedin_carousels`/`instagram_posts`:
 Campos relevantes por slide (`slides[n]`):
 - `image_url` / `imageUrl`
 - `image_variants` (string[])
+- `prev_image_urls` (string[])
 - `asset_source` (`real | ai | rule_override | manual`)
 - `selection_score` (number)
 - `selection_reason` (string)

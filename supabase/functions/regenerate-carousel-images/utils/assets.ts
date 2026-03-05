@@ -284,11 +284,35 @@ export class AssetLoader {
       if (assetTokens.has(token)) overlap += 1;
     }
 
-    const baseBoost = Math.min(0.12, overlap * 0.02);
+    const overlapRatio = queryTokens.size > 0 ? overlap / queryTokens.size : 0;
+    const precisionRatio = assetTokens.size > 0 ? overlap / assetTokens.size : 0;
+    const lexicalSignal = Math.min(0.26, overlapRatio * 0.20 + precisionRatio * 0.18);
 
-    if (intent === "vet_odonto_product" && asset.type === "product") return Math.min(0.14, baseBoost + 0.03);
-    if (intent === "cleanroom_iso" && asset.type === "facility") return Math.min(0.14, baseBoost + 0.02);
-    return baseBoost;
+    let intentPoolBoost = 0;
+    const normalizedAsset = normalizeText(`${asset.name || ""} ${asset.description || ""}`);
+
+    if (intent === "company_trust") {
+      if (asset.type === "facility") intentPoolBoost = 0.44;
+      if (CURATED_HINTS.companyTrust.some((h) => normalizedAsset.includes(h))) intentPoolBoost += 0.10;
+    }
+
+    if (intent === "quality_machines_metrology") {
+      if (asset.type === "equipment" || asset.type === "facility") intentPoolBoost = 0.42;
+      if (CURATED_HINTS.qualityMachines.some((h) => normalizedAsset.includes(h))) intentPoolBoost += 0.10;
+    }
+
+    if (intent === "cleanroom_iso") {
+      if (asset.type === "facility") intentPoolBoost = 0.40;
+      if (CURATED_HINTS.cleanroom.some((h) => normalizedAsset.includes(h))) intentPoolBoost += 0.14;
+    }
+
+    if (intent === "vet_odonto_product") {
+      if (asset.type === "product") intentPoolBoost = 0.42;
+      if (asset.type === "facility" && normalizedAsset.includes("clean")) intentPoolBoost = 0.30;
+    }
+
+    const qualityBoost = Math.min(0.10, Math.max(0, Number(asset.qualityScore || 0.75) - 0.50) * 0.20);
+    return Math.min(0.78, lexicalSignal + intentPoolBoost + qualityBoost);
   }
 
   private computeCuratedBoost(intent: SlideIntent, queryText: string, asset: LoadedAsset): number {
@@ -300,7 +324,7 @@ export class AssetLoader {
       (q.includes("parceiro") || q.includes("solucao completa") || q.includes("solucao")) &&
       CURATED_HINTS.companyTrust.some((h) => n.includes(h))
     ) {
-      return 0.12;
+      return 0.22;
     }
 
     if (
@@ -308,7 +332,7 @@ export class AssetLoader {
       ["qualidade", "maquina", "metrologia", "zeiss", "cmm"].some((k) => q.includes(k)) &&
       CURATED_HINTS.qualityMachines.some((h) => n.includes(h))
     ) {
-      return 0.10;
+      return 0.20;
     }
 
     if (
@@ -316,7 +340,7 @@ export class AssetLoader {
       ["sala limpa", "clean room", "cleanroom", "iso", "anvisa", "fda"].some((k) => q.includes(k)) &&
       CURATED_HINTS.cleanroom.some((h) => n.includes(h))
     ) {
-      return 0.12;
+      return 0.22;
     }
 
     if (
@@ -324,7 +348,7 @@ export class AssetLoader {
       ["vet", "odonto", "dental", "ortoped", "implante"].some((k) => q.includes(k)) &&
       asset.type === "product"
     ) {
-      return 0.08;
+      return 0.16;
     }
 
     return 0;

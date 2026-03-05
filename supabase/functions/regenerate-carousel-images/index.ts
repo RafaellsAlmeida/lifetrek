@@ -44,6 +44,9 @@ class HttpError extends Error {
   }
 }
 
+const isMissingUserRolesTable = (message?: string | null) =>
+  Boolean(message && message.includes("Could not find the table 'public.user_roles'"));
+
 async function assertAdminAccess(req: Request, supabase: any) {
   const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
   if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
@@ -86,7 +89,7 @@ async function assertAdminAccess(req: Request, supabase: any) {
   if (legacyAdminResult.error) {
     console.warn("[REGEN][AUTH] admin_users check failed:", legacyAdminResult.error.message);
   }
-  if (roleResult.error) {
+  if (roleResult.error && !isMissingUserRolesTable(roleResult.error.message)) {
     console.warn("[REGEN][AUTH] user_roles check failed:", roleResult.error.message);
   }
 

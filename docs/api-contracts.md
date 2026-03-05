@@ -4,7 +4,8 @@ Lifetrek usa Supabase Edge Functions (Deno). Este documento foca nos contratos a
 
 ## Padrões Gerais
 
-- Auth: JWT obrigatório para operações administrativas.
+- Auth: bearer token obrigatório para operações administrativas.
+- `regenerate-carousel-images` e `set-slide-background` usam validação manual de token/admin dentro da function.
 - Content-Type: `application/json`.
 - CORS: habilitado nas functions.
 - Erro padrão:
@@ -43,19 +44,21 @@ Response (resumo):
 ```json
 {
   "success": true,
+  "carousel_id": "uuid",
   "mode": "smart",
-  "updated_count": 1,
-  "results": {
-    "slides": [
-      {
-        "image_url": "https://...",
-        "asset_source": "real",
-        "selection_score": 0.74,
-        "selection_reason": "intent=company_trust; ...",
-        "asset_id": "uuid"
-      }
-    ]
-  }
+  "slides_regenerated": 1,
+  "images_generated": 1,
+  "duration_ms": 4800,
+  "selections": [
+    {
+      "index": 0,
+      "image_url": "https://...",
+      "asset_source": "rule_override",
+      "selection_score": 0.81,
+      "selection_reason": "Selected clean-room-exterior.jpg (...)",
+      "asset_id": "uuid"
+    }
+  ]
 }
 ```
 
@@ -116,5 +119,5 @@ Retorno:
 
 ## Observações Operacionais
 
-- Em ambiente sem deploy da `set-slide-background`, o UI aplica fallback para update direto no banco, mantendo o histórico de variantes.
+- Em caso de erro de auth/gateway no `regenerate-carousel-images`, o UI aplica fallback local de seleção smart para não travar o fluxo de design.
 - Regra de versionamento: nunca sobrescrever variantes antigas; sempre acumular.

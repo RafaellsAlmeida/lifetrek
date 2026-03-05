@@ -258,6 +258,36 @@ For each tab (Criar, Design, Aprovar, Agendar):
 
 #### Test Case 2.1.4: Design Tab (ImageEditorCore)
 
+---
+
+## Execution Log — 2026-03-05 (Smart Regen Hardening)
+
+Environment:
+- URL tested: `http://localhost:8081/admin/social?tab=design&id=a31da9e2-367c-4c22-ba81-af7831d25976&type=instagram&slide=0`
+- User: `rafacrvg@icloud.com` (admin)
+- Build: local branch + deployed edge functions
+
+Executed:
+1. Smart regenerate via button `Regenerar Fundo (Smart)`  
+Status: `PASS`
+   - background URL updated to new `carousel-images/smart-...png`
+   - slide metadata rendered with `Fonte: rule_override`, `Score: 0.810`
+
+2. Manual override via modal `Trocar Fundo` → suggestion `reception.webp` → `Aplicar`  
+Status: `PASS`
+   - success toast shown (`Fundo aplicado com sucesso`)
+   - slide metadata updated to `Fonte: manual`
+
+3. Persistence validation after update (DB check)  
+Status: `PASS`
+   - `slides[0].image_url` and `image_urls[0]` synchronized
+   - `asset_source=manual`
+   - `image_variants` history preserved
+
+Evidence:
+- `/tmp/smart-regen-ui-success-2026-03-05.png`
+- `/tmp/smart-regen-manual-apply-2026-03-05.png`
+
 1. Select "Design" tab
 2. **Verify:**
    - [ ] ImageEditorCore renders at 80vh height

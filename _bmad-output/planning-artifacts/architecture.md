@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3, 4]
+stepsCompleted: [1, 2, 3, 4, 5]
 inputDocuments:
   - _bmad-output/project-context.md
   - docs/product/LIFETREK_PRD.md
@@ -220,3 +220,46 @@ Event-driven only — no polling, no background workers.
 - Chat mode depends on CarouselParams type staying stable
 - Blog approval in Content Approval page depends on `blog_posts` status field alignment
 - All new AI calls depend on `_shared/cost-tracker` pattern
+
+---
+
+## Smart Regen Architecture Update (Implemented 2026-03-05)
+
+### Scope Completed
+
+1. Smart background selection in `regenerate-carousel-images` (`mode=smart`) with:
+   - intent classification (`company_trust`, `quality_machines_metrology`, `cleanroom_iso`, `vet_odonto_product`, `generic`)
+   - score model `cosine + keyword_boost + curated_boost` and per-intent thresholds
+   - anti-repetition across recent slides
+   - fallback to AI when below threshold and `allow_ai_fallback=true`
+
+2. Manual override in `set-slide-background` with:
+   - deterministic single-slide update
+   - append-only variant history (`image_variants`, `prev_image_urls`)
+   - synchronization of `slides[n].image_url` and `image_urls[n]`
+
+3. Auth hardening for both functions:
+   - function-level manual bearer verification (`supabase.auth.getUser(token)`)
+   - admin authorization checks (`admin_permissions`, `admin_users`, optional `user_roles`)
+   - compatible with `verify_jwt=false` deployment mode
+
+4. UI resilience in `ImageEditorCore`:
+   - local smart fallback when edge auth/gateway path fails
+   - preserves manual flow continuity for Design tab users
+
+### Operational Result (Verified)
+
+- Target post: `instagram_posts.a31da9e2-367c-4c22-ba81-af7831d25976`
+- Slide 0 (`"Um Parceiro. Solucao Completa."`) regenerated in smart mode using real asset selection:
+  - `asset_source = rule_override`
+  - `selection_score = 0.81`
+  - selected asset intent-aligned with company-trust pool (`clean-room-exterior.jpg`)
+- Manual override via UI (`Trocar Fundo`) persisted successfully:
+  - `asset_source = manual`
+  - `image_urls[0]` and `slides[0].image_url` updated
+  - variant history preserved
+
+### Known Runtime Constraint
+
+- Embedding provider call may fail in some environments (`openrouter embeddings 401`).
+- Mitigation implemented: lexical + curated + intent-pool scoring keeps smart selection usable without hard dependency on live embeddings.

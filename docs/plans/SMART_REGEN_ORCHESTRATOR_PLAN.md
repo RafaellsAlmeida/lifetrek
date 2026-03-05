@@ -102,24 +102,24 @@ Subtasks:
 Critério de aceite:
 - qualquer dev/admin consegue reproduzir e operar o fluxo sem ambiguidades.
 
-## Status Atual (rodada 1)
+## Status Atual (rodada 2)
 
 Passou:
-- troca manual com persistência.
-- histórico de variantes acumulando corretamente.
-- fallback local do botão smart (quando backend retorna 401).
+- deploy remoto das functions `regenerate-carousel-images` e `set-slide-background`.
+- auth manual de admin em ambas as functions (token + permissão admin).
+- `Regenerar Fundo (Smart)` operacional no UI sem erro de JWT.
+- seleção smart para `"Um Parceiro. Solucao Completa."` priorizando asset real (`rule_override`, score `0.81`).
+- `Trocar Fundo` operacional com persistência e histórico.
 
-Falhou/Bloqueio:
-- `regenerate-carousel-images` no UI com JWT de usuário retorna `401 Invalid JWT` no deploy atual.
-- deploy remoto via CLI bloqueado por `403 Forbidden` para o usuário autenticado no CLI local.
+Observação:
+- fallback local permanece ativo como camada de resiliência para indisponibilidade temporária da edge function.
 
 ## Backlog Prioritário (ordem)
 
-1. Desbloquear acesso de deploy do projeto Supabase correto no CLI.
-2. Publicar `regenerate-carousel-images` e `set-slide-background` atualizados.
-3. Revalidar `Regenerar Fundo (Smart)` sem fallback local.
-4. Rodar regressão completa no Social Media Workspace.
-5. Fechar documentação final com evidências.
+1. Calibrar thresholds por métricas reais (`real_asset_hit_rate`, `ai_fallback_rate`).
+2. Popular/normalizar `asset_embeddings` e validar RPC semântico em produção.
+3. Rodar regressão completa no Social Media Workspace (demais abas + analytics).
+4. Fechar pacote de docs com runbook operacional para time não técnico.
 
 ## Definição de "bons resultados"
 

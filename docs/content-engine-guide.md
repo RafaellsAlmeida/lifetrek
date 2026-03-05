@@ -55,6 +55,7 @@ Classes:
 Fórmula:
 - `score_final = cosine_similarity + keyword_boost + curated_boost`
 - Cap: `0.99`
+- `keyword_boost` inclui sinal lexical + alinhamento de pool por intenção (para funcionar mesmo quando embedding estiver indisponível).
 
 Thresholds default:
 - `company_trust`: `0.68`
@@ -65,6 +66,9 @@ Thresholds default:
 
 Regra:
 - se `score_final < threshold` e `allow_ai_fallback = true`, gera fundo com IA apenas para aquele slide.
+
+Observação operacional:
+- quando a geração de embedding falha (ex.: chave externa indisponível), o seletor continua operacional por scoring lexical/curated e ainda prioriza assets reais.
 
 ### 4) Anti-repetição
 
@@ -102,8 +106,10 @@ Persistência:
   - `mode: "smart" | "hybrid" | "ai"`
   - `allow_ai_fallback: boolean`
   - saída por slide: `asset_source`, `selection_score`, `selection_reason`.
+  - auth: validação manual de bearer token + permissão admin dentro da function.
 - Edge function `set-slide-background`:
   - override manual de 1 slide com histórico.
+  - auth: validação manual de bearer token + permissão admin dentro da function.
 - Tabela `asset_embeddings` + RPC `match_asset_candidates(...)`:
   - índice vetorial para busca semântica de assets.
 
@@ -114,6 +120,12 @@ Recomendação padrão:
 - slide 1: production-floor/water-treatment
 - slide 2: production-overview/machine context
 - slide final CTA: cleanroom-hero ou exterior institucional
+
+Validação real (2026-03-05):
+- Post: `instagram_posts.id = a31da9e2-367c-4c22-ba81-af7831d25976`
+- Slide 0 regenerado em `mode=smart` com `asset_source=rule_override`, `selection_score=0.81`
+- Asset escolhido: `clean-room-exterior.jpg`
+- Em seguida, override manual via `Trocar Fundo` para `reception.webp`, com histórico preservado em `image_variants`
 
 ## Referências
 
