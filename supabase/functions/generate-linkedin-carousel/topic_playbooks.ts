@@ -24,7 +24,6 @@ const LLM_RANKING_KEYWORDS = [
   "job search",
   "recomendação",
   "recomendacao",
-  "busca",
   "ranqueamento",
   "prefill-only",
 ];
@@ -79,4 +78,3 @@ Copy guidance:
 - If metrics are used, use only the values listed above and always attribute to LinkedIn's report.
 `;
 }
-

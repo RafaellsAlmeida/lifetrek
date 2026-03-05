@@ -74,28 +74,62 @@ When regenerating carousel images (via the `regenerate-carousel-images` edge fun
 
 Rationale: We are always experimenting with content styles and need flexibility to pick winners.
 
-## Image Generation Preferences
+## Visual Template System (CRITICAL — All Content Must Use These)
 
-**Two valid approaches — AI generation and real photos. Both are useful:**
+Approved visual templates are in `GoodPostExemples/`. All content generation MUST match one of these 4 templates. Never invent a new visual style.
 
-1. **AI-generated backgrounds** (current default `mode: "hybrid"`): Good for posts about market pains, ICP challenges, industry trends, and topics where we don't have specific photos. AI can generate relevant abstract or industrial imagery. The `slide_2` from the Swiss Turning carousel is a good example of great AI output.
+### Template A — "Glassmorphism Card" *(default for body & CTA slides)*
+Use for: insight slides, data/stat slides, CTA slides, most carousel body slides.
+- **Background**: Real facility/product photo with dark blue overlay (`rgba(0,30,70,0.65)`, ~70%)
+- **Card**: Glassmorphism, left-aligned, ~65% width, rounded corners, `rgba(8,18,35,0.80)` + blur
+- **Label**: Small ALL CAPS above headline, Innovation Green `#1A7A3E` (e.g., "DESTAQUE", "INSIGHT", "PROXIMO PASSO")
+- **Headline**: Inter Bold ~42–48px, white, 2–3 lines
+- **Body**: Inter Regular ~18–22px, white, 2–4 lines max
+- **Logo**: Lifetrek Medical logo top-right (white boxed version)
+- **Optional**: Fine print bar at bottom (compliance/legal notes)
+- Reference: `GoodPostExemples/1771881074667.jpeg`, `1771881075010.jpeg`, `1772644433414.jpeg`
 
-2. **Real Lifetrek facility photos** (implemented in `AssetLoader.getFacilityPhotoForSlide()`): Good for posts explicitly about Lifetrek's capabilities, equipment, or facility. Uses semantic keyword matching (e.g., "ZEISS" → CMM photo, "Swiss Turning" → CNC lathe photo).
+### Template B — "Full-Bleed Dark Text" *(hook & cover slides)*
+Use for: first slide of carousel, strong statement slides, listicle hooks ("5 Riscos que…").
+- **Background**: Real photo, dark tinted overlay — blue-to-green gradient or solid dark blue, full bleed
+- **Logo**: Top-right + thin horizontal white rule line below it
+- **Headline**: Very large, bold white, left-aligned, ALL CAPS or mixed — no text card
+- **Bottom**: Thin accent line (green `#1A7A3E` or orange `#F07818`) + slide counter bottom-left ("1 de 7") + diamond sparkle `◆` bottom-right
+- Reference: `GoodPostExemples/1768767104608.jpeg`, `1768848410684.jpeg`, `1770322428468.jpeg`
 
-**Preferred visual style (both approaches should match this):**
-Reference: `marketing-assets/instagram/anvisa-fda-navegando-a-conformidade--59217224/slide_4.png`
-- Dark blue/navy semi-transparent overlay (~60%) over the background
-- Clean white text hierarchy: small green label → bold headline → body copy
-- Lifetrek Medical logo top-right (slide 1 and last slide)
-- Glassmorphism card on the left (~65% width) with `rgba(8, 18, 35, 0.80)` background
+### Template C — "Split Comparison" *(educational / X vs Y)*
+Use for: comparison posts, before/after, import vs local, ISO levels, metric contrasts.
+- **Layout**: Vertical 50/50 split, each half has different color tint + full-bleed photo
+- **Labels**: Bold text at top of each half, very large
+- No text card — split + labels carry the message
+- Reference: `GoodPostExemples/1770647235934.jpeg`
 
-**Key implementation files:**
-- `supabase/functions/regenerate-carousel-images/handlers/hybrid.ts` — main handler (uses real photos)
-- `supabase/functions/regenerate-carousel-images/utils/assets.ts` — `getFacilityPhotoForSlide()` for semantic photo matching
-- `supabase/functions/regenerate-carousel-images/generators/satori.ts` — text overlay compositor
+### Template D — "Pure Photo / Equipment Showcase"
+Use for: equipment showcases, facility highlights, product photography.
+- High-quality real photo, minimal or no text, brand association through quality imagery
+- Reference: `GoodPostExemples/1770649911069.jpeg`
 
-**Available facility photos** (in `product_catalog` table, category='facility'):
-`production-floor` (CMM/metrology), `production-overview` (CNC floor), `grinding-room`, `laser-marking`, `electropolish-line-new`, `polishing-manual`, `clean-room-1..7`, `cleanroom-hero`, `exterior`, `reception`, `water-treatment` (CNC with tool rack)
+### Universal Rules Across ALL Templates
+- **ALWAYS use real Lifetrek photos** as backgrounds — never pure AI-generated backgrounds for final output
+- Logo top-right on every slide (except Template D)
+- Dominant color: Corporate Blue `#004F8F`
+- Text always white, high contrast
+- Accent: Green `#1A7A3E` (labels/lines) or Orange `#F07818` (CTA/energy)
+- Inter font family throughout
+- Image versioning: NEVER overwrite. Always append to `image_variants`.
+
+### Background Photo Selection Logic
+1. Semantic keyword match to slide content (e.g., "ZEISS" → CMM photo, "sala limpa" → clean-room)
+2. Fallback to `production-floor` or `production-overview`
+3. AI-generated ONLY if no real match and `allow_ai_fallback: true`
+
+**Key files:**
+- `supabase/functions/regenerate-carousel-images/handlers/hybrid.ts`
+- `supabase/functions/regenerate-carousel-images/utils/assets.ts` — `getFacilityPhotoForSlide()`
+- `supabase/functions/regenerate-carousel-images/generators/satori.ts`
+
+**Available facility photos** (`product_catalog`, category='facility'):
+`production-floor`, `production-overview`, `grinding-room`, `laser-marking`, `electropolish-line-new`, `polishing-manual`, `clean-room-1..7`, `cleanroom-hero`, `exterior`, `reception`, `water-treatment`
 
 ## Brand Guidelines
 

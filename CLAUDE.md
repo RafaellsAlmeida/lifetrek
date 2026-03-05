@@ -207,10 +207,28 @@ This project uses **BMAD v6** for structured AI-assisted development.
 /bmad-bmm-dev-story                 # Phase 4 — story-by-story dev loop
 ```
 
-### Focus Domain
-The primary development focus is the **Content Generation System**:
-ideation → generation → editing → visualization (LinkedIn carousels, blog posts).
-See `docs/content-engine-guide.md` for current pipeline architecture.
+### Focus Domain: Content Generation System
+
+The primary development focus is the full **Content Engine** pipeline:
+**ideation → generation → editing → visualization → approval → publish**
+
+**Scope (all must-have):** LinkedIn carousels, Instagram posts, Blog posts (PT-BR)
+
+**Primary user:** Vanessa (non-technical SDR) — must be able to operate the full flow
+**Entry modes:**
+- Chat: describe content idea in natural language to the orchestrator agent
+- Form: pick content type + ICP + topic from structured inputs, then generate
+
+**Content intelligence:**
+- Ideation researches ICP pain points from internet (Reddit, industry blogs, news)
+- Monthly: Rafael uploads LinkedIn Page CSV analytics → system learns what to amplify
+- Templates table (`content_templates`) stores approved visual layouts — see AGENTS.md
+
+**Blog workflow:** Draft → stakeholder verbal review → Rafael approves in admin → auto-publishes
+**Content templates:** 4 visual layouts defined in `GoodPostExemples/` — see AGENTS.md for specs
+**Video:** Programmatic templates only (Remotion CLI) — not a freeform editor
+
+See `docs/content-engine-guide.md` for current multi-agent pipeline architecture.
 
 ### Cost Guardrails
 Previous iteration burned $1000+ in API credits. All AI calls must respect:
