@@ -19,6 +19,10 @@ import {
   searchKnowledgeBase,
   deepResearch
 } from "./agent_tools.ts";
+import {
+  getLlmRankingPlaybookContext,
+  isLlmRankingTopic
+} from "./topic_playbooks.ts";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 
@@ -225,6 +229,8 @@ export async function strategistAgent(
   const brand = getBrandGuidelines(params.profileType);
   let kbContext = "";
   let researchContext = "";
+  const useLlmRankingPlaybook = isLlmRankingTopic(params);
+  const llmRankingContext = useLlmRankingPlaybook ? `\n\n${getLlmRankingPlaybookContext()}` : "";
 
   // 1. Knowledge Base Search (RAG)
   if (supabase) {
@@ -257,6 +263,7 @@ export async function strategistAgent(
   const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
 ${kbContext}
 ${researchContext}
+${llmRankingContext}
 
 **Task**: Create a strategic plan for a LinkedIn carousel about "${params.topic}".
 **Target Audience**: ${params.targetAudience}
@@ -266,6 +273,8 @@ ${researchContext}
 - Use Reference Material (if any) to mimic successful post patterns or follow brand guidelines.
 - Use Research Findings (if any) to ground the content in facts and current trends.
 - Plan 5-7 slides total following: Hook → Value → Value → Value → CTA.
+- Output strategy and key messages in Portuguese (PT-BR).
+${useLlmRankingPlaybook ? "- For this AI/LLM ranking topic, structure key messages as a staged optimization journey (workload framing -> batching -> scoring path -> prefix reuse -> runtime bottlenecks)." : ""}
 
 Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 5, "key_messages": [] }`;
 
@@ -300,6 +309,8 @@ export async function strategistPlansAgent(
   const brand = getBrandGuidelines(params.profileType);
   let kbContext = "";
   let researchContext = "";
+  const useLlmRankingPlaybook = isLlmRankingTopic(params);
+  const llmRankingContext = useLlmRankingPlaybook ? `\n\n${getLlmRankingPlaybookContext()}` : "";
 
   if (supabase) {
     try {
@@ -330,6 +341,7 @@ export async function strategistPlansAgent(
   const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
 ${kbContext}
 ${researchContext}
+${llmRankingContext}
 
 **Task**: Create ${optionsCount} distinct strategic angles for a LinkedIn carousel about "${params.topic}".
 **Target Audience**: ${params.targetAudience}
@@ -339,6 +351,8 @@ ${researchContext}
 - Each option must have a distinct angle and hook.
 - Use Research Findings (if any) to ground the content in facts and current trends.
 - Plan 5-7 slides total following: Hook → Value → Value → Value → CTA.
+- Output all topics/hooks/key messages in Portuguese (PT-BR).
+${useLlmRankingPlaybook ? "- For this AI/LLM ranking topic, produce options that highlight different perspectives: technical architecture, operational lessons, and production impact." : ""}
 
 Output ONLY valid JSON:
 {
@@ -382,13 +396,25 @@ export async function copywriterAgent(
   console.log("✍️ Copywriter Agent: Writing carousel copy...");
 
   const brand = getBrandGuidelines(params.profileType);
+  const useLlmRankingPlaybook = isLlmRankingTopic(params);
+  const llmRankingContext = useLlmRankingPlaybook ? getLlmRankingPlaybookContext() : "";
 
   const prompt = `You are an expert LinkedIn copywriter for ${brand.companyName}.
 Topic: ${params.topic}
 Strategy: ${JSON.stringify(strategy)}
 Brand Tone: ${brand.tone}
+${llmRankingContext}
 
 Write compelling copy for ${strategy.slide_count} slides.
+
+Rules:
+- Output language must be Portuguese (PT-BR).
+- Engineer-to-engineer tone: precise, pragmatic, no hype.
+- Return JSON only (no markdown fences, no commentary).
+- Use short, high-contrast writing for carousel readability.
+- Keep headline <= 70 characters and body <= 170 characters.
+${useLlmRankingPlaybook ? "- If you cite performance metrics, use only metrics from the playbook and attribute as \"LinkedIn reportou em 20/02/2026\"." : ""}
+
 Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "headline": "...", "body": "..." }] }`;
 
   const response = await callOpenRouter([{ role: "user", content: prompt }]);
@@ -738,7 +764,7 @@ export async function compositorAgent(
       // Generate SVG
       await loadFonts();
       const svg = await satori(
-        element,
+        element as any,
         {
           width: 1024,
           height: 1024,
@@ -768,14 +794,23 @@ export async function compositorAgent(
       const base64Png = `data:image/png;base64,${btoa(String.fromCharCode(...new Uint8Array(pngBuffer)))}`;
 
       compositedImages.push({
-        ...image,
+        slide_index: image?.slide_index ?? i,
         image_url: base64Png, // Replace raw background with composited image
-        asset_source: 'hybrid-generated'
+        asset_source: 'hybrid-generated',
+        asset_url: image?.asset_url
       });
 
     } catch (e) {
       console.error(`❌ Compositor failed for slide ${i}:`, e);
-      compositedImages.push(image!); // Fallback to background only
+      if (image) {
+        compositedImages.push(image); // Fallback to background only
+      } else {
+        compositedImages.push({
+          slide_index: i,
+          image_url: bgUrl,
+          asset_source: 'text-only'
+        });
+      }
     }
   }
 

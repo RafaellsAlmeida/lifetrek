@@ -215,7 +215,7 @@ export default function ContentApproval() {
       toast.info("Regenerando imagens com prompt premium...", { duration: 10000 });
 
       const { data, error } = await supabase.functions.invoke("regenerate-carousel-images", {
-        body: { carousel_id: carouselId },
+        body: { carousel_id: carouselId, mode: "smart", allow_ai_fallback: true },
       });
 
       if (error) {

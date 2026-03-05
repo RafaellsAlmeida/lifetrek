@@ -1,42 +1,59 @@
-# Data Models: lifetrek
+# Data Models: Lifetrek
 
-This document outlines the core database schema for the Lifetrek platform, organized by functional area.
+Resumo dos modelos de dados relevantes para geração de conteúdo, seleção de fundos e override manual.
 
 ## Core Schema (Public)
 
-The database follows a relational structure optimized for content orchestration, lead management, and clinical validation.
-
 ### Content & Marketing
 
-- **`blog_posts`**: Stores articles, AI-generated content, SEO metadata, and scheduling.
-- **`blog_categories`**: Hierarchical organization for content.
-- **`content_templates`**: Versions and pillars for content generation hooks.
-- **`company_assets`**: Links to media and static assets.
+- `blog_posts`: artigos e metadados de SEO.
+- `blog_categories`: categorização de blog.
+- `content_templates`: templates base de conteúdo.
+- `linkedin_carousels`: conteúdo e slides para LinkedIn.
+- `instagram_posts`: conteúdo e slides para Instagram.
 
-### Lead & CRM
+Campos relevantes em `linkedin_carousels`/`instagram_posts`:
+- `slides` (jsonb): array de slides.
+- `image_urls` (text[]): URLs de imagem por slide.
 
-- **`contact_leads`**: Centralized lead storage (Name, Email, CNPJ, Lead Score).
-- **`lead_analytics_detailed`**: Deep dive into lead behavior and attribution.
-- **`admin_permissions`**: Role-based access control (Engenheira de Vendas, Admin).
-- **`daily_tasks`**: Task management for Rafael and Vanessa.
+Campos relevantes por slide (`slides[n]`):
+- `image_url` / `imageUrl`
+- `image_variants` (string[])
+- `asset_source` (`real | ai | rule_override | manual`)
+- `selection_score` (number)
+- `selection_reason` (string)
+- `asset_id` (opcional)
 
-### Analytics
+### Assets e Similaridade Semântica
 
-- **`analytics_events`**: Custom tracking for UTMS and page paths.
-- **`blog_analytics`**: Tracking for scroll depth, time on page, and CTA clicks.
-- **`lead_behavior_logs`**: Raw events for user journey mapping.
+- `product_catalog`: catálogo de fotos/produtos/facility.
+- `asset_embeddings`: índice semântico para matching de assets.
+  - `asset_id`, `asset_url`, `category`, `tags`, `search_text`, `embedding vector(1536)`, `quality_score`, `active`.
+- RPC `match_asset_candidates(query_embedding, categories, match_threshold, match_count)`.
 
 ### AI & Knowledge
 
-- **`knowledge_base` / `product_catalog`**: Vector-enabled tables for similarity search.
-- **`ai_response_suggestions`**: Pre-computed responses for leads.
-- **`carousels_embeddings`**: Vector data for LinkedIn visual content.
+- `knowledge_base`: chunks de conhecimento técnico para RAG.
+- `ai_response_suggestions`: respostas sugeridas.
+- `carousels_embeddings`: embeddings de conteúdo social para análises internas.
 
-## Schema Conventions
+### Lead & CRM
 
-- **Timestamps**: Uses `created_at` (timestamptz) for most tables.
-- **Primary Keys**: UUID (v4).
-- **Types**: Strongly typed via `src/integrations/supabase/types.ts`.
+- `contact_leads`
+- `lead_analytics_detailed`
+- `admin_permissions`
+- `daily_tasks`
 
-> [!NOTE]
-> For a full list of tables and columns, refer to the [generated types](../src/integrations/supabase/types.ts).
+### Analytics
+
+- `analytics_events`
+- `blog_analytics`
+- `lead_behavior_logs`
+
+## Conventions
+
+- PK: UUID v4.
+- Timestamps: `created_at` / `updated_at` (`timestamptz`).
+- Tipagem de app: `src/integrations/supabase/types.ts`.
+
+> Nota: para o schema completo e atualizado, use migrations em `supabase/migrations/` e os tipos gerados.

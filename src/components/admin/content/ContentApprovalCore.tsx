@@ -421,7 +421,9 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             const { data, error } = await supabase.functions.invoke('regenerate-carousel-images', {
                 body: {
                     carousel_id: item.id,
-                    table_name: tableName
+                    table_name: tableName,
+                    mode: 'smart',
+                    allow_ai_fallback: true
                 }
             });
 

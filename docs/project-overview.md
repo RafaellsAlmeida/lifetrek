@@ -4,6 +4,8 @@
 
 Lifetrek is a website + CRM + content engine designed for Lifetrek Medical. It integrates clinical knowledge, content orchestration, and sales tools into a unified web application.
 
+Recent update (2026-03-05): the Social Media Workspace now supports smart background selection (real asset first, AI fallback by threshold) and manual per-slide background override with version history.
+
 ## Core Information
 
 - **Type:** Monolith React SPA
@@ -30,8 +32,10 @@ Lifetrek is a website + CRM + content engine designed for Lifetrek Medical. It i
 - [Internal Processes](./INTERNAL_PROCESSES.md)
 - [Onboarding Guide](./ONBOARDING.md)
 - [Testing in Cloud](./TESTING_IN_CLOUD.md)
-- [Data Models](./data-models.md) _(To be generated)_
-- [API Contracts](./api-contracts.md) _(To be generated)_
+- [Data Models](./data-models.md)
+- [API Contracts](./api-contracts.md)
+- [Content Engine Guide](./content-engine-guide.md)
+- [Social Media Workspace Testing Plan](./testing/SOCIAL_MEDIA_WORKSPACE_TESTING_PLAN.md)
 
 ## Getting Started
 

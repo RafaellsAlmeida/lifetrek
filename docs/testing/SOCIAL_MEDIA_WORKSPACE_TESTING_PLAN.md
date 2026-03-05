@@ -265,6 +265,37 @@ For each tab (Criar, Design, Aprovar, Agendar):
    - [ ] Tools/controls accessible
    - [ ] No scrollbar issues
 
+#### Test Case 2.1.4A: Smart Regeneration (Real Asset vs IA)
+
+1. Na aba "Design", abra um post com slides.
+2. Clique em `Regenerar Fundo (Smart)`.
+3. **Verify:**
+   - [ ] Requisição enviada para `regenerate-carousel-images` com `mode=smart`.
+   - [ ] Slide atualiza com novo fundo.
+   - [ ] Metadados do slide exibem `asset_source`, `selection_score` e/ou `selection_reason`.
+   - [ ] Se score abaixo do threshold, fallback para IA ocorre sem quebrar o fluxo.
+
+#### Test Case 2.1.4B: Troca Manual de Fundo com Histórico
+
+1. Clique em `Trocar Fundo`.
+2. No modal, valide as abas `Sugestões` e `Biblioteca`.
+3. Selecione um candidato e clique `Aplicar`.
+4. Faça refresh da página.
+5. **Verify:**
+   - [ ] `image_url` do slide foi atualizado.
+   - [ ] `asset_source` do slide aparece como `manual`.
+   - [ ] `image_variants` acumulou versão anterior + nova (sem sobrescrever histórico).
+   - [ ] Botão `Ver versões` permite navegar entre variantes.
+
+#### Test Case 2.1.4C: Fallback Operacional (edge function não publicada)
+
+1. Simule falha da `set-slide-background` (ambiente sem deploy).
+2. Aplique troca manual no modal.
+3. **Verify:**
+   - [ ] UI informa fallback.
+   - [ ] Update direto no banco mantém `image_variants`.
+   - [ ] Fluxo continua funcional para o usuário final.
+
 #### Test Case 2.1.5: Approve Tab (ContentApprovalCore)
 
 1. Select "Aprovar" tab
@@ -364,6 +395,29 @@ Compare behavior when components render in workspace vs standalone pages:
    WHERE assets_used IS NOT NULL
    ORDER BY created_at DESC LIMIT 5;
    ```
+
+---
+
+### 3.3 Persistência de Variantes por Slide
+
+Após usar `Trocar Fundo` e/ou `Regenerar Fundo (Smart)`:
+
+> Nota: no SQL Editor do Supabase, cole apenas o conteúdo SQL (sem os delimitadores ```markdown).
+
+```sql
+SELECT
+  id,
+  slides->0->>'image_url' AS slide0_image_url,
+  slides->0->>'asset_source' AS slide0_asset_source,
+  jsonb_array_length(COALESCE(slides->0->'image_variants', '[]'::jsonb)) AS slide0_variants
+FROM instagram_posts
+ORDER BY created_at DESC
+LIMIT 5;
+```
+
+**Verify:**
+- [ ] `slide0_asset_source` coerente com ação (`real`/`ai`/`manual`).
+- [ ] `slide0_variants` cresce com novas alterações.
 
 ---
 

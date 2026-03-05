@@ -179,6 +179,45 @@ The `supabase-js/` directory contains a local copy of the Supabase JS SDK monore
 - Direct Unipile scripts in `execution/` - Use Admin UI instead
 - Old automation governor system was removed - do not recreate
 
+## BMAD Workflow (Project Management)
+
+This project uses **BMAD v6** for structured AI-assisted development.
+
+### Status
+- **Phase 1 (Analysis):** Complete — project docs in `docs/`
+- **Phase 2 (Planning):** Complete — PRD at `docs/product/LIFETREK_PRD.md`
+- **Phase 3 (Solutioning):** In progress — Architecture, Epics/Stories, Readiness Check
+- **Phase 4 (Implementation):** Not started
+
+### Key Artifacts
+| Artifact | Location |
+|----------|----------|
+| Project Context (AI rules) | `_bmad-output/project-context.md` |
+| PRD | `docs/product/LIFETREK_PRD.md` |
+| Architecture *(pending)* | `_bmad-output/planning-artifacts/architecture.md` |
+| Epics & Stories *(pending)* | `_bmad-output/planning-artifacts/epics.md` |
+| Sprint Status *(pending)* | `_bmad-output/implementation-artifacts/sprint-status.yaml` |
+
+### BMAD Commands (run in fresh context windows)
+```
+/bmad-bmm-create-architecture       # Phase 3 — next required step
+/bmad-bmm-create-epics-and-stories  # Phase 3 — after architecture
+/bmad-bmm-check-implementation-readiness  # Phase 3 — final gate
+/bmad-bmm-sprint-planning           # Phase 4 — starts implementation
+/bmad-bmm-dev-story                 # Phase 4 — story-by-story dev loop
+```
+
+### Focus Domain
+The primary development focus is the **Content Generation System**:
+ideation → generation → editing → visualization (LinkedIn carousels, blog posts).
+See `docs/content-engine-guide.md` for current pipeline architecture.
+
+### Cost Guardrails
+Previous iteration burned $1000+ in API credits. All AI calls must respect:
+- Per-request cost tracking (existing `_shared/` utilities)
+- No unbounded loops or bulk regeneration without explicit user trigger
+- Prefer Gemini Flash over Pro for non-image tasks
+
 ## Notes
 
 - **See `AGENTS.md` for test credentials and verification workflow**

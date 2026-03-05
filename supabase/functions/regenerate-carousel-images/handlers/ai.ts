@@ -81,6 +81,11 @@ export async function handleAiGeneration(
             if (publicUrl) {
                 slide.imageUrl = publicUrl;
                 slide.image_url = publicUrl;
+                slide.asset_source = 'ai';
+                slide.selection_reason = 'AI mode generation';
+                slide.selection_score = 1;
+                const currentVariants = Array.isArray(slide.image_variants) ? slide.image_variants : [];
+                slide.image_variants = [...new Set([...currentVariants, publicUrl])];
                 console.log(`[AI_HANDLER] [${slideNum}] ✅ Done in ${Date.now() - slideStart}ms`);
             } else {
                 slide.imageUrl = getPlaceholderUrl(slide.headline || 'Error');

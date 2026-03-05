@@ -1,48 +1,120 @@
-# API Contracts: lifetrek Backend
+# API Contracts: Lifetrek Backend
 
-Lifetrek uses **Supabase Edge Functions** (Deno) for its backend logic. Most functions are organized as standalone microservices.
+Lifetrek usa Supabase Edge Functions (Deno). Este documento foca nos contratos ativos do fluxo de geração/edição visual no Social Media Workspace.
 
-## Core API Patterns
+## Padrões Gerais
 
-### Request/Response Format
+- Auth: JWT obrigatório para operações administrativas.
+- Content-Type: `application/json`.
+- CORS: habilitado nas functions.
+- Erro padrão:
 
-- **Headers**: CORS enabled, requires `Authorization` (Bearer JWT) for sensitive endpoints.
-- **Body**: JSON-based request/responses.
-- **Standard Error Response**:
+```json
+{ "success": false, "error": "mensagem" }
+```
 
-  ```json
-  { "error": "Message", "status": 500 }
-  ```
+## Endpoints de Conteúdo Visual
 
-## Key Endpoints
+### 1) `POST /functions/v1/regenerate-carousel-images`
 
-### 1. Chat Agent (`/chat`)
+Regera 1 slide ou carousel completo com seleção inteligente de fundo.
 
-- **Purpose**: AI-driven conversation for lead capture and knowledge search.
-- **Model**: Gemini 2.0 Flash (via OpenRouter).
-- **Modes**: `orchestrator` (Internal content planning), `visitor` (Lead capture).
-- **Tools**: `save_lead`, `search_knowledge`, `generate_carousel`.
+Request (campos relevantes):
 
-### 2. Content Generation (`/generate-blog-post`, `/generate-carousel-images`)
+```json
+{
+  "carousel_id": "uuid",
+  "table_name": "linkedin_carousels",
+  "slide_index": 0,
+  "mode": "smart",
+  "allow_ai_fallback": true
+}
+```
 
-- **Purpose**: Automated content production.
-- **Integrations**: Nano Banana Pro, OpenRouter.
-- **Output**: Clean text or image URLs stored in `company_assets`.
+Campos:
+- `carousel_id`: id do post.
+- `table_name`: `linkedin_carousels` ou `instagram_posts`.
+- `slide_index` (opcional): quando enviado, processa apenas o slide.
+- `mode`: `smart | hybrid | ai`.
+- `allow_ai_fallback` (opcional): default `true`.
 
-### 3. Analytics Sync (`/sync-ga4-analytics`, `/sync-linkedin-analytics`)
+Response (resumo):
 
-- **Purpose**: Background jobs for data ingestion.
-- **Schedule**: Cron-based triggers.
+```json
+{
+  "success": true,
+  "mode": "smart",
+  "updated_count": 1,
+  "results": {
+    "slides": [
+      {
+        "image_url": "https://...",
+        "asset_source": "real",
+        "selection_score": 0.74,
+        "selection_reason": "intent=company_trust; ...",
+        "asset_id": "uuid"
+      }
+    ]
+  }
+}
+```
 
-### 4. Admin Tools (`/get-admin-dashboard-stats`)
+### 2) `POST /functions/v1/set-slide-background`
 
-- **Purpose**: Aggregating metadata for the dashboard views.
+Override manual de fundo no UI, preservando histórico.
 
-## Authentication
+Request:
 
-- **Public**: Contact forms, guest chatbot.
-- **Private**: Content orchestrator, admin dashboards, analytics sync.
-- **Service Role**: Used for database cleaning or high-privilege background tasks.
+```json
+{
+  "table_name": "instagram_posts",
+  "post_id": "uuid",
+  "slide_index": 0,
+  "new_image_url": "https://...",
+  "asset_id": "uuid",
+  "source": "manual"
+}
+```
 
-> [!IMPORTANT]
-> All new Edge Functions should follow the `index.ts` structure found in `supabase/functions/chat/` for consistency.
+Comportamento:
+- atualiza `slides[slide_index].image_url` e `imageUrl`.
+- append em `image_variants`.
+- atualiza `image_urls[slide_index]`.
+- salva metadados (`asset_source`, `selection_reason`, `asset_id`).
+
+Response:
+
+```json
+{
+  "success": true,
+  "table_name": "instagram_posts",
+  "post_id": "uuid",
+  "slide_index": 0,
+  "old_image_url": "https://...",
+  "new_image_url": "https://..."
+}
+```
+
+## Contrato Semântico de Seleção de Assets
+
+### RPC: `match_asset_candidates(...)`
+
+Assinatura:
+- `query_embedding vector(1536)`
+- `categories text[]`
+- `match_threshold float`
+- `match_count int`
+
+Retorno:
+- `asset_id`
+- `asset_url`
+- `category`
+- `tags`
+- `search_text`
+- `quality_score`
+- `similarity`
+
+## Observações Operacionais
+
+- Em ambiente sem deploy da `set-slide-background`, o UI aplica fallback para update direto no banco, mantendo o histórico de variantes.
+- Regra de versionamento: nunca sobrescrever variantes antigas; sempre acumular.

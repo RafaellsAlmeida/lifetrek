@@ -40,7 +40,7 @@ export interface CarouselCopy {
 export interface GeneratedImage {
   slide_index: number;
   image_url: string;
-  asset_source: 'real' | 'ai-generated' | 'text-only';
+  asset_source: 'real' | 'ai-generated' | 'text-only' | 'placeholder' | 'hybrid-generated';
   asset_url?: string; // Original asset URL if real
 }
 

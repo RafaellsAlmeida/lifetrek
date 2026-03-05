@@ -11,7 +11,6 @@ import { SlideData, PlatformConfig } from "../types.ts";
 import { generateOverlay } from "../generators/satori.ts";
 import { uploadImage, getPlaceholderUrl } from "../utils/storage.ts";
 import { AssetLoader } from "../utils/assets.ts";
-import type { createClient } from "npm:@supabase/supabase-js@2.75.0";
 
 // Helper to chunk base64 data to avoid stack overflow
 function chunkBase64(buffer: Uint8Array): string {
@@ -29,7 +28,7 @@ export async function handleHybridGeneration(
     carouselId: string,
     platform: PlatformConfig,
     assetLoader: AssetLoader,
-    supabase: ReturnType<typeof createClient>
+    supabase: any
 ): Promise<SlideData[]> {
     const processedSlides: SlideData[] = [];
 
@@ -62,6 +61,9 @@ export async function handleHybridGeneration(
         }
 
         console.log(`[HYBRID_HANDLER] [${slideNum}] 📷 Background: ${bgPublicUrl.split('/').pop()}`);
+        slide.asset_source = 'real';
+        slide.selection_reason = 'Hybrid mode facility photo selection';
+        slide.selection_score = 0.75;
 
         // 3. Composite Satori text overlay onto real photo
         const overlaySize = platform.aspectRatio === '1:1'
@@ -97,6 +99,8 @@ export async function handleHybridGeneration(
         if (publicUrl) {
             slide.imageUrl = publicUrl;
             slide.image_url = publicUrl;
+            const currentVariants = Array.isArray(slide.image_variants) ? slide.image_variants : [];
+            slide.image_variants = [...new Set([...currentVariants, publicUrl])];
             console.log(`[HYBRID_HANDLER] [${slideNum}] ✅ Done in ${Date.now() - slideStart}ms`);
         } else {
             console.error(`[HYBRID_HANDLER] [${slideNum}] ❌ Upload failed`);

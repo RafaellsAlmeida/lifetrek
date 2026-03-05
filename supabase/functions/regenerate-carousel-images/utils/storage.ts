@@ -64,21 +64,33 @@ export async function uploadImage(
     fileName: string
 ): Promise<string | null> {
     try {
-        // Extract base64 data from data URL
-        const base64Data = imageDataUrl.split(",")[1];
-        if (!base64Data) {
-            console.error("[STORAGE] Invalid data URL format");
-            return null;
-        }
+        let imageBytes: Uint8Array;
+        let contentType = "image/png";
 
-        // Convert to Uint8Array
-        const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        if (imageDataUrl.startsWith("data:image/")) {
+            const base64Data = imageDataUrl.split(",")[1];
+            if (!base64Data) {
+                console.error("[STORAGE] Invalid data URL format");
+                return null;
+            }
+            imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        } else {
+            // Accept remote URLs as fallback input and re-upload to carousel-images bucket
+            const response = await fetch(imageDataUrl);
+            if (!response.ok) {
+                console.error(`[STORAGE] Failed to fetch source image: ${imageDataUrl} (${response.status})`);
+                return null;
+            }
+            const buffer = await response.arrayBuffer();
+            imageBytes = new Uint8Array(buffer);
+            contentType = response.headers.get("content-type") || "image/png";
+        }
 
         // Upload to storage
         const { error: uploadError } = await supabase.storage
             .from(BUCKET)
             .upload(fileName, imageBytes, {
-                contentType: "image/png",
+                contentType,
                 upsert: true
             });
 

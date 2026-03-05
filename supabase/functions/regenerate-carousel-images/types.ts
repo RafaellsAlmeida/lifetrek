@@ -18,6 +18,18 @@ export interface SlideData {
     imageUrl?: string;
     /** Alternative image URL field */
     image_url?: string;
+    /** Historical variants generated/manually selected for this slide */
+    image_variants?: string[];
+    /** Previously active image URLs for versioning */
+    prev_image_urls?: string[];
+    /** Provenance of selected background */
+    asset_source?: 'real' | 'ai' | 'rule_override' | 'manual';
+    /** Similarity/confidence score for selected background */
+    selection_score?: number;
+    /** Human-readable reason for selected background */
+    selection_reason?: string;
+    /** Optional reference to selected asset id */
+    asset_id?: string;
     /** Whether to show company logo overlay */
     showLogo?: boolean;
     /** Whether to show ISO 13485 badge */
@@ -93,6 +105,8 @@ export interface RegenerateRequest {
     batch_mode?: boolean;
     table_name?: string;
     slide_index?: number;
+    mode?: 'ai' | 'hybrid' | 'smart';
+    allow_ai_fallback?: boolean;
 }
 
 /**
@@ -115,8 +129,8 @@ export interface RegenerateResponse {
  */
 export interface PlatformConfig {
     aspectRatio: string;
-    platformName: string;
-    isInstagram: boolean;
+    platformName?: string;
+    isInstagram?: boolean;
     isBlog: boolean;
     isResource: boolean;
 }

@@ -1,88 +1,130 @@
 # Guia do Content Engine (LinkedIn & Instagram)
 
-O Content Engine do Lifetrek é um sistema multi-agente projetado para transformar tópicos complexos de manufatura médica em conteúdo de alta qualidade para redes sociais, garantindo alinhamento de marca e rigor técnico.
+Este documento descreve o estado atual do pipeline de conteúdo e a nova lógica de seleção inteligente de fundo (asset real vs IA), além do fluxo de override manual no UI.
 
-## 🏗️ Arquitetura do Pipeline
-
-O processo de geração segue um fluxo linear de refinação entre agentes especializados:
+## Arquitetura do Pipeline
 
 ```mermaid
 graph TD
-    A[Usuário/Dashboard] -->|Tópico + Parâmetros| B(Strategist Agent)
-    B -->|RAG Knowledge Base| B
-    B -->|Research Perplexity| B
+    A[Usuário/Admin] -->|Tópico + Contexto| B(Strategist Agent)
     B --> C(Copywriter Agent)
-    C -->|Brand Tone & Voice| C
     C --> D(Designer Agent)
-    D -->|Asset RAG product_catalog| D
-    D -->|AI Gen Nano Banana| D
     D --> E(Compositor Agent)
-    E -->|Satori Composition| E
     E --> F(Brand Analyst Agent)
-    F -->|Quality Score| G[linkedin_carousels Table]
+    F --> G[(linkedin_carousels / instagram_posts)]
 ```
 
-### 1. Strategist Agent (`strategistAgent`)
+Resumo por agente:
+- `strategistAgent`: define narrativa e estrutura de slides.
+- `copywriterAgent`: gera headline e corpo.
+- `designerAgent`: decide imagem de fundo (real vs IA).
+- `compositorAgent`: aplica layout padrão Lifetrek (overlay, card, tipografia).
+- `brandAnalystAgent`: valida qualidade e status final (`draft`/`pending_approval`).
 
-* **Função**: Define o ângulo narrativo, gancho (hook) e estrutura dos slides (geralmente 5-7 slides).
-* **Contexto**: Utiliza pesquisa em tempo real (Perplexity) e busca vetorial na base de conhecimento interna para garantir que o conteúdo seja factualmente correto e atualizado.
+## Playbook técnico (AI/LLM Search)
 
-### 2. Copywriter Agent (`copywriterAgent`)
+Para tópicos de infraestrutura de IA (LLM ranking, prefill-only, latência, throughput, serving), o pipeline agora injeta automaticamente um playbook baseado no case da engenharia do LinkedIn sobre SGLang (20/02/2026):
 
-* **Função**: Redige as manchetes e o corpo do texto de cada slide.
-* **Tom de Voz**: Profissional, assertivo, tecnicamente preciso e focado em parceria. Utiliza o **Inter** como fonte padrão.
+- ativa no `strategistAgent` e `strategistPlansAgent` para organizar a narrativa em estágios de otimização;
+- ativa no `copywriterAgent` para reforçar tom técnico e uso responsável de métricas;
+- mantém guardrail de atribuição de benchmarks (dados reportados pela fonte, não pela Lifetrek).
 
-### 3. Designer Agent (`designerAgent`)
+## Decisão Inteligente de Fundo (`mode: "smart"`)
 
-* **Função**: Recupera ou gera ativos visuais para os slides.
-* **Prioridade**:
-    1. **Ativos Reais**: Busca fotos reais da fábrica, equipamentos (Zeiss, CMM, Cincom) e produtos no `product_catalog`.
-    2. **Geração AI**: Caso não encontre um match real satisfatório, gera uma imagem usando o modelo `Nano Banana Pro` (Gemini 3.0 Pro Image-Gen).
+Implementado em `regenerate-carousel-images` para priorizar imagem real e usar IA somente quando necessário.
 
-### 4. Compositor Agent (`compositorAgent`)
+### 1) Classificação de intenção por slide
 
-* **Função**: Atua como a "camada de acabamento" visual.
-* **Tecnologia**: Usa **Satori** para sobrepor elementos de marca (Logo Lifetrek, cards de glassmorphism) sobre her backgrounds.
-* **Resultado**: Imagens consistentes que parecem diagramadas por um designer humano, não apenas saídas brutas de uma IA.
+Classes:
+- `company_trust`
+- `quality_machines_metrology`
+- `cleanroom_iso`
+- `vet_odonto_product`
+- `generic`
 
-### 5. Brand Analyst Agent (`brandAnalystAgent`)
+### 2) Pool preferencial por intenção
 
-* **Função**: Avalia a qualidade final e o alinhamento com o brand book.
-* **Métrica**: Atribui um `quality_score`. Se a nota for >= 70, o conteúdo é marcado como `pending_approval`; caso contrário, fica como `draft` para refinamento manual.
+- `company_trust`: facility (exterior, reception, production-overview, office).
+- `quality_machines_metrology`: equipment + facility de chão de fábrica/metrologia.
+- `cleanroom_iso`: clean-room-* + cleanroom-hero.
+- `vet_odonto_product`: product assets.
+- `generic`: todos elegíveis.
 
----
+### 3) Score e thresholds
 
-## 🎨 Identidade Visual e Branding
+Fórmula:
+- `score_final = cosine_similarity + keyword_boost + curated_boost`
+- Cap: `0.99`
 
-O sistema utiliza tokens de design rígidos baseados no Brand Book:
+Thresholds default:
+- `company_trust`: `0.68`
+- `quality_machines_metrology`: `0.66`
+- `cleanroom_iso`: `0.64`
+- `vet_odonto_product`: `0.62`
+- `generic`: `0.70`
 
-* **Cores Corporativas**:
-  * Blue Corporate: `#004F8F` (Confiança/Autoridade)
-  * Innovation Green: `#1A7A3E` (Sucesso/Engenharia)
-  * Energy Orange: `#F07818` (Destaques/CTA)
-* **Estética Visual**: Glassmorphism (transparência com blur), minimalismo moderno, foco em engenharia e salas limpas.
-* **Certificações**: O sistema insere automaticamente selos ISO 13485 em slides estratégicos para aumentar a autoridade.
+Regra:
+- se `score_final < threshold` e `allow_ai_fallback = true`, gera fundo com IA apenas para aquele slide.
 
----
+### 4) Anti-repetição
 
-## 💾 Gestão de Ativos e Dados
+- evita repetir o mesmo fundo em slides consecutivos.
+- se o melhor candidato foi usado recentemente e há alternativa com diferença de score <= `0.03`, usa a alternativa.
 
-### Pesquisa Vetorial (RAG)
+### 5) Curated overrides (hard rules)
 
-O Content Engine depende de dois índices principais no Supabase:
+- `parceiro/solução completa` -> prioriza `exterior/reception/production-overview`.
+- `qualidade/máquinas/metrologia/ZEISS/CMM` -> prioriza metrologia/equipment.
+- `sala limpa/ISO 7/ANVISA/FDA` -> prioriza clean-room assets.
+- `vet/odonto` sem candidato forte -> product assets; sem product forte -> IA.
 
-1. **Knowledge Base (`match_knowledge_base`)**: 768 dimensões. Armazena fatos técnicos, FAQs e regras de design.
-2. **Product Catalog (`match_product_assets`)**: 1536 dimensões. Armazena fotos de máquinas (CNC), laboratórios e produtos reais.
+## Edição Manual no UI (Design Tab)
 
-### Versionamento e Melhoria Contínua
+Tela:
+- `/admin/social?tab=design`
 
-* **`image_variants`**: Cada slide mantém um histórico de imagens geradas. O usuário pode regenerar slides individualmente, e o sistema aprende qual variante foi aprovada para melhorar prompts futuros.
-* **Metadados**: O sistema salva o `generation_metadata`, permitindo auditar qual prompt e qual modelo (Flash vs Pro) gerou cada post.
+Fluxo:
+1. clicar `Trocar Fundo`.
+2. usar aba `Sugestões` (rank por score/motivo) ou `Biblioteca` (filtros por categoria).
+3. clicar `Aplicar`.
+4. opcional: `Gerar com IA`.
+5. consultar `Ver versões`.
 
----
+Persistência:
+- atualização do slide atual (`image_url` / `imageUrl`).
+- append em `image_variants` (histórico preservado).
+- atualização de `image_urls[slide_index]`.
+- metadados: `asset_source`, `selection_score`, `selection_reason`, `asset_id`.
 
-## 🚀 Como Melhorar o Output
+## APIs e Dados Novos
 
-1. **Alimentar o Product Catalog**: Quanto mais fotos reais de alta qualidade estiverem catalogadas com descrições técnicas, menos o sistema dependerá de imagens geradas por IA.
-2. **Ajustar Styles**: Modificar a tabela `style_embeddings` permite mudar a "vibe" das gerações de IA sem mexer no código das Edge Functions.
-3. **Refinar Prompt Templates**: Os templates principais residem em `supabase/functions/regenerate-carousel-images/prompts/brand-prompt.ts`.
+- Edge function `regenerate-carousel-images`:
+  - `mode: "smart" | "hybrid" | "ai"`
+  - `allow_ai_fallback: boolean`
+  - saída por slide: `asset_source`, `selection_score`, `selection_reason`.
+- Edge function `set-slide-background`:
+  - override manual de 1 slide com histórico.
+- Tabela `asset_embeddings` + RPC `match_asset_candidates(...)`:
+  - índice vetorial para busca semântica de assets.
+
+## Exemplo aplicado: "Um Parceiro. Solução Completa."
+
+Recomendação padrão:
+- slide 0: exterior/reception
+- slide 1: production-floor/water-treatment
+- slide 2: production-overview/machine context
+- slide final CTA: cleanroom-hero ou exterior institucional
+
+## Referências
+
+- Decision tree (FigJam): `https://www.figma.com/online-whiteboard/create-diagram/da6acd52-9110-4a34-bc3b-0da23ad8cccd`
+- Arquitetura atual vs futura (FigJam): `https://www.figma.com/online-whiteboard/create-diagram/28be3680-b190-4c49-be27-0378f8e27656`
+
+## Arquivos-chave de implementação
+
+- `supabase/functions/regenerate-carousel-images/index.ts`
+- `supabase/functions/regenerate-carousel-images/handlers/smart.ts`
+- `supabase/functions/regenerate-carousel-images/utils/assets.ts`
+- `supabase/functions/set-slide-background/index.ts`
+- `src/components/admin/content/ImageEditorCore.tsx`
+- `src/components/admin/content/ContentApprovalCore.tsx`

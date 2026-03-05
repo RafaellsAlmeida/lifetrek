@@ -24,6 +24,7 @@ import { initLogging, getLogs } from "./utils/logging.ts";
 import { AssetLoader } from "./utils/assets.ts";
 import { handleAiGeneration } from "./handlers/ai.ts";
 import { handleHybridGeneration } from "./handlers/hybrid.ts";
+import { handleSmartGeneration } from "./handlers/smart.ts";
 
 declare const Deno: any;
 
@@ -55,8 +56,12 @@ serve(async (req: Request) => {
       batch_mode = false,
       table_name = "linkedin_carousels",
       slide_index,
-      mode = "hybrid"
-    }: RegenerateRequest & { mode?: 'ai' | 'hybrid' } = await req.json();
+      mode = "hybrid",
+      allow_ai_fallback = true
+    }: RegenerateRequest = await req.json();
+
+    const requestedMode: 'ai' | 'hybrid' | 'smart' =
+      mode === 'ai' || mode === 'smart' || mode === 'hybrid' ? mode : 'hybrid';
 
     if (!carousel_id) {
       return new Response(
@@ -155,12 +160,24 @@ serve(async (req: Request) => {
     // ========================================================================
     // DISPATCH TO HANDLERS
     // ========================================================================
-    console.log(`[REGEN] Starting generation for ${slidesToProcess.length} items (Mode: ${mode.toUpperCase()})...`);
+    console.log(`[REGEN] Starting generation for ${slidesToProcess.length} items (Mode: ${requestedMode.toUpperCase()})...`);
 
     let processedSlides: SlideData[] = [];
 
-    if (mode === 'ai') {
+    if (requestedMode === 'ai') {
       processedSlides = await handleAiGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);
+    } else if (requestedMode === 'smart') {
+      processedSlides = await handleSmartGeneration(
+        slidesToProcess,
+        carousel_id,
+        platform,
+        assetLoader,
+        supabase,
+        {
+          topic: carousel.topic || carousel.title || "",
+          allowAiFallback: allow_ai_fallback,
+        }
+      );
     } else {
       processedSlides = await handleHybridGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);
     }
@@ -189,17 +206,30 @@ serve(async (req: Request) => {
 
       if (currentSlides[slide_index]) {
         const newSlideData = processedSlides[0];
+        const existingSlide = currentSlides[slide_index] || {};
         const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
+        const oldImageUrl =
+          existingSlide.image_url ||
+          existingSlide.imageUrl ||
+          (Array.isArray(carousel.image_urls) ? carousel.image_urls[slide_index] : undefined);
 
         // Preserve all previously generated variants
-        const existingVariants: string[] = currentSlides[slide_index].image_variants || [];
+        const existingVariants: string[] = existingSlide.image_variants || [];
         const updatedVariants = newImageUrl
-          ? [...existingVariants.filter((v: string) => v !== newImageUrl), newImageUrl]
+          ? [...existingVariants.filter((v: string) => v !== newImageUrl), ...(oldImageUrl ? [oldImageUrl] : []), newImageUrl]
           : existingVariants;
+        const prevImageUrls: string[] = existingSlide.prev_image_urls || [];
+        const updatedPrev = oldImageUrl && oldImageUrl !== newImageUrl
+          ? [...prevImageUrls.filter((v: string) => v !== oldImageUrl), oldImageUrl]
+          : prevImageUrls;
 
         currentSlides[slide_index] = {
+          ...existingSlide,
           ...newSlideData,
+          image_url: newImageUrl,
+          imageUrl: newImageUrl,
           image_variants: updatedVariants.filter(Boolean),
+          prev_image_urls: updatedPrev.filter(Boolean),
         };
 
         const currentImageUrls = carousel.image_urls || [];
@@ -218,15 +248,28 @@ serve(async (req: Request) => {
 
       for (let i = 0; i < processedSlides.length; i++) {
         const newSlideData = processedSlides[i];
+        const existingSlide = currentSlides[i] || {};
         const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
-        const existingVariants: string[] = currentSlides[i]?.image_variants || [];
+        const oldImageUrl =
+          existingSlide.image_url ||
+          existingSlide.imageUrl ||
+          (Array.isArray(carousel.image_urls) ? carousel.image_urls[i] : undefined);
+        const existingVariants: string[] = existingSlide.image_variants || [];
         const updatedVariants = newImageUrl
-          ? [...existingVariants.filter((v: string) => v !== newImageUrl), newImageUrl]
+          ? [...existingVariants.filter((v: string) => v !== newImageUrl), ...(oldImageUrl ? [oldImageUrl] : []), newImageUrl]
           : existingVariants;
+        const prevImageUrls: string[] = existingSlide.prev_image_urls || [];
+        const updatedPrev = oldImageUrl && oldImageUrl !== newImageUrl
+          ? [...prevImageUrls.filter((v: string) => v !== oldImageUrl), oldImageUrl]
+          : prevImageUrls;
 
         currentSlides[i] = {
+          ...existingSlide,
           ...newSlideData,
+          image_url: newImageUrl,
+          imageUrl: newImageUrl,
           image_variants: updatedVariants.filter(Boolean),
+          prev_image_urls: updatedPrev.filter(Boolean),
         };
         if (newImageUrl) imageUrls.push(newImageUrl);
       }
@@ -265,7 +308,15 @@ serve(async (req: Request) => {
         slides_regenerated: processedSlides.length,
         images_generated: processedSlides.length,
         duration_ms: totalTime,
-        mode,
+        mode: requestedMode,
+        selections: processedSlides.map((slide, idx) => ({
+          index: idx,
+          asset_source: slide.asset_source || null,
+          selection_score: slide.selection_score ?? null,
+          selection_reason: slide.selection_reason || null,
+          asset_id: slide.asset_id || null,
+          image_url: slide.image_url || slide.imageUrl || null,
+        })),
         logs: getLogs()
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

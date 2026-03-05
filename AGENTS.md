@@ -1,5 +1,20 @@
 # AGENTS.md - Agent Guidelines for LifeTrek
 
+## BMAD Project Context
+
+This project is managed using **BMAD v6**. Before implementing any story:
+
+1. Read `_bmad-output/project-context.md` — critical implementation rules and patterns
+2. Read the active story file in `_bmad-output/implementation-artifacts/stories/`
+3. Follow the story's acceptance criteria exactly — do not gold-plate
+4. Run code review (`/bmad-bmm-code-review`) after completing a story
+
+**Current Focus:** Content Generation System — ideation → generation → editing → visualization
+**Planning artifacts:** `_bmad-output/planning-artifacts/` (architecture, epics, stories)
+**Sprint tracking:** `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+---
+
 ## Testing & Verification (REQUIRED)
 
 **Always test and screenshot before considering anything done.**
