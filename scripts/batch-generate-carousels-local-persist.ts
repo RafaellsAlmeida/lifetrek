@@ -12,7 +12,9 @@ type CarouselConfig = {
   referenceImage?: string;
 };
 
-const LOCAL_FN_BASE = Deno.env.get("LOCAL_FN_BASE") || "http://127.0.0.1:8011/functions/v1/generate-linkedin-carousel";
+const FUNCTION_URL =
+  Deno.env.get("FUNCTION_URL") ||
+  "https://dlflpvmdzkeouhgqwqba.supabase.co/functions/v1/generate-linkedin-carousel";
 const SUPABASE_URL = Deno.env.get("REMOTE_SUPABASE_URL") || "https://dlflpvmdzkeouhgqwqba.supabase.co";
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const ADMIN_USER_ID = Deno.env.get("ADMIN_USER_ID") || "3f14bb1b-57e5-4086-b2e4-c620dd886adc";
@@ -26,7 +28,7 @@ const inputPath = Deno.args[0] || "scripts/capabilities-posts-batch.json";
 const configs = JSON.parse(await Deno.readTextFile(inputPath)) as CarouselConfig[];
 
 async function generate(config: CarouselConfig) {
-  const resp = await fetch(LOCAL_FN_BASE, {
+  const resp = await fetch(FUNCTION_URL, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -83,7 +85,6 @@ async function persist(carousel: any, config: CarouselConfig) {
     profile_type: "company",
     tone: "Professional",
     quality_score: carousel.qualityScore || 85,
-    quality_feedback: carousel.review || "Generated via local workflow",
     generation_metadata: {
       modelVersions: carousel.modelVersions || null,
       source: "batch-generate-carousels-local-persist",
