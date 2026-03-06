@@ -49,6 +49,9 @@ test-results
 *.local
 .playwright-cli/
 
+# Playwright auth sessions (contain real tokens — NEVER commit)
+playwright/auth-sessions/
+
 # Sensitive / project-specific
 unipile-node-sdk
 cacao-ai-07483356a7e4.json

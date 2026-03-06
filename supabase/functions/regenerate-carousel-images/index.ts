@@ -47,6 +47,63 @@ class HttpError extends Error {
 const isMissingUserRolesTable = (message?: string | null) =>
   Boolean(message && message.includes("Could not find the table 'public.user_roles'"));
 
+function dedupeUrls(values: unknown[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        .map((value) => value.trim())
+    )
+  );
+}
+
+function resolveSlideImageUrl(slide: Record<string, unknown> | null | undefined): string {
+  if (!slide) return "";
+  const direct = typeof slide.image_url === "string" ? slide.image_url : "";
+  const legacy = typeof slide.imageUrl === "string" ? slide.imageUrl : "";
+  return direct || legacy || "";
+}
+
+function buildVariantSlideUpdate(
+  existingSlide: Record<string, unknown>,
+  newSlideData: SlideData,
+  fallbackImageUrl: string
+) {
+  const newImageUrl = resolveSlideImageUrl(newSlideData as unknown as Record<string, unknown>);
+  const oldImageUrl = resolveSlideImageUrl(existingSlide) || fallbackImageUrl;
+  const existingVariants = Array.isArray(existingSlide.image_variants) ? existingSlide.image_variants : [];
+  const prevImageUrls = Array.isArray(existingSlide.prev_image_urls) ? existingSlide.prev_image_urls : [];
+
+  return {
+    newImageUrl,
+    updatedSlide: {
+      ...existingSlide,
+      ...newSlideData,
+      image_url: newImageUrl,
+      imageUrl: newImageUrl,
+      image_variants: dedupeUrls([...existingVariants, oldImageUrl, newImageUrl]),
+      prev_image_urls:
+        oldImageUrl && oldImageUrl !== newImageUrl
+          ? dedupeUrls([...prevImageUrls, oldImageUrl])
+          : dedupeUrls(prevImageUrls),
+    },
+  };
+}
+
+function buildStableImageUrls(
+  source: unknown,
+  slides: Array<Record<string, unknown>>
+): string[] {
+  const existing = Array.isArray(source) ? source : [];
+  const targetLength = Math.max(existing.length, slides.length);
+
+  return Array.from({ length: targetLength }, (_, index) => {
+    const slideUrl = resolveSlideImageUrl(slides[index]);
+    const existingUrl = typeof existing[index] === "string" ? existing[index] : "";
+    return slideUrl || existingUrl || "";
+  });
+}
+
 async function assertAdminAccess(req: Request, supabase: any) {
   const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
   if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
@@ -118,6 +175,18 @@ serve(async (req: Request) => {
   const startTime = Date.now();
 
   try {
+    const rawBody = (await req.json()) as Record<string, unknown>;
+    const deletionAttempt =
+      rawBody.action === "delete-variant" ||
+      rawBody.action === "remove-variant" ||
+      rawBody.delete_all_variants === true ||
+      Object.prototype.hasOwnProperty.call(rawBody, "delete_variant_url") ||
+      Object.prototype.hasOwnProperty.call(rawBody, "remove_variant_url");
+
+    if (deletionAttempt) {
+      throw new HttpError(400, "Historical variants are immutable. Select another variant instead of deleting history.");
+    }
+
     // Parse request body
     const {
       carousel_id,
@@ -126,7 +195,7 @@ serve(async (req: Request) => {
       slide_index,
       mode = "hybrid",
       allow_ai_fallback = true
-    }: RegenerateRequest = await req.json();
+    }: RegenerateRequest = rawBody as unknown as RegenerateRequest;
 
     const requestedMode: 'ai' | 'hybrid' | 'smart' =
       mode === 'ai' || mode === 'smart' || mode === 'hybrid' ? mode : 'hybrid';
@@ -277,77 +346,46 @@ serve(async (req: Request) => {
       if (currentSlides[slide_index]) {
         const newSlideData = processedSlides[0];
         const existingSlide = currentSlides[slide_index] || {};
-        const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
-        const oldImageUrl =
-          existingSlide.image_url ||
-          existingSlide.imageUrl ||
-          (Array.isArray(carousel.image_urls) ? carousel.image_urls[slide_index] : undefined);
+        const { newImageUrl, updatedSlide } = buildVariantSlideUpdate(
+          existingSlide,
+          newSlideData,
+          Array.isArray(carousel.image_urls) && typeof carousel.image_urls[slide_index] === "string"
+            ? carousel.image_urls[slide_index]
+            : ""
+        );
 
-        // Preserve all previously generated variants
-        const existingVariants: string[] = existingSlide.image_variants || [];
-        const updatedVariants = newImageUrl
-          ? [...existingVariants.filter((v: string) => v !== newImageUrl), ...(oldImageUrl ? [oldImageUrl] : []), newImageUrl]
-          : existingVariants;
-        const prevImageUrls: string[] = existingSlide.prev_image_urls || [];
-        const updatedPrev = oldImageUrl && oldImageUrl !== newImageUrl
-          ? [...prevImageUrls.filter((v: string) => v !== oldImageUrl), oldImageUrl]
-          : prevImageUrls;
-
-        currentSlides[slide_index] = {
-          ...existingSlide,
-          ...newSlideData,
-          image_url: newImageUrl,
-          imageUrl: newImageUrl,
-          image_variants: updatedVariants.filter(Boolean),
-          prev_image_urls: updatedPrev.filter(Boolean),
-        };
-
-        const currentImageUrls = carousel.image_urls || [];
-        currentImageUrls[slide_index] = newImageUrl;
+        currentSlides[slide_index] = updatedSlide;
+        const currentImageUrls = buildStableImageUrls(carousel.image_urls, currentSlides as Array<Record<string, unknown>>);
+        currentImageUrls[slide_index] = newImageUrl || currentImageUrls[slide_index] || "";
 
         updateData = {
           slides: currentSlides,
-          image_urls: currentImageUrls.filter(Boolean),
+          image_urls: currentImageUrls,
           updated_at: new Date().toISOString()
         };
       }
     } else {
       // Batch update — accumulate variants on each slide
       const currentSlides = [...(carousel.slides || [])];
-      const imageUrls: string[] = [];
+      const currentImageUrls = buildStableImageUrls(carousel.image_urls, currentSlides as Array<Record<string, unknown>>);
 
       for (let i = 0; i < processedSlides.length; i++) {
         const newSlideData = processedSlides[i];
         const existingSlide = currentSlides[i] || {};
-        const newImageUrl = newSlideData.imageUrl || newSlideData.image_url;
-        const oldImageUrl =
-          existingSlide.image_url ||
-          existingSlide.imageUrl ||
-          (Array.isArray(carousel.image_urls) ? carousel.image_urls[i] : undefined);
-        const existingVariants: string[] = existingSlide.image_variants || [];
-        const updatedVariants = newImageUrl
-          ? [...existingVariants.filter((v: string) => v !== newImageUrl), ...(oldImageUrl ? [oldImageUrl] : []), newImageUrl]
-          : existingVariants;
-        const prevImageUrls: string[] = existingSlide.prev_image_urls || [];
-        const updatedPrev = oldImageUrl && oldImageUrl !== newImageUrl
-          ? [...prevImageUrls.filter((v: string) => v !== oldImageUrl), oldImageUrl]
-          : prevImageUrls;
+        const { newImageUrl, updatedSlide } = buildVariantSlideUpdate(
+          existingSlide,
+          newSlideData,
+          typeof currentImageUrls[i] === "string" ? currentImageUrls[i] : ""
+        );
 
-        currentSlides[i] = {
-          ...existingSlide,
-          ...newSlideData,
-          image_url: newImageUrl,
-          imageUrl: newImageUrl,
-          image_variants: updatedVariants.filter(Boolean),
-          prev_image_urls: updatedPrev.filter(Boolean),
-        };
-        if (newImageUrl) imageUrls.push(newImageUrl);
+        currentSlides[i] = updatedSlide;
+        currentImageUrls[i] = newImageUrl || currentImageUrls[i] || "";
       }
 
-      console.log(`[REGEN] Updating ${imageUrls.length} slides (with variants)...`);
+      console.log(`[REGEN] Updating ${processedSlides.length} slides (with variants)...`);
       updateData = {
         slides: currentSlides,
-        image_urls: imageUrls,
+        image_urls: currentImageUrls,
         updated_at: new Date().toISOString()
       };
     }

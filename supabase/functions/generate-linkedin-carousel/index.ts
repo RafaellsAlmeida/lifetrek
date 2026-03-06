@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
     strategistAgent,
     strategistPlansAgent,
@@ -9,6 +9,7 @@ import {
     compositorAgent
 } from "./agents.ts";
 import { CarouselParams, CarouselResult } from "./types.ts";
+import type { Database } from "../../../src/integrations/supabase/types.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -21,6 +22,9 @@ const MODEL_VERSIONS = {
     designer: "gemini-2.0-flash-exp",
     reviewer: "gemini-2.0-flash"
 };
+
+type ContentIdeasInsert = Database["public"]["Tables"]["content_ideas"]["Insert"];
+type ServiceSupabaseClient = SupabaseClient<Database>;
 
 function normalizePlatform(input: unknown): "linkedin" | "instagram" {
     if (input === "instagram") return "instagram";
@@ -80,12 +84,12 @@ function extractHashtags(text: string): string[] {
 }
 
 async function persistContentIdea(
-    supabase: ReturnType<typeof createClient>,
+    supabase: ServiceSupabaseClient,
     params: CarouselParams,
     strategy: any
 ) {
     try {
-        const payload = {
+        const payload: ContentIdeasInsert = {
             topic: params.topic,
             icp_segment: params.targetAudience || "general",
             platform: params.platform || "linkedin",
@@ -112,7 +116,7 @@ async function persistContentIdea(
 
 async function generateCarouselOnce(
     params: CarouselParams,
-    supabase: ReturnType<typeof createClient>,
+    supabase: ServiceSupabaseClient,
     send?: (event: string, data: Record<string, unknown>) => void,
     persistIdea: boolean = true
 ) {
@@ -223,7 +227,7 @@ async function generateCarouselOnce(
 
 async function generatePlanOptions(
     params: CarouselParams,
-    supabase: ReturnType<typeof createClient>,
+    supabase: ServiceSupabaseClient,
     count: number
 ) {
     const strategies = await strategistPlansAgent(params, supabase, count);
@@ -256,7 +260,7 @@ serve(async (req) => {
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
         const params = buildParams(inputData);
         const numberOfCarousels = Math.max(1, Number(inputData.numberOfCarousels || 1));

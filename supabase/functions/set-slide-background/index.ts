@@ -19,6 +19,23 @@ class HttpError extends Error {
 const isMissingUserRolesTable = (message?: string | null) =>
   Boolean(message && message.includes("Could not find the table 'public.user_roles'"));
 
+function dedupeUrls(values: unknown[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        .map((value) => value.trim())
+    )
+  );
+}
+
+function resolveSlideImageUrl(slide: Record<string, unknown> | null | undefined): string {
+  if (!slide) return "";
+  const direct = typeof slide.image_url === "string" ? slide.image_url : "";
+  const legacy = typeof slide.imageUrl === "string" ? slide.imageUrl : "";
+  return direct || legacy || "";
+}
+
 async function assertAdminAccess(req: Request, supabase: any) {
   const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
   if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
@@ -98,7 +115,19 @@ serve(async (req: Request) => {
   }
 
   try {
-    const body = (await req.json()) as SetSlideBackgroundRequest;
+    const rawBody = (await req.json()) as Record<string, unknown>;
+    const deletionAttempt =
+      rawBody.action === "delete-variant" ||
+      rawBody.action === "remove-variant" ||
+      rawBody.delete_all_variants === true ||
+      Object.prototype.hasOwnProperty.call(rawBody, "delete_variant_url") ||
+      Object.prototype.hasOwnProperty.call(rawBody, "remove_variant_url");
+
+    if (deletionAttempt) {
+      throw new Error("Historical variants are immutable. Select another variant instead of deleting history.");
+    }
+
+    const body = rawBody as unknown as SetSlideBackgroundRequest;
 
     const tableName = body.table_name;
     if (tableName !== "linkedin_carousels" && tableName !== "instagram_posts") {
@@ -140,39 +169,19 @@ serve(async (req: Request) => {
 
     const currentSlide = slides[body.slide_index] || {};
     const currentImageUrls = Array.isArray(item.image_urls) ? [...item.image_urls] : [];
-
-    const oldImageUrl =
-      currentSlide.image_url ||
-      currentSlide.imageUrl ||
-      currentImageUrls[body.slide_index] ||
-      null;
-
-    const existingVariants: string[] = Array.isArray(currentSlide.image_variants)
-      ? currentSlide.image_variants.filter(Boolean)
-      : [];
-
-    const nextVariants = [
-      ...existingVariants,
-      ...(oldImageUrl ? [oldImageUrl] : []),
-      newImageUrl,
-    ];
-
-    const dedupedVariants = Array.from(new Set(nextVariants.filter(Boolean)));
-
-    const prevImageUrls: string[] = Array.isArray(currentSlide.prev_image_urls)
-      ? currentSlide.prev_image_urls.filter(Boolean)
-      : [];
-
-    const nextPrev = oldImageUrl && oldImageUrl !== newImageUrl
-      ? Array.from(new Set([...prevImageUrls, oldImageUrl]))
-      : prevImageUrls;
+    const oldImageUrl = resolveSlideImageUrl(currentSlide) || currentImageUrls[body.slide_index] || null;
+    const existingVariants = Array.isArray(currentSlide.image_variants) ? currentSlide.image_variants : [];
+    const prevImageUrls = Array.isArray(currentSlide.prev_image_urls) ? currentSlide.prev_image_urls : [];
 
     const updatedSlide = {
       ...currentSlide,
       image_url: newImageUrl,
       imageUrl: newImageUrl,
-      image_variants: dedupedVariants,
-      prev_image_urls: nextPrev,
+      image_variants: dedupeUrls([...existingVariants, oldImageUrl, newImageUrl]),
+      prev_image_urls:
+        oldImageUrl && oldImageUrl !== newImageUrl
+          ? dedupeUrls([...prevImageUrls, oldImageUrl])
+          : dedupeUrls(prevImageUrls),
       asset_source: body.source || "manual",
       asset_id: body.asset_id || currentSlide.asset_id || null,
       selection_reason: "Manual override from UI library",

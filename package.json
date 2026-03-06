@@ -11,12 +11,16 @@
     "dev:web": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "lint": "eslint .",
+    "lint": "eslint --config ./config/eslint.config.js .",
     "preview": "vite preview",
     "remotion:studio": "remotion studio",
     "remotion:render": "remotion render",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:staging": "TEST_ENV=staging playwright test",
+    "test:e2e:production": "TEST_ENV=production playwright test",
     "test:api": "playwright test playwright/tests/api"
   },
   "dependencies": {

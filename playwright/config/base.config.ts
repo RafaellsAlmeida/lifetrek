@@ -4,6 +4,7 @@ import { defineConfig } from "@playwright/test";
 const rootDir = process.cwd();
 
 export const baseConfig = defineConfig({
+  globalSetup: path.resolve(rootDir, "playwright/global-setup.ts"),
   testDir: path.resolve(rootDir, "playwright/tests"),
   outputDir: path.resolve(rootDir, "test-results"),
   fullyParallel: true,

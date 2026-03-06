@@ -7,6 +7,20 @@ import {
   MASTER_SHOWCASE_WIDTH,
 } from "./compositions/MasterShowcase";
 import { LifetrekVignette, VIGNETTE_DURATION, VIGNETTE_FPS, VIGNETTE_WIDTH, VIGNETTE_HEIGHT } from "./LifetrekVignette";
+import {
+  SalaLimpaTour,
+  SALA_LIMPA_DURATION_IN_FRAMES,
+  SALA_LIMPA_FPS,
+  SALA_LIMPA_WIDTH,
+  SALA_LIMPA_HEIGHT,
+} from "./compositions/SalaLimpaTour";
+import {
+  SwissTurningTour,
+  SWISS_TURNING_DURATION_IN_FRAMES,
+  SWISS_TURNING_FPS,
+  SWISS_TURNING_WIDTH,
+  SWISS_TURNING_HEIGHT,
+} from "./compositions/SwissTurningTour";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -18,6 +32,22 @@ export const RemotionRoot: React.FC = () => {
         fps={VIGNETTE_FPS}
         width={VIGNETTE_WIDTH}
         height={VIGNETTE_HEIGHT}
+      />
+      <Composition
+        id="SalaLimpaTour"
+        component={SalaLimpaTour}
+        durationInFrames={SALA_LIMPA_DURATION_IN_FRAMES}
+        fps={SALA_LIMPA_FPS}
+        width={SALA_LIMPA_WIDTH}
+        height={SALA_LIMPA_HEIGHT}
+      />
+      <Composition
+        id="SwissTurningTour"
+        component={SwissTurningTour}
+        durationInFrames={SWISS_TURNING_DURATION_IN_FRAMES}
+        fps={SWISS_TURNING_FPS}
+        width={SWISS_TURNING_WIDTH}
+        height={SWISS_TURNING_HEIGHT}
       />
       {/* Silent version - no audio */}
       <Composition

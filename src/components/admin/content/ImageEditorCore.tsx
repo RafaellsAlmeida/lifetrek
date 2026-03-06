@@ -86,6 +86,23 @@ function tokenize(value: string): string[] {
     .filter((t) => t.length >= 2);
 }
 
+function dedupeUrls(values: unknown[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        .map((value) => value.trim())
+    )
+  );
+}
+
+function resolveSlideImageUrl(slide: Record<string, unknown> | null | undefined): string {
+  if (!slide) return "";
+  const direct = typeof slide.image_url === "string" ? slide.image_url : "";
+  const legacy = typeof slide.imageUrl === "string" ? slide.imageUrl : "";
+  return direct || legacy || "";
+}
+
 function classifyIntent(query: string): SlideIntent {
   const text = normalizeText(query);
   const has = (items: string[]) => items.some((k) => text.includes(k));
@@ -422,17 +439,19 @@ export function ImageEditorCore({ postId, postType = "template", slideIndex = 0,
 
     const currentSlide = slides[targetSlideIndex] ? { ...slides[targetSlideIndex] } : {};
     const imageUrls = Array.isArray(currentRow.image_urls) ? [...currentRow.image_urls] : [];
-    const prevImageUrl = currentSlide.image_url || currentSlide.imageUrl || imageUrls[targetSlideIndex] || "";
-
-    const variants = Array.isArray(currentSlide.image_variants) ? [...currentSlide.image_variants] : [];
-    if (prevImageUrl && !variants.includes(prevImageUrl)) variants.push(prevImageUrl);
-    if (!variants.includes(newImageUrl)) variants.push(newImageUrl);
+    const prevImageUrl = resolveSlideImageUrl(currentSlide) || imageUrls[targetSlideIndex] || "";
+    const variants = Array.isArray(currentSlide.image_variants) ? currentSlide.image_variants : [];
+    const prevImageUrls = Array.isArray(currentSlide.prev_image_urls) ? currentSlide.prev_image_urls : [];
 
     const nextSlide: Record<string, any> = {
       ...currentSlide,
       image_url: newImageUrl,
       imageUrl: newImageUrl,
-      image_variants: variants,
+      image_variants: dedupeUrls([...variants, prevImageUrl, newImageUrl]),
+      prev_image_urls:
+        prevImageUrl && prevImageUrl !== newImageUrl
+          ? dedupeUrls([...prevImageUrls, prevImageUrl])
+          : dedupeUrls(prevImageUrls),
       asset_source: "manual",
       selection_score: 1,
       selection_reason: selectionReason || "manual override (ui fallback)",
@@ -448,13 +467,8 @@ export function ImageEditorCore({ postId, postType = "template", slideIndex = 0,
     const payload: Record<string, any> = {
       slides,
       image_urls: imageUrls,
+      updated_at: new Date().toISOString(),
     };
-
-    if (Object.prototype.hasOwnProperty.call(currentRow, "prev_image_urls")) {
-      const prevImageUrls = Array.isArray(currentRow.prev_image_urls) ? [...currentRow.prev_image_urls] : [];
-      if (prevImageUrl) prevImageUrls.push(prevImageUrl);
-      if (prevImageUrls.length) payload.prev_image_urls = prevImageUrls;
-    }
 
     const { error: updateError } = await supabase
       .from(tableName as any)
@@ -975,32 +989,37 @@ Texto da Imagem: ${text}`,
             </div>
 
             {showVersions && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {activeVariants.map((url, idx) => (
-                  <button
-                    key={`variant-${idx}`}
-                    type="button"
-                    className={`w-20 h-20 rounded border overflow-hidden shrink-0 ${
-                      selectedCandidate?.url === url ? "ring-2 ring-primary border-primary" : "hover:border-primary/60"
-                    }`}
-                    onClick={() =>
-                      setSelectedCandidate({
-                        id: `variant-${idx}`,
-                        assetId: undefined,
-                        url,
-                        name: `Variante ${idx + 1}`,
-                        category: "variant",
-                        type: "environment",
-                        score: 0,
-                        reason: "Historical variant selection",
-                        passThreshold: true,
-                      })
-                    }
-                  >
-                    <img src={url} alt={`Variant ${idx + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-                {!activeVariants.length && <p className="text-xs text-muted-foreground">Sem versões salvas.</p>}
+              <div className="space-y-2">
+                <p className="text-[11px] text-muted-foreground">
+                  Histórico imutável. Selecione uma versão para reativá-la; exclusão não é permitida.
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {activeVariants.map((url, idx) => (
+                    <button
+                      key={`variant-${idx}`}
+                      type="button"
+                      className={`w-20 h-20 rounded border overflow-hidden shrink-0 ${
+                        selectedCandidate?.url === url ? "ring-2 ring-primary border-primary" : "hover:border-primary/60"
+                      }`}
+                      onClick={() =>
+                        setSelectedCandidate({
+                          id: `variant-${idx}`,
+                          assetId: undefined,
+                          url,
+                          name: `Variante ${idx + 1}`,
+                          category: "variant",
+                          type: "environment",
+                          score: 0,
+                          reason: "Historical variant selection",
+                          passThreshold: true,
+                        })
+                      }
+                    >
+                      <img src={url} alt={`Variant ${idx + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                  {!activeVariants.length && <p className="text-xs text-muted-foreground">Sem versões salvas.</p>}
+                </div>
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.75.0";
+import type { Database } from "../../../src/integrations/supabase/types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,23 +21,8 @@ interface ParsedRow {
   [key: string]: string;
 }
 
-interface NormalizedRow {
-  uploaded_period: string;
-  posted_at: string;
-  post_url: string;
-  post_id: string | null;
-  impressions: number;
-  clicks: number;
-  reactions: number;
-  comments: number;
-  shares: number;
-  engagement_rate: number | null;
-  ctr: number | null;
-  source_file_name: string | null;
-  source_row_hash: string;
-  raw_payload: Record<string, unknown>;
-  ingested_by: string | null;
-}
+type NormalizedRow = Database["public"]["Tables"]["linkedin_analytics"]["Insert"];
+type ServiceSupabaseClient = SupabaseClient<Database>;
 
 function parseCsvLine(line: string): string[] {
   const values: string[] = [];
@@ -170,7 +156,7 @@ async function sha256Hex(input: string): Promise<string> {
 }
 
 async function getExistingHashes(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ServiceSupabaseClient,
   hashes: string[]
 ): Promise<Set<string>> {
   const existing = new Set<string>();
@@ -211,7 +197,7 @@ serve(async (req) => {
       throw new Error("Missing Supabase configuration");
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
       return new Response(
@@ -463,4 +449,3 @@ serve(async (req) => {
     );
   }
 });
-

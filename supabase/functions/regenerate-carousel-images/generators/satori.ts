@@ -214,7 +214,7 @@ export async function generateOverlay(
                 },
                 children: [contentWrapper],
             },
-        },
+        } as any,
         {
             width,
             height,

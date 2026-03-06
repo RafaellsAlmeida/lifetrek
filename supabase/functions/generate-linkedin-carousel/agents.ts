@@ -225,8 +225,7 @@ async function callGeminiImage(prompt: string): Promise<string | null> {
  */
 export async function strategistAgent(
   params: CarouselParams,
-  // deno-lint-ignore no-explicit-any
-  supabase?: SupabaseClient<any, any, any, any, any>
+  supabase?: SupabaseClient
 ): Promise<CarouselStrategy> {
   const startTime = Date.now();
   console.log("🎯 Strategist Agent: Planning carousel strategy...");
@@ -306,8 +305,7 @@ Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 
  */
 export async function strategistPlansAgent(
   params: CarouselParams,
-  // deno-lint-ignore no-explicit-any
-  supabase?: SupabaseClient<any, any, any, any, any>,
+  supabase?: SupabaseClient,
   optionsCount: number = 3
 ): Promise<(CarouselStrategy & { topic?: string })[]> {
   const startTime = Date.now();
@@ -444,8 +442,7 @@ Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "h
  * generates AI images only as fallback.
  */
 export async function designerAgent(
-  // deno-lint-ignore no-explicit-any
-  supabase: SupabaseClient<any, any, any, any, any>,
+  supabase: SupabaseClient,
   params: CarouselParams,
   copy: CarouselCopy
 ): Promise<GeneratedImage[]> {
