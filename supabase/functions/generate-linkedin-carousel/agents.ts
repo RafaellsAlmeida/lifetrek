@@ -225,7 +225,8 @@ async function callGeminiImage(prompt: string): Promise<string | null> {
  */
 export async function strategistAgent(
   params: CarouselParams,
-  supabase?: SupabaseClient
+  // deno-lint-ignore no-explicit-any
+  supabase?: SupabaseClient<any, any, any, any, any>
 ): Promise<CarouselStrategy> {
   const startTime = Date.now();
   console.log("🎯 Strategist Agent: Planning carousel strategy...");
@@ -305,7 +306,8 @@ Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 
  */
 export async function strategistPlansAgent(
   params: CarouselParams,
-  supabase?: SupabaseClient,
+  // deno-lint-ignore no-explicit-any
+  supabase?: SupabaseClient<any, any, any, any, any>,
   optionsCount: number = 3
 ): Promise<(CarouselStrategy & { topic?: string })[]> {
   const startTime = Date.now();
