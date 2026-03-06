@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Send, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { trackAnalyticsEvent } from "@/utils/trackAnalytics";
+import { trackAnalyticsEvent, trackCalculatorEvent } from "@/utils/trackAnalytics";
+import { saveLeadWithCompat } from "@/utils/contactLeadCapture";
 import type { CalculatorInputs, CalculationResults } from "@/pages/Calculator";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -47,6 +48,18 @@ export function LeadCaptureForm({ inputs, results, onBack }: LeadCaptureFormProp
         }
       });
 
+      await saveLeadWithCompat({
+        name: formData.name,
+        email: formData.email,
+        company: formData.company || undefined,
+        phone: formData.phone || "Nao informado",
+        project_type: "other_medical",
+        project_types: ["other_medical"],
+        technical_requirements: `Calculator lead | material=${inputs.material} | volume=${inputs.annualVolume}`,
+        message: formData.message || `Feasibility score: ${results.feasibilityScore}`,
+        source: "website",
+      });
+
       // Call edge function to send email with results
       const { error } = await supabase.functions.invoke('send-calculator-report', {
         body: {
@@ -57,6 +70,15 @@ export function LeadCaptureForm({ inputs, results, onBack }: LeadCaptureFormProp
       });
 
       if (error) throw error;
+
+      await trackCalculatorEvent("completed", {
+        calculator_id: "feasibility_calculator_v1",
+        part_complexity: inputs.partComplexity,
+        annual_volume: inputs.annualVolume,
+        material: inputs.material,
+        tolerances: inputs.tolerances,
+        feasibility_score: results.feasibilityScore,
+      });
 
     setIsSubmitted(true);
     toast({

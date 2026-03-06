@@ -95,18 +95,11 @@ export const trackAnalyticsEvent = async ({
     const utm = getUtmParams();
     const campaignId = (metadata?.campaign_id as string | undefined) || utm.campaign_id;
 
+    // Keep this insert compatible with the current production schema. Enrich all context inside `metadata`.
     const { error } = await supabase.from("analytics_events").insert({
       event_type: eventType,
       company_name: companyName,
       company_email: companyEmail,
-      session_id: sessionId,
-      page_path: resolvedPagePath,
-      referrer,
-      user_agent: userAgent,
-      campaign_id: campaignId || null,
-      utm_campaign: utm.utm_campaign || null,
-      utm_source: utm.utm_source || null,
-      utm_medium: utm.utm_medium || null,
       metadata: {
         session_id: sessionId,
         page_path: resolvedPagePath,

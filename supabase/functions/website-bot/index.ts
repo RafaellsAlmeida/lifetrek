@@ -213,16 +213,34 @@ ${askContact ? "- Pergunte nome/contato naturalmente" : ""}`;
     if (contact.email || contact.phone) {
       (async () => {
         try {
-          await supabase.from("contact_leads").insert({
+          const leadEmail = contact.email || "chatbot" + Date.now() + "@placeholder.lifetrek.com.br";
+          await supabase.from("contact_leads").upsert(
+            {
             source: "website",
             name: contact.name || "Lead Chatbot",
-            email: contact.email || "chatbot" + Date.now() + "@placeholder.lifetrek.com.br",
+            email: leadEmail,
             phone: contact.phone || "Nao informado",
             project_type: interest,
             business_challenges: "Capturado via chatbot do site",
             message: allUserText.slice(0, 500)
+            },
+            { onConflict: "email" }
+          );
+
+          await supabase.from("analytics_events").insert({
+            event_type: "chatbot_lead_captured",
+            company_email: contact.email || leadEmail,
+            company_name: contact.name || null,
+            metadata: {
+              source: "website-bot",
+              sessionId: sid,
+              interest,
+              has_email: Boolean(contact.email),
+              has_phone: Boolean(contact.phone),
+            },
           });
-          console.log("Lead saved:", contact.email);
+
+          console.log("Lead saved:", contact.email || leadEmail);
         } catch (e: unknown) {
           console.error("Lead error:", e);
         }

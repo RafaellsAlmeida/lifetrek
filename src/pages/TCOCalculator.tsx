@@ -11,12 +11,14 @@ import {
     CheckCircle2,
     Building2,
     ShieldCheck,
-    MessageSquare
+    MessageSquare,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { trackAnalyticsEvent, trackCalculatorEvent } from "@/utils/trackAnalytics";
+import { saveLeadWithCompat } from "@/utils/contactLeadCapture";
 
 export default function TCOCalculator() {
     const [results, setResults] = useState<TCOResultsData | null>(null);
@@ -29,8 +31,19 @@ export default function TCOCalculator() {
         scheduleVisit: true
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
     const handleCalculate = (data: TCOInputs) => {
+        if (!hasTrackedStart) {
+            setHasTrackedStart(true);
+            void trackCalculatorEvent("started", {
+                calculator_id: "tco_calculator_v1",
+                category: data.category,
+                annual_volume: data.annualVolume,
+                import_lead_time_days: data.importLeadTimeDays,
+            });
+        }
+
         // Core Logic
         // 1. Import Landed Price (BRL)
         const freightPerUnitBRL = (data.importFreight / (data.annualVolume / 10)) * data.exchangeRate; // Weighted freight
@@ -81,19 +94,38 @@ export default function TCOCalculator() {
         setIsSubmitting(true);
 
         try {
-            const { error } = await supabase.from('contact_leads').insert({
-                name: leadInfo.name,
-                email: leadInfo.email,
-                company: leadInfo.company,
-                phone: leadInfo.phone,
-                project_type: 'micro_precision_parts',
-                project_types: ['micro_precision_parts'],
-                technical_requirements: `TCO CALC: ${results?.annualSavings.toLocaleString()} savings/year. Visit Requested: ${leadInfo.scheduleVisit ? 'YES' : 'NO'}`,
-                message: `Lead generated from /calc. Potential annual savings: R$ ${results?.annualSavings.toFixed(2)}. Capital release: R$ ${results?.capitalReleased.toFixed(2)}.`,
-                source: 'website'
+            await trackAnalyticsEvent({
+                eventType: "lead_magnet_usage",
+                companyName: leadInfo.company || undefined,
+                companyEmail: leadInfo.email,
+                metadata: {
+                    leadMagnetType: "tco_calculator",
+                    category: results ? "tco" : undefined,
+                    annual_savings: results?.annualSavings,
+                    capital_released: results?.capitalReleased,
+                    schedule_visit: leadInfo.scheduleVisit,
+                },
             });
 
-            if (error) throw error;
+            await saveLeadWithCompat({
+                name: leadInfo.name,
+                email: leadInfo.email,
+                company: leadInfo.company || undefined,
+                phone: leadInfo.phone || "Nao informado",
+                project_type: "supply_chain",
+                project_types: ["supply_chain"],
+                technical_requirements: `TCO CALC | annual_savings=${results?.annualSavings ?? "n/a"} | capital_released=${results?.capitalReleased ?? "n/a"} | visit_requested=${leadInfo.scheduleVisit ? "yes" : "no"}`,
+                message: `Lead from TCO calculator. Potential annual savings: R$ ${results?.annualSavings?.toFixed?.(2) ?? "n/a"}. Capital release: R$ ${results?.capitalReleased?.toFixed?.(2) ?? "n/a"}.`,
+                source: "website",
+            });
+
+            await trackCalculatorEvent("completed", {
+                calculator_id: "tco_calculator_v1",
+                annual_savings: results?.annualSavings,
+                capital_released: results?.capitalReleased,
+                schedule_visit: leadInfo.scheduleVisit,
+            });
+
             toast.success("Solicitação enviada! Entraremos em contato em breve.");
             setShowLeadForm(false);
             setResults(null);

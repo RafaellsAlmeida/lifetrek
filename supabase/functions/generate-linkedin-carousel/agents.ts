@@ -24,13 +24,13 @@ import {
   getLlmRankingPlaybookContext,
   isLlmRankingTopic
 } from "./topic_playbooks.ts";
-import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
 import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 // Font cache for Satori
 let fontData: ArrayBuffer | null = null;
 let fontDataRegular: ArrayBuffer | null = null;
+let satoriRenderer: any = null;
+let ResvgCtor: any = null;
 
 async function loadFonts() {
   if (fontData && fontDataRegular) return;
@@ -39,6 +39,14 @@ async function loadFonts() {
     fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf").then((res) => res.arrayBuffer()),
     fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf").then((res) => res.arrayBuffer())
   ]);
+}
+
+async function loadCompositorRuntime() {
+  if (satoriRenderer && ResvgCtor) return;
+  const satoriModule = await import("npm:satori@0.10.11");
+  const resvgModule = await import("npm:@resvg/resvg-js@2.6.2");
+  satoriRenderer = satoriModule.default;
+  ResvgCtor = resvgModule.Resvg;
 }
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
@@ -953,8 +961,9 @@ export async function compositorAgent(
       };
 
       // Generate SVG
+      await loadCompositorRuntime();
       await loadFonts();
-      const svg = await satori(
+      const svg = await satoriRenderer!(
         element as any,
         {
           width: 1024,
@@ -977,7 +986,7 @@ export async function compositorAgent(
       );
 
       // Convert to PNG
-      const resvg = new Resvg(svg);
+      const resvg = new ResvgCtor(svg);
       const pngData = resvg.render();
       const pngBuffer = pngData.asPng();
 

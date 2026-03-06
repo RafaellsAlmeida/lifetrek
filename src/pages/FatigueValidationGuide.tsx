@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { trackAnalyticsEvent, trackResourceDownload, trackResourceView } from "@/utils/trackAnalytics";
+import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 
 const FatigueValidationGuide = () => {
     const { toast } = useToast();
@@ -26,6 +27,11 @@ const FatigueValidationGuide = () => {
         if (unlocked === 'true') {
             setHasAccess(true);
         }
+    }, []);
+
+    useEffect(() => {
+        trackResourceView("fatigue-validation-guide", "Fluxo de Validacao de Fadiga");
+        void flushPendingLeads();
     }, []);
 
     const mermaidChart = `
@@ -113,21 +119,30 @@ const FatigueValidationGuide = () => {
                 return;
             }
 
-            // Save lead
-            const { error } = await supabase
-                .from('contact_leads')
-                .insert({
-                    name: formData.name,
-                    email: formData.email,
-                    company: formData.company,
-                    phone: "Nao informado",
-                    project_type: "orthopedic_implants",
-                    technical_requirements: "Lead magnet: Fluxo de Validacao de Fadiga.",
-                });
+            await trackAnalyticsEvent({
+                eventType: "lead_magnet_usage",
+                companyName: formData.company || undefined,
+                companyEmail: formData.email,
+                metadata: {
+                    leadMagnetType: "fatigue_validation_guide",
+                    resource_slug: "fatigue-validation-guide",
+                },
+            });
 
-            if (error) {
-                console.error('Error saving lead:', error);
-                // Continue anyway to not block user if backend fails (graceful degradation for lead magnet)
+            const saveResult = await saveLeadWithCompat({
+                name: formData.name,
+                email: formData.email,
+                company: formData.company || undefined,
+                phone: "Nao informado",
+                project_type: "diagnostic_assessment",
+                project_types: ["diagnostic_assessment"],
+                technical_requirements: "Lead magnet: Fluxo de Validacao de Fadiga (print/unlock).",
+                message: "Unlock/print requested for fatigue validation guide.",
+                source: "website",
+            });
+
+            if (saveResult.status !== "saved") {
+                console.warn("Fatigue guide lead queued for retry:", saveResult.reason);
             }
 
             // Unlock
@@ -142,6 +157,7 @@ const FatigueValidationGuide = () => {
 
             // Small delay before print to allow toast to show
             setTimeout(() => {
+                void trackResourceDownload("fatigue-validation-guide", "Fluxo de Validacao de Fadiga", "print");
                 window.print();
             }, 1000);
 

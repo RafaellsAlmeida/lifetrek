@@ -77,7 +77,6 @@ Edge Functions require (set in Supabase dashboard):
 - **Leads**: CRM for sales leads with scoring
 - **Blog**: Manage blog posts
 - **Analytics**: LinkedIn performance metrics
-- **Video Studio**: Video content creation
 
 ### LinkedIn Carousel Generation
 The carousel system uses a multi-agent approach:

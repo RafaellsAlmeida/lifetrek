@@ -4,6 +4,7 @@ import { CalculatorForm } from "@/components/calculator/CalculatorForm";
 import { CalculatorResults } from "@/components/calculator/CalculatorResults";
 import { LeadCaptureForm } from "@/components/calculator/LeadCaptureForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { trackCalculatorEvent } from "@/utils/trackAnalytics";
 
 export interface CalculatorInputs {
   partComplexity: "simple" | "moderate" | "complex" | "highly-complex";
@@ -40,6 +41,7 @@ export default function Calculator() {
   const [inputs, setInputs] = useState<CalculatorInputs | null>(null);
   const [results, setResults] = useState<CalculationResults | null>(null);
   const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
   const heroAnimation = useScrollAnimation();
 
   const calculateResults = (data: CalculatorInputs): CalculationResults => {
@@ -161,6 +163,14 @@ export default function Calculator() {
   };
 
   const handleCalculate = (data: CalculatorInputs) => {
+    if (!hasTrackedStart) {
+      setHasTrackedStart(true);
+      void trackCalculatorEvent("started", {
+        calculator_id: "feasibility_calculator_v1",
+        ...data,
+      });
+    }
+
     setInputs(data);
     const calculatedResults = calculateResults(data);
     setResults(calculatedResults);
