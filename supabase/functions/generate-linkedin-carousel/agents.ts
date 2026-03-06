@@ -444,7 +444,8 @@ Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "h
  * generates AI images only as fallback.
  */
 export async function designerAgent(
-  supabase: SupabaseClient,
+  // deno-lint-ignore no-explicit-any
+  supabase: SupabaseClient<any, any, any, any, any>,
   params: CarouselParams,
   copy: CarouselCopy
 ): Promise<GeneratedImage[]> {
