@@ -44,12 +44,10 @@ const ContentApproval = lazy(() => import("./pages/Admin/ContentApproval"));
 const ContentCalendar = lazy(() => import("./pages/Admin/ContentCalendar"));
 const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
-const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
 const UnifiedAnalytics = lazy(() => import("./pages/Admin/UnifiedAnalytics"));
 const AdminResources = lazy(() => import("./pages/Admin/AdminResources"));
 // const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox")); // Paused while Unipile is disabled
 const OnePager = lazy(() => import("./pages/OnePager"));
-const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
 const ImageEditor = lazy(() => import("./pages/Admin/ImageEditor"));
 const SocialMediaWorkspace = lazy(() => import("./pages/Admin/SocialMediaWorkspace"));
 const ChatbotInbox = lazy(() => import("./pages/Admin/ChatbotInbox"));
@@ -133,14 +131,13 @@ const App = () => (
                     <Route path="leads" element={<Leads />} />
                     <Route path="rejection-analytics" element={<RejectionAnalytics />} />
                     <Route path="content-calendar" element={<ContentCalendar />} />
-                    <Route path="video-studio" element={<VideoStudio />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="analytics" element={<UnifiedAnalytics />} />
                     <Route path="resources" element={<AdminResources />} />
                     {/* Inbox route paused while Unipile is disabled */}
                     <Route path="inbox" element={<Navigate to="/admin/chatbot-inbox" replace />} />
                     <Route path="one-pager" element={<OnePager />} />
-                    <Route path="content-manager" element={<ContentManager />} />
+                    <Route path="content-manager" element={<Navigate to="/admin/content-approval" replace />} />
                     <Route path="linkedin-carousel" element={<LinkedInCarousel />} />
                     <Route path="image-editor" element={<ImageEditor />} />
                     <Route path="social" element={<SocialMediaWorkspace />} />

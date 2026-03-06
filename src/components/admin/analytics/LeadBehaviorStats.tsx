@@ -47,6 +47,8 @@ export function LeadBehaviorStats({ data, loading }: LeadBehaviorStatsProps) {
       case "form_submission": return "Formulário";
       case "chatbot_lead_captured": return "Chatbot";
       case "lead_magnet_usage": return "Lead Magnet";
+      case "website": return "Website";
+      case "unipile": return "LinkedIn";
       default: return source;
     }
   };
@@ -56,6 +58,8 @@ export function LeadBehaviorStats({ data, loading }: LeadBehaviorStatsProps) {
       case "form_submission": return "bg-blue-100 text-blue-800";
       case "chatbot_lead_captured": return "bg-purple-100 text-purple-800";
       case "lead_magnet_usage": return "bg-amber-100 text-amber-800";
+      case "website": return "bg-slate-100 text-slate-800";
+      case "unipile": return "bg-sky-100 text-sky-800";
       default: return "bg-slate-100 text-slate-800";
     }
   };
@@ -192,6 +196,7 @@ export function LeadBehaviorStats({ data, loading }: LeadBehaviorStatsProps) {
                     <TableRow key={lead.email}>
                       <TableCell>
                         <div>
+                          <span className="block font-medium">{lead.name}</span>
                           <span className="font-medium truncate max-w-[150px] block">
                             {lead.email}
                           </span>

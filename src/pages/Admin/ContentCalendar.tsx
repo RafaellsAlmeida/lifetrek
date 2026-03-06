@@ -1,306 +1,431 @@
 // @ts-nocheck
-import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfWeek, addDays, isSameDay, parseISO, isWithinInterval, endOfDay, startOfDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, GripVertical,
-    Linkedin, FileText, CheckCircle2, Clock, AlertCircle
-} from 'lucide-react';
-import { toast } from 'sonner';
-import {
-    DragDropContext,
-    Droppable,
-    Draggable,
-    DropResult
-} from '@hello-pangea/dnd';
+import { toast } from "sonner";
+import { ChevronLeft, ChevronRight, FileText, GripVertical, Linkedin, Plus } from "lucide-react";
+import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { useNavigate } from "react-router-dom";
 
-// Types
 interface CalendarItem {
-    id: string;
-    title: string;
-    type: 'linkedin' | 'blog';
-    status: 'draft' | 'scheduled' | 'published' | 'approved';
-    scheduled_for: string | null;
-    author?: string;
+  id: string;
+  title: string;
+  type: "linkedin" | "blog";
+  status: string;
+  scheduled_for: string | null;
+  thumbnailUrl: string | null;
+  isBacklog: boolean;
+}
+
+function getLinkedInThumbnail(item: { image_urls?: unknown; slides?: unknown }) {
+  if (Array.isArray(item.image_urls)) {
+    const firstUrl = item.image_urls.find((value) => typeof value === "string" && value.length > 0);
+    if (typeof firstUrl === "string") return firstUrl;
+  }
+
+  if (Array.isArray(item.slides)) {
+    const firstSlide = item.slides[0];
+    if (firstSlide && typeof firstSlide === "object") {
+      const slide = firstSlide as Record<string, unknown>;
+      const imageUrl = slide.image_url || slide.imageUrl;
+      if (typeof imageUrl === "string" && imageUrl.length > 0) return imageUrl;
+    }
+  }
+
+  return null;
 }
 
 export default function ContentCalendar() {
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [viewMode, setViewMode] = useState<'week' | 'month'>('week');
-    const [filterScope, setFilterScope] = useState<'mine' | 'company'>('company');
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-    const queryClient = useQueryClient();
+  const monthStart = startOfMonth(currentDate);
+  const calendarDays = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }),
+      }),
+    [monthStart],
+  );
 
-    // Calculate week range
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday start
-    const weekDays = useMemo(() =>
-        Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
-        [weekStart]
-    );
+  const weekdayHeaders = useMemo(
+    () => Array.from({ length: 7 }, (_, index) => format(calendarDays[index], "EEE", { locale: ptBR })),
+    [calendarDays],
+  );
 
-    // Fetch items
-    const { data: items, isLoading } = useQuery({
-        queryKey: ['calendar_items', filterScope],
-        queryFn: async () => {
-            // Fetch Schedule LinkedIn Posts
-            const { data: linkedinData, error: linkedinError } = await supabase
-                .from('linkedin_carousels')
-                .select('*')
-                .not('status', 'eq', 'archived');
+  const { data: items, isLoading } = useQuery({
+    queryKey: ["calendar_items_monthly"],
+    queryFn: async () => {
+      const [linkedinRes, blogRes] = await Promise.all([
+        supabase
+          .from("linkedin_carousels")
+          .select("id, topic, status, created_at, scheduled_date, image_urls, slides")
+          .not("status", "eq", "archived"),
+        supabase
+          .from("blog_posts")
+          .select("id, title, status, created_at, published_at, metadata, featured_image, hero_image_url")
+          .not("status", "eq", "rejected"),
+      ]);
 
-            if (linkedinError) throw linkedinError;
+      if (linkedinRes.error) throw linkedinRes.error;
+      if (blogRes.error) throw blogRes.error;
 
-            // Fetch Scheduled Blogs
-            const { data: blogData, error: blogError } = await supabase
-                .from('blog_posts')
-                .select('*')
-                .not('status', 'eq', 'rejected');
+      const linkedinItems: CalendarItem[] = (linkedinRes.data || []).map((item) => ({
+        id: item.id,
+        title: item.topic,
+        type: "linkedin",
+        status: item.status || "draft",
+        scheduled_for: item.scheduled_date || null,
+        thumbnailUrl: getLinkedInThumbnail(item),
+        isBacklog: !item.scheduled_date,
+      }));
 
-            if (blogError) throw blogError;
+      const blogItems: CalendarItem[] = (blogRes.data || []).map((item) => {
+        const metadata = (item.metadata || {}) as Record<string, unknown>;
+        const targetDate = typeof metadata.target_date === "string" ? metadata.target_date : null;
 
-            // Normalize
-            const linkedinItems: CalendarItem[] = (linkedinData || []).map(item => ({
-                id: item.id,
-                title: item.topic,
-                type: 'linkedin',
-                status: item.status as any,
-                scheduled_for: item.scheduled_date || item.created_at // fallback for demo
-            }));
+        return {
+          id: item.id,
+          title: item.title,
+          type: "blog",
+          status: item.status || "draft",
+          scheduled_for: targetDate || item.published_at || null,
+          thumbnailUrl: item.featured_image || item.hero_image_url || null,
+          isBacklog: !targetDate && !item.published_at,
+        };
+      });
 
-            const blogItems: CalendarItem[] = (blogData || []).map(item => ({
-                id: item.id,
-                title: item.title,
-                type: 'blog',
-                status: item.status as any,
-                scheduled_for: item?.metadata?.target_date || item.published_at || item.created_at // fallback
-            }));
+      return [...linkedinItems, ...blogItems];
+    },
+  });
 
-            return [...linkedinItems, ...blogItems];
+  const scheduleMutation = useMutation({
+    mutationFn: async ({
+      id,
+      date,
+      type,
+      action,
+    }: {
+      id: string;
+      date: string | null;
+      type: "linkedin" | "blog";
+      action: "schedule" | "unschedule";
+    }) => {
+      if (type === "linkedin") {
+        const { data: current, error: fetchError } = await supabase
+          .from("linkedin_carousels")
+          .select("status")
+          .eq("id", id)
+          .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        const currentStatus = current?.status || null;
+        const nextStatus =
+          currentStatus === "published"
+            ? currentStatus
+            : date
+              ? currentStatus === "approved" || currentStatus === "scheduled"
+                ? "scheduled"
+                : currentStatus
+              : currentStatus === "scheduled"
+                ? "approved"
+                : currentStatus;
+
+        const patch: Record<string, unknown> = { scheduled_date: date };
+        if (nextStatus && nextStatus !== currentStatus) {
+          patch.status = nextStatus;
         }
+
+        const { error } = await supabase
+          .from("linkedin_carousels")
+          .update(patch as never)
+          .eq("id", id);
+
+        if (error) throw error;
+        return;
+      }
+
+      const { data: current, error: fetchError } = await supabase
+        .from("blog_posts")
+        .select("metadata, status")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      const currentMetadata = ((current as { metadata?: Record<string, unknown> } | null)?.metadata || {}) as Record<
+        string,
+        unknown
+      >;
+
+      const nextMetadata = { ...currentMetadata } as Record<string, unknown>;
+      if (date) {
+        nextMetadata.target_date = date;
+      } else {
+        delete nextMetadata.target_date;
+      }
+
+      const currentStatus = current?.status || null;
+      const nextStatus =
+        currentStatus === "published"
+          ? currentStatus
+          : date
+            ? currentStatus === "approved" || currentStatus === "scheduled"
+              ? "scheduled"
+              : currentStatus
+            : currentStatus === "scheduled"
+              ? "approved"
+              : currentStatus;
+
+      const patch: Record<string, unknown> = { metadata: nextMetadata };
+      if (nextStatus && nextStatus !== currentStatus) {
+        patch.status = nextStatus;
+      }
+
+      const { error } = await supabase.from("blog_posts").update(patch as never).eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["calendar_items_monthly"] });
+      toast.success(variables.action === "unschedule" ? "Conteúdo movido para backlog." : "Conteúdo reagendado.");
+    },
+    onError: () => {
+      toast.error("Não foi possível atualizar o calendário.");
+    },
+  });
+
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+    const [itemType, itemId] = draggableId.split(":");
+    if (!itemType || !itemId) return;
+
+    if (destination.droppableId === "backlog") {
+      scheduleMutation.mutate({
+        id: itemId,
+        date: null,
+        type: itemType as "linkedin" | "blog",
+        action: "unschedule",
+      });
+      return;
+    }
+
+    if (!destination.droppableId.startsWith("day-")) return;
+
+    const targetDateKey = destination.droppableId.replace("day-", "");
+    const [year, month, day] = targetDateKey.split("-").map((value) => Number(value));
+    if (!year || !month || !day) return;
+    // Use midday local time to avoid DST edge cases shifting the calendar day.
+    const scheduledDate = new Date(year, month - 1, day, 12, 0, 0);
+
+    scheduleMutation.mutate({
+      id: itemId,
+      date: scheduledDate.toISOString(),
+      type: itemType as "linkedin" | "blog",
+      action: "schedule",
     });
+  };
 
-    // Scheduling Mutation
-    const scheduleMutation = useMutation({
-        mutationFn: async ({ id, date, type }: { id: string, date: string, type: 'linkedin' | 'blog' }) => {
-            if (type === 'linkedin') {
-                const { error } = await supabase
-                    .from('linkedin_carousels')
-                        .update({
-                            scheduled_date: date,
-                            status: 'scheduled'
-                        })
-                    .eq('id', id);
-                if (error) throw error;
-            } else {
-                const { data: current, error: fetchError } = await supabase
-                    .from('blog_posts')
-                    .select('metadata')
-                    .eq('id', id)
-                    .maybeSingle();
+  const scheduledItems = useMemo(() => (items || []).filter((item) => item.scheduled_for), [items]);
+  const backlogItems = useMemo(() => (items || []).filter((item) => item.isBacklog), [items]);
 
-                if (fetchError) throw fetchError;
+  const getItemsForDay = (day: Date) =>
+    scheduledItems.filter((item) => item.scheduled_for && isSameDay(parseISO(item.scheduled_for), day));
 
-                const nextMetadata = {
-                    ...(current as any)?.metadata,
-                    target_date: date,
-                };
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Calendário de Conteúdo</h1>
+          <p className="text-sm text-muted-foreground">Visão mensal com thumbnail dos posts de social.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={() => setCurrentDate((prev) => addMonths(prev, -1))}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="min-w-[180px] text-center text-sm font-medium capitalize">
+            {format(currentDate, "MMMM yyyy", { locale: ptBR })}
+          </div>
+          <Button variant="outline" size="icon" onClick={() => setCurrentDate((prev) => addMonths(prev, 1))}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" onClick={() => setCurrentDate(new Date())}>
+            Hoje
+          </Button>
+          <Button onClick={() => navigate("/admin/orchestrator")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo conteúdo
+          </Button>
+        </div>
+      </div>
 
-                const { error } = await supabase
-                    .from('blog_posts')
-                        .update({
-                            metadata: nextMetadata,
-                            status: 'scheduled'
-                        } as any)
-                    .eq('id', id);
-                if (error) throw error;
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['calendar_items'] });
-            toast.success("Conteúdo agendado com sucesso!");
-        },
-        onError: () => toast.error("Erro ao agendar conteúdo")
-    });
-
-    const onDragEnd = (result: DropResult) => {
-        const { destination, draggableId, type } = result;
-        if (!destination) return;
-
-        // Dropped outside or same place
-        if (destination.droppableId === result.source.droppableId && destination.index === result.source.index) {
-            return;
-        }
-
-        // Determine target date
-        // Format: `day-${dateISO}`
-        if (destination.droppableId.startsWith('day-')) {
-            const dateStr = destination.droppableId.replace('day-', '');
-            // We know the draggableId is "type-id" or just "id" depending on implementation
-            // Let's assume draggableId is the ITEM ID, but we need the type.
-            // We can encode type in draggableId for better handling: "linkedin:ID"
-            const [itemType, itemId] = draggableId.split(':');
-
-            scheduleMutation.mutate({
-                id: itemId,
-                date: new Date(dateStr).toISOString(),
-                type: itemType as 'linkedin' | 'blog'
-            });
-        }
-    };
-
-    const getItemsForDay = (date: Date) => {
-        if (!items) return [];
-        return items.filter(item =>
-            item.scheduled_for && isSameDay(parseISO(item.scheduled_for), date)
-        );
-    };
-
-    const unscheduledItems = useMemo(() => {
-        if (!items) return [];
-        // Just a mocked check for "unscheduled" or "draft" that hasn't been placed yet
-        // In reality, we'd check for null scheduled_for
-        return items.filter(item =>
-            (item.status === 'draft' || item.status === 'pending_review') &&
-            (!item.scheduled_for || new Date(item.scheduled_for).getFullYear() < 2024)
-            // Logic to define "backlog" items
-        );
-    }, [items]);
-
-    const handlePrevWeek = () => setCurrentDate(d => addDays(d, -7));
-    const handleNextWeek = () => setCurrentDate(d => addDays(d, 7));
-    const handleToday = () => setCurrentDate(new Date());
-
-    return (
-        <div className="container mx-auto max-w-7xl py-8 h-[calc(100vh-100px)] flex flex-col gap-6">
-            <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-sm">
-                <div className="flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={handlePrevWeek}>
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <h2 className="text-xl font-semibold min-w-[200px] text-center capitalize">
-                        {format(currentDate, "MMMM yyyy", { locale: ptBR })}
-                    </h2>
-                    <Button variant="outline" size="icon" onClick={handleNextWeek}>
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" onClick={handleToday}>Hoje</Button>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="space-y-3">
+            <div className="grid grid-cols-7 gap-3">
+              {weekdayHeaders.map((label) => (
+                <div key={label} className="px-2 text-center text-xs font-semibold uppercase text-muted-foreground">
+                  {label}
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Novo Conteúdo
-                    </Button>
-                </div>
+              ))}
             </div>
 
-            <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex gap-6 h-full overflow-hidden">
-                    {/* Calendar Grid */}
-                    <div className="flex-1 grid grid-cols-7 gap-4 h-full overflow-y-auto pr-2">
-                        {weekDays.map((day, i) => (
-                            <div key={day.toISOString()} className="flex flex-col gap-2 min-h-[500px]">
-                                <div className={`p-3 rounded-lg text-center border ${isSameDay(day, new Date()) ? 'bg-primary text-primary-foreground' : 'bg-muted/50'
-                                    }`}>
-                                    <div className="text-sm font-medium uppercase">{format(day, 'EEE', { locale: ptBR })}</div>
-                                    <div className="text-2xl font-bold">{format(day, 'd')}</div>
-                                </div>
+            <div className="grid grid-cols-7 gap-3">
+              {calendarDays.map((day) => {
+                const dayItems = getItemsForDay(day);
+                const isCurrentMonth = isSameMonth(day, currentDate);
+                const dayKey = format(day, "yyyy-MM-dd");
 
-                                <Droppable droppableId={`day-${day.toISOString()}`}>
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                            className={`flex-1 rounded-lg border-2 border-dashed transition-colors p-2 space-y-2 ${snapshot.isDraggingOver ? 'bg-accent/50 border-primary' : 'border-transparent bg-muted/20'
-                                                }`}
-                                        >
-                                            {getItemsForDay(day).map((item, index) => (
-                                                <Draggable key={item.id} draggableId={`${item.type}:${item.id}`} index={index}>
-                                                    {(provided) => (
-                                                        <Card
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
-                                                        >
-                                                            <CardContent className="p-3 space-y-2">
-                                                                <div className="flex justify-between items-start">
-                                                                    <Badge variant="outline" className={`text-[10px] px-1 py-0 h-5 ${item.type === 'linkedin' ? 'border-blue-200 text-blue-700 bg-blue-50' : 'border-orange-200 text-orange-700 bg-orange-50'
-                                                                        }`}>
-                                                                        {item.type === 'linkedin' ? <Linkedin className="h-3 w-3 mr-1" /> : <FileText className="h-3 w-3 mr-1" />}
-                                                                        {item.type}
-                                                                    </Badge>
-                                                                    <div className={`w-2 h-2 rounded-full ${item.status === 'published' ? 'bg-green-500' :
-                                                                            item.status === 'scheduled' ? 'bg-blue-500' :
-                                                                                'bg-yellow-500'
-                                                                        }`} />
-                                                                </div>
-                                                                <p className="text-xs font-medium line-clamp-3">{item.title}</p>
-                                                            </CardContent>
-                                                        </Card>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Backlog Sidebar */}
-                    <div className="w-80 flex flex-col gap-4 border-l pl-6">
-                        <div className="flex items-center gap-2">
-                            <GripVertical className="h-5 w-5 text-muted-foreground" />
-                            <h3 className="font-semibold">Backlog</h3>
-                            <Badge variant="secondary" className="ml-auto">{unscheduledItems.length}</Badge>
+                return (
+                  <Droppable key={dayKey} droppableId={`day-${dayKey}`}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`min-h-[190px] rounded-2xl border bg-card p-2 ${
+                          snapshot.isDraggingOver ? "border-primary bg-primary/5" : "border-border"
+                        } ${!isCurrentMonth ? "opacity-45" : ""}`}
+                      >
+                        <div className="mb-2 flex items-center justify-between px-1">
+                          <div
+                            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                              isToday(day) ? "bg-primary text-primary-foreground" : "text-foreground"
+                            }`}
+                          >
+                            {format(day, "d")}
+                          </div>
+                          {dayItems.length > 0 ? <Badge variant="secondary">{dayItems.length}</Badge> : null}
                         </div>
-                        <Droppable droppableId="backlog">
-                            {(provided) => (
-                                <ScrollArea className="h-full pr-4">
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        className="space-y-3 pb-4"
-                                    >
-                                        {unscheduledItems.map((item, index) => (
-                                            <Draggable key={item.id} draggableId={`${item.type}:${item.id}`} index={index}>
-                                                {(provided) => (
-                                                    <Card
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow bg-card"
-                                                    >
-                                                        <CardContent className="p-3">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                {item.type === 'linkedin' ?
-                                                                    <Linkedin className="h-4 w-4 text-blue-600" /> :
-                                                                    <FileText className="h-4 w-4 text-orange-600" />
-                                                                }
-                                                                <span className="text-xs text-muted-foreground capitalize">{item.type}</span>
-                                                            </div>
-                                                            <p className="text-sm font-medium line-clamp-2">{item.title}</p>
-                                                        </CardContent>
-                                                    </Card>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
+
+                        <div className="space-y-2">
+                          {dayItems.map((item, index) => (
+                            <Draggable key={`${item.type}:${item.id}`} draggableId={`${item.type}:${item.id}`} index={index}>
+                              {(draggableProvided) => (
+                                <Card
+                                  ref={draggableProvided.innerRef}
+                                  {...draggableProvided.draggableProps}
+                                  {...draggableProvided.dragHandleProps}
+                                  className="overflow-hidden border shadow-none"
+                                >
+                                  <CardContent className="p-2">
+                                    <div className="flex gap-2">
+                                      {item.type === "linkedin" && item.thumbnailUrl ? (
+                                        <img
+                                          src={item.thumbnailUrl}
+                                          alt={item.title}
+                                          className="h-14 w-14 rounded-md object-cover"
+                                        />
+                                      ) : null}
+                                      <div className="min-w-0 flex-1 space-y-1">
+                                        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                          {item.type === "linkedin" ? (
+                                            <Linkedin className="h-3.5 w-3.5 text-sky-600" />
+                                          ) : (
+                                            <FileText className="h-3.5 w-3.5 text-amber-600" />
+                                          )}
+                                          <span className="capitalize">{item.type}</span>
+                                        </div>
+                                        <p className="line-clamp-2 text-xs font-medium leading-snug">{item.title}</p>
+                                      </div>
                                     </div>
-                                </ScrollArea>
+                                  </CardContent>
+                                </Card>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      </div>
+                    )}
+                  </Droppable>
+                );
+              })}
+            </div>
+          </div>
+
+          <Card className="h-fit">
+            <CardContent className="pt-6">
+              <div className="mb-4 flex items-center gap-2">
+                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <h2 className="font-semibold">Backlog</h2>
+                <Badge variant="secondary" className="ml-auto">
+                  {backlogItems.length}
+                </Badge>
+              </div>
+
+              <Droppable droppableId="backlog">
+                {(provided) => (
+                  <ScrollArea className="h-[720px] pr-4">
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
+                      {isLoading ? (
+                        <p className="text-sm text-muted-foreground">Carregando calendário...</p>
+                      ) : backlogItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Sem itens no backlog.</p>
+                      ) : (
+                        backlogItems.map((item, index) => (
+                          <Draggable key={`${item.type}:${item.id}`} draggableId={`${item.type}:${item.id}`} index={index}>
+                            {(draggableProvided) => (
+                              <Card
+                                ref={draggableProvided.innerRef}
+                                {...draggableProvided.draggableProps}
+                                {...draggableProvided.dragHandleProps}
+                              >
+                                <CardContent className="p-3">
+                                  <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                                    {item.type === "linkedin" ? (
+                                      <Linkedin className="h-3.5 w-3.5 text-sky-600" />
+                                    ) : (
+                                      <FileText className="h-3.5 w-3.5 text-amber-600" />
+                                    )}
+                                    <span className="capitalize">{item.type}</span>
+                                  </div>
+                                  {item.type === "linkedin" && item.thumbnailUrl ? (
+                                    <img
+                                      src={item.thumbnailUrl}
+                                      alt={item.title}
+                                      className="mb-3 h-28 w-full rounded-lg object-cover"
+                                    />
+                                  ) : null}
+                                  <p className="text-sm font-medium leading-snug">{item.title}</p>
+                                </CardContent>
+                              </Card>
                             )}
-                        </Droppable>
+                          </Draggable>
+                        ))
+                      )}
+                      {provided.placeholder}
                     </div>
-                </div>
-            </DragDropContext>
+                  </ScrollArea>
+                )}
+              </Droppable>
+            </CardContent>
+          </Card>
         </div>
-    );
+      </DragDropContext>
+    </div>
+  );
 }

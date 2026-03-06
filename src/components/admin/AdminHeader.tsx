@@ -75,13 +75,11 @@ const navStructure: NavEntry[] = [
         items: [
             { path: "/admin/social", label: "Social Workspace", icon: Sparkles },
             { path: "/admin/orchestrator", label: "Orchestrator", icon: MessageSquare },
-            { path: "/admin/content-manager", label: "Gestor Conteúdo", icon: FileText },
             { path: "/admin/resources", label: "Recursos", icon: BookOpen },
             { path: "/admin/content-approval", label: "Aprovação", icon: CheckCircle },
             { path: "/admin/content-calendar", label: "Calendário", icon: Target },
-            { path: "/admin/video-studio", label: "Video Studio", icon: Clapperboard },
             { path: "/admin/one-pager", label: "One Pager", icon: FileText },
-        ]
+        ],
     },
     {
         label: "Analytics",

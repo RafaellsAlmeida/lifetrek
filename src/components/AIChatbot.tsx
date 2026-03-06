@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { trackAnalyticsEvent } from "@/utils/trackAnalytics";
+import { trackChatbotEvent } from "@/utils/trackAnalytics";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,6 +16,9 @@ interface Message {
 export const AIChatbot = () => {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
+
+  // Session ID for conversation tracking
+  const [sessionId] = useState(() => crypto.randomUUID());
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -30,6 +33,8 @@ export const AIChatbot = () => {
   const [showButton, setShowButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [hasTrackedOpen, setHasTrackedOpen] = useState(false);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -37,6 +42,18 @@ export const AIChatbot = () => {
   }, [messages]);
 
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+
+  const openChatbot = (reason: "manual" | "auto_scroll") => {
+    setIsOpen(true);
+    if (!hasTrackedOpen) {
+      setHasTrackedOpen(true);
+      void trackChatbotEvent("opened", {
+        sessionId,
+        open_reason: reason,
+        page_path: location.pathname,
+      });
+    }
+  };
 
   // Show button and auto-open on scroll (only on landing page)
   useEffect(() => {
@@ -50,7 +67,7 @@ export const AIChatbot = () => {
       if (scrollDepth > 50) {
         setShowButton(true);
         if (!hasAutoOpened) {
-          setIsOpen(true);
+          openChatbot("auto_scroll");
           setHasAutoOpened(true);
         }
       }
@@ -58,10 +75,7 @@ export const AIChatbot = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLandingPage, hasAutoOpened]);
-
-  // Session ID for conversation tracking
-  const [sessionId] = useState(() => crypto.randomUUID());
+  }, [isLandingPage, hasAutoOpened, hasTrackedOpen, location.pathname, sessionId]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -71,15 +85,12 @@ export const AIChatbot = () => {
     setInput("");
     setIsLoading(true);
 
-    // Track chatbot interaction
-    await trackAnalyticsEvent({
-      eventType: "chatbot_interaction",
-      metadata: {
-        message: input,
-        conversationDepth: messages.length,
-        isFirstMessage: messages.length === 1,
-        sessionId
-      },
+    void trackChatbotEvent("message_sent", {
+      sessionId,
+      conversationDepth: messages.length,
+      isFirstMessage: messages.length === 1,
+      messageLength: input.length,
+      page_path: location.pathname,
     });
 
     try {
@@ -125,7 +136,7 @@ export const AIChatbot = () => {
       {/* Floating Button - Bottom Right, Larger */}
       {!isOpen && showButton && (
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={() => openChatbot("manual")}
           size="lg"
           className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary"
           aria-label="Abrir chat do Assistente Trek"
