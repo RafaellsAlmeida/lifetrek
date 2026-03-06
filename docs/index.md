@@ -10,16 +10,34 @@ Welcome to the Lifetrek project documentation. This index serves as the primary 
 
 ## Core Documentation
 
-- [Data Models](file:///Users/rafaelalmeida/lifetrek/docs/data-models.md)
-- [API Contracts](file:///Users/rafaelalmeida/lifetrek/docs/api-contracts.md)
-- [Content Engine Guide](file:///Users/rafaelalmeida/lifetrek/docs/content-engine-guide.md)
+- [Data Models](./data-models.md)
+- [API Contracts](./api-contracts.md)
+- [Content Engine Guide](./content-engine-guide.md)
 - [Smart Regen Architecture](./architecture/SMART_REGEN_ARCHITECTURE.md)
 - [LinkedIn SGLang Prefill Playbook](./content/LINKEDIN_SGLANG_PREFILL_PLAYBOOK.md)
-- [Source Tree Analysis](file:///Users/rafaelalmeida/lifetrek/docs/source-tree-analysis.md) - Annotated directory structure.
+- [Source Tree Analysis](./source-tree-analysis.md) - Annotated directory structure.
 - [**Project Context (AI Rules)**](../_bmad-output/project-context.md) - Critical implementation rules for AI.
+
+## Canonical BMAD Artifacts (2026 Content Engine Track)
+
+_bmad-output is the canonical planning/implementation source for the current cycle._
+
+- [PRD](../_bmad-output/planning-artifacts/prd.md)
+- [Architecture](../_bmad-output/planning-artifacts/architecture.md)
+- [UX Design Specification](../_bmad-output/planning-artifacts/ux-design-specification.md)
+- [Epics and Stories](../_bmad-output/planning-artifacts/epics.md)
+- [Sprint Status](../_bmad-output/implementation-artifacts/sprint-status.yaml)
+- [Sprint 1 Story Files](../_bmad-output/implementation-artifacts/stories/)
+- [PRD Validation Report](../_bmad-output/planning-artifacts/prd-validation-report-2026-03-05.md)
+- [Implementation Readiness Report](../_bmad-output/planning-artifacts/implementation-readiness-report-2026-03-05.md)
+- [Implementation Delta Report](../_bmad-output/planning-artifacts/implementation-delta-report-2026-03-05.md)
+- [Orchestrator Architecture Research](../_bmad-output/planning-artifacts/orchestrator-architecture-research-2026-03-06.md)
 
 ## Recent Updates (2026-03-05)
 
+- Rebuilt BMAD PRD for 2026 content-engine scope in [planning artifacts](../_bmad-output/planning-artifacts/prd.md).
+- Added BMAD UX specification and epics/stories decomposition for implementation planning.
+- Generated sprint tracking and Sprint 1 ready-for-dev story files under `_bmad-output/implementation-artifacts/`.
 - Smart background selection (`real asset` vs `AI fallback`) documented in [Content Engine Guide](./content-engine-guide.md).
 - Smart Regen architecture spec documented in [Smart Regen Architecture](./architecture/SMART_REGEN_ARCHITECTURE.md).
 - Manual background override flow (`Trocar Fundo`) documented in [API Contracts](./api-contracts.md) and [Data Models](./data-models.md).

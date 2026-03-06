@@ -6,9 +6,9 @@ export interface Resource {
     type: 'checklist' | 'guide' | 'calculator';
     persona?: string;
     thumbnail_url?: string;
-    status: 'draft' | 'published';
+    status: 'draft' | 'pending_approval' | 'approved' | 'scheduled' | 'published' | 'rejected';
     slug: string;
-    metadata: any;
+    metadata: Record<string, unknown> | null;
     user_id?: string;
     created_at: string;
     updated_at: string;

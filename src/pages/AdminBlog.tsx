@@ -263,6 +263,8 @@ const AdminBlog = () => {
             slug: generateSlug(generatedData.title),
             content: generatedData.content,
             excerpt: generatedData.excerpt || "",
+            featured_image: generatedData.featured_image || generatedData.hero_image_url || undefined,
+            hero_image_url: generatedData.hero_image_url || generatedData.featured_image || undefined,
             // Map category string to ID if possible, or leave empty/default. 
             // The edge function returns a category string, but our DB expects a UUID usually if relational, 
             // BUT looking at formData state 'category_id' is a string. 
@@ -340,6 +342,8 @@ const AdminBlog = () => {
           slug: generateSlug(generatedData.title),
           content: generatedData.content,
           excerpt: generatedData.excerpt || "",
+          featured_image: generatedData.featured_image || generatedData.hero_image_url || undefined,
+          hero_image_url: generatedData.hero_image_url || generatedData.featured_image || undefined,
           category_id: categories?.find(c => c.name.toLowerCase() === topic.category.toLowerCase())?.id || null,
           seo_title: generatedData.seo_title,
           seo_description: generatedData.seo_description,

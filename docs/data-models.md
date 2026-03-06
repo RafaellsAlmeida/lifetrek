@@ -11,6 +11,7 @@ Resumo dos modelos de dados relevantes para geração de conteúdo, seleção de
 - `content_templates`: templates base de conteúdo.
 - `linkedin_carousels`: conteúdo e slides para LinkedIn.
 - `instagram_posts`: conteúdo e slides para Instagram.
+- `content_ideas`: persistência de ideias/estratégias geradas na etapa de ideação.
 
 Campos relevantes em `linkedin_carousels`/`instagram_posts`:
 - `slides` (jsonb): array de slides.
@@ -50,6 +51,14 @@ Campos relevantes por slide (`slides[n]`):
 - `analytics_events`
 - `blog_analytics`
 - `lead_behavior_logs`
+- `linkedin_analytics_daily` (snapshot operacional via Unipile)
+- `linkedin_analytics` (importação normalizada de CSV do LinkedIn)
+
+### Blog Hero Contract
+
+- Campo legado/canônico atual: `featured_image`
+- Campo de contrato 2026: `hero_image_url`
+- Regra de alinhamento: ambos devem permanecer sincronizados para evitar regressão de telas antigas.
 
 ## Conventions
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Style Brief"
+  short_description: "Extract winning style patterns from top posts."
+  default_prompt: "Derive a reusable style brief from successful carousels."

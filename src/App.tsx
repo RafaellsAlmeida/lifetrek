@@ -46,6 +46,7 @@ const AdminBlog = lazy(() => import("./pages/Admin/AdminBlog"));
 const ContentOrchestrator = lazy(() => import("./pages/Admin/ContentOrchestrator"));
 const VideoStudio = lazy(() => import("./pages/Admin/VideoStudio"));
 const UnifiedAnalytics = lazy(() => import("./pages/Admin/UnifiedAnalytics"));
+const AdminResources = lazy(() => import("./pages/Admin/AdminResources"));
 // const UnifiedInbox = lazy(() => import("./pages/UnifiedInbox")); // Paused while Unipile is disabled
 const OnePager = lazy(() => import("./pages/OnePager"));
 const ContentManager = lazy(() => import("./pages/Admin/ContentManager"));
@@ -135,6 +136,7 @@ const App = () => (
                     <Route path="video-studio" element={<VideoStudio />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="analytics" element={<UnifiedAnalytics />} />
+                    <Route path="resources" element={<AdminResources />} />
                     {/* Inbox route paused while Unipile is disabled */}
                     <Route path="inbox" element={<Navigate to="/admin/chatbot-inbox" replace />} />
                     <Route path="one-pager" element={<OnePager />} />

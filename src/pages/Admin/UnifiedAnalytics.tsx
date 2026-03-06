@@ -11,6 +11,7 @@ import { ConnectionGrowthChart } from "@/components/admin/analytics/ConnectionGr
 import { LeadBehaviorStats } from "@/components/admin/analytics/LeadBehaviorStats";
 import { PostPerformanceTable } from "@/components/admin/analytics/PostPerformanceTable";
 import { MonthlyMarketingReport } from "@/components/admin/analytics/MonthlyMarketingReport";
+import { LinkedInCsvUploadPanel } from "@/components/admin/analytics/LinkedInCsvUploadPanel";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCcw, Globe, Linkedin, Link2, Users, CalendarRange } from "lucide-react";
@@ -59,6 +60,8 @@ export default function UnifiedAnalytics() {
       </div>
 
       {/* Tabs for different views */}
+      <LinkedInCsvUploadPanel />
+
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-muted/50">
           <TabsTrigger value="overview" className="gap-2">

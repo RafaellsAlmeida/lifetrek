@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Ranker"
+  short_description: "Rank multiple carousel variations and pick winner."
+  default_prompt: "Rank LinkedIn carousel variations and choose best one."

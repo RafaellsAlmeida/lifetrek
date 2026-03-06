@@ -1,5 +1,5 @@
 // supabase/functions/chat/index.ts
-// Chat Agent using OpenRouter
+// Chat Agent using OpenRouter + Orchestrator intent extraction mode
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -9,6 +9,65 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
+
+function extractJsonObject(text: string): Record<string, unknown> | null {
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch {
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+        if (start >= 0 && end > start) {
+            try {
+                return JSON.parse(text.slice(start, end + 1));
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    }
+}
+
+function normalizeIntent(raw: Record<string, unknown> | null) {
+    const topic = typeof raw?.topic === "string" ? raw.topic.trim() : "";
+    const targetAudience = typeof raw?.targetAudience === "string" ? raw.targetAudience.trim() : "";
+    const platform = raw?.platform === "instagram" ? "instagram" : "linkedin";
+    const painPoint = typeof raw?.painPoint === "string" ? raw.painPoint.trim() : "";
+    const desiredOutcome = typeof raw?.desiredOutcome === "string" ? raw.desiredOutcome.trim() : "";
+    const ctaAction = typeof raw?.ctaAction === "string" ? raw.ctaAction.trim() : "";
+    const proofPoints = Array.isArray(raw?.proofPoints)
+        ? raw?.proofPoints.filter((v): v is string => typeof v === "string" && v.trim().length > 0).map((v) => v.trim())
+        : [];
+
+    const missingFields: string[] = [];
+    if (!topic) missingFields.push("topic");
+    if (!targetAudience) missingFields.push("targetAudience");
+
+    const generatedQuestion = missingFields.length > 0
+        ? `Para gerar com qualidade, faltam: ${missingFields.join(", ")}. Pode me dizer esses campos em uma frase?`
+        : "";
+    const clarificationQuestion = typeof raw?.clarificationQuestion === "string" && raw.clarificationQuestion.trim().length > 0
+        ? raw.clarificationQuestion
+        : generatedQuestion;
+    const confidence = typeof raw?.confidence === "number"
+        ? Math.max(0, Math.min(1, raw.confidence))
+        : (missingFields.length > 0 ? 0.45 : 0.85);
+
+    return {
+        parameters: {
+            topic,
+            targetAudience,
+            platform,
+            painPoint: painPoint || undefined,
+            desiredOutcome: desiredOutcome || undefined,
+            ctaAction: ctaAction || undefined,
+            proofPoints,
+        },
+        missingFields,
+        clarificationQuestion,
+        confidence,
+    };
+}
 
 serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -31,14 +90,14 @@ serve(async (req) => {
         // --- AUTH CHECK ---
         const authHeader = req.headers.get("Authorization");
         let user: { id: string; email?: string } | null = null;
-        
+
         if (authHeader) {
             const { data, error } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
             if (!error && data?.user) {
                 user = { id: data.user.id, email: data.user.email };
             }
         }
-        
+
         // STRICT AUTH: Orchestrator is for internal use only.
         if (!user) {
             console.warn("🚫 Unauthorized access attempt to Orchestrator.");
@@ -48,9 +107,70 @@ serve(async (req) => {
             );
         }
 
+        if (mode === "orchestrator_intent") {
+            const systemPrompt = `Você extrai parâmetros estruturados para geração de carrossel da Lifetrek.
+Retorne APENAS JSON válido com este shape:
+{
+  "topic": "string",
+  "targetAudience": "string",
+  "platform": "linkedin|instagram",
+  "painPoint": "string",
+  "desiredOutcome": "string",
+  "ctaAction": "string",
+  "proofPoints": ["string"],
+  "clarificationQuestion": "string",
+  "confidence": 0.0
+}
+
+Regras:
+- Idioma PT-BR.
+- Se um campo estiver ausente, deixe string vazia e use clarificationQuestion para pedir só o que falta.
+- platform padrão deve ser "linkedin" se não estiver claro.
+- Não inclua markdown. JSON puro.`;
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${openRouterKey}`,
+                    "HTTP-Referer": "https://lifetrek.app",
+                    "X-Title": "Lifetrek App"
+                },
+                body: JSON.stringify({
+                    model: "google/gemini-2.0-flash-001",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        ...messages.map((msg: { role: string; content: string }) => ({
+                            role: msg.role,
+                            content: msg.content
+                        }))
+                    ],
+                    temperature: 0.2
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`OpenRouter API error: ${errorText}`);
+            }
+
+            const data = await response.json();
+            const rawText = data.choices?.[0]?.message?.content || "{}";
+            const parsed = extractJsonObject(rawText);
+            const intent = normalizeIntent(parsed);
+
+            return new Response(
+                JSON.stringify({
+                    success: true,
+                    intent
+                }),
+                { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
+
         const systemPrompt = mode === "orchestrator"
             ? `Você é o Orquestrador de Conteúdo da Lifetrek Medical.
-Seu objetivo é ajudar o time interno a planejar conteúdo de LinkedIn (carrosséis), trazendo ângulos estratégicos, ganchos fortes e estrutura clara.
+Seu objetivo é ajudar o time interno a planejar conteúdo de LinkedIn/Instagram (carrosséis), trazendo ângulos estratégicos, ganchos fortes e estrutura clara.
 
 DIRETRIZES:
 1. Tom profissional, técnico e colaborativo ("vamos", "juntos", "parceria").

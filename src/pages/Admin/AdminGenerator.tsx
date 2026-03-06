@@ -37,6 +37,7 @@ export default function AdminGenerator() {
     try {
       const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
         body: {
+          platform: "linkedin",
           topic: post.topic,
           targetAudience: post.targetAudience,
           painPoint: post.painPoint,

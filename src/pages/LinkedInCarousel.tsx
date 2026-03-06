@@ -391,6 +391,7 @@ export default function LinkedInCarousel() {
     try {
       const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
         body: {
+            platform: "linkedin",
             topic,
             targetAudience,
             painPoint,
@@ -422,6 +423,7 @@ export default function LinkedInCarousel() {
        // Use the plan's specific topic/angle
        const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
         body: {
+            platform: "linkedin",
             topic: selectedPlan.topic, // The specific angle from strategist
             targetAudience: selectedPlan.targetAudience,
             painPoint, // Keep original context
@@ -486,6 +488,7 @@ export default function LinkedInCarousel() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
+          platform: "linkedin",
           topic,
           targetAudience,
           painPoint,
@@ -667,6 +670,7 @@ export default function LinkedInCarousel() {
       try {
         const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
           body: {
+            platform: "linkedin",
             ...campaignTopic.input,
             numberOfCarousels: 1, // Full automation: 1 high quality variation
             mode: "generate",
@@ -842,6 +846,7 @@ export default function LinkedInCarousel() {
         
         const { data, error } = await supabase.functions.invoke("generate-linkedin-carousel", {
             body: {
+                platform: "linkedin",
                 mode: "image_only",
                 headline: slide.headline,
                 body: slide.body,

@@ -98,6 +98,77 @@ Response:
 }
 ```
 
+## Endpoints de Analytics (CSV)
+
+### 3) `POST /functions/v1/ingest-linkedin-analytics`
+
+Validação e ingestão de CSV do LinkedIn para tabela normalizada `linkedin_analytics`.
+
+Request (validate):
+
+```json
+{
+  "mode": "validate",
+  "file_name": "linkedin-mar-2026.csv",
+  "csv_text": "post date,post url,impressions,..."
+}
+```
+
+Request (ingest):
+
+```json
+{
+  "mode": "ingest",
+  "conflict_policy": "skip",
+  "file_name": "linkedin-mar-2026.csv",
+  "csv_text": "post date,post url,impressions,..."
+}
+```
+
+`conflict_policy`:
+- `skip` (recomendado): mantém linhas existentes e ignora hashes já importados.
+- `overwrite_period`: remove linhas do período detectado e reinsere o arquivo atual.
+
+Response (resumo):
+
+```json
+{
+  "success": true,
+  "rows_total": 120,
+  "accepted_count": 118,
+  "rejected_count": 2,
+  "inserted_count": 110,
+  "skipped_duplicate_hash_count": 8,
+  "periods_detected": ["2026-03"]
+}
+```
+
+## Endpoints de Blog Hero Backfill
+
+### 4) `POST /functions/v1/generate-blog-images`
+
+Geração em lote de hero para posts sem imagem (`featured_image`/`hero_image_url`).
+
+Request:
+
+```json
+{
+  "limit": 20,
+  "dry_run": false
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "processed_count": 12,
+  "updated_count": 10,
+  "failed_count": 2
+}
+```
+
 ## Contrato Semântico de Seleção de Assets
 
 ### RPC: `match_asset_candidates(...)`

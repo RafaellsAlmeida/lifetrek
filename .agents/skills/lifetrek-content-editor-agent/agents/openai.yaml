@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek Content Editor"
+  short_description: "Revise blog/resource/social drafts with human-edit quality checks."
+  default_prompt: "Edit this draft for clarity and claim safety."

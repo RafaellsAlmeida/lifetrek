@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek Content Ideation"
+  short_description: "Generate structured cross-platform ideas in PT-BR."
+  default_prompt: "Generate 6 idea candidates with ICP pain points and CTA."

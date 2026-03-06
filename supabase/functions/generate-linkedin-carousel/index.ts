@@ -22,6 +22,11 @@ const MODEL_VERSIONS = {
     reviewer: "gemini-2.0-flash"
 };
 
+function normalizePlatform(input: unknown): "linkedin" | "instagram" {
+    if (input === "instagram") return "instagram";
+    return "linkedin";
+}
+
 function normalizeProofPoints(input: unknown): string[] {
     if (Array.isArray(input)) return input.filter(Boolean) as string[];
     if (typeof input === "string") {
@@ -33,6 +38,7 @@ function normalizeProofPoints(input: unknown): string[] {
 function buildParams(inputData: any): CarouselParams {
     return {
         topic: inputData.topic,
+        platform: normalizePlatform(inputData.platform),
         targetAudience: inputData.targetAudience || "Decision Makers",
         painPoint: inputData.painPoint,
         desiredOutcome: inputData.desiredOutcome,
@@ -59,6 +65,7 @@ function toCarouselPayload(params: CarouselParams, copy: any, images: any[] = []
 
     return {
         topic: copy.topic || params.topic,
+        platform: params.platform || "linkedin",
         targetAudience: params.targetAudience,
         slides: slidesWithImages,
         caption: copy.caption || "",
@@ -66,15 +73,56 @@ function toCarouselPayload(params: CarouselParams, copy: any, images: any[] = []
     };
 }
 
+function extractHashtags(text: string): string[] {
+    if (!text) return [];
+    const matches = text.match(/#[\p{L}\p{N}_]+/gu) || [];
+    return Array.from(new Set(matches)).slice(0, 12);
+}
+
+async function persistContentIdea(
+    supabase: ReturnType<typeof createClient>,
+    params: CarouselParams,
+    strategy: any
+) {
+    try {
+        const payload = {
+            topic: params.topic,
+            icp_segment: params.targetAudience || "general",
+            platform: params.platform || "linkedin",
+            objective: params.ctaAction || null,
+            pain_point: params.painPoint || null,
+            desired_outcome: params.desiredOutcome || null,
+            source_references: [],
+            strategy,
+            metadata: {
+                profile_type: params.profileType || "company",
+                format: params.format || "carousel",
+                research_level: params.researchLevel || "light",
+            },
+        };
+
+        const { error } = await supabase.from("content_ideas").insert(payload);
+        if (error) {
+            console.warn("[generate-linkedin-carousel] content_ideas insert warning:", error.message);
+        }
+    } catch (error) {
+        console.warn("[generate-linkedin-carousel] content_ideas persistence warning:", error);
+    }
+}
+
 async function generateCarouselOnce(
     params: CarouselParams,
     supabase: ReturnType<typeof createClient>,
-    send?: (event: string, data: Record<string, unknown>) => void
+    send?: (event: string, data: Record<string, unknown>) => void,
+    persistIdea: boolean = true
 ) {
     const strategyStart = Date.now();
     send?.("step", { step: "strategist", status: "in_progress", message: "Definindo estratégia..." });
 
     const strategy = await strategistAgent(params, supabase);
+    if (persistIdea) {
+        await persistContentIdea(supabase, params, strategy);
+    }
     send?.("strategist_result", { fullOutput: strategy });
     send?.("step", { step: "strategist", status: "completed", message: "Estratégia pronta" });
 
@@ -97,7 +145,7 @@ async function generateCarouselOnce(
 
     const reviewStart = Date.now();
     send?.("step", { step: "analyst", status: "in_progress", message: "Revisando alinhamento de marca..." });
-    const review = await brandAnalystAgent(copy, images);
+    const review = await brandAnalystAgent(copy, images, params.platform || "linkedin");
     send?.("analyst_result", { fullOutput: review });
     send?.("step", { step: "analyst", status: "completed", message: "Revisão concluída" });
 
@@ -106,24 +154,50 @@ async function generateCarouselOnce(
         imageUrl: images[idx]?.image_url || slide.imageUrl || ""
     }));
 
+    const platform = params.platform || "linkedin";
+    const imageUrls = images.map((img: any) => img.image_url).filter(Boolean);
+    const status = review.overall_score >= 70 ? "pending_approval" : "draft";
+
+    const tableName = platform === "instagram" ? "instagram_posts" : "linkedin_carousels";
+    const basePayload = {
+        topic: params.topic,
+        status,
+        slides: slidesWithImages,
+        image_urls: imageUrls,
+        caption: copy.caption,
+        quality_score: review.overall_score,
+        generation_metadata: {
+            review,
+            strategy,
+            params
+        }
+    };
+
+    const payload = platform === "instagram"
+        ? {
+            ...basePayload,
+            image_url: imageUrls[0] || null,
+            hashtags: extractHashtags(copy.caption || ""),
+            post_type: params.format === "single-image" ? "feed" : "carousel",
+            target_audience: params.targetAudience || null,
+            pain_point: params.painPoint || null,
+            desired_outcome: params.desiredOutcome || null,
+        }
+        : {
+            ...basePayload,
+            target_audience: params.targetAudience || null,
+            pain_point: params.painPoint || null,
+            desired_outcome: params.desiredOutcome || null,
+            proof_points: (params.proofPoints || []).join("; "),
+            cta_action: params.ctaAction || null,
+        };
+
     const { error: dbError } = await supabase
-        .from("linkedin_carousels")
-        .insert({
-            topic: params.topic,
-            status: review.overall_score >= 70 ? "pending_approval" : "draft",
-            slides: slidesWithImages,
-            image_urls: images.map((img: any) => img.image_url),
-            caption: copy.caption,
-            quality_score: review.overall_score,
-            generation_metadata: {
-                review,
-                strategy,
-                params
-            }
-        });
+        .from(tableName as any)
+        .insert(payload as any);
 
     if (dbError) {
-        console.error("Error saving carousel:", dbError);
+        console.error(`Error saving ${platform} carousel:`, dbError);
     }
 
     const result: CarouselResult = {
@@ -138,7 +212,7 @@ async function generateCarouselOnce(
             design_time_ms: Date.now() - designStart,
             review_time_ms: Date.now() - reviewStart,
             assets_used_count: images.filter((i: any) => i.asset_source === "real").length,
-            assets_generated_count: images.filter((i: any) => i.asset_source === "ai-generated").length,
+            assets_generated_count: images.filter((i: any) => i.asset_source === "ai-generated" || i.asset_source === "ai").length,
             regeneration_count: 0,
             model_versions: MODEL_VERSIONS
         }
@@ -186,6 +260,7 @@ serve(async (req) => {
 
         const params = buildParams(inputData);
         const numberOfCarousels = Math.max(1, Number(inputData.numberOfCarousels || 1));
+        const persistIdea = inputData?.persistIdea !== false;
 
         if (stream) {
             const encoder = new TextEncoder();
@@ -219,7 +294,7 @@ serve(async (req) => {
                                     topic: strategies[i]?.topic || params.topic
                                 };
 
-                                const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase, send);
+                                const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase, send, persistIdea);
                                 carousels.push({
                                     ...toCarouselPayload(variantParams, result.carousel, result.images),
                                     slides: slidesWithImages
@@ -265,7 +340,7 @@ serve(async (req) => {
                 ...params,
                 topic: strategies[i]?.topic || params.topic
             };
-            const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase);
+            const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase, undefined, persistIdea);
             carousels.push({
                 ...toCarouselPayload(variantParams, result.carousel, result.images),
                 slides: slidesWithImages

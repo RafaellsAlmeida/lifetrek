@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Copywriter"
+  short_description: "Write carousel slides and caption in PT-BR."
+  default_prompt: "Generate LinkedIn carousel copy in PT-BR for Lifetrek."

@@ -143,14 +143,27 @@ export function ContentItemCard({
 
                     {!isApprovedView && (
                         <>
-                            {(item.type === 'linkedin' || item.type === 'instagram') && onEdit && (
+                            {onEdit && (item.type === 'linkedin' || item.type === 'instagram' || item.type === 'blog' || item.type === 'resource') && (
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => onEdit(item)}
-                                    className="h-8 gap-2 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50 border-purple-200"
+                                    className={`h-8 gap-2 text-xs ${
+                                        item.type === 'linkedin' || item.type === 'instagram'
+                                            ? 'text-purple-600 hover:text-purple-700 hover:bg-purple-50 border-purple-200'
+                                            : item.type === 'resource'
+                                                ? 'text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-amber-200'
+                                                : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200'
+                                    }`}
                                 >
-                                    <ImageIcon className="h-3.5 w-3.5" /> Design
+                                    {item.type === 'linkedin' || item.type === 'instagram' ? (
+                                        <ImageIcon className="h-3.5 w-3.5" />
+                                    ) : item.type === 'resource' ? (
+                                        <BookOpen className="h-3.5 w-3.5" />
+                                    ) : (
+                                        <FileText className="h-3.5 w-3.5" />
+                                    )}
+                                    {item.type === 'linkedin' || item.type === 'instagram' ? 'Design' : 'Editar'}
                                 </Button>
                             )}
 

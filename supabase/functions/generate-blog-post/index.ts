@@ -462,6 +462,7 @@ ${sourceContext}
 
     // 4. IMAGE GENERATION (Optional, non-blocking)
     let imageUrl = "";
+    let imageError: string | null = null;
     if (!skipImage) {
       console.log("🎨 [Phase 4] Attempting image generation (optional)...");
       const imgStart = Date.now();
@@ -532,8 +533,12 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
         if (imgData) {
           imageUrl = imgData.data?.[0]?.url || "";
         }
+        if (!imageUrl) {
+          imageError = "Image provider returned no URL";
+        }
         console.log(`✅ [Phase 4] Image ${imageUrl ? 'generated' : 'skipped'} in ${Date.now() - imgStart}ms`);
       } catch (e) {
+        imageError = e instanceof Error ? e.message : "Image generation failed";
         console.warn("⚠️ Image generation failed/timed out, continuing without image");
       }
     }
@@ -557,6 +562,9 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
       tags: safeKeywords,
       slug,
       featured_image: imageUrl,
+      hero_image_url: imageUrl,
+      image_generation_status: imageUrl ? "generated" : "failed",
+      image_generation_error: imageError,
       strategy_brief: strategy,
       sources: mergedSources,
       rag_metrics: ragMetrics
@@ -592,6 +600,7 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
           content: result.content,
           excerpt: result.excerpt,
           featured_image: result.featured_image,
+          hero_image_url: result.hero_image_url,
           category_id: body.category_id,
           status: 'pending_review',
           slug: result.slug,
@@ -605,7 +614,10 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
             keywords: result.keywords || [],
             tags: result.tags || [],
             sources: result.sources || [],
-            rag_metrics: ragMetrics
+            rag_metrics: ragMetrics,
+            hero_image_url: result.hero_image_url,
+            image_generation_status: result.image_generation_status,
+            image_generation_error: result.image_generation_error
           }
         };
 

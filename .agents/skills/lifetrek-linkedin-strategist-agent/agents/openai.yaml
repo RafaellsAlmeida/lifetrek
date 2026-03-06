@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Strategist"
+  short_description: "Define carousel strategy and narrative arc."
+  default_prompt: "Create LinkedIn carousel strategy from a topic for Lifetrek."

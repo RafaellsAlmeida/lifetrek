@@ -251,7 +251,19 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const handleEdit = (item: any) => {
         const navigationQuery = getNavigationQuery();
-        navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0&returnTo=/admin/content-approval&stateKey=${encodeURIComponent(navigationQuery)}`);
+        const encodedState = encodeURIComponent(navigationQuery);
+
+        if (item.type === "blog") {
+            navigate(`/admin/blog?edit=${item.id}&returnTo=/admin/content-approval&stateKey=${encodedState}`);
+            return;
+        }
+
+        if (item.type === "resource") {
+            navigate(`/admin/resources?edit=${item.id}&returnTo=/admin/content-approval&stateKey=${encodedState}`);
+            return;
+        }
+
+        navigate(`/admin/social?tab=design&id=${item.id}&type=${item.type}&slide=0&returnTo=/admin/content-approval&stateKey=${encodedState}`);
     };
 
     const requestApproval = (item: any) => {
@@ -1279,7 +1291,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={requestApproval} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} navigationQuery={getNavigationQuery()} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
+                            {blogItems.map((item) => <ContentItemCard key={item.id} item={item} onPreview={handlePreview} onApprove={requestApproval} onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }} onEdit={handleEdit} navigationQuery={getNavigationQuery()} isSelected={selectedIds.includes(item.id)} onSelect={toggleSelect} />)}
                         </div>
                     )}
                 </TabsContent>
@@ -1418,6 +1430,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onPreview={handlePreview}
                                     onApprove={requestApproval}
                                     onReject={(item) => { setSelectedItem(item); setRejectDialogOpen(true); }}
+                                    onEdit={handleEdit}
                                     navigationQuery={getNavigationQuery()}
                                     isSelected={selectedIds.includes(item.id)}
                                     onSelect={toggleSelect}

@@ -3,6 +3,7 @@
 
 export interface CarouselParams {
   topic: string;
+  platform?: 'linkedin' | 'instagram';
   targetAudience: string;
   painPoint?: string;
   desiredOutcome?: string;
@@ -40,7 +41,7 @@ export interface CarouselCopy {
 export interface GeneratedImage {
   slide_index: number;
   image_url: string;
-  asset_source: 'real' | 'ai-generated' | 'text-only' | 'placeholder' | 'hybrid-generated';
+  asset_source: 'real' | 'ai-generated' | 'ai' | 'text-only' | 'placeholder' | 'hybrid-generated';
   asset_url?: string; // Original asset URL if real
 }
 

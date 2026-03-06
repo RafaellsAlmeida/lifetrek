@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Designer"
+  short_description: "Define visual direction for each carousel slide."
+  default_prompt: "Create visual direction for LinkedIn carousel slides."

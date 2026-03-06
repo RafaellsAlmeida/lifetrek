@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,25 +22,33 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
     Plus,
     FileText,
-    Calendar,
     Search,
     Edit,
     Trash2,
     ExternalLink,
     Sparkles,
-    RefreshCw,
-    Loader2
+    Loader2,
+    ArrowLeft,
 } from "lucide-react";
 import {
     useBlogPosts,
     useCreateBlogPost,
     useDeleteBlogPost,
     usePublishBlogPost,
-    useBlogCategories
+    useBlogCategories,
+    useUpdateBlogPost,
 } from "@/hooks/useBlogPosts";
 import {
     dispatchBlogPostJob,
@@ -49,8 +57,7 @@ import {
 import { BLOG_TOPICS, BlogTopic } from "@/config/blogTopics";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { supabase } from "@/integrations/supabase/client";
-import { BlogIcpCode } from "@/types/blog";
+import { BlogIcpCode, BlogPost } from "@/types/blog";
 
 const ICP_LABELS: Record<BlogIcpCode, string> = {
     MI: "Implantes/Instrumentos",
@@ -68,27 +75,164 @@ const getIcpPrimary = (post: any): BlogIcpCode | null => {
     return null;
 };
 
+interface BlogEditorState {
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    status: BlogPost["status"];
+    seo_title: string;
+    seo_description: string;
+    keywords_csv: string;
+    tags_csv: string;
+    category_id: string;
+}
+
+const initialEditorState: BlogEditorState = {
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    status: "draft",
+    seo_title: "",
+    seo_description: "",
+    keywords_csv: "",
+    tags_csv: "",
+    category_id: "",
+};
+
+function generateSlug(input: string) {
+    return input
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+}
+
+function splitCsv(value: string) {
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
+
 export default function AdminBlog() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState("posts");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedIcp, setSelectedIcp] = useState<"all" | BlogIcpCode>("all");
     const [selectedTopic, setSelectedTopic] = useState<BlogTopic | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [editingPostId, setEditingPostId] = useState<string | null>(null);
+    const [editor, setEditor] = useState<BlogEditorState>(initialEditorState);
+
     const { data: posts, isLoading } = useBlogPosts(false);
-    const { data: categories } = useBlogCategories(activeTab === "strategy");
+    const { data: categories } = useBlogCategories();
     const createPost = useCreateBlogPost();
+    const updatePost = useUpdateBlogPost();
     const deletePost = useDeleteBlogPost();
     const publishPost = usePublishBlogPost();
 
+    const isSavingEditor = createPost.isPending || updatePost.isPending;
+
+    const returnTo = searchParams.get("returnTo");
+    const stateKey = searchParams.get("stateKey");
+
+    useEffect(() => {
+        const editId = searchParams.get("edit");
+        if (!editId || !posts?.length) return;
+
+        const post = posts.find((item) => item.id === editId);
+        if (!post) return;
+
+        openEditor(post as BlogPost);
+
+        const next = new URLSearchParams(searchParams);
+        next.delete("edit");
+        setSearchParams(next, { replace: true });
+    }, [searchParams, posts]);
+
+    const openEditor = (post?: BlogPost) => {
+        if (post) {
+            setEditingPostId(post.id);
+            setEditor({
+                title: post.title || "",
+                slug: post.slug || "",
+                excerpt: post.excerpt || "",
+                content: post.content || "",
+                status: post.status || "draft",
+                seo_title: post.seo_title || "",
+                seo_description: post.seo_description || "",
+                keywords_csv: (post.keywords || []).join(", "),
+                tags_csv: (post.tags || []).join(", "),
+                category_id: post.category_id || "",
+            });
+        } else {
+            setEditingPostId(null);
+            setEditor(initialEditorState);
+        }
+        setEditorOpen(true);
+    };
+
+    const handleEditorTitleChange = (value: string) => {
+        setEditor((prev) => ({
+            ...prev,
+            title: value,
+            slug: prev.slug ? prev.slug : generateSlug(value),
+        }));
+    };
+
+    const handleSaveEditor = async () => {
+        if (!editor.title.trim() || !editor.content.trim()) {
+            toast.error("Título e conteúdo são obrigatórios.");
+            return;
+        }
+
+        const payload = {
+            title: editor.title.trim(),
+            slug: editor.slug.trim() || generateSlug(editor.title),
+            excerpt: editor.excerpt.trim() || null,
+            content: editor.content,
+            status: editor.status,
+            seo_title: editor.seo_title.trim() || null,
+            seo_description: editor.seo_description.trim() || null,
+            keywords: splitCsv(editor.keywords_csv),
+            tags: splitCsv(editor.tags_csv),
+            category_id: editor.category_id || null,
+        } as any;
+
+        try {
+            if (editingPostId) {
+                await updatePost.mutateAsync({ id: editingPostId, ...payload });
+            } else {
+                await createPost.mutateAsync(payload);
+            }
+            setEditorOpen(false);
+            setEditingPostId(null);
+            setEditor(initialEditorState);
+        } catch (error) {
+            console.error("Error saving blog post:", error);
+        }
+    };
+
+    const handleReturnToApproval = () => {
+        const target = returnTo || "/admin/content-approval";
+        navigate(stateKey ? `${target}?${stateKey}` : target);
+    };
+
     const handleGeneratePost = async (topic: BlogTopic) => {
         setIsGenerating(true);
+        setSelectedTopic(topic);
         try {
             toast.info(`Iniciando agente de blog para: ${topic.topic}`);
 
             const jobId = await dispatchBlogPostJob(topic.topic, topic.keywords, topic.category);
 
-            // Poll for completion
             const pollInterval = setInterval(async () => {
                 try {
                     const job = await getJobStatus(jobId);
@@ -96,22 +240,12 @@ export default function AdminBlog() {
                         clearInterval(pollInterval);
                         setIsGenerating(false);
                         setSelectedTopic(null);
-
-                        // Invalidate queries to show new post
-                        // The backend agent should have inserted the post into blog_posts table
-                        // But we might need to handle the result if it returns content to be saved by frontend?
-                        // Wait, generate-blog-post usually creates the draft directly in DB.
-                        // Let's assume the agent creates the post.
-                        // We just need to refresh the list.
-                        // Actually, looking at `generate-blog-post` older implementation, it returned data.
-                        // If the AGENT creates the post, we just need to refresh.
-                        // I will assume the agent handles DB insertion.
-
                         toast.success("Artigo gerado e salvo como rascunho!");
                         setActiveTab("posts");
                     } else if (job.status === 'failed') {
                         clearInterval(pollInterval);
                         setIsGenerating(false);
+                        setSelectedTopic(null);
                         toast.error("Erro na geração: " + (job.error || "Desconhecido"));
                     }
                 } catch (e) {
@@ -123,6 +257,7 @@ export default function AdminBlog() {
             console.error("Error generating post:", error);
             toast.error("Erro ao iniciar geração.");
             setIsGenerating(false);
+            setSelectedTopic(null);
         }
     };
 
@@ -156,10 +291,18 @@ export default function AdminBlog() {
                     <h1 className="text-3xl font-bold tracking-tight">Blog & SEO</h1>
                     <p className="text-muted-foreground">Gerencie artigos, categorias e estratégia de conteúdo SEO.</p>
                 </div>
-                <Button onClick={() => setActiveTab("new")}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Artigo
-                </Button>
+                <div className="flex items-center gap-2">
+                    {returnTo && (
+                        <Button variant="outline" onClick={handleReturnToApproval}>
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Voltar para Aprovação
+                        </Button>
+                    )}
+                    <Button onClick={() => openEditor()}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Novo Artigo
+                    </Button>
+                </div>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -167,7 +310,6 @@ export default function AdminBlog() {
                     <TabsTrigger value="posts">Gerenciar Posts</TabsTrigger>
                     <TabsTrigger value="strategy">Estratégia & Tópicos</TabsTrigger>
                     <TabsTrigger value="categories">Categorias</TabsTrigger>
-                    <TabsTrigger value="new" className="hidden">Editor</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="posts">
@@ -237,7 +379,7 @@ export default function AdminBlog() {
                                                 <TableCell>{format(new Date(post.created_at), "dd/MM/yyyy", { locale: ptBR })}</TableCell>
                                                 <TableCell>-</TableCell>
                                                 <TableCell className="text-right space-x-2">
-                                                    <Button variant="ghost" size="icon">
+                                                    <Button variant="ghost" size="icon" onClick={() => openEditor(post as BlogPost)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
                                                     {post.status !== 'published' && (
@@ -345,6 +487,108 @@ export default function AdminBlog() {
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{editingPostId ? "Editar Artigo" : "Novo Artigo"}</DialogTitle>
+                        <DialogDescription>
+                            Edição humana de blog posts para revisão/aprovação.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="blog-title">Título</Label>
+                            <Input id="blog-title" value={editor.title} onChange={(e) => handleEditorTitleChange(e.target.value)} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-slug">Slug</Label>
+                            <Input
+                                id="blog-slug"
+                                value={editor.slug}
+                                onChange={(e) => setEditor((prev) => ({ ...prev, slug: generateSlug(e.target.value) }))}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Status</Label>
+                            <Select value={editor.status} onValueChange={(value: BlogPost["status"]) => setEditor((prev) => ({ ...prev, status: value }))}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="draft">Rascunho</SelectItem>
+                                    <SelectItem value="pending_review">Pendente revisão</SelectItem>
+                                    <SelectItem value="approved">Aprovado</SelectItem>
+                                    <SelectItem value="scheduled">Agendado</SelectItem>
+                                    <SelectItem value="published">Publicado</SelectItem>
+                                    <SelectItem value="rejected">Rejeitado</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Categoria</Label>
+                            <Select value={editor.category_id || "none"} onValueChange={(value) => setEditor((prev) => ({ ...prev, category_id: value === "none" ? "" : value }))}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Sem categoria" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Sem categoria</SelectItem>
+                                    {(categories || []).map((category) => (
+                                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-excerpt">Resumo</Label>
+                            <Textarea id="blog-excerpt" rows={3} value={editor.excerpt} onChange={(e) => setEditor((prev) => ({ ...prev, excerpt: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-seo-title">SEO Title</Label>
+                            <Input id="blog-seo-title" value={editor.seo_title} onChange={(e) => setEditor((prev) => ({ ...prev, seo_title: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-seo-description">SEO Description</Label>
+                            <Textarea id="blog-seo-description" rows={3} value={editor.seo_description} onChange={(e) => setEditor((prev) => ({ ...prev, seo_description: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-keywords">Keywords (CSV)</Label>
+                            <Input id="blog-keywords" value={editor.keywords_csv} onChange={(e) => setEditor((prev) => ({ ...prev, keywords_csv: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-tags">Tags (CSV)</Label>
+                            <Input id="blog-tags" value={editor.tags_csv} onChange={(e) => setEditor((prev) => ({ ...prev, tags_csv: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="blog-content">Conteúdo</Label>
+                            <Textarea
+                                id="blog-content"
+                                rows={16}
+                                value={editor.content}
+                                onChange={(e) => setEditor((prev) => ({ ...prev, content: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditorOpen(false)} disabled={isSavingEditor}>Cancelar</Button>
+                        <Button onClick={handleSaveEditor} disabled={isSavingEditor}>
+                            {isSavingEditor ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                            {editingPostId ? "Salvar alterações" : "Criar artigo"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -1,7 +1,11 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5]
+stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
+lastStep: 8
+status: 'complete'
+completedAt: '2026-03-05'
 inputDocuments:
   - _bmad-output/project-context.md
+  - _bmad-output/planning-artifacts/prd.md
   - docs/product/LIFETREK_PRD.md
   - docs/content-engine-guide.md
   - docs/data-models.md
@@ -221,7 +225,282 @@ Event-driven only — no polling, no background workers.
 - Blog approval in Content Approval page depends on `blog_posts` status field alignment
 - All new AI calls depend on `_shared/cost-tracker` pattern
 
+### PRD-to-Architecture Trace Mapping (Delta 2026-03-05)
+
+This section aligns the rebuilt PRD in `_bmad-output/planning-artifacts/prd.md` with architectural implementation surfaces while preserving previously validated architectural decisions.
+
+| PRD Requirement Cluster | Architecture Decision Surface | Primary Artifacts |
+|---|---|---|
+| FR-001/FR-002 Ideation + persistence | Add normalized `content_ideas`; keep ideation path in content pipeline | Data Architecture, API & Communication Patterns |
+| FR-003/FR-004 Orchestrator entry parity | Maintain form entry; route chat intent to existing generation contracts | Frontend Architecture (`/admin/orchestrator`), API & Communication Patterns (`chat`) |
+| FR-005/FR-006 Social generation contracts | Shared generation pipeline with explicit `platform` parameter | API & Communication Patterns (`generate-linkedin-carousel`) |
+| FR-007/FR-008/FR-010 Blog generation lifecycle | Hero image at create + batch backfill support | API & Communication Patterns (`generate-blog-post`, `generate-blog-images`) |
+| FR-009/FR-014 Approval consistency | Status-driven publication and approval queue integration | Frontend Architecture (`/admin/content-approval`, `/admin/blog`) |
+| FR-011/FR-012/FR-013 Analytics loop | CSV ingestion to normalized `linkedin_analytics` and visibility paths | Data Architecture, Frontend Architecture (`/admin/analytics`), API & Communication Patterns (`ingest-linkedin-analytics`) |
+| FR-015 Append-only image variants | Non-destructive regeneration with active variant switching | Cross-Cutting Concerns, Smart Regen Architecture Update |
+| FR-016 Real asset first fallback policy | Semantic asset selection before AI fallback | Cross-Cutting Concerns, Smart Regen Architecture Update |
+| FR-017 Cost tracking coverage | Enforce `_shared/cost-tracker` on new AI calls | Cross-Cutting Concerns, Implementation Patterns |
+| FR-018 Access control and auditability | Admin-only writes with RLS and auditable operations | Authentication & Security |
+
+**No-Regression Guardrails from PRD:**
+- CRM, public website, and non-content admin modules remain out of feature-expansion scope.
+- Content Engine changes must pass cross-domain no-regression checks before release.
+
 ---
+
+## Implementation Patterns & Consistency Rules
+
+### Critical Conflict Points Identified
+7 areas where AI agents could make different choices without explicit rules.
+
+### Naming Patterns
+
+**Database Naming Conventions:**
+- Tables: snake_case plural — `content_ideas`, `linkedin_analytics` ✓
+- Columns: snake_case — `icp_segment`, `created_by`, `period_start` ✓
+- Foreign keys: `<table_singular>_id` — `post_id`, `user_id`
+- Indexes: `idx_<table>_<column>` — `idx_content_ideas_created_by`
+- NEVER: camelCase columns, singular table names, abbreviations (`usr`, `msg`)
+
+**Edge Function Naming:**
+- Directory: kebab-case — `generate-blog-images`, `ingest-linkedin-analytics`
+- Entry point: always `index.ts` inside the function directory
+- Shared utilities: `supabase/functions/_shared/<purpose>.ts` — only cross-function logic goes here
+- Function-local utilities: `supabase/functions/<fn-name>/utils/<name>.ts`
+- NEVER: snake_case function directories, logic in `_shared/` used by only one function
+
+**Frontend Naming:**
+- Component files: PascalCase — `ContentApprovalCore.tsx`, `ImageEditorCore.tsx`
+- Hook files: camelCase with `use` prefix — `useLinkedInPosts.ts`, `useContentIdeas.ts`
+- Utility files: camelCase — `formatDate.ts`, `parseCSV.ts`
+- Route components (pages): PascalCase — `Orchestrator.tsx`, `Analytics.tsx`
+- CSS/Tailwind: no custom CSS classes — Tailwind utilities only
+- NEVER: kebab-case component files, inline styles, `styled-components`
+
+**TypeScript Naming:**
+- Variables/functions: camelCase — `carouselParams`, `generateSlides()`
+- Types/Interfaces: PascalCase — `CarouselParams`, `SlideContent`
+- Constants: SCREAMING_SNAKE_CASE — `MAX_SLIDES`, `DEFAULT_PLATFORM`
+- Enums: PascalCase members — `Platform.LinkedIn`, `Platform.Instagram`
+- DB row types: use as-is from `integrations/supabase/types.ts` — never hand-write column names
+
+### Structure Patterns
+
+**Project Organization:**
+- All E2E/API tests: `playwright/tests/` — never co-located with source
+- React hooks: `src/hooks/` — all hooks, no exceptions
+- Reusable UI: `src/components/ui/` (shadcn) or `src/components/<domain>/`
+- Admin page components: `src/components/admin/<feature>/`
+- Page route components: `src/pages/Admin/<PageName>/` or `src/pages/<PageName>.tsx`
+
+**Edge Function Internal Structure:**
+```
+supabase/functions/<fn-name>/
+  index.ts          ← Deno serve entry, request routing only
+  handlers/         ← One file per operation (generate.ts, validate.ts)
+  utils/            ← Function-local helpers
+  types.ts          ← Local TypeScript types
+```
+
+**New React Query Hooks:**
+- One hook per entity, follow existing pattern in `src/hooks/useLinkedInPosts.ts`
+- Always include: `queryKey`, `queryFn`, `enabled` guard, typed return
+
+### Format Patterns
+
+**Edge Function Responses:**
+```typescript
+// SUCCESS
+return new Response(JSON.stringify({ data: result }), {
+  headers: { 'Content-Type': 'application/json' },
+  status: 200,
+})
+// ERROR
+return new Response(JSON.stringify({ error: message }), {
+  headers: { 'Content-Type': 'application/json' },
+  status: 400 | 500,
+})
+```
+- NEVER: raw unwrapped data, `{ success: true }` pattern
+
+**Dates:**
+- DB: `timestamptz` UTC; API transport: ISO 8601 string `"2026-03-05T14:30:00Z"`
+- UI display: `Intl.DateTimeFormat` with `pt-BR` locale
+- NEVER: Unix timestamps in API, `toLocaleString()` without locale
+
+**JSON Fields:** DB is snake_case; React state uses Supabase client as-is (snake_case). No manual mapping layers.
+
+### Communication Patterns
+
+**AI Model Calls — mandatory order:**
+```typescript
+const startTime = Date.now()
+const result = await callOpenRouter(model, prompt)  // may throw
+await trackCost({ model, tokens: result.usage, durationMs: Date.now() - startTime })
+// If cost tracker fails: log error, do NOT fail the main request
+```
+
+**Language Enforcement:**
+- All content generation system prompts must include: `"Respond ONLY in Brazilian Portuguese (PT-BR)."`
+- Applied at system prompt level, not per-message
+
+**Event-Driven (no polling):**
+- Use Supabase Realtime channels with `useEffect` cleanup
+- Channel names: `<table>-changes-<userId>` (user-scoped) or `<table>-changes` (global)
+- NEVER: `setInterval`, `setTimeout` loops, background workers
+
+### Process Patterns
+
+**Error Handling:**
+```typescript
+// Edge Function
+try {
+  return new Response(JSON.stringify({ data: result }), { status: 200 })
+} catch (err) {
+  console.error('[fn-name]', err)
+  return new Response(JSON.stringify({ error: err.message }), { status: 500 })
+}
+// Frontend: surface via sonner toast, never console.error only
+// NEVER: silent catch blocks, alert(), window.confirm()
+```
+
+**Loading States:**
+- Server state: React Query `isLoading`/`isPending` — do not duplicate with local state
+- AI generation: always show explicit progress indicator (10-30s operations)
+- Skeletons: use shadcn `Skeleton` component
+
+**Image Variants (append-only — enforced everywhere):**
+```typescript
+// ALWAYS append
+.update({ image_variants: supabase.raw('image_variants || ?::jsonb', [newVariant]) })
+// NEVER: update({ image_url: newUrl }) on existing slide records
+```
+
+**Auth in Edge Functions:**
+- All admin functions: `verify_jwt = true` in `config.toml` OR manual bearer verification via `supabase.auth.getUser(token)`
+- Admin authorization: check `admin_permissions` or `admin_users` table after JWT validation
+
+### Enforcement Guidelines
+
+**All AI Agents MUST:**
+- Read `integrations/supabase/types.ts` before writing DB queries — never hand-write column names
+- Call `_shared/cost-tracker` after every OpenRouter call
+- Add `"Respond ONLY in Brazilian Portuguese (PT-BR)."` to all content generation system prompts
+- Append to `image_variants` — never overwrite `image_url` on existing slides
+- Follow existing React Query hook pattern in `src/hooks/useLinkedInPosts.ts`
+- Use Tailwind utilities only — no custom CSS, no inline styles
+
+---
+
+## Project Structure & Boundaries
+
+### Complete Project Directory Structure (Brownfield)
+
+```text
+lifetrek/
+├── src/
+│   ├── pages/
+│   │   ├── Admin/
+│   │   │   ├── ContentOrchestrator.tsx
+│   │   │   ├── SocialMediaWorkspace.tsx
+│   │   │   ├── ContentApproval.tsx
+│   │   │   ├── AdminBlog.tsx
+│   │   │   ├── LinkedInAnalytics.tsx
+│   │   │   └── UnifiedAnalytics.tsx
+│   ├── components/
+│   │   ├── admin/
+│   │   │   ├── content/
+│   │   │   ├── analytics/
+│   │   │   └── dashboards/
+│   │   └── ui/
+│   ├── hooks/
+│   │   ├── useLinkedInPosts.ts
+│   │   ├── useInstagramPosts.ts
+│   │   ├── useBlogPosts.ts
+│   │   └── useLinkedInAnalytics.ts
+│   ├── integrations/supabase/
+│   │   └── types.ts
+│   └── lib/
+├── supabase/
+│   ├── migrations/
+│   └── functions/
+│       ├── _shared/
+│       │   └── costTracking.ts
+│       ├── generate-linkedin-carousel/
+│       │   ├── index.ts
+│       │   ├── functions_logic.ts
+│       │   ├── topic_playbooks.ts
+│       │   └── types.ts
+│       ├── generate-blog-post/
+│       ├── regenerate-carousel-images/
+│       │   ├── handlers/
+│       │   ├── generators/
+│       │   ├── workflows/
+│       │   └── utils/
+│       ├── set-slide-background/
+│       ├── sync-linkedin-analytics/
+│       └── chat/
+├── playwright/
+│   └── tests/
+│       ├── api/
+│       └── ui/
+└── docs/
+```
+
+### Architectural Boundaries
+
+**Frontend boundaries:**
+- Routes and access control in `src/pages/*` + `ProtectedAdminRoute`.
+- Feature UI composition in `src/components/admin/*`.
+- Data fetching and mutation orchestration in `src/hooks/*` using React Query.
+
+**Backend boundaries:**
+- All server logic in `supabase/functions/*` (Deno only).
+- AI orchestration isolated per function (`generate-linkedin-carousel`, `generate-blog-post`, `regenerate-carousel-images`).
+- Cross-function shared logic only in `_shared/*` (cost tracking and shared providers).
+
+**Data boundaries:**
+- Content entities (`linkedin_carousels`, `instagram_posts`, `blog_posts`) are canonical.
+- Asset retrieval and semantic match via `product_catalog`, `asset_embeddings`, and RPCs.
+- Analytics ingestion isolated to dedicated tables/functions (`sync-linkedin-analytics` plus planned `linkedin_analytics` normalized table).
+
+**Security boundaries:**
+- Admin routes protected in frontend.
+- JWT + admin authorization checks in Edge Functions.
+- RLS remains the final data-access gate in Supabase.
+
+### Requirements-to-Structure Mapping
+
+**Content Engine:**
+- UI: `/admin/orchestrator`, `/admin/social`, `/admin/content-approval`, `/admin/blog`
+- Hooks: `useLinkedInPosts`, `useInstagramPosts`, `useBlogPosts`
+- Functions: `generate-linkedin-carousel`, `generate-blog-post`, `chat`, `regenerate-carousel-images`, `set-slide-background`
+
+**LinkedIn Analytics ingestion:**
+- UI: `/admin/analytics` and `LinkedInAnalytics` surfaces
+- Hook: `useLinkedInAnalytics`
+- Function: `sync-linkedin-analytics` (and planned `ingest-linkedin-analytics`)
+- Data: analytics tables + normalized ingestion target
+
+**Ideation deep research:**
+- UI entry via orchestrator
+- Function boundary in strategist stage of `generate-linkedin-carousel`
+- Persistence target: `content_ideas` (planned)
+
+### Integration Points
+
+**Internal:**
+- Page -> component -> hook -> Supabase client/Edge Function
+- React Query invalidation and Realtime updates synchronize UI state
+
+**External:**
+- OpenRouter for all text/image generation
+- Supabase Storage for media assets and variants
+
+**Cross-cutting enforcement in structure:**
+- Cost tracking path: `supabase/functions/_shared/costTracking.ts`
+- Template/brand lock path: `supabase/functions/regenerate-carousel-images/*`
+- Type authority path: `src/integrations/supabase/types.ts`
 
 ## Smart Regen Architecture Update (Implemented 2026-03-05)
 
@@ -263,3 +542,95 @@ Event-driven only — no polling, no background workers.
 
 - Embedding provider call may fail in some environments (`openrouter embeddings 401`).
 - Mitigation implemented: lexical + curated + intent-pool scoring keeps smart selection usable without hard dependency on live embeddings.
+
+---
+
+## Architecture Validation Results
+
+### Coherence Validation ✅
+
+**Decision Compatibility:** All decisions are compatible. TypeScript strict throughout; Deno in Edge Functions shares the same type discipline. OpenRouter unifies all AI calls under a single key and billing surface. React Query + Supabase Realtime covers all state patterns without introducing new libraries. No contradictory decisions found.
+
+**Pattern Consistency:** Naming conventions (snake_case DB, kebab-case functions, PascalCase components) extend existing codebase patterns without exception. Communication patterns (append-only image_variants, cost-tracker ordering, PT-BR enforcement) are consistent and non-overlapping.
+
+**Structure Alignment:** Step 6 is now explicitly documented in this file with concrete project boundaries and requirement-to-structure mappings. Brownfield directory structure and new feature extension points are aligned.
+
+### Requirements Coverage Validation ✅
+
+| Requirement | Architecture Support |
+|---|---|
+| LinkedIn carousel generation | `generate-linkedin-carousel` + `platform` param ✓ |
+| Instagram posts | Shared pipeline, platform-specific copywriter prompt ✓ |
+| Blog post generation (PT-BR) | `generate-blog-post` + hero image via Nano Banana ✓ |
+| Blog approval flow | `status='approved'` → DB trigger → `is_published=true` ✓ |
+| Ideation deep research | `researchLevel: 'deep'` on Strategist via OpenRouter ✓ |
+| LinkedIn CSV analytics ingestion | `ingest-linkedin-analytics` + `linkedin_analytics` table ✓ |
+| Chat/NL entry mode | Wire existing non-functional chat mode in `/admin/orchestrator` ✓ |
+| Form entry mode | Existing `/admin/orchestrator` form — no changes needed ✓ |
+| 4 locked visual templates | Satori compositor is single brand control point ✓ |
+| Non-technical primary user | Progressive UI, safe defaults, no dev-needed error paths ✓ |
+| Zero infra cost | Vercel free + Supabase free — no new paid services ✓ |
+| No polling | Event-driven only (Realtime/Webhooks) enforced in patterns ✓ |
+| Cost guardrails | `_shared/cost-tracker` mandatory on every AI call ✓ |
+| PT-BR output | Architecture-level rule — all content prompts must enforce ✓ |
+| Image versioning | Append-only `image_variants` rule enforced at pattern level ✓ |
+| Brownfield safety | Reuse existing hooks, no breaking changes documented ✓ |
+
+### Implementation Readiness Validation ✅
+
+**Decision Completeness:** All critical decisions documented with model IDs and versions. 6-step implementation sequence defined with cross-component dependencies mapped.
+
+**Structure Completeness:** Brownfield structure is fully documented (Step 6) and aligned with current repo layout. New tables have full schema proposals and function ownership boundaries.
+
+**Pattern Completeness:** 7 conflict areas addressed. Naming, structure, format, communication, and process patterns all specified with concrete examples and anti-patterns.
+
+### Gap Analysis Results
+
+| Gap | Priority | Resolution |
+|---|---|---|
+| Chat mode wiring specifics | Important | Story-level spec in epics phase |
+| `blog_posts.status` field alignment | Important | Verify schema before writing migration story |
+| Batch blog hero backfill rollback | Nice-to-have | Story should include dry-run step for 24 posts |
+
+### Architecture Completeness Checklist
+
+- [x] Project context thoroughly analyzed
+- [x] Scale and complexity assessed
+- [x] Technical constraints identified
+- [x] Cross-cutting concerns mapped
+- [x] Critical decisions documented with versions
+- [x] Technology stack fully specified
+- [x] Integration patterns defined
+- [x] NFRs architecturally addressed
+- [x] Naming conventions established
+- [x] Structure patterns defined
+- [x] Communication patterns specified
+- [x] Process patterns documented
+- [x] Implementation sequence defined
+- [x] Project structure detail (Step 6)
+
+### Architecture Readiness Assessment
+
+**Overall Status: READY FOR IMPLEMENTATION**
+
+**Confidence Level:** High — all must-have requirements covered, no critical gaps, patterns are specific and enforceable.
+
+**Key Strengths:**
+- Single AI gateway (OpenRouter) simplifies cost tracking and key management
+- Append-only image variants prevents data loss across all platforms
+- PT-BR and cost-tracking enforced at architecture level, not left to individual stories
+- Brownfield approach preserves 170+ working components
+
+**Areas for Future Enhancement:**
+- LinkedIn analytics ML/learning layer (deferred post-MVP)
+- Automated pattern compliance checks (linting rules)
+
+### Implementation Handoff
+
+**AI Agent Guidelines:**
+- Follow all architectural decisions exactly as documented
+- Read `integrations/supabase/types.ts` before any DB work
+- Use implementation patterns consistently — refer to Step 5 for all naming and process questions
+- Refer to implementation sequence (Step 4) for story ordering
+
+**First Implementation Priority:** DB migrations — `content_ideas`, `linkedin_analytics`, `blog_posts` hero field

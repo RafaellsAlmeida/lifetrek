@@ -52,6 +52,7 @@ export interface BlogPost {
     content: string;
     excerpt: string | null;
     featured_image: string | null;
+    hero_image_url?: string | null;
     author_name: string;
     status: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
     seo_title: string | null;
@@ -75,6 +76,7 @@ export interface BlogPostInsert {
     content: string;
     excerpt?: string;
     featured_image?: string;
+    hero_image_url?: string;
     author_name?: string;
     status?: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
     seo_title?: string;

@@ -44,6 +44,10 @@ const TEXT_MODEL = "google/gemini-2.0-flash-001";
 const IMAGE_MODEL = "google/gemini-2.0-flash-exp:free";
 const GEMINI_TEXT_MODEL = "gemini-2.0-flash";
 
+function getPlatformLabel(platform?: CarouselParams["platform"]): "LinkedIn" | "Instagram" {
+  return platform === "instagram" ? "Instagram" : "LinkedIn";
+}
+
 async function callGeminiText(
   messages: { role: string; content: string }[],
   temperature: number = 0.7
@@ -260,12 +264,13 @@ export async function strategistAgent(
     }
   }
 
-  const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
+  const platformLabel = getPlatformLabel(params.platform);
+  const systemPrompt = `You are a ${platformLabel} carousel strategy expert for ${brand.companyName}.
 ${kbContext}
 ${researchContext}
 ${llmRankingContext}
 
-**Task**: Create a strategic plan for a LinkedIn carousel about "${params.topic}".
+**Task**: Create a strategic plan for a ${platformLabel} carousel about "${params.topic}".
 **Target Audience**: ${params.targetAudience}
 **Brand Tone**: ${brand.tone}
 
@@ -338,12 +343,13 @@ export async function strategistPlansAgent(
     }
   }
 
-  const systemPrompt = `You are a LinkedIn carousel strategy expert for ${brand.companyName}.
+  const platformLabel = getPlatformLabel(params.platform);
+  const systemPrompt = `You are a ${platformLabel} carousel strategy expert for ${brand.companyName}.
 ${kbContext}
 ${researchContext}
 ${llmRankingContext}
 
-**Task**: Create ${optionsCount} distinct strategic angles for a LinkedIn carousel about "${params.topic}".
+**Task**: Create ${optionsCount} distinct strategic angles for a ${platformLabel} carousel about "${params.topic}".
 **Target Audience**: ${params.targetAudience}
 **Brand Tone**: ${brand.tone}
 
@@ -399,10 +405,16 @@ export async function copywriterAgent(
   const useLlmRankingPlaybook = isLlmRankingTopic(params);
   const llmRankingContext = useLlmRankingPlaybook ? getLlmRankingPlaybookContext() : "";
 
-  const prompt = `You are an expert LinkedIn copywriter for ${brand.companyName}.
+  const platformLabel = getPlatformLabel(params.platform);
+  const platformRules = params.platform === "instagram"
+    ? "- Prioritize concise captions and conversational rhythm for Instagram.\n- Keep body copy punchier (prefer <= 130 chars).\n- Include 3-6 practical hashtags in final caption."
+    : "- Prioritize authority and technical clarity for LinkedIn.\n- Keep body copy clear for professional feed consumption.\n- Include optional hashtags only when they add targeting signal.";
+
+  const prompt = `You are an expert ${platformLabel} copywriter for ${brand.companyName}.
 Topic: ${params.topic}
 Strategy: ${JSON.stringify(strategy)}
 Brand Tone: ${brand.tone}
+Platform: ${platformLabel}
 ${llmRankingContext}
 
 Write compelling copy for ${strategy.slide_count} slides.
@@ -413,6 +425,7 @@ Rules:
 - Return JSON only (no markdown fences, no commentary).
 - Use short, high-contrast writing for carousel readability.
 - Keep headline <= 70 characters and body <= 170 characters.
+${platformRules}
 ${useLlmRankingPlaybook ? "- If you cite performance metrics, use only metrics from the playbook and attribute as \"LinkedIn reportou em 20/02/2026\"." : ""}
 
 Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "headline": "...", "body": "..." }] }`;
@@ -824,12 +837,14 @@ export async function compositorAgent(
  */
 export async function brandAnalystAgent(
   copy: CarouselCopy,
-  images: GeneratedImage[]
+  images: GeneratedImage[],
+  platform: CarouselParams["platform"] = "linkedin"
 ): Promise<QualityReview> {
   const startTime = Date.now();
   console.log("🔍 Brand Analyst: Reviewing carousel quality...");
 
-  const prompt = `Review this LinkedIn carousel.
+  const platformLabel = getPlatformLabel(platform);
+  const prompt = `Review this ${platformLabel} carousel.
 Slides: ${JSON.stringify(copy.slides)}
 Image Sources: ${images.map(img => img.asset_source).join(", ")}
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek Content Workflow"
+  short_description: "Run the full ideation-to-approval workflow from the IDE."
+  default_prompt: "Run full content workflow for this campaign objective."

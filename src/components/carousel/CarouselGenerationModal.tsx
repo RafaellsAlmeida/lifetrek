@@ -132,6 +132,7 @@ export function CarouselGenerationModal({ open, onOpenChange, onGenerated }: Car
             if (mode === 'auto') {
                 const { data, error } = await supabase.functions.invoke('generate-linkedin-carousel', {
                     body: {
+                        platform: "linkedin",
                         topic: autoRequest,
                         targetAudience: "OEM / Parceiros de Manufatura Contratada",
                         format,

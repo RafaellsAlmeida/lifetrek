@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageEditorCore } from "@/components/admin/content/ImageEditorCore";
 import { ContentApprovalCore } from "@/components/admin/content/ContentApprovalCore";
-import { ContentOrchestratorCore } from "@/components/admin/content/ContentOrchestratorCore";
+import { ContentOrchestratorCore, OrchestratorGenerationParams } from "@/components/admin/content/ContentOrchestratorCore";
 import { ContentScheduler } from "@/components/admin/content/ContentScheduler";
 // import { AnalyticsDashboardCore } from "@/components/admin/analytics/AnalyticsDashboardCore"; 
 import { Loader2, LayoutDashboard, PenLine, Palette, CheckCircle2, CalendarDays, BarChart3 } from "lucide-react";
@@ -71,6 +71,7 @@ export default function SocialMediaWorkspace() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "create");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<"linkedin" | "instagram">("linkedin");
 
   // Update state when URL params change
   useEffect(() => {
@@ -87,24 +88,26 @@ export default function SocialMediaWorkspace() {
     });
   };
 
-  const handleGenerateFromOrchestrator = async (rawTopic: string) => {
-    const topic = rawTopic?.trim() || "Plano de conteúdo técnico para OEMs de dispositivos médicos";
+  const handleGenerateFromOrchestrator = async (input: OrchestratorGenerationParams) => {
+    const topic = input?.topic?.trim() || "Plano de conteúdo técnico para OEMs de dispositivos médicos";
+    const platform = input?.platform || selectedPlatform;
     setIsGenerating(true);
 
     try {
       const { error } = await supabase.functions.invoke("generate-linkedin-carousel", {
         body: {
+          platform,
           topic,
-          targetAudience: "OEM / Parceiros de Manufatura Contratada (CM)",
-          painPoint: "Dependência de importação e risco de qualidade em componentes críticos",
-          desiredOutcome: "Produção local previsível com qualidade auditável e lead time menor",
-          proofPoints: [
+          targetAudience: input?.targetAudience || "OEM / Parceiros de Manufatura Contratada (CM)",
+          painPoint: input?.painPoint || "Dependência de importação e risco de qualidade em componentes críticos",
+          desiredOutcome: input?.desiredOutcome || "Produção local previsível com qualidade auditável e lead time menor",
+          proofPoints: Array.isArray(input?.proofPoints) && input.proofPoints.length > 0 ? input.proofPoints : [
             "ISO 13485",
             "Metrologia ZEISS Contura",
             "Sala Limpa ISO 7",
             "Usinagem CNC de precisão",
           ],
-          ctaAction: "Comente DIAGNOSTICO para avaliar um SKU crítico",
+          ctaAction: input?.ctaAction || "Comente DIAGNOSTICO para avaliar um SKU crítico",
           format: "carousel",
           mode: "generate",
           numberOfCarousels: 1,
@@ -116,7 +119,7 @@ export default function SocialMediaWorkspace() {
 
       if (error) throw error;
 
-      toast.success("Carrossel gerado e salvo. Revise em Aprovar ou LinkedIn Carousel.");
+      toast.success(`Conteúdo ${platform === "instagram" ? "Instagram" : "LinkedIn"} gerado e salvo. Revise em Aprovar.`);
       setActiveTab("approve");
       setSearchParams((prev) => {
         prev.set("tab", "approve");
@@ -219,7 +222,37 @@ export default function SocialMediaWorkspace() {
               <div className="p-6 h-full">
                 <TabsContent value="create" className="mt-0 focus-visible:outline-none h-full">
                   <Suspense fallback={<TabLoading />}>
-                    <ContentOrchestratorEmbed onGenerate={handleGenerateFromOrchestrator} isGenerating={isGenerating} />
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlatform("linkedin")}
+                          className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                            selectedPlatform === "linkedin"
+                              ? "bg-blue-600 text-white border-blue-600"
+                              : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          LinkedIn
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlatform("instagram")}
+                          className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                            selectedPlatform === "instagram"
+                              ? "bg-pink-600 text-white border-pink-600"
+                              : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          Instagram
+                        </button>
+                      </div>
+                      <ContentOrchestratorEmbed
+                        onGenerate={handleGenerateFromOrchestrator}
+                        isGenerating={isGenerating}
+                        selectedPlatform={selectedPlatform}
+                      />
+                    </div>
                   </Suspense>
                 </TabsContent>
 
@@ -246,7 +279,16 @@ export default function SocialMediaWorkspace() {
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 focus-visible:outline-none h-full">
-                  <div className="p-12 text-center text-muted-foreground">Analytics Module (Temporarily Disabled for Debugging)</div>
+                  <div className="p-12 text-center text-muted-foreground space-y-3">
+                    <p>Use o módulo oficial de Analytics em <strong>/admin/analytics</strong> para upload CSV e relatórios.</p>
+                    <button
+                      type="button"
+                      onClick={() => window.location.assign("/admin/analytics")}
+                      className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      Ir para Analytics
+                    </button>
+                  </div>
                 </TabsContent>
               </div>
             </ScrollArea>
@@ -291,9 +333,11 @@ function ContentApprovalEmbed() {
 function ContentOrchestratorEmbed({
   onGenerate,
   isGenerating,
+  selectedPlatform,
 }: {
-  onGenerate: (topic: string) => Promise<void>;
+  onGenerate: (params: OrchestratorGenerationParams) => Promise<void>;
   isGenerating: boolean;
+  selectedPlatform: "linkedin" | "instagram";
 }) {
   return (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-slate-200 overflow-hidden h-[80vh]">
@@ -302,7 +346,7 @@ function ContentOrchestratorEmbed({
           Gerando carrossel com assets reais...
         </div>
       )}
-      <ContentOrchestratorCore embedded={true} onGenerate={onGenerate} />
+      <ContentOrchestratorCore embedded={true} onGenerate={onGenerate} defaultPlatform={selectedPlatform} />
     </div>
   );
 }

@@ -205,9 +205,21 @@ export function usePublishBlogPost() {
                 throw new Error("Preencha metadata.icp_primary e metadata.pillar_keyword antes de publicar.");
             }
 
+            const now = new Date().toISOString();
+            const approvedAt = metadata?.approved_at || now;
+            const nextMetadata = {
+                ...metadata,
+                approved_at: approvedAt,
+                published_at: now,
+            };
+
             const { data, error } = await supabase
                 .from("blog_posts")
-                .update({ status: "published", published_at: new Date().toISOString() })
+                .update({
+                    status: "published",
+                    published_at: now,
+                    metadata: nextMetadata
+                } as any)
                 .eq("id", id)
                 .select()
                 .single();

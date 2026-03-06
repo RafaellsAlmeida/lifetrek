@@ -15,16 +15,34 @@ interface Message {
     content: string;
 }
 
-interface ContentOrchestratorCoreProps {
-    embedded?: boolean;
-    onGenerate?: (topic: string) => void;
+export interface OrchestratorGenerationParams {
+    topic: string;
+    targetAudience?: string;
+    platform?: "linkedin" | "instagram";
+    painPoint?: string;
+    desiredOutcome?: string;
+    ctaAction?: string;
+    proofPoints?: string[];
 }
 
-export function ContentOrchestratorCore({ embedded = false, onGenerate }: ContentOrchestratorCoreProps) {
+interface ContentOrchestratorCoreProps {
+    embedded?: boolean;
+    onGenerate?: (params: OrchestratorGenerationParams) => Promise<void> | void;
+    defaultPlatform?: "linkedin" | "instagram";
+}
+
+export function ContentOrchestratorCore({
+    embedded = false,
+    onGenerate,
+    defaultPlatform = "linkedin",
+}: ContentOrchestratorCoreProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isPreparingGeneration, setIsPreparingGeneration] = useState(false);
+    const [pendingParams, setPendingParams] = useState<OrchestratorGenerationParams | null>(null);
+    const [intentMeta, setIntentMeta] = useState<{ confidence: number; missingFields: string[] } | null>(null);
     const [lastRequestTime, setLastRequestTime] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -95,13 +113,66 @@ export function ContentOrchestratorCore({ embedded = false, onGenerate }: Conten
 
     const handleGenerateClick = async () => {
         if (!onGenerate) return;
-        setIsGenerating(true);
+
+        if (pendingParams) {
+            setIsGenerating(true);
+            try {
+                await onGenerate(pendingParams);
+                setPendingParams(null);
+                setIntentMeta(null);
+            } catch (error) {
+                console.error("Generation trigger failed", error);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        setIsPreparingGeneration(true);
         try {
-            await onGenerate(currentTopic);
-        } catch (error) {
-            console.error("Generation trigger failed", error);
+            const { data, error } = await supabase.functions.invoke("chat", {
+                body: {
+                    messages: [...messages.slice(-8)],
+                    mode: "orchestrator_intent",
+                },
+            });
+
+            if (error) throw error;
+
+            const intent = data?.intent;
+            const params = intent?.parameters || {};
+            const resolvedTopic = (params.topic || currentTopic || "").trim();
+            const resolvedAudience = (params.targetAudience || "").trim();
+            const resolvedPlatform = params.platform === "instagram" ? "instagram" : defaultPlatform;
+            const missingFields: string[] = Array.isArray(intent?.missingFields) ? intent.missingFields : [];
+            const confidence = typeof intent?.confidence === "number" ? intent.confidence : 0.5;
+
+            if (!resolvedTopic || missingFields.length > 0 || !resolvedAudience) {
+                const clarification = intent?.clarificationQuestion
+                    || "Antes de gerar, preciso de mais contexto. Informe o público alvo e objetivo principal.";
+                setMessages((prev) => [...prev, { role: "assistant", content: clarification }]);
+                toast.error("Faltam campos para geração. Responda a pergunta do orquestrador.");
+                setPendingParams(null);
+                setIntentMeta({ confidence, missingFields: missingFields.length ? missingFields : ["targetAudience"] });
+                return;
+            }
+
+            setPendingParams({
+                topic: resolvedTopic,
+                targetAudience: resolvedAudience,
+                platform: resolvedPlatform,
+                painPoint: params.painPoint || undefined,
+                desiredOutcome: params.desiredOutcome || undefined,
+                ctaAction: params.ctaAction || undefined,
+                proofPoints: Array.isArray(params.proofPoints) ? params.proofPoints : [],
+            });
+            setIntentMeta({ confidence, missingFields: [] });
+            toast.success("Parâmetros preparados. Revise e confirme a geração.");
+        } catch (error: any) {
+            console.error("Intent extraction failed", error);
+            toast.error(error?.message || "Não foi possível preparar a geração.");
         } finally {
-            setIsGenerating(false);
+            setIsPreparingGeneration(false);
         }
     };
 
@@ -161,14 +232,42 @@ export function ContentOrchestratorCore({ embedded = false, onGenerate }: Conten
                                     
                                     {i === messages.length - 1 && onGenerate && (
                                         <div className="mt-4 pt-3 border-t border-primary/10">
+                                            {pendingParams && (
+                                                <div className="mb-3 rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-slate-700 space-y-1">
+                                                    <div><strong>Tópico:</strong> {pendingParams.topic}</div>
+                                                    <div><strong>Público:</strong> {pendingParams.targetAudience}</div>
+                                                    <div><strong>Plataforma:</strong> {pendingParams.platform}</div>
+                                                    {intentMeta && (
+                                                        <div><strong>Confiança do mapeamento:</strong> {Math.round(intentMeta.confidence * 100)}%</div>
+                                                    )}
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-7 px-2 text-xs"
+                                                        onClick={() => {
+                                                            setPendingParams(null);
+                                                            setIntentMeta(null);
+                                                        }}
+                                                    >
+                                                        Cancelar preparo
+                                                    </Button>
+                                                </div>
+                                            )}
+
                                             <Button 
                                                 onClick={handleGenerateClick}
-                                                disabled={isGenerating}
+                                                disabled={isGenerating || isPreparingGeneration}
                                                 size="sm"
                                                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg"
                                             >
                                                 <Sparkles className="w-4 h-4 mr-2" />
-                                                {isGenerating ? "Gerando..." : "✨ Gere este post!"}
+                                                {isGenerating
+                                                    ? "Gerando..."
+                                                    : isPreparingGeneration
+                                                        ? "Preparando..."
+                                                        : pendingParams
+                                                            ? "✅ Confirmar e gerar"
+                                                            : "✨ Preparar geração"}
                                             </Button>
                                         </div>
                                     )}

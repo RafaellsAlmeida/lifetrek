@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek LinkedIn Analyst"
+  short_description: "Review carousel quality and route revisions."
+  default_prompt: "Evaluate LinkedIn carousel quality and suggest revisions."
