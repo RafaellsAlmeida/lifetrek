@@ -1,6 +1,6 @@
 # Story 2.4: Cost Tracking Enforcement
 
-Status: review
+Status: done
 
 ## Story
 
@@ -64,8 +64,17 @@ GPT-5 Codex
 - `deno check supabase/functions/_shared/costTracking.ts supabase/functions/chat/index.ts supabase/functions/generate-blog-images/index.ts supabase/functions/generate-blog-post/index.ts supabase/functions/generate-linkedin-carousel/index.ts supabase/functions/generate-linkedin-carousel/agents.ts supabase/functions/generate-linkedin-carousel/agent_tools.ts`
 - `npm run lint`
 - `npm run build`
-- Local Deno runtime check for `supabase/functions/chat/index.ts` reached the handler, but live OpenRouter call failed with upstream `401 User not found` from the configured `OPEN_ROUTER_API_KEY`.
 - Direct helper verification inserted a fresh `api_cost_tracking` row for `content.chat.orchestrator-intent` using `recordCostEventSafely`.
+- Provider-backed local Deno runtime verification succeeded for:
+  - `supabase/functions/chat/index.ts` with `mode=orchestrator_intent`
+  - `supabase/functions/generate-linkedin-carousel/index.ts` with `mode=plan`
+  - `supabase/functions/generate-blog-post/index.ts` with `skipImage=true`
+- Verified fresh `api_cost_tracking` rows for:
+  - `content.chat.orchestrator-intent`
+  - `content.generate-linkedin-carousel.plan`
+  - `content.generate-linkedin-carousel.copywriter`
+  - `content.generate-blog-post.strategist`
+  - `content.generate-blog-post.writer`
 - Admin UI screenshot: `/var/folders/64/d80xb0q973lcbhg8xntrqky40000gn/T/playwright-mcp-output/1772803323178/page-2026-03-06T14-27-29-117Z.png`
 
 ### Completion Notes List
@@ -73,7 +82,8 @@ GPT-5 Codex
 - Replaced overloaded RPC-based cost logging with direct inserts into `api_cost_tracking` and `cost_alerts` so writes are deterministic.
 - Added non-blocking cost tracking across the content-engine entry points: `chat`, `generate-blog-images`, `generate-blog-post`, and `generate-linkedin-carousel`.
 - Propagated structured operation metadata across carousel strategist/copywriter/designer/reviewer, blog strategist/writer/image, and orchestrator chat modes.
-- Verification is sufficient for `review`, but not `done`: the configured OpenRouter key is rejected upstream, so provider-backed end-to-end generation could not be completed locally.
+- Provider-backed runtime verification now passes with the local OpenRouter CLI credential in `.env.local`.
+- One unrelated brownfield issue remains visible in logs: `match_knowledge_base` RPC overloading causes KB search ambiguity in carousel plan mode, but the generation flow still completes and cost tracking remains correct.
 
 ### File List
 

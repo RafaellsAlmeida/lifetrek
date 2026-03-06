@@ -17,12 +17,13 @@ No blocking implementation defects found in the patched code paths after review.
 - `generate-blog-post` tracks research, embeddings, strategist, writer, and hero image calls.
 - `generate-linkedin-carousel` tracks strategist, plan generation, copywriter, design RAG, image generation, and reviewer calls.
 - `api_cost_tracking` received a new verification row via `recordCostEventSafely`.
+- Provider-backed local verification succeeded for `chat`, `generate-linkedin-carousel` plan mode, and `generate-blog-post` with `skipImage=true`.
 
 ## Residual Risks
 
-- Full provider-backed end-to-end verification is blocked by the currently configured `OPEN_ROUTER_API_KEY`, which returns upstream `401 User not found`.
 - Monthly reporting accuracy still relies on estimated-cost mapping in `_shared/costTracking.ts`; actual provider billing reconciliation is not implemented in this story.
+- `match_knowledge_base` RPC remains overloaded in the database, which causes non-blocking KB search warnings in carousel plan mode.
 
 ## Recommendation
 
-Accept for `review`. Do not mark `done` until a valid OpenRouter credential is available and one real content-generation path is exercised end-to-end.
+Accept as `done` for Story 2.4. Track the `match_knowledge_base` overload separately as a brownfield cleanup item.

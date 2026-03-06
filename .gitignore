@@ -31,6 +31,8 @@ _cleanup_*/
 
 # Generated content & large media (should use cloud storage or LFS)
 execution/generated_carousels/
+public/remotion/out/
+_bmad-output/implementation-artifacts/test-artifacts/
 
 # Editor directories and files
 .vscode/*

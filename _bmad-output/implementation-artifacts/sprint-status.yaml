@@ -51,13 +51,13 @@ development_status:
   2-1-platform-param-carousel-generation: review
   2-2-blog-hero-generation-at-create: review
   2-3-chat-intent-to-carousel-params: review
-  2-4-cost-tracking-enforcement: review
+  2-4-cost-tracking-enforcement: done
   epic-2-retrospective: optional
 
   epic-3: in-progress
   3-1-linkedin-csv-ingestion-function: review
   3-2-analytics-upload-contract-ui: review
-  3-3-imported-analytics-visibility: backlog
+  3-3-imported-analytics-visibility: review
   epic-3-retrospective: optional
 
   epic-4: backlog
