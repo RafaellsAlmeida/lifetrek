@@ -2,9 +2,9 @@
   "cookies": [],
   "origins": [],
   "_authConfig": {
-    "storageDir": "/Users/rafaelalmeida/lifetrek/.auth/local/default",
+    "storageDir": "/Users/rafaelalmeida/lifetrek/playwright/auth-sessions",
     "debug": false,
-    "configId": "6ecdacc3-75d5-4d3e-87c0-991271ab70de",
-    "timestamp": "2026-03-06T13:53:30.560Z"
+    "configId": "ec37a427-1fb8-4781-80ee-ab8f03f1faf8",
+    "timestamp": "2026-03-06T14:19:12.624Z"
   }
 }

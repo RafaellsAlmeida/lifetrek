@@ -44,14 +44,14 @@ development_status:
   1-1-content-ideas-schema: review
   1-2-linkedin-analytics-schema: review
   1-3-blog-posts-hero-status-alignment: review
-  1-4-image-variant-guardrails: ready-for-dev
+  1-4-image-variant-guardrails: review
   epic-1-retrospective: optional
 
   epic-2: in-progress
   2-1-platform-param-carousel-generation: review
   2-2-blog-hero-generation-at-create: review
   2-3-chat-intent-to-carousel-params: review
-  2-4-cost-tracking-enforcement: backlog
+  2-4-cost-tracking-enforcement: review
   epic-2-retrospective: optional
 
   epic-3: in-progress

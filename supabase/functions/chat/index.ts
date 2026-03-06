@@ -3,6 +3,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -128,33 +129,48 @@ Regras:
 - platform padrão deve ser "linkedin" se não estiver claro.
 - Não inclua markdown. JSON puro.`;
 
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${openRouterKey}`,
-                    "HTTP-Referer": "https://lifetrek.app",
-                    "X-Title": "Lifetrek App"
-                },
-                body: JSON.stringify({
+            const data = await executeWithCostTracking(
+                supabase,
+                {
+                    userId: user.id,
+                    operation: "content.chat.orchestrator-intent",
+                    service: "openrouter",
                     model: "google/gemini-2.0-flash-001",
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        ...messages.map((msg: { role: string; content: string }) => ({
-                            role: msg.role,
-                            content: msg.content
-                        }))
-                    ],
-                    temperature: 0.2
-                })
-            });
+                    metadata: {
+                        mode,
+                        message_count: Array.isArray(messages) ? messages.length : 0,
+                    },
+                },
+                async () => {
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${openRouterKey}`,
+                            "HTTP-Referer": "https://lifetrek.app",
+                            "X-Title": "Lifetrek App"
+                        },
+                        body: JSON.stringify({
+                            model: "google/gemini-2.0-flash-001",
+                            messages: [
+                                { role: "system", content: systemPrompt },
+                                ...messages.map((msg: { role: string; content: string }) => ({
+                                    role: msg.role,
+                                    content: msg.content
+                                }))
+                            ],
+                            temperature: 0.2
+                        })
+                    });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`OpenRouter API error: ${errorText}`);
-            }
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`OpenRouter API error: ${errorText}`);
+                    }
 
-            const data = await response.json();
+                    return await response.json();
+                }
+            );
             const rawText = data.choices?.[0]?.message?.content || "{}";
             const parsed = extractJsonObject(rawText);
             const intent = normalizeIntent(parsed);
@@ -192,33 +208,50 @@ DIRETRIZES:
 3. Se o usuário falar "Oi" ou "Ola", apresente-se brevemente e pergunte como pode ajudar na jornada de dispositivos médicos.`;
 
         // Call OpenRouter
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${openRouterKey}`,
-                "HTTP-Referer": "https://lifetrek.app",
-                "X-Title": "Lifetrek App"
-            },
-            body: JSON.stringify({
+        const data = await executeWithCostTracking(
+            supabase,
+            {
+                userId: user.id,
+                operation: mode === "orchestrator"
+                    ? "content.chat.orchestrator"
+                    : "content.chat.website-assistant",
+                service: "openrouter",
                 model: "google/gemini-2.0-flash-001",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    ...messages.map((msg: { role: string; content: string }) => ({
-                        role: msg.role,
-                        content: msg.content
-                    }))
-                ],
-                temperature: 0.7
-            })
-        });
+                metadata: {
+                    mode,
+                    message_count: Array.isArray(messages) ? messages.length : 0,
+                },
+            },
+            async () => {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${openRouterKey}`,
+                        "HTTP-Referer": "https://lifetrek.app",
+                        "X-Title": "Lifetrek App"
+                    },
+                    body: JSON.stringify({
+                        model: "google/gemini-2.0-flash-001",
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            ...messages.map((msg: { role: string; content: string }) => ({
+                                role: msg.role,
+                                content: msg.content
+                            }))
+                        ],
+                        temperature: 0.7
+                    })
+                });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`OpenRouter API error: ${errorText}`);
-        }
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`OpenRouter API error: ${errorText}`);
+                }
 
-        const data = await response.json();
+                return await response.json();
+            }
+        );
         const responseText = data.choices?.[0]?.message?.content || "Sem resposta do agente.";
 
         return new Response(

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -116,28 +117,43 @@ serve(async (req) => {
     for (const post of candidates) {
       try {
         const prompt = buildPrompt(post.title, post.excerpt);
-        const imageResponse = await fetch("https://openrouter.ai/api/v1/images/generations", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPEN_ROUTER_API}`,
-            "HTTP-Referer": "https://lifetrek.app",
-            "X-Title": "Lifetrek App",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const imageData = await executeWithCostTracking(
+          supabase,
+          {
+            userId: user.id,
+            operation: "content.generate-blog-images.hero-backfill",
+            service: "openrouter",
             model: "stabilityai/stable-diffusion-xl-base-1.0",
-            prompt,
-            n: 1,
-            size: "1792x1024",
-          }),
-        });
+            metadata: {
+              post_id: post.id,
+              workflow: "blog-hero-backfill",
+            },
+          },
+          async () => {
+            const imageResponse = await fetch("https://openrouter.ai/api/v1/images/generations", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${OPEN_ROUTER_API}`,
+                "HTTP-Referer": "https://lifetrek.app",
+                "X-Title": "Lifetrek App",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: "stabilityai/stable-diffusion-xl-base-1.0",
+                prompt,
+                n: 1,
+                size: "1792x1024",
+              }),
+            });
 
-        if (!imageResponse.ok) {
-          const text = await imageResponse.text();
-          throw new Error(`Image generation failed (${imageResponse.status}): ${text}`);
-        }
+            if (!imageResponse.ok) {
+              const text = await imageResponse.text();
+              throw new Error(`Image generation failed (${imageResponse.status}): ${text}`);
+            }
 
-        const imageData = await imageResponse.json();
+            return await imageResponse.json();
+          },
+        );
         const imageUrl = imageData?.data?.[0]?.url;
         if (!imageUrl) {
           throw new Error("No image url returned");
@@ -192,4 +208,3 @@ serve(async (req) => {
     );
   }
 });
-

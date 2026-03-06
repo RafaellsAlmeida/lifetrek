@@ -17,7 +17,8 @@ import {
   generateCarouselEmbedding,
   searchSimilarCarousels,
   searchKnowledgeBase,
-  deepResearch
+  deepResearch,
+  type CostTrackingContext,
 } from "./agent_tools.ts";
 import {
   getLlmRankingPlaybookContext,
@@ -25,6 +26,7 @@ import {
 } from "./topic_playbooks.ts";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 // Font cache for Satori
 let fontData: ArrayBuffer | null = null;
@@ -43,6 +45,7 @@ const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
 const IMAGE_MODEL = "google/gemini-2.0-flash-exp:free";
 const GEMINI_TEXT_MODEL = "gemini-2.0-flash";
+const OPENROUTER_FALLBACK_ERROR = "__openrouter_fallback__";
 
 function getPlatformLabel(platform?: CarouselParams["platform"]): "LinkedIn" | "Instagram" {
   return platform === "instagram" ? "Instagram" : "LinkedIn";
@@ -50,7 +53,8 @@ function getPlatformLabel(platform?: CarouselParams["platform"]): "LinkedIn" | "
 
 async function callGeminiText(
   messages: { role: string; content: string }[],
-  temperature: number = 0.7
+  temperature: number = 0.7,
+  costContext?: CostTrackingContext,
 ): Promise<string> {
   const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
   if (!GEMINI_API_KEY) {
@@ -61,24 +65,40 @@ async function callGeminiText(
     .map((m) => `${m.role.toUpperCase()}:\n${m.content}`)
     .join("\n\n");
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: mergedPrompt }] }],
-        generationConfig: { temperature }
-      })
+  const executeCall = async () => {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: mergedPrompt }] }],
+          generationConfig: { temperature }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini Text Error (${response.status}): ${errorText}`);
     }
-  );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Gemini Text Error (${response.status}): ${errorText}`);
-  }
+    return await response.json();
+  };
 
-  const data = await response.json();
+  const data = costContext?.supabase
+    ? await executeWithCostTracking(
+        costContext.supabase,
+        {
+          userId: costContext.userId || null,
+          operation: costContext.operation,
+          service: "gemini",
+          model: GEMINI_TEXT_MODEL,
+          metadata: costContext.metadata,
+        },
+        executeCall,
+      )
+    : await executeCall();
   const text = data?.candidates?.[0]?.content?.parts
     ?.map((p: any) => p?.text)
     ?.filter(Boolean)
@@ -89,43 +109,72 @@ async function callGeminiText(
 
 async function callOpenRouter(
   messages: { role: string; content: string }[],
-  temperature: number = 0.7
+  temperature: number = 0.7,
+  costContext?: CostTrackingContext,
 ): Promise<string> {
   if (!OPEN_ROUTER_API) {
     console.warn("⚠️ OPEN_ROUTER_API missing, using Gemini text fallback");
-    return await callGeminiText(messages, temperature);
+    return await callGeminiText(messages, temperature, costContext);
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPEN_ROUTER_API}`,
-      "HTTP-Referer": "https://lifetrek.app",
-      "X-Title": "Lifetrek App",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: TEXT_MODEL,
-      messages: messages,
-      temperature: temperature,
-    })
-  });
+  const executeCall = async () => {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPEN_ROUTER_API}`,
+        "HTTP-Referer": "https://lifetrek.app",
+        "X-Title": "Lifetrek App",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: TEXT_MODEL,
+        messages: messages,
+        temperature: temperature,
+      })
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    // OpenRouter account/key issues should not block generation
-    if (response.status === 401 || response.status === 403 || response.status >= 500) {
-      console.warn(`⚠️ OpenRouter unavailable (${response.status}), using Gemini text fallback`);
-      return await callGeminiText(messages, temperature);
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 401 || response.status === 403 || response.status >= 500) {
+        console.warn(`⚠️ OpenRouter unavailable (${response.status}), using Gemini text fallback`);
+        throw new Error(OPENROUTER_FALLBACK_ERROR);
+      }
+      throw new Error(`OpenRouter Error: ${response.status} - ${errorText}`);
     }
-    throw new Error(`OpenRouter Error: ${response.status} - ${errorText}`);
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || "";
+  };
+
+  if (!costContext?.supabase) {
+    return await executeCall();
   }
 
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || "";
+  try {
+    return await executeWithCostTracking(
+      costContext.supabase,
+      {
+        userId: costContext.userId || null,
+        operation: costContext.operation,
+        service: "openrouter",
+        model: TEXT_MODEL,
+        metadata: costContext.metadata,
+      },
+      executeCall,
+    );
+  } catch (error) {
+    if (error instanceof Error && error.message === OPENROUTER_FALLBACK_ERROR) {
+      return await callGeminiText(messages, temperature, costContext);
+    }
+    throw error;
+  }
 }
 
-async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promise<string | null> {
+async function callOpenRouterImage(
+  prompt: string,
+  refImageUrl?: string,
+  costContext?: CostTrackingContext,
+): Promise<string | null> {
   try {
     console.log("🎨 OpenRouter Image: Calling generation via chat completions...");
 
@@ -136,36 +185,52 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
       ]
       : prompt;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPEN_ROUTER_API}`,
-        "HTTP-Referer": "https://lifetrek.app",
-        "X-Title": "Lifetrek App",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
+    const executeCall = async () => {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${OPEN_ROUTER_API}`,
+          "HTTP-Referer": "https://lifetrek.app",
+          "X-Title": "Lifetrek App",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: IMAGE_MODEL,
+          messages: [{ role: "user", content: userContent }],
+          modalities: ["image"],
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenRouter Image Error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      const parts = data.choices?.[0]?.message?.content;
+      if (Array.isArray(parts)) {
+        const imagePart = parts.find((p: any) => p.type === 'image_url');
+        if (imagePart?.image_url?.url) return imagePart.image_url.url;
+      }
+      if (typeof parts === 'string' && parts.startsWith('http')) return parts;
+      return null;
+    };
+
+    if (!costContext?.supabase) {
+      return await executeCall();
+    }
+
+    return await executeWithCostTracking(
+      costContext.supabase,
+      {
+        userId: costContext.userId || null,
+        operation: costContext.operation,
+        service: "openrouter",
         model: IMAGE_MODEL,
-        messages: [{ role: "user", content: userContent }],
-        modalities: ["image"],
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`OpenRouter Image Error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    // New API returns image as base64 in message content parts
-    const parts = data.choices?.[0]?.message?.content;
-    if (Array.isArray(parts)) {
-      const imagePart = parts.find((p: any) => p.type === 'image_url');
-      if (imagePart?.image_url?.url) return imagePart.image_url.url;
-    }
-    // Fallback: check if content is a direct URL string
-    if (typeof parts === 'string' && parts.startsWith('http')) return parts;
-    return null;
+        metadata: costContext.metadata,
+      },
+      executeCall,
+    );
 
   } catch (error) {
     console.error("OpenRouter Image Call Failed:", error);
@@ -173,49 +238,70 @@ async function callOpenRouterImage(prompt: string, refImageUrl?: string): Promis
   }
 }
 
-async function callGeminiImage(prompt: string): Promise<string | null> {
+async function callGeminiImage(
+  prompt: string,
+  costContext?: CostTrackingContext,
+): Promise<string | null> {
   try {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
       throw new Error("GEMINI_API_KEY not set in environment");
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: {
-              aspectRatio: "1:1",
-              imageSize: "1K"
+    const executeCall = async () => {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              responseModalities: ["IMAGE"],
+              imageConfig: {
+                aspectRatio: "1:1",
+                imageSize: "1K"
+              }
             }
-          }
-        })
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini Image Error (${response.status}): ${errorText}`);
       }
+
+      const data = await response.json();
+      const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+
+      if (!imagePart) {
+        throw new Error("No image generated in Gemini response");
+      }
+
+      return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+    };
+
+    if (!costContext?.supabase) {
+      return await executeCall();
+    }
+
+    return await executeWithCostTracking(
+      costContext.supabase,
+      {
+        userId: costContext.userId || null,
+        operation: costContext.operation,
+        service: "gemini",
+        model: "gemini-3-pro-image-preview",
+        metadata: costContext.metadata,
+      },
+      executeCall,
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Gemini Image Error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-
-    if (!imagePart) {
-      throw new Error("No image generated in Gemini response");
-    }
-
-    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
     console.error("Gemini Image Call Failed:", error);
     // FALLBACK TO OPENROUTER
     console.log("⚠️ Gemini failed, switching to OpenRouter fallback...");
-    return await callOpenRouterImage(prompt);
+    return await callOpenRouterImage(prompt, undefined, costContext);
   }
 }
 
@@ -225,7 +311,8 @@ async function callGeminiImage(prompt: string): Promise<string | null> {
  */
 export async function strategistAgent(
   params: CarouselParams,
-  supabase?: SupabaseClient
+  supabase?: SupabaseClient,
+  costContext?: CostTrackingContext,
 ): Promise<CarouselStrategy> {
   const startTime = Date.now();
   console.log("🎯 Strategist Agent: Planning carousel strategy...");
@@ -240,7 +327,15 @@ export async function strategistAgent(
   if (supabase) {
     try {
       console.log(`🔍 Strategist: Searching knowledge base for "${params.topic}"...`);
-      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3);
+      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.strategist.kb-search",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+        },
+      } : undefined);
       if (kbResults && kbResults.length > 0) {
         kbContext = `\n\n**Reference Material from Knowledge Base**:\n${kbResults.map(item => `[${item.category}] ${item.question}: ${item.content}`).join('\n---\n')}`;
       }
@@ -255,7 +350,16 @@ export async function strategistAgent(
     try {
       const researchQuery = `${params.topic} trends and statistics for ${params.targetAudience} in medical device manufacturing ${new Date().getFullYear()}`;
       console.log(`🔍 Strategist: Running ${researchLevel} research...`);
-      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000);
+      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.strategist.research",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+          research_level: researchLevel,
+        },
+      } : undefined);
       if (research) {
         researchContext = `\n\n**Industry Research Findings**:\n${research}`;
       }
@@ -287,7 +391,15 @@ Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 
     const response = await callOpenRouter([
       { role: "system", content: systemPrompt },
       { role: "user", content: `Create strategy for: ${params.topic}` }
-    ]);
+    ], 0.7, costContext ? {
+      ...costContext,
+      operation: "content.generate-linkedin-carousel.strategist",
+      metadata: {
+        ...(costContext.metadata || {}),
+        topic: params.topic,
+        platform: params.platform || "linkedin",
+      },
+    } : undefined);
 
     const strategy = extractJSON(response);
     console.log(`✅ Strategist: Planned ${strategy.slide_count} slides in ${Date.now() - startTime}ms`);
@@ -306,7 +418,8 @@ Output ONLY valid JSON: { "hook": "...", "narrative_arc": "...", "slide_count": 
 export async function strategistPlansAgent(
   params: CarouselParams,
   supabase?: SupabaseClient,
-  optionsCount: number = 3
+  optionsCount: number = 3,
+  costContext?: CostTrackingContext,
 ): Promise<(CarouselStrategy & { topic?: string })[]> {
   const startTime = Date.now();
   console.log("🎯 Strategist Plan Agent: Generating strategy options...");
@@ -320,7 +433,16 @@ export async function strategistPlansAgent(
   if (supabase) {
     try {
       console.log(`🔍 Strategist Plan: Searching knowledge base for "${params.topic}"...`);
-      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3);
+      const kbResults = await searchKnowledgeBase(supabase, params.topic, 0.5, 3, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.plan.kb-search",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+          options_count: optionsCount,
+        },
+      } : undefined);
       if (kbResults && kbResults.length > 0) {
         kbContext = `\n\n**Reference Material from Knowledge Base**:\n${kbResults.map(item => `[${item.category}] ${item.question}: ${item.content}`).join('\n---\n')}`;
       }
@@ -334,7 +456,17 @@ export async function strategistPlansAgent(
     try {
       const researchQuery = `${params.topic} trends and statistics for ${params.targetAudience} in medical device manufacturing ${new Date().getFullYear()}`;
       console.log(`🔍 Strategist Plan: Running ${researchLevel} research...`);
-      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000);
+      const research = await deepResearch(researchQuery, researchLevel === 'deep' ? 15000 : 8000, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.plan.research",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+          options_count: optionsCount,
+          research_level: researchLevel,
+        },
+      } : undefined);
       if (research) {
         researchContext = `\n\n**Industry Research Findings**:\n${research}`;
       }
@@ -371,7 +503,16 @@ Output ONLY valid JSON:
     const response = await callOpenRouter([
       { role: "system", content: systemPrompt },
       { role: "user", content: `Create strategy options for: ${params.topic}` }
-    ]);
+    ], 0.7, costContext ? {
+      ...costContext,
+      operation: "content.generate-linkedin-carousel.plan",
+      metadata: {
+        ...(costContext.metadata || {}),
+        topic: params.topic,
+        platform: params.platform || "linkedin",
+        options_count: optionsCount,
+      },
+    } : undefined);
 
     const result = extractJSON(response);
     const options = Array.isArray(result?.options) ? result.options : [];
@@ -396,7 +537,8 @@ Output ONLY valid JSON:
  */
 export async function copywriterAgent(
   params: CarouselParams,
-  strategy: CarouselStrategy
+  strategy: CarouselStrategy,
+  costContext?: CostTrackingContext,
 ): Promise<CarouselCopy> {
   const startTime = Date.now();
   console.log("✍️ Copywriter Agent: Writing carousel copy...");
@@ -430,7 +572,16 @@ ${useLlmRankingPlaybook ? "- If you cite performance metrics, use only metrics f
 
 Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "headline": "...", "body": "..." }] }`;
 
-  const response = await callOpenRouter([{ role: "user", content: prompt }]);
+  const response = await callOpenRouter([{ role: "user", content: prompt }], 0.7, costContext ? {
+    ...costContext,
+    operation: "content.generate-linkedin-carousel.copywriter",
+    metadata: {
+      ...(costContext.metadata || {}),
+      topic: params.topic,
+      platform: params.platform || "linkedin",
+      slide_count: strategy.slide_count,
+    },
+  } : undefined);
   const copy = extractJSON(response);
   console.log(`✅ Copywriter: Created ${copy.slides.length} slides in ${Date.now() - startTime}ms`);
   return copy;
@@ -444,7 +595,8 @@ Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "h
 export async function designerAgent(
   supabase: SupabaseClient,
   params: CarouselParams,
-  copy: CarouselCopy
+  copy: CarouselCopy,
+  costContext?: CostTrackingContext,
 ): Promise<GeneratedImage[]> {
   const startTime = Date.now();
   console.log("🎨 Designer Agent: Creating visual assets...");
@@ -454,7 +606,15 @@ export async function designerAgent(
   // RAG for Design Rules
   let designRules = "";
   try {
-    const kbDesign = await searchKnowledgeBase(supabase, "design rules colors visual style", 0.4, 2);
+    const kbDesign = await searchKnowledgeBase(supabase, "design rules colors visual style", 0.4, 2, costContext ? {
+      ...costContext,
+      operation: "content.generate-linkedin-carousel.designer.kb-search",
+      metadata: {
+        ...(costContext.metadata || {}),
+        topic: params.topic,
+        platform: params.platform || "linkedin",
+      },
+    } : undefined);
     if (kbDesign && kbDesign.length > 0) {
       designRules = `\n\n**Visual Style Guidelines**:\n${kbDesign.map(item => item.content).join("\n")}`;
     }
@@ -495,7 +655,16 @@ export async function designerAgent(
       assetQuery += " cnc machine factory";
     }
 
-    const realAsset = await searchCompanyAssets(supabase, assetQuery);
+    const realAsset = await searchCompanyAssets(supabase, assetQuery, costContext ? {
+      ...costContext,
+      operation: "content.generate-linkedin-carousel.designer.asset-search",
+      metadata: {
+        ...(costContext.metadata || {}),
+        topic: params.topic,
+        platform: params.platform || "linkedin",
+        slide_index: i,
+      },
+    } : undefined);
 
     if (realAsset) {
       console.log(`🖼️ Designer: Using real asset "${realAsset.name}" for slide ${i}`);
@@ -532,7 +701,16 @@ export async function designerAgent(
     try {
       // Use the shared callOpenRouterImage function for consistency
       console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
-      const imageUrl = await callGeminiImage(prompt) || "";
+      const imageUrl = await callGeminiImage(prompt, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.designer.image",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+          slide_index: i,
+        },
+      } : undefined) || "";
 
       images.push({
         slide_index: i,
@@ -838,7 +1016,8 @@ export async function compositorAgent(
 export async function brandAnalystAgent(
   copy: CarouselCopy,
   images: GeneratedImage[],
-  platform: CarouselParams["platform"] = "linkedin"
+  platform: CarouselParams["platform"] = "linkedin",
+  costContext?: CostTrackingContext,
 ): Promise<QualityReview> {
   const startTime = Date.now();
   console.log("🔍 Brand Analyst: Reviewing carousel quality...");
@@ -851,7 +1030,15 @@ Image Sources: ${images.map(img => img.asset_source).join(", ")}
 Provide a quality score (0-100) and feedback in JSON.
 Output JSON: { "overall_score": 85, "feedback": "...", "needs_regeneration": false }`;
 
-  const response = await callOpenRouter([{ role: "user", content: prompt }]);
+  const response = await callOpenRouter([{ role: "user", content: prompt }], 0.7, costContext ? {
+    ...costContext,
+    operation: "content.generate-linkedin-carousel.reviewer",
+    metadata: {
+      ...(costContext.metadata || {}),
+      platform,
+      slide_count: copy.slides.length,
+    },
+  } : undefined);
   const review = extractJSON(response);
 
   review.needs_regeneration = review.overall_score < 70;

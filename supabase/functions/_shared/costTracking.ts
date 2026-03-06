@@ -1,13 +1,12 @@
 // Cost Tracking Helper for Supabase Edge Functions
-// Usage: Import and use before making expensive API calls
-
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Usage: Import and use around expensive API calls
 
 // API Cost Estimates (in USD)
 export const API_COSTS = {
   // OpenRouter Models
   "google/gemini-2.0-flash-001": 0.01,
   "google/gemini-2.0-flash-thinking-exp": 0.015,
+  "google/gemini-2.0-flash-exp:free": 0.0,
   "google/gemini-1.5-pro": 0.025,
   "anthropic/claude-3.5-sonnet": 0.03,
   "openai/gpt-4": 0.06,
@@ -20,9 +19,12 @@ export const API_COSTS = {
   // Embeddings
   "text-embedding-ada-002": 0.0001,
   "text-embedding-3-small": 0.00002,
+  "openai/text-embedding-3-small": 0.00002,
   
   // Other
   "perplexity": 0.005,
+  "sonar-pro": 0.005,
+  "sonar-reasoning": 0.005,
   "search-api": 0.001,
 } as const;
 
@@ -50,11 +52,25 @@ interface LogCostParams {
   metadata?: Record<string, any>;
 }
 
+interface CostTrackingClient {
+  rpc: (...args: any[]) => any;
+  from: (...args: any[]) => any;
+}
+
+interface ExecuteCostTrackingParams {
+  userId: string | null;
+  operation: string;
+  service: string;
+  model: string;
+  estimatedCost?: number;
+  metadata?: Record<string, any>;
+}
+
 /**
  * Check if an operation would exceed spending limits
  */
 export async function checkSpendingLimit(
-  supabase: SupabaseClient,
+  supabase: CostTrackingClient,
   userId: string | null,
   operation: string,
   estimatedCost: number
@@ -89,18 +105,24 @@ export async function checkSpendingLimit(
  * Log API cost to database
  */
 export async function logAPICost(
-  supabase: SupabaseClient,
+  supabase: CostTrackingClient,
   params: LogCostParams
 ): Promise<string | null> {
   try {
-    const { data, error } = await supabase.rpc("log_api_cost", {
-      p_user_id: params.userId,
-      p_operation: params.operation,
-      p_service: params.service,
-      p_model: params.model,
-      p_estimated_cost: params.estimatedCost,
-      p_metadata: params.metadata || null,
-    });
+    const { data, error } = await supabase
+      .from("api_cost_tracking")
+      .insert({
+        user_id: params.userId,
+        operation: params.operation,
+        service: params.service,
+        model: params.model,
+        estimated_cost: params.estimatedCost,
+        metadata: params.metadata || null,
+        request_count: 1,
+        date: new Date().toISOString().split("T")[0],
+      })
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Error logging API cost:", error);
@@ -125,25 +147,31 @@ export function getModelCost(model: string): number {
  * Create a cost alert
  */
 export async function createCostAlert(
-  supabase: SupabaseClient,
+  supabase: CostTrackingClient,
   alertType: string,
   severity: "info" | "warning" | "critical",
   userId: string | null,
   operation: string | null,
   currentValue: number,
   thresholdValue: number,
-  message: string
+  message: string,
+  metadata?: Record<string, any>
 ): Promise<string | null> {
   try {
-    const { data, error } = await supabase.rpc("create_cost_alert", {
-      p_alert_type: alertType,
-      p_severity: severity,
-      p_user_id: userId,
-      p_operation: operation,
-      p_current_value: currentValue,
-      p_threshold_value: thresholdValue,
-      p_message: message,
-    });
+    const { data, error } = await supabase
+      .from("cost_alerts")
+      .insert({
+        alert_type: alertType,
+        severity,
+        user_id: userId,
+        operation,
+        current_value: currentValue,
+        threshold_value: thresholdValue,
+        message,
+        metadata: metadata || null,
+      })
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Error creating cost alert:", error);
@@ -157,11 +185,62 @@ export async function createCostAlert(
   }
 }
 
+export async function recordCostEventSafely(
+  supabase: CostTrackingClient,
+  params: ExecuteCostTrackingParams,
+): Promise<void> {
+  const estimatedCost = params.estimatedCost ?? getModelCost(params.model);
+  const metadata = params.metadata || {};
+  const costEventId = await logAPICost(supabase, {
+    userId: params.userId,
+    operation: params.operation,
+    service: params.service,
+    model: params.model,
+    estimatedCost,
+    metadata,
+  });
+
+  if (costEventId) return;
+
+  const message = `Cost tracking write failed for ${params.operation} (${params.service}/${params.model})`;
+  console.error(message, metadata);
+
+  await createCostAlert(
+    supabase,
+    "cost_tracking_write_failed",
+    "warning",
+    params.userId,
+    params.operation,
+    estimatedCost,
+    estimatedCost,
+    message,
+    metadata,
+  );
+}
+
+export async function executeWithCostTracking<T>(
+  supabase: CostTrackingClient,
+  params: ExecuteCostTrackingParams,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const startedAt = Date.now();
+  const result = await fn();
+  await recordCostEventSafely(supabase, {
+    ...params,
+    metadata: {
+      ...(params.metadata || {}),
+      duration_ms: Date.now() - startedAt,
+      request_outcome: "success",
+    },
+  });
+  return result;
+}
+
 /**
  * Wrapper for expensive operations with automatic cost tracking
  */
 export async function withCostTracking<T>(
-  supabase: SupabaseClient,
+  supabase: CostTrackingClient,
   userId: string | null,
   operation: string,
   service: string,
@@ -243,7 +322,7 @@ export async function withCostTracking<T>(
  * Get current spending summary
  */
 export async function getSpendingSummary(
-  supabase: SupabaseClient,
+  supabase: CostTrackingClient,
   userId: string | null
 ): Promise<{
   daily: number;
@@ -263,7 +342,7 @@ export async function getSpendingSummary(
       .eq("user_id", userId || "");
 
     const daily = dailyData?.reduce(
-      (sum, row) => sum + Number(row.estimated_cost),
+      (sum: number, row: any) => sum + Number(row.estimated_cost),
       0
     ) || 0;
 
@@ -275,7 +354,7 @@ export async function getSpendingSummary(
       .eq("user_id", userId || "");
 
     const monthly = monthlyData?.reduce(
-      (sum, row) => sum + Number(row.estimated_cost),
+      (sum: number, row: any) => sum + Number(row.estimated_cost),
       0
     ) || 0;
 
@@ -287,7 +366,7 @@ export async function getSpendingSummary(
       .eq("user_id", userId || "");
 
     const by_operation: Record<string, number> = {};
-    operationData?.forEach((row) => {
+    operationData?.forEach((row: any) => {
       by_operation[row.operation] =
         (by_operation[row.operation] || 0) + Number(row.estimated_cost);
     });

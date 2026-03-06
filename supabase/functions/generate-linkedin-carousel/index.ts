@@ -25,6 +25,12 @@ const MODEL_VERSIONS = {
 
 type ContentIdeasInsert = Database["public"]["Tables"]["content_ideas"]["Insert"];
 type ServiceSupabaseClient = SupabaseClient<Database>;
+type AgentCostContext = {
+    supabase: ServiceSupabaseClient;
+    userId: string | null;
+    operation: string;
+    metadata: Record<string, unknown>;
+};
 
 function normalizePlatform(input: unknown): "linkedin" | "instagram" {
     if (input === "instagram") return "instagram";
@@ -114,16 +120,68 @@ async function persistContentIdea(
     }
 }
 
+async function resolveTrackingUserId(
+    req: Request,
+    supabase: ServiceSupabaseClient,
+): Promise<string | null> {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !/^Bearer\s+/i.test(authHeader)) {
+        return null;
+    }
+
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token) return null;
+
+    try {
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.getUser(token);
+        if (error) {
+            console.warn("[generate-linkedin-carousel] auth lookup warning:", error.message);
+            return null;
+        }
+        return user?.id || null;
+    } catch (error) {
+        console.warn("[generate-linkedin-carousel] auth lookup failed:", error);
+        return null;
+    }
+}
+
+function buildAgentCostContext(
+    supabase: ServiceSupabaseClient,
+    userId: string | null,
+    params: CarouselParams,
+    mode: string,
+): AgentCostContext {
+    return {
+        supabase,
+        userId,
+        operation: "",
+        metadata: {
+            topic: params.topic,
+            platform: params.platform || "linkedin",
+            format: params.format || "carousel",
+            research_level: params.researchLevel || "light",
+            style_mode: params.style_mode || "hybrid-composite",
+            mode,
+        },
+    };
+}
+
 async function generateCarouselOnce(
     params: CarouselParams,
     supabase: ServiceSupabaseClient,
+    userId: string | null,
+    mode: string,
     send?: (event: string, data: Record<string, unknown>) => void,
     persistIdea: boolean = true
 ) {
     const strategyStart = Date.now();
+    const costContext = buildAgentCostContext(supabase, userId, params, mode);
     send?.("step", { step: "strategist", status: "in_progress", message: "Definindo estratégia..." });
 
-    const strategy = await strategistAgent(params, supabase);
+    const strategy = await strategistAgent(params, supabase, costContext);
     if (persistIdea) {
         await persistContentIdea(supabase, params, strategy);
     }
@@ -132,12 +190,12 @@ async function generateCarouselOnce(
 
     const copyStart = Date.now();
     send?.("agent_status", { agent: "copywriter", status: "in_progress", message: "Escrevendo o conteúdo..." });
-    const copy = await copywriterAgent(params, strategy);
+    const copy = await copywriterAgent(params, strategy, costContext);
     send?.("copywriter_result", { fullOutput: copy });
 
     const designStart = Date.now();
     send?.("step", { step: "images", status: "in_progress", message: "Gerando imagens..." });
-    const rawImages = await designerAgent(supabase, params, copy);
+    const rawImages = await designerAgent(supabase, params, copy, costContext);
 
     let images = rawImages;
     if (params.style_mode === "hybrid-composite") {
@@ -149,7 +207,7 @@ async function generateCarouselOnce(
 
     const reviewStart = Date.now();
     send?.("step", { step: "analyst", status: "in_progress", message: "Revisando alinhamento de marca..." });
-    const review = await brandAnalystAgent(copy, images, params.platform || "linkedin");
+    const review = await brandAnalystAgent(copy, images, params.platform || "linkedin", costContext);
     send?.("analyst_result", { fullOutput: review });
     send?.("step", { step: "analyst", status: "completed", message: "Revisão concluída" });
 
@@ -228,9 +286,12 @@ async function generateCarouselOnce(
 async function generatePlanOptions(
     params: CarouselParams,
     supabase: ServiceSupabaseClient,
+    userId: string | null,
+    mode: string,
     count: number
 ) {
-    const strategies = await strategistPlansAgent(params, supabase, count);
+    const costContext = buildAgentCostContext(supabase, userId, params, mode);
+    const strategies = await strategistPlansAgent(params, supabase, count, costContext);
     const options = [] as any[];
 
     for (const strategy of strategies) {
@@ -238,7 +299,8 @@ async function generatePlanOptions(
             ...params,
             topic: strategy.topic || params.topic
         };
-        const copy = await copywriterAgent(planParams, strategy);
+        const planCostContext = buildAgentCostContext(supabase, userId, planParams, mode);
+        const copy = await copywriterAgent(planParams, strategy, planCostContext);
         options.push(toCarouselPayload(planParams, copy));
     }
 
@@ -263,6 +325,7 @@ serve(async (req) => {
         const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
         const params = buildParams(inputData);
+        const trackingUserId = await resolveTrackingUserId(req, supabase);
         const numberOfCarousels = Math.max(1, Number(inputData.numberOfCarousels || 1));
         const persistIdea = inputData?.persistIdea !== false;
 
@@ -280,7 +343,7 @@ serve(async (req) => {
                         try {
                             if (mode === "plan") {
                                 send("step", { step: "strategist", status: "in_progress", message: "Gerando opções de estratégia..." });
-                                const planOptions = await generatePlanOptions(params, supabase, numberOfCarousels || 3);
+                                const planOptions = await generatePlanOptions(params, supabase, trackingUserId, mode, numberOfCarousels || 3);
                                 send("step", { step: "strategist", status: "completed", message: "Opções prontas" });
                                 send("complete", { carousels: planOptions });
                                 controller.close();
@@ -289,7 +352,12 @@ serve(async (req) => {
 
                             const carousels = [] as any[];
                             const strategies = numberOfCarousels > 1
-                                ? await strategistPlansAgent(params, supabase, numberOfCarousels)
+                                ? await strategistPlansAgent(
+                                    params,
+                                    supabase,
+                                    numberOfCarousels,
+                                    buildAgentCostContext(supabase, trackingUserId, params, mode),
+                                )
                                 : [];
 
                             for (let i = 0; i < numberOfCarousels; i += 1) {
@@ -298,7 +366,14 @@ serve(async (req) => {
                                     topic: strategies[i]?.topic || params.topic
                                 };
 
-                                const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase, send, persistIdea);
+                                const { result, slidesWithImages } = await generateCarouselOnce(
+                                    variantParams,
+                                    supabase,
+                                    trackingUserId,
+                                    mode,
+                                    send,
+                                    persistIdea,
+                                );
                                 carousels.push({
                                     ...toCarouselPayload(variantParams, result.carousel, result.images),
                                     slides: slidesWithImages
@@ -328,7 +403,7 @@ serve(async (req) => {
         }
 
         if (mode === "plan") {
-            const planOptions = await generatePlanOptions(params, supabase, numberOfCarousels || 3);
+            const planOptions = await generatePlanOptions(params, supabase, trackingUserId, mode, numberOfCarousels || 3);
             return new Response(JSON.stringify({ success: true, carousels: planOptions }), {
                 headers: { ...corsHeaders, "Content-Type": "application/json" }
             });
@@ -336,7 +411,12 @@ serve(async (req) => {
 
         const carousels = [] as any[];
         const strategies = numberOfCarousels > 1
-            ? await strategistPlansAgent(params, supabase, numberOfCarousels)
+            ? await strategistPlansAgent(
+                params,
+                supabase,
+                numberOfCarousels,
+                buildAgentCostContext(supabase, trackingUserId, params, mode),
+            )
             : [];
 
         for (let i = 0; i < numberOfCarousels; i += 1) {
@@ -344,7 +424,14 @@ serve(async (req) => {
                 ...params,
                 topic: strategies[i]?.topic || params.topic
             };
-            const { result, slidesWithImages } = await generateCarouselOnce(variantParams, supabase, undefined, persistIdea);
+            const { result, slidesWithImages } = await generateCarouselOnce(
+                variantParams,
+                supabase,
+                trackingUserId,
+                mode,
+                undefined,
+                persistIdea,
+            );
             carousels.push({
                 ...toCarouselPayload(variantParams, result.carousel, result.images),
                 slides: slidesWithImages

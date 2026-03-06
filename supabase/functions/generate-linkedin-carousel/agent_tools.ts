@@ -1,9 +1,17 @@
 // Story 7.2 & 7.4: Agent Tools - RAG Asset Retrieval and Utilities
 // Story 7.7: Vector embeddings for carousel learning loop
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 // Removed Google Generative AI dependency to eliminate Google Cloud costs/keys.
 // Embedding generation is temporarily disabled or needs to be moved to an OpenRouter compatible provider if available (e.g. Voyage AI or others via OpenRouter if supported, or just disabled).
+
+export interface CostTrackingContext {
+  supabase?: any;
+  userId?: string | null;
+  operation: string;
+  metadata?: Record<string, unknown>;
+}
 
 /**
  * Story 7.7: Generate embedding for carousel content
@@ -19,7 +27,8 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
  */
 export async function generateEmbedding(
   input: string,
-  dimensions: number = 768
+  dimensions: number = 768,
+  costContext?: CostTrackingContext,
 ): Promise<number[] | null> {
   try {
     const openRouterKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
@@ -28,38 +37,53 @@ export async function generateEmbedding(
       return null;
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${openRouterKey}`,
-      },
-      body: JSON.stringify({
-        model: "openai/text-embedding-3-small",
-        input: input,
-        // Some providers might not support the dimensions param directly, 
-        // but OpenAI does via OpenRouter if configured.
-        dimensions: dimensions
-      })
-    });
+    const executeCall = async () => {
+      const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${openRouterKey}`,
+        },
+        body: JSON.stringify({
+          model: "openai/text-embedding-3-small",
+          input: input,
+          dimensions: dimensions
+        })
+      });
 
-    if (!response.ok) {
-      console.error("OpenRouter Embedding Error:", await response.text());
-      return null;
-    }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("OpenRouter Embedding Error:", errorText);
+        throw new Error(`OpenRouter Embedding Error: ${response.status}`);
+      }
 
-    const data = await response.json();
-    let embedding = data.data?.[0]?.embedding;
+      const data = await response.json();
+      let embedding = data.data?.[0]?.embedding;
     
-    // Safety truncation if provider ignores the dimensions param
-    if (embedding && embedding.length > dimensions) {
-      embedding = embedding.slice(0, dimensions);
-    } else if (embedding && embedding.length < dimensions) {
-      // Padding if necessary
-      embedding = [...embedding, ...new Array(dimensions - embedding.length).fill(0)];
+      if (embedding && embedding.length > dimensions) {
+        embedding = embedding.slice(0, dimensions);
+      } else if (embedding && embedding.length < dimensions) {
+        embedding = [...embedding, ...new Array(dimensions - embedding.length).fill(0)];
+      }
+
+      return embedding || null;
+    };
+
+    if (!costContext?.supabase) {
+      return await executeCall();
     }
 
-    return embedding || null;
+    return await executeWithCostTracking(
+      costContext.supabase,
+      {
+        userId: costContext.userId || null,
+        operation: costContext.operation,
+        service: "openrouter",
+        model: "openai/text-embedding-3-small",
+        metadata: costContext.metadata,
+      },
+      executeCall,
+    );
   } catch (error) {
     console.error("❌ Embedding generation error:", error);
     return null;
@@ -71,10 +95,11 @@ export async function generateEmbedding(
  */
 export async function generateCarouselEmbedding(
   topic: string,
-  slides: any[]
+  slides: any[],
+  costContext?: CostTrackingContext,
 ): Promise<number[] | null> {
   const content = `Topic: ${topic}\n\nContent: ${slides.map(s => `${s.headline}: ${s.body}`).join('\n')}`;
-  return generateEmbedding(content, 768);
+  return generateEmbedding(content, 768, costContext);
 }
 
 /**
@@ -121,13 +146,14 @@ export async function searchKnowledgeBase(
   supabase: SupabaseClient,
   query: string,
   matchThreshold: number = 0.5,
-  matchCount: number = 3
+  matchCount: number = 3,
+  costContext?: CostTrackingContext,
 ): Promise<any[]> {
   try {
     console.log(`🔍 KB Search: "${query}"...`);
 
     // 1. Generate embedding for the query (768 dim for KB)
-    const queryEmbedding = await generateEmbedding(query, 768);
+    const queryEmbedding = await generateEmbedding(query, 768, costContext);
     
     if (!queryEmbedding) {
       console.warn("⚠️ KB Search: Could not generate embedding");
@@ -161,7 +187,8 @@ export async function searchKnowledgeBase(
  */
 export async function deepResearch(
   query: string,
-  maxTimeMs: number = 15000 // 15 seconds max
+  maxTimeMs: number = 15000,
+  costContext?: CostTrackingContext,
 ): Promise<string | null> {
   try {
     console.log(`🔬 Deep Research: "${query}" (max ${maxTimeMs}ms)...`);
@@ -174,31 +201,47 @@ export async function deepResearch(
     }
 
     // Call Perplexity API directly for research
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${PERPLEXITY_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "sonar-reasoning",
-        messages: [{
-          role: "user",
-          content: `Research this topic for a B2B LinkedIn carousel. Provide: 1) Latest industry trends/statistics (${new Date().getFullYear()}), 2) Key pain points, 3) Technical facts. Keep it concise (3-4 key points). Topic: ${query}`
-        }],
-        max_tokens: 500,
-        temperature: 0.3,
-      }),
-      signal: AbortSignal.timeout(maxTimeMs)
-    });
+    const executeCall = async () => {
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${PERPLEXITY_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "sonar-reasoning",
+          messages: [{
+            role: "user",
+            content: `Research this topic for a B2B LinkedIn carousel. Provide: 1) Latest industry trends/statistics (${new Date().getFullYear()}), 2) Key pain points, 3) Technical facts. Keep it concise (3-4 key points). Topic: ${query}`
+          }],
+          max_tokens: 500,
+          temperature: 0.3,
+        }),
+        signal: AbortSignal.timeout(maxTimeMs)
+      });
 
-    if (!response.ok) {
-      console.warn(`⚠️ Research API error: ${response.status}`);
-      return null;
-    }
+      if (!response.ok) {
+        console.warn(`⚠️ Research API error: ${response.status}`);
+        throw new Error(`Research API error: ${response.status}`);
+      }
 
-    const data = await response.json();
-    const researchContent = data.choices?.[0]?.message?.content;
+      return await response.json();
+    };
+
+    const data = costContext?.supabase
+      ? await executeWithCostTracking(
+          costContext.supabase,
+          {
+            userId: costContext.userId || null,
+            operation: costContext.operation,
+            service: "perplexity",
+            model: "sonar-reasoning",
+            metadata: costContext.metadata,
+          },
+          executeCall,
+        )
+      : await executeCall();
+    const researchContent = data?.choices?.[0]?.message?.content;
 
     const timeElapsed = Date.now() - startTime;
     console.log(`✅ Research completed in ${timeElapsed}ms`);
@@ -222,13 +265,14 @@ export async function deepResearch(
  */
 export async function searchCompanyAssets(
   supabase: SupabaseClient,
-  query: string
+  query: string,
+  costContext?: CostTrackingContext,
 ): Promise<{ url: string; source: string; name: string } | null> {
   try {
     console.log(`🔍 RAG Asset Search: "${query}"...`);
 
     // 1. Generate 1536-dim embedding for asset search
-    const queryEmbedding = await generateEmbedding(query, 1536);
+    const queryEmbedding = await generateEmbedding(query, 1536, costContext);
     
     if (queryEmbedding) {
       // 2. Vector Search across product_catalog (includes facility photos from Claude's ingestion)

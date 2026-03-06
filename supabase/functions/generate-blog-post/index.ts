@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,32 +34,62 @@ function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T
   ]);
 }
 
+interface CostTrackingContext {
+  supabase: any;
+  userId: string | null;
+  operation: string;
+  metadata?: Record<string, unknown>;
+}
+
 // Helper: Safe AI call with retry (OpenRouter)
-async function callAI(apiKey: string, body: object, timeoutMs = 25000): Promise<any> {
+async function callAI(
+  apiKey: string,
+  body: Record<string, any>,
+  timeoutMs = 25000,
+  tracking?: CostTrackingContext,
+): Promise<any> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://lifetrek.app",
-        "X-Title": "Lifetrek App",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    const executeCall = async () => {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://lifetrek.app",
+          "X-Title": "Lifetrek App",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`AI API error ${response.status}:`, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`AI API error ${response.status}:`, errorText);
+        throw new Error(`AI API error: ${response.status}`);
+      }
+
+      return await response.json();
+    };
+
+    if (!tracking) {
+      return await executeCall();
     }
 
-    return await response.json();
+    return await executeWithCostTracking(
+      tracking.supabase,
+      {
+        userId: tracking.userId,
+        operation: tracking.operation,
+        service: "openrouter",
+        model: String(body.model || "unknown"),
+        metadata: tracking.metadata,
+      },
+      executeCall,
+    );
   } catch (error) {
     clearTimeout(timeoutId);
     throw error;
@@ -69,40 +100,59 @@ async function createOpenRouterEmbedding(
   apiKey: string,
   input: string,
   model: string,
-  timeoutMs = 20000
+  timeoutMs = 20000,
+  tracking?: CostTrackingContext,
 ): Promise<number[] | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://lifetrek.app",
-        "X-Title": "Lifetrek App",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        input,
-      }),
-      signal: controller.signal,
-    });
+    const executeCall = async () => {
+      const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://lifetrek.app",
+          "X-Title": "Lifetrek App",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          input,
+        }),
+        signal: controller.signal,
+      });
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Embedding API error ${response.status}:`, errorText);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Embedding API error ${response.status}:`, errorText);
+        throw new Error(`Embedding API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const embedding = data?.data?.[0]?.embedding;
+      if (Array.isArray(embedding)) return embedding;
+
       return null;
+    };
+
+    if (!tracking) {
+      return await executeCall();
     }
 
-    const data = await response.json();
-    const embedding = data?.data?.[0]?.embedding;
-    if (Array.isArray(embedding)) return embedding;
-
-    return null;
+    return await executeWithCostTracking(
+      tracking.supabase,
+      {
+        userId: tracking.userId,
+        operation: tracking.operation,
+        service: "openrouter",
+        model,
+        metadata: tracking.metadata,
+      },
+      executeCall,
+    );
   } catch (error) {
     clearTimeout(timeoutId);
     console.error("Embedding API error:", error);
@@ -172,6 +222,8 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { generateNews, topic, category, research_context, skipImage, keywords: requestedKeywords, job_id: jobIdFromReq } = body;
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
     const VECTOR_BUCKET_NAME = Deno.env.get("VECTOR_BUCKET_NAME");
@@ -179,8 +231,30 @@ serve(async (req) => {
     const VECTOR_BUCKET_ENABLED = Deno.env.get("VECTOR_BUCKET_ENABLED") === "true";
     const EMBEDDING_MODEL = Deno.env.get("OPEN_ROUTER_EMBEDDING_MODEL") || "openai/text-embedding-3-small";
 
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured");
+    }
     if (!OPEN_ROUTER_API) {
       throw new Error("OPEN_ROUTER_API is not configured");
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    let trackingUserId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader && /^Bearer\s+/i.test(authHeader)) {
+      const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+      if (token) {
+        const { data: authData } = await supabase.auth.getUser(token);
+        trackingUserId = authData.user?.id || null;
+      }
+    }
+    if (!trackingUserId && jobIdFromReq) {
+      const { data: jobData } = await supabase
+        .from("jobs")
+        .select("user_id")
+        .eq("id", jobIdFromReq)
+        .maybeSingle();
+      trackingUserId = jobData?.user_id || null;
     }
 
     let contextToUse = research_context || "";
@@ -227,21 +301,44 @@ IMPORTANTE:
 - Se o tópico não for regulatório, priorize manufatura, qualidade, engenharia de processo, metrologia e performance operacional.
 - Nunca inclua nomes de outros clientes/consultorias.`;
 
-        const researchPromise = fetch("https://api.perplexity.ai/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
-            "Content-Type": "application/json",
+        const researchPromise = executeWithCostTracking(
+          supabase,
+          {
+            userId: trackingUserId,
+            operation: "content.generate-blog-post.research",
+            service: "perplexity",
+            model: "sonar-pro",
+            metadata: {
+              topic: topic || null,
+              category: category || null,
+              workflow_stage: "deep-research",
+            },
           },
-          body: JSON.stringify({
-            model: "sonar-pro", // Using sonar-pro for deeper research
-            messages: [
-              { role: "system", content: "Você é um pesquisador sênior especializado em dispositivos médicos, regulamentação ANVISA e manufatura de precisão. Forneça informações atualizadas, precisas e com fontes." },
-              { role: "user", content: deepResearchPrompt }
-            ],
-            search_recency_filter: "month", // Focus on recent content
-          }),
-        }).then(r => r.json());
+          async () => {
+            const response = await fetch("https://api.perplexity.ai/chat/completions", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: "sonar-pro",
+                messages: [
+                  { role: "system", content: "Você é um pesquisador sênior especializado em dispositivos médicos, regulamentação ANVISA e manufatura de precisão. Forneça informações atualizadas, precisas e com fontes." },
+                  { role: "user", content: deepResearchPrompt }
+                ],
+                search_recency_filter: "month",
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Perplexity API error (${response.status}): ${errorText}`);
+            }
+
+            return await response.json();
+          },
+        );
 
         const pData = await withTimeout(researchPromise, 20000, { choices: [], citations: [] });
         contextToUse = pData.choices?.[0]?.message?.content || "";
@@ -273,18 +370,25 @@ IMPORTANTE:
           const queryEmbedding = await createOpenRouterEmbedding(
             OPEN_ROUTER_API,
             queryText,
-            EMBEDDING_MODEL
+            EMBEDDING_MODEL,
+            20000,
+            {
+              supabase,
+              userId: trackingUserId,
+              operation: "content.generate-blog-post.embedding",
+              metadata: {
+                topic: topic || null,
+                category: category || null,
+                workflow_stage: "vector-rag",
+              },
+            }
           );
           ragMetrics.embedding_ms = Math.round(performance.now() - embeddingStart);
 
           if (queryEmbedding) {
-            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-            const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-            const supabase = createClient(supabaseUrl, supabaseKey);
-
             const vectorStart = performance.now();
             const { data: vectorData, error: vectorError } =
-              await supabase.storage.vectors
+              await (supabase.storage as any).vectors
                 .from(VECTOR_BUCKET_NAME)
                 .index(VECTOR_INDEX_NAME)
                 .queryVectors({
@@ -341,7 +445,15 @@ IMPORTANTE:
         { role: "user", content: "Create the strategy. Be concise." }
       ],
       response_format: { type: "json_object" },
-    }, 15000);
+    }, 15000, {
+      supabase,
+      userId: trackingUserId,
+      operation: "content.generate-blog-post.strategist",
+      metadata: {
+        topic: topic || null,
+        category: category || null,
+      },
+    });
 
     let strategy;
     try {
@@ -421,7 +533,15 @@ ${sourceContext}
         { role: "user", content: "Write the article now." }
       ],
       response_format: { type: "json_object" },
-    }, 30000);
+    }, 30000, {
+      supabase,
+      userId: trackingUserId,
+      operation: "content.generate-blog-post.writer",
+      metadata: {
+        topic: topic || null,
+        category: category || null,
+      },
+    });
 
     let finalPost;
     try {
@@ -468,11 +588,6 @@ ${sourceContext}
       const imgStart = Date.now();
 
       try {
-        // Quick asset fetch
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
         const productsResult = await supabase
           .from("processed_product_images")
           .select("name, enhanced_url")
@@ -513,21 +628,44 @@ CRITICAL:
 The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
 
         // Image generation with improved model
-        const imgPromise = fetch("https://openrouter.ai/api/v1/images/generations", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPEN_ROUTER_API}`,
-            "HTTP-Referer": "https://lifetrek.app",
-            "X-Title": "Lifetrek App",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
+        const imgPromise = executeWithCostTracking(
+          supabase,
+          {
+            userId: trackingUserId,
+            operation: "content.generate-blog-post.hero-image",
+            service: "openrouter",
             model: "stabilityai/stable-diffusion-xl-base-1.0",
-            prompt: designPrompt,
-            n: 1,
-            size: "1792x1024"
-          })
-        }).then(r => (r.ok ? r.json() : null));
+            metadata: {
+              topic: topic || null,
+              category: category || null,
+              workflow_stage: "hero-image",
+            },
+          },
+          async () => {
+            const response = await fetch("https://openrouter.ai/api/v1/images/generations", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${OPEN_ROUTER_API}`,
+                "HTTP-Referer": "https://lifetrek.app",
+                "X-Title": "Lifetrek App",
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                model: "stabilityai/stable-diffusion-xl-base-1.0",
+                prompt: designPrompt,
+                n: 1,
+                size: "1792x1024"
+              })
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Blog image generation failed (${response.status}): ${errorText}`);
+            }
+
+            return await response.json();
+          },
+        );
 
         const imgData = await withTimeout(imgPromise, 20000, null);
         if (imgData) {
@@ -574,10 +712,6 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
     console.log(`🎉 [COMPLETE] Blog post generated in ${totalTime}ms`);
 
     // ASYNC JOB MODE: Save to DB autonomously
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     const jobId = jobIdFromReq;
 
     if (jobId) {
@@ -586,11 +720,11 @@ The image should convey: Trust, Precision, Innovation, Medical Excellence.`;
       try {
         // Get job details to find user_id
         const { data: jobData } = await supabase.from('jobs').select('user_id').eq('id', jobId).single();
-        const userId = jobData?.user_id || (await supabase.auth.getUser())?.data?.user?.id;
+        const userId = jobData?.user_id || trackingUserId;
 
         if (!userId) {
           console.warn("No userId found for blog save, skipping.");
-          return;
+          return new Response("Job skipped", { status: 200 });
         }
 
         const insertData = {

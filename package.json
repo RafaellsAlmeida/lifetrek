@@ -99,7 +99,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "1.57.0",
     "@remotion/cli": "4.0.407",
     "@seontechnologies/playwright-utils": "^3.13.1",
     "@tailwindcss/typography": "^0.5.16",

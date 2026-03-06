@@ -1,6 +1,6 @@
 # Story 1.4: Image Variant Guardrails
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -16,12 +16,12 @@ so that historical images remain available for comparison and rollback.
 
 ## Tasks / Subtasks
 
-- [ ] Enforce append-only variant writes in regeneration flow (AC: 1)
-  - [ ] Block overwrite paths for existing active image
-- [ ] Support active variant switching with immutable history (AC: 2)
-  - [ ] Ensure UI and backend pointer updates are aligned
-- [ ] Add destructive-action guardrails (AC: 3)
-  - [ ] Validate API/UI rejects deletion-style operations
+- [x] Enforce append-only variant writes in regeneration flow (AC: 1)
+  - [x] Block overwrite paths for existing active image
+- [x] Support active variant switching with immutable history (AC: 2)
+  - [x] Ensure UI and backend pointer updates are aligned
+- [x] Add destructive-action guardrails (AC: 3)
+  - [x] Validate API/UI rejects deletion-style operations
 
 ## Dev Notes
 
@@ -49,6 +49,20 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- `deno check supabase/functions/regenerate-carousel-images/index.ts supabase/functions/set-slide-background/index.ts`
+- `npm run lint`
+- Playwright admin verification screenshot: `/var/folders/64/d80xb0q973lcbhg8xntrqky40000gn/T/playwright-mcp-output/1772803323178/page-2026-03-06T13-57-45-135Z.png`
+
 ### Completion Notes List
 
+- Preserved append-only image variant history in both regeneration and manual background selection flows.
+- Fixed `image_urls` persistence to preserve slide index alignment instead of collapsing arrays.
+- Added explicit API rejection for deletion-style variant requests and surfaced immutable-history guidance in the editor UI.
+- Kept local fallback behavior aligned with edge-function behavior when the published function is unavailable.
+
 ### File List
+
+- supabase/functions/regenerate-carousel-images/index.ts
+- supabase/functions/regenerate-carousel-images/generators/satori.ts
+- supabase/functions/set-slide-background/index.ts
+- src/components/admin/content/ImageEditorCore.tsx

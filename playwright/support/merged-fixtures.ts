@@ -28,9 +28,12 @@ const authBase = base.extend<{ authToken: string }>({
       const token = supabaseAuthProvider.extractToken(
         storageState as Record<string, unknown>
       );
+      // Playwright fixture callback uses the conventional "use" name.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       await use(token ?? "");
     } catch {
       // Auth not configured — tests that need it must call test.skip()
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       await use("");
     }
   },
