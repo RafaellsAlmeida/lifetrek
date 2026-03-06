@@ -1,12 +1,12 @@
 // scripts/generate_video_assets.ts
-// Uses RunwayML API (Gen-3 Alpha) to generate the A-roll assets defined in videoStudioPlan.ts
+// Uses RunwayML API (Gen-3 Alpha) to generate the planned A-roll assets for the Lifetrek showcase
 // Note: Requires RUNWAY_API_KEY env var.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RUNWAY_API_KEY = Deno.env.get("RUNWAY_API_KEY");
 
-// Prompts aligned with src/data/videoStudioPlan.ts (Full AI Generation Coverage)
+// Prompts aligned with the storyboarded scenes for the showcase (Full AI Generation Coverage)
 const PROMPTS = [
   // Scene 1: Factory Exterior (AI to replace missing Drone footage)
   {

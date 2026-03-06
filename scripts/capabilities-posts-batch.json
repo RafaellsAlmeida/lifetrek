@@ -1,0 +1,57 @@
+[
+  {
+    "topic": "Tornos suíços Citizen L20/M32: usinagem de implantes com geometria complexa sem reposicionamento",
+    "targetAudience": "Fabricantes de dispositivos médicos, engenheiros de P&D, gestores de qualidade",
+    "painPoint": "Variação dimensional acumulada ao mudar de setup entre operações — fornecedores convencionais não conseguem manter tolerâncias em geometrias complexas (roscas finas, canais internos, perfis cônicos)",
+    "desiredOutcome": "Fornecedor capaz de produzir geometrias críticas em peça única, com repetibilidade comprovada no mesmo programa CNC da série",
+    "ctaAction": "Envie seu desenho para análise de viabilidade",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Citizen L20", "Citizen M32"],
+    "referenceImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295892539_production-floor.jpg"
+  },
+  {
+    "topic": "Eletropolimento in-house: acabamento Ra < 0,1μm rastreável por lote para implantes médicos",
+    "targetAudience": "Gestores de qualidade, engenheiros de materiais, fabricantes de implantes ortopédicos e dentais",
+    "painPoint": "Terceirizar o eletropolimento quebra a cadeia de rastreabilidade e dificulta auditorias ANVISA/FDA — com variação de lote para lote fora do seu SGQ",
+    "desiredOutcome": "Acabamento Ra < 0,1μm controlado no mesmo SGQ da usinagem, com laudo dimensional integrado ao dossiê de lote",
+    "ctaAction": "Solicite especificação técnica do nosso processo de eletropolimento",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Eletropolimento"],
+    "referenceImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295836476_electropolish-line-new.jpg"
+  },
+  {
+    "topic": "Sala Limpa ISO Classe 7: onde a montagem e embalagem de implantes acontece com controle de ambiente rastreável",
+    "targetAudience": "Fabricantes de dispositivos médicos, gestores regulatórios, responsáveis por qualidade de produto",
+    "painPoint": "Contaminação em montagem/embalagem fora de ambiente controlado — e a dificuldade de auditar fornecedores sem sala limpa própria e registros de ambiente por lote",
+    "desiredOutcome": "Produto montado, embalado e documentado em sala limpa ISO 7 com registros integrados ao DHR/lote, pronto para ANVISA e FDA",
+    "ctaAction": "Agende uma visita técnica às nossas salas limpas",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Sala Limpa ISO 7"],
+    "referenceImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295801183_cleanroom-hero.webp"
+  },
+  {
+    "topic": "Marcação a laser UDI em Ti Grau 5, 316L e Co-Cr: rastreabilidade do fabricante ao paciente",
+    "targetAudience": "Gestores regulatórios, engenheiros de qualidade, fabricantes buscando conformidade ANVISA RDC 591 e FDA 21 CFR 830",
+    "painPoint": "Marcação inadequada ou sem comprovação de legibilidade após esterilização pode invalidar o UDI plan e travar dossiês regulatórios",
+    "desiredOutcome": "UDI conforme RDC 591/2021 e FDA 21 CFR 830 gravado a laser de fibra, documentado por lote, sem impacto estrutural na peça",
+    "ctaAction": "Solicite validação da marcação UDI para seu componente",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Laser de Fibra", "Marcação a Laser UDI"],
+    "referenceImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295871181_laser-marking.png"
+  },
+  {
+    "topic": "Usinagem, eletropolimento, metrologia e sala limpa sob o mesmo teto: um dossiê, zero transferências de custódia",
+    "targetAudience": "Fabricantes de dispositivos médicos, gestores de supply chain, diretores de qualidade",
+    "painPoint": "Coordenar 4 fornecedores diferentes para usinagem, acabamento, metrologia e embalagem gera pontos de falha, quebras de rastreabilidade e NCs sem responsável claro",
+    "desiredOutcome": "Um único dossiê de lote cobrindo todas as etapas — da barra de Ti ao produto embalado em sala limpa — sem custódia terceirizada",
+    "ctaAction": "Fale com nosso time técnico e simplifique sua cadeia de suprimentos",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Citizen L20", "Eletropolimento", "ZEISS Contura", "Sala Limpa ISO 7"],
+    "referenceImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295900668_production-overview.jpg"
+  }
+]
