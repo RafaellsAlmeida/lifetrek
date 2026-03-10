@@ -1,6 +1,6 @@
 # Story 1.4: Image Variant Guardrails
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -22,6 +22,12 @@ so that historical images remain available for comparison and rollback.
   - [x] Ensure UI and backend pointer updates are aligned
 - [x] Add destructive-action guardrails (AC: 3)
   - [x] Validate API/UI rejects deletion-style operations
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][High] Load the current active slide image before the last appended variant in the editor; reopening the editor currently shows the newest variant instead of the selected active one. [src/components/admin/content/ImageEditorCore.tsx:390]
+- [ ] [AI-Review][Medium] Remove or harden the client-side fallback write path so immutable-history behavior is enforced through the same backend guardrails even when the edge function is unavailable. [src/components/admin/content/ImageEditorCore.tsx:481]
+- [ ] [AI-Review][Medium] Add an automated regression that switches to an older variant and verifies the editor reopens on that active pointer. [src/components/admin/content/ImageEditorCore.tsx:527]
 
 ## Dev Notes
 
@@ -66,3 +72,19 @@ GPT-5 Codex
 - supabase/functions/regenerate-carousel-images/generators/satori.ts
 - supabase/functions/set-slide-background/index.ts
 - src/components/admin/content/ImageEditorCore.tsx
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Findings:
+  - [High] The editor reload path prefers the last item in `image_variants` over the active `image_url`, so UI state drifts from the backend pointer after a variant switch. [src/components/admin/content/ImageEditorCore.tsx:390]
+  - [Medium] The browser fallback update path bypasses the shared edge-function contract, which weakens the story's claim that guardrails are enforced uniformly. [src/components/admin/content/ImageEditorCore.tsx:481]
+  - [Medium] The story evidence has no automated regression covering variant switching, which is exactly where the current UI mismatch slipped through. [src/components/admin/content/ImageEditorCore.tsx:527]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

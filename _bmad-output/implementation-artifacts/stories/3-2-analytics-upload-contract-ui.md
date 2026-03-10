@@ -1,6 +1,6 @@
 # Story 3.2: Analytics Upload Contract UI
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -22,6 +22,12 @@ so that I can upload files and understand ingestion outcomes without developer h
   - [ ] Include accepted/rejected counts and major error categories
 - [ ] Add pre-validation failure guidance (AC: 3)
   - [ ] Provide direct correction instructions
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][High] Render inline corrective guidance from failed validation responses instead of reducing them to a toast message. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:63]
+- [ ] [AI-Review][Medium] Summarize dominant rejection reasons in the ingest result UI instead of only showing raw row samples. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:192]
+- [ ] [AI-Review][Medium] Gate `Importar` behind a successful validation pass so the upload flow follows the documented contract. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:163]
 
 ## Dev Notes
 
@@ -51,3 +57,20 @@ GPT-5 Codex
 ### Completion Notes List
 
 ### File List
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Story Note: this story reached `review` with an empty File List and no completion evidence even though the upload panel is already mounted on `/admin/analytics`.
+- Findings:
+  - [High] Failed validation responses are collapsed to a toast, so the UI discards the structured correction data needed for AC3. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:63]
+  - [Medium] The result UI exposes counts and raw samples but never groups the main rejection reasons, so AC2 is only partially satisfied. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:192]
+  - [Medium] The UI still lets operators ingest without first completing a validation pass, which weakens the explicit upload contract. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:163]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

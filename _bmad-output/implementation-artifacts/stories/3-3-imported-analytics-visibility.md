@@ -1,6 +1,6 @@
 # Story 3.3: Imported Analytics Visibility
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -34,6 +34,12 @@ so that future content decisions use real performance data.
   - [x] AC3 is handled by `LinkedInCsvUploadPanel` already rendered above the tabs — confirm it remains there on the same page
   - [x] No changes to other tabs, routes, or shared hooks
 - [x] Verify no-regression: run `npm run lint` (AC: none but required per brownfield rule)
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][Medium] Move latest-period aggregation off the browser; the hook currently downloads the full `linkedin_analytics` table and aggregates client-side. [src/hooks/useImportedLinkedInAnalytics.ts:50]
+- [ ] [AI-Review][Medium] Persist or re-fetch rejected-row summaries if AC3 is meant to survive refresh or navigation; the current error summary lives only in component state. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:28]
+- [ ] [AI-Review][Medium] Re-establish the LinkedIn tab no-regression baseline before closing the story; `PostPerformanceTable` still queries missing `linkedin_carousels` fields and errors at runtime. [src/components/admin/analytics/PostPerformanceTable.tsx:40]
 
 ## Dev Notes
 
@@ -96,3 +102,19 @@ GPT-5 Codex
 - `src/hooks/useImportedLinkedInAnalytics.ts`
 - `src/components/admin/analytics/ImportedAnalyticsSummary.tsx`
 - `src/pages/Admin/UnifiedAnalytics.tsx`
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Findings:
+  - [Medium] The new hook loads the full `linkedin_analytics` dataset into the browser and computes summaries client-side, which will age poorly as imports accumulate. [src/hooks/useImportedLinkedInAnalytics.ts:50]
+  - [Medium] AC3 is only transiently satisfied because rejected-row details disappear after refresh or navigation; nothing persists that state for later correction. [src/components/admin/analytics/LinkedInCsvUploadPanel.tsx:28]
+  - [Medium] The LinkedIn tab still contains `PostPerformanceTable`, which queries fields that do not exist on `linkedin_carousels`, so the story's no-regression claim is not yet defensible. [src/components/admin/analytics/PostPerformanceTable.tsx:40]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

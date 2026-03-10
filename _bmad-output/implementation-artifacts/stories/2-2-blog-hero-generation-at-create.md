@@ -1,6 +1,6 @@
 # Story 2.2: Blog Hero Generation at Create
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -22,6 +22,12 @@ so that each draft is review-ready with a visual.
   - [ ] Validate URL field contract and storage location
 - [ ] Implement recoverable failure handling (AC: 3)
   - [ ] Return explicit error object and remediation guidance
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][High] Persist `featured_image` and `hero_image_url` in the `/admin/blog` AI-create flow; the current editor-form path drops both fields before save. [src/pages/AdminBlog.tsx:195]
+- [ ] [AI-Review][High] Preserve `image_generation_status` and `image_generation_error` when drafts are created from `generate-blog-post` so failures remain actionable after save. [src/pages/AdminBlog.tsx:261]
+- [ ] [AI-Review][Medium] Normalize failed hero generations to `NULL` instead of empty strings so backfill detection and hero/status alignment keep working. [supabase/functions/generate-blog-post/index.ts:702]
 
 ## Dev Notes
 
@@ -52,3 +58,20 @@ GPT-5 Codex
 ### Completion Notes List
 
 ### File List
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Story Note: this story reached `review` with an empty File List and no completion evidence even though the generation function and admin create flows changed.
+- Findings:
+  - [High] The `/admin/blog` AI-create path still discards hero fields when it loads generated text into the editor form, so drafts can be saved without the generated hero. [src/pages/AdminBlog.tsx:195]
+  - [High] The direct-create flows do not persist `image_generation_status` or `image_generation_error`, which leaves hero failures non-actionable after save and misses AC3. [src/pages/AdminBlog.tsx:261]
+  - [Medium] Failed hero generations are represented as empty strings rather than `NULL`, which breaks the follow-on backfill and alignment logic. [supabase/functions/generate-blog-post/index.ts:702]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

@@ -41,30 +41,30 @@ story_location: _bmad-output/implementation-artifacts/stories
 
 development_status:
   epic-1: in-progress
-  1-1-content-ideas-schema: review
-  1-2-linkedin-analytics-schema: review
-  1-3-blog-posts-hero-status-alignment: review
-  1-4-image-variant-guardrails: review
+  1-1-content-ideas-schema: in-progress
+  1-2-linkedin-analytics-schema: in-progress
+  1-3-blog-posts-hero-status-alignment: in-progress
+  1-4-image-variant-guardrails: in-progress
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-platform-param-carousel-generation: review
-  2-2-blog-hero-generation-at-create: review
-  2-3-chat-intent-to-carousel-params: review
+  2-1-platform-param-carousel-generation: in-progress
+  2-2-blog-hero-generation-at-create: in-progress
+  2-3-chat-intent-to-carousel-params: in-progress
   2-4-cost-tracking-enforcement: done
   epic-2-retrospective: optional
 
   epic-3: in-progress
-  3-1-linkedin-csv-ingestion-function: review
-  3-2-analytics-upload-contract-ui: review
-  3-3-imported-analytics-visibility: review
+  3-1-linkedin-csv-ingestion-function: in-progress
+  3-2-analytics-upload-contract-ui: in-progress
+  3-3-imported-analytics-visibility: in-progress
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-orchestrator-mode-parity-ux: backlog
-  4-2-unified-approval-queue-behavior: backlog
-  4-3-operator-failure-recovery-ux: backlog
-  4-4-human-editing-surfaces-blogs-resources: review
+  epic-4: in-progress
+  4-1-orchestrator-mode-parity-ux: in-progress
+  4-2-unified-approval-queue-behavior: ready-for-dev
+  4-3-operator-failure-recovery-ux: ready-for-dev
+  4-4-human-editing-surfaces-blogs-resources: in-progress
   epic-4-retrospective: optional
 
   epic-5: backlog
@@ -72,3 +72,13 @@ development_status:
   5-2-access-and-audit-guardrails: backlog
   5-3-cross-domain-no-regression-verification: backlog
   epic-5-retrospective: optional
+
+  epic-6: in-progress
+  6-1-stakeholder-review-db-schema: done
+  6-2-send-stakeholder-review-function: done
+  6-3-stakeholder-review-action-function: done
+  6-4-public-review-page: backlog
+  6-5-admin-stakeholder-status-ui: backlog
+  6-6-admin-manual-send-trigger: backlog
+  6-7-weekly-auto-send-cron: backlog
+  epic-6-retrospective: optional

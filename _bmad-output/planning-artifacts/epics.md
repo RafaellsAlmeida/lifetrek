@@ -43,6 +43,14 @@ FR-016 Real Asset First Background Selection
 FR-017 Cost Tracking Coverage  
 FR-018 Access Control and Auditability
 FR-019 Human Editing for Blogs and Resources
+FR-020 Stakeholder Review Batch Creation
+FR-021 Branded HTML Email Delivery via Resend
+FR-022 Token-Based Stakeholder Authentication (No Login)
+FR-023 Stakeholder Approve / Reject / Edit Copy Actions
+FR-024 Copy Edit Suggestions Surfaced in Admin
+FR-025 Manual Batch Send Trigger in Admin
+FR-026 Weekly Auto-Send via Supabase Scheduled Function
+FR-027 Stakeholder Review Status Visibility in Admin
 
 ### NonFunctional Requirements
 
@@ -85,6 +93,14 @@ NFR-010 Compatibility
 - FR-017 -> Epic 2
 - FR-018 -> Epic 5
 - FR-019 -> Epic 4
+- FR-020 -> Epic 6
+- FR-021 -> Epic 6
+- FR-022 -> Epic 6
+- FR-023 -> Epic 6
+- FR-024 -> Epic 6
+- FR-025 -> Epic 6
+- FR-026 -> Epic 6
+- FR-027 -> Epic 6
 
 ## Epic List
 
@@ -112,6 +128,15 @@ Harden entry, approval, and operational UX so non-technical operators can safely
 Protect non-content domains from regressions while enforcing security, brand, and data integrity constraints.
 
 **FRs covered:** FR-015, FR-016, FR-018
+
+### Epic 6: Stakeholder Email Approval System
+Enable a two-stage approval loop where Rafael approves content in admin, then
+sends a branded HTML email digest to rbianchini@lifetrek-medical and
+njesus@lifetrek-medical for their review. Stakeholders can approve, reject with
+a comment, or suggest copy edits — all via a token-secured public review page
+with no admin login required.
+
+**FRs covered:** FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-027
 
 ## Epic 1: Data Foundation
 
@@ -348,3 +373,457 @@ So that content-engine delivery does not disrupt existing business operations.
 1. **Given** content-engine changes are prepared, **When** regression checklist runs, **Then** CRM and website key paths are validated.
 2. **Given** regression risk is detected, **When** release gate evaluates, **Then** blocker is surfaced before production promotion.
 3. **Given** no blockers remain, **When** release is approved, **Then** verification evidence is attached to release notes.
+
+---
+
+## Epic 6: Stakeholder Email Approval System
+
+Enable a two-stage content approval loop. After Rafael approves content in the
+admin dashboard, the system collects approved posts and delivers a branded HTML
+email digest to rbianchini@lifetrek-medical and njesus@lifetrek-medical.
+Stakeholders can approve, reject with a comment, or suggest copy edits — all
+through a token-secured public review page (no admin login required). The first
+approval from either stakeholder marks the post as stakeholder-approved. Rafael
+retains the final publish action.
+
+**Approval status progression:**
+```
+generated → pending → admin_approved → stakeholder_review_pending
+  → stakeholder_approved (first approval wins)
+  → stakeholder_rejected (if all reviewers reject with no prior approval)
+  → published (Rafael explicitly publishes)
+```
+
+**Stakeholder reviewers (fixed):**
+- rbianchini@lifetrek-medical
+- njesus@lifetrek-medical
+
+**Send triggers:**
+- Manual: Rafael selects admin_approved posts in Content Approval and clicks
+  "Enviar para Aprovação dos Stakeholders"
+- Automatic: Supabase scheduled function runs every Monday at 08:00 BRT
+  (11:00 UTC) and sends any admin_approved posts not yet in a review batch.
+  If Rafael manually sent that week, the cron skips (no posts to send).
+
+**Resend integration:** `RESEND_API_KEY` edge function secret; sender address
+`noreply@lifetrek-medical.com` (or Resend sandbox domain in local dev).
+
+---
+
+### Story 6.1: DB Schema — Stakeholder Review Tables
+
+As a platform owner,
+I want canonical tables for stakeholder review batches, tokens, and item statuses,
+So that all approval state is persisted and auditable without relying on ephemeral logic.
+
+**New tables:**
+
+`stakeholder_review_batches`
+- `id` UUID PK
+- `created_by` UUID FK (admin user who triggered the send)
+- `notes` text nullable (optional context Rafael can add before sending)
+- `sent_at` timestamptz NOT NULL DEFAULT now()
+- `expires_at` timestamptz NOT NULL DEFAULT now() + interval '7 days'
+- `status` text NOT NULL DEFAULT 'sent' CHECK (status IN ('sent','completed','expired'))
+- `created_at` timestamptz NOT NULL DEFAULT now()
+
+`stakeholder_review_tokens`
+- `id` UUID PK DEFAULT gen_random_uuid()
+- `batch_id` UUID FK → stakeholder_review_batches(id) ON DELETE CASCADE
+- `reviewer_email` text NOT NULL
+- `token` UUID NOT NULL UNIQUE DEFAULT gen_random_uuid()
+- `created_at` timestamptz NOT NULL DEFAULT now()
+- `expires_at` timestamptz NOT NULL
+- `last_used_at` timestamptz nullable
+INDEX: `idx_stakeholder_review_tokens_token` ON token
+
+`stakeholder_review_items`
+- `id` UUID PK DEFAULT gen_random_uuid()
+- `batch_id` UUID FK → stakeholder_review_batches(id) ON DELETE CASCADE
+- `content_type` text NOT NULL CHECK (content_type IN ('linkedin_carousel','instagram_post','blog_post'))
+- `content_id` UUID NOT NULL
+- `status` text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected','edit_suggested'))
+- `reviewed_by_email` text nullable
+- `reviewer_comment` text nullable
+- `copy_edits` jsonb nullable
+  — For carousels/Instagram: `{"caption":"...","slides":[{"index":0,"headline":"...","body":"..."}]}`
+  — For blog posts: `{"title":"...","excerpt":"..."}`
+- `reviewed_at` timestamptz nullable
+- `created_at` timestamptz NOT NULL DEFAULT now()
+INDEX: `idx_stakeholder_review_items_batch_content` ON (batch_id, content_type, content_id)
+
+**Status additions to content tables:**
+- `linkedin_carousels.status`: add allowed values `stakeholder_review_pending`,
+  `stakeholder_approved`, `stakeholder_rejected`
+- `instagram_posts.status`: same additions
+- `blog_posts.status`: same additions
+
+**RLS:** `stakeholder_review_batches` and `stakeholder_review_tokens` — admin-only
+read/write. `stakeholder_review_items` — admin read/write; public-read via
+service-role key in the review-action edge function only.
+
+**Acceptance Criteria:**
+
+1. **Given** a valid admin session, **When** a batch is created, **Then** a
+   `stakeholder_review_batches` record is persisted with correct `sent_at` and
+   `expires_at` values.
+2. **Given** two reviewers are configured, **When** a batch is created, **Then**
+   two `stakeholder_review_tokens` records exist with distinct tokens and the
+   same `expires_at` as the batch.
+3. **Given** N posts are included in a batch, **When** batch is created, **Then**
+   N `stakeholder_review_items` exist with `status = 'pending'` and correct
+   `content_type` / `content_id` values.
+4. **Given** unauthorized actor, **When** write to batch tables is attempted,
+   **Then** RLS denies the operation.
+5. **Given** a batch expires, **When** cron marks status, **Then** associated
+   tokens are no longer usable.
+
+---
+
+### Story 6.2: `send-stakeholder-review` Edge Function + HTML Email Template
+
+As an admin operator,
+I want a single edge function that creates the review batch and delivers a
+branded HTML email to both stakeholders,
+So that the full send flow is atomic and requires no manual steps beyond clicking Send.
+
+**Edge function:** `supabase/functions/send-stakeholder-review/index.ts`
+
+**Request payload:**
+```json
+{
+  "post_refs": [
+    { "content_type": "linkedin_carousel", "content_id": "uuid" },
+    { "content_type": "blog_post", "content_id": "uuid" }
+  ],
+  "notes": "optional batch note from Rafael"
+}
+```
+
+**Procedure:**
+1. Validate JWT + admin authorization.
+2. Validate each `content_id` exists and has `status = 'admin_approved'`.
+3. Validate each post has a caption or excerpt (at minimum one line of copy)
+   before sending — return 400 with explicit error if any post has no copy.
+4. Create `stakeholder_review_batches` record.
+5. For each reviewer email (rbianchini, njesus from env vars
+   `STAKEHOLDER_EMAIL_1`, `STAKEHOLDER_EMAIL_2`), create a
+   `stakeholder_review_tokens` record.
+6. For each post ref, create a `stakeholder_review_items` record with
+   `status = 'pending'`.
+7. Update each content record `status → 'stakeholder_review_pending'`.
+8. Build HTML email (see template spec below).
+9. Send via Resend to both reviewers simultaneously.
+10. Return `{ data: { batch_id, sent_to: [...], item_count } }`.
+
+**HTML Email Template spec:**
+- Subject: `Lifetrek – [N] conteúdos aguardando sua aprovação`
+- Preheader: `Revise os conteúdos da semana antes da publicação.`
+- Header band: Corporate Blue `#004F8F`, Lifetrek logo (white), bold white
+  subheading with reviewer first name
+- Body background: `#F4F7FA`
+- Per-post card (white card, 8px radius, subtle shadow):
+  - Content type badge (LinkedIn / Instagram / Blog Post) — color-coded
+  - Thumbnail: first slide image URL or blog hero (120×120px, rounded 6px)
+    displayed inline (if no image: placeholder gray box)
+  - Caption preview: italic, truncated to 200 chars with ellipsis
+  - Slide headlines for carousels: bulleted list of first 3 headlines
+  - Action buttons row:
+    - ✅ Aprovar — `#1A7A3E` green background, white text, links to direct
+      approve URL: `{REVIEW_BASE_URL}/api/review-action?token={token}&item={item_id}&action=approve`
+    - ✏️ Revisar / Editar — `#004F8F` blue, links to
+      `{REVIEW_BASE_URL}/review/{token}?item={item_id}`
+    - ❌ Rejeitar — `#DC2626` red, links to
+      `{REVIEW_BASE_URL}/review/{token}?item={item_id}&action=reject`
+  - Note: all buttons are `<a>` tags with inline CSS (email client safe)
+- Divider between posts
+- Footer: "Este link expira em 7 dias · Lifetrek Medical · [current year]"
+- Full PT-BR copy throughout
+
+**`REVIEW_BASE_URL`** = Vercel deployment URL (env var set in Supabase dashboard
+for edge functions; in local dev, use tunnel URL).
+
+**Cost tracking:** No AI calls in this function — Resend only. Cost tracker not
+required, but log send event to `audit_log` or console with batch_id.
+
+**Acceptance Criteria:**
+
+1. **Given** valid post refs with `admin_approved` status, **When** function is
+   called, **Then** batch, tokens, and items are created; both reviewers receive
+   the email; content moves to `stakeholder_review_pending`.
+2. **Given** a post without caption or copy, **When** function is called, **Then**
+   function returns 400 with `{ error: "Post {id} has no copy. Generate caption before sending." }`.
+3. **Given** non-admin caller, **When** function is called, **Then** returns 401.
+4. **Given** email delivery succeeds, **When** email is received, **Then** each
+   post has three working action buttons (Aprovar / Revisar / Rejeitar).
+5. **Given** HTML email renders, **When** opened on desktop or mobile email
+   client, **Then** Lifetrek brand colors and logo are present; all text is PT-BR.
+
+---
+
+### Story 6.3: `stakeholder-review-action` Public Edge Function
+
+As a stakeholder,
+I want my approval, rejection, or copy-edit submitted securely without logging in,
+So that reviewing content is frictionless and requires only clicking a link in email.
+
+**Edge function:** `supabase/functions/stakeholder-review-action/index.ts`
+
+**Auth model:** No JWT required (`verify_jwt = false` in config.toml). Security
+via token validation only. Uses `SUPABASE_SERVICE_ROLE_KEY` internally.
+
+**Endpoints (all GET or POST):**
+
+`GET /stakeholder-review-action?token={token}&item={item_id}&action=approve`
+- Validates token exists in `stakeholder_review_tokens` AND `now() < expires_at`
+- Marks `stakeholder_review_items.status = 'approved'`, sets `reviewed_by_email`,
+  `reviewed_at`
+- Checks if content already has another `approved` item in same batch → if so,
+  skip content status update (idempotent)
+- Updates `stakeholder_review_items` first approval → sets content table
+  `status = 'stakeholder_approved'`
+- Updates `stakeholder_review_tokens.last_used_at`
+- Returns HTML page: branded thank-you page with Lifetrek styling, PT-BR copy:
+  "Conteúdo aprovado! Obrigado, [first name]."
+
+`GET /stakeholder-review-action?token={token}&item={item_id}&action=reject`
+- Same token validation
+- Returns HTML page with a simple rejection form: comment textarea + submit button
+- On form submit (POST to same endpoint with `action=reject&comment=...`):
+  - Sets `status = 'rejected'`, stores `reviewer_comment`
+  - Updates content status to `stakeholder_rejected` ONLY IF no approved item
+    exists for that content in this batch (i.e., the other reviewer may have approved)
+  - Returns HTML confirmation: "Feedback registrado. Obrigado."
+
+`GET /stakeholder-review-action?token={token}&item={item_id}&action=edit`
+- Redirects to `/review/{token}?item={item_id}` (public review page)
+
+**Error responses (also HTML pages):**
+- Expired token: "Este link expirou. Peça a Rafael um novo envio."
+- Invalid token: "Link inválido."
+- Already reviewed: "Você já revisou este conteúdo."
+
+**Acceptance Criteria:**
+
+1. **Given** valid token and `action=approve`, **When** GET fires, **Then**
+   item status becomes `approved`, content status becomes `stakeholder_approved`,
+   and reviewer sees PT-BR thank-you page.
+2. **Given** valid token and `action=reject`, **When** GET fires, **Then**
+   reviewer is presented with a comment form; on submit, item status becomes
+   `rejected` with stored comment.
+3. **Given** other reviewer already approved, **When** second reviewer rejects,
+   **Then** content status remains `stakeholder_approved` (first approval wins).
+4. **Given** expired token, **When** GET fires, **Then** HTML page explains
+   expiry; no DB state changes.
+5. **Given** same token used for approve twice, **When** second GET fires, **Then**
+   function is idempotent (no duplicate updates, informational page returned).
+
+---
+
+### Story 6.4: Public Review Page `/review/[token]`
+
+As a stakeholder,
+I want a web page where I can see all posts in my review batch, approve, reject
+with a comment, or suggest copy edits,
+So that I can give detailed feedback without needing an admin account.
+
+**Route:** `/review/:token` — public React route added to `src/App.tsx`.
+No `ProtectedAdminRoute` wrapper.
+
+**Page component:** `src/pages/StakeholderReview/StakeholderReviewPage.tsx`
+
+**Data flow:**
+- On mount, call `stakeholder-review-action?token={token}&action=fetch` (GET)
+  to retrieve batch items + content details (via service role in edge function)
+- Edge function returns:
+  ```json
+  {
+    "data": {
+      "reviewer_name": "Rodrigo",
+      "expires_at": "...",
+      "items": [
+        {
+          "item_id": "uuid",
+          "content_type": "linkedin_carousel",
+          "content_id": "uuid",
+          "status": "pending",
+          "title": "...",
+          "caption": "...",
+          "thumbnail_url": "...",
+          "slides": [{ "headline": "...", "body": "..." }]
+        }
+      ]
+    }
+  }
+  ```
+- Display each item as a card:
+  - Content type badge
+  - Thumbnail (first slide or blog hero)
+  - Caption (read-only display)
+  - Slide headlines list (for carousels)
+  - If `status !== 'pending'`: show locked "Já revisado" badge, no actions
+  - Actions row:
+    - "Aprovar" button → POST approve action, update local state
+    - "Rejeitar" button → expands inline comment form; on submit → POST reject action
+    - "Editar cópia" button → expands inline editor with editable caption and slide
+      text fields; on submit → POST edit-suggestion action (saves to `copy_edits`)
+- Progress bar at top: "X de N posts revisados"
+- After all items reviewed: "Revisão completa! Obrigado, [name]."
+- Branded: Lifetrek logo, Corporate Blue header, PT-BR throughout
+- Mobile-responsive (Tailwind utilities only)
+
+**Edit-suggestion POST endpoint in `stakeholder-review-action`:**
+`POST /stakeholder-review-action`
+```json
+{
+  "token": "...",
+  "item_id": "...",
+  "action": "edit_suggest",
+  "copy_edits": { "caption": "...", "slides": [...] }
+}
+```
+- Sets `status = 'edit_suggested'`, stores `copy_edits`
+- Does NOT change content status (remains `stakeholder_review_pending`)
+- Sends a Realtime DB change that Rafael sees in admin
+
+**Acceptance Criteria:**
+
+1. **Given** valid token, **When** page loads, **Then** all batch items render
+   with correct content type, thumbnail, and caption.
+2. **Given** stakeholder clicks Aprovar, **When** API call succeeds, **Then** card
+   updates to "Aprovado" state without page reload.
+3. **Given** stakeholder clicks Editar cópia, **When** they submit changes,
+   **Then** `copy_edits` is stored in DB and item `status = 'edit_suggested'`.
+4. **Given** expired token, **When** page loads, **Then** user sees expiry message
+   in PT-BR with no post data exposed.
+5. **Given** mobile screen width, **When** page renders, **Then** post cards are
+   readable and action buttons are tappable without horizontal scroll.
+
+---
+
+### Story 6.5: Admin Content Approval — Stakeholder Status & Copy Suggestions
+
+As an admin operator,
+I want to see stakeholder review status for each post in the Content Approval
+page, and apply or dismiss copy-edit suggestions,
+So that I can act on stakeholder feedback before publishing.
+
+**Changes to `ContentApprovalCore.tsx` and related hooks:**
+
+**New status filter tabs (add to existing tab set):**
+- "Em revisão" → filters `status = 'stakeholder_review_pending'`
+- "Aprovado por stakeholder" → `status = 'stakeholder_approved'`
+- "Rejeitado por stakeholder" → `status = 'stakeholder_rejected'`
+- "Sugestões de edição" → `status = 'edit_suggested'` (from `stakeholder_review_items`)
+
+**Per-post expanded detail (when card is expanded):**
+- Stakeholder review status badge: Pending / Approved by [email] / Rejected by [email]
+- Reviewer comment (if any): shown in a styled callout block
+- Copy edit suggestions (if `copy_edits` present):
+  - Diff view: original text vs suggested text (side-by-side or below)
+  - "Aplicar sugestão" button → updates content record with suggested copy,
+    calls existing caption/slide update path
+  - "Descartar sugestão" button → marks item as dismissed (no DB status change
+    on content, item `copy_edits` cleared)
+
+**New hook:** `src/hooks/useStakeholderReview.ts`
+- `useStakeholderReviewItems(contentType, contentId)` → queries
+  `stakeholder_review_items` for a given post, returns items with reviewer info
+- `useApplyCopyEditSuggestion(itemId)` → mutation that applies `copy_edits`
+  to the content record and clears suggestion
+
+**Acceptance Criteria:**
+
+1. **Given** posts with `stakeholder_review_pending` status, **When** "Em revisão"
+   tab is selected, **Then** those posts appear with reviewer status shown.
+2. **Given** a post with `copy_edits` set, **When** card is expanded, **Then**
+   diff between original and suggested copy is visible.
+3. **Given** Rafael clicks "Aplicar sugestão", **When** mutation succeeds, **Then**
+   content record is updated with suggested text and suggestion is cleared.
+4. **Given** a post is `stakeholder_approved`, **When** viewed in admin, **Then**
+   reviewer email and approval timestamp are shown.
+5. **Given** a post is `stakeholder_rejected`, **When** viewed in admin, **Then**
+   rejection comment is displayed in a clearly styled callout.
+
+---
+
+### Story 6.6: Admin Manual Send Trigger ("Enviar para Aprovação")
+
+As Rafael (admin),
+I want to select admin-approved posts in the Content Approval page and send them
+for stakeholder review with one action,
+So that I control exactly which posts go out and when.
+
+**UI additions to `ContentApprovalCore.tsx`:**
+
+- In "Aprovado" tab (existing `admin_approved` filter): add a checkbox column
+  to each post card
+- When ≥1 post selected: floating action bar appears at bottom of screen with:
+  - "X posts selecionados"
+  - "Enviar para Aprovação" button
+- Clicking "Enviar para Aprovação" opens `SendReviewModal`:
+  - Summary: "Enviar [N] posts para:"
+    - rbianchini@lifetrek-medical ✓
+    - njesus@lifetrek-medical ✓
+  - Optional notes textarea: "Adicionar nota para os revisores (opcional)"
+  - Post list with thumbnail + type badge (non-editable)
+  - "Cancelar" and "Confirmar envio" buttons
+- On confirm: calls `send-stakeholder-review` edge function; shows toast on
+  success: "Email enviado com sucesso para 2 revisores."
+- On error: toast with error message from function response
+
+**New component:** `src/components/admin/content/SendReviewModal.tsx`
+
+**Acceptance Criteria:**
+
+1. **Given** posts with `admin_approved` status, **When** checkboxes are selected,
+   **Then** floating action bar shows with count and send button.
+2. **Given** send modal is open, **When** confirm is clicked, **Then** edge
+   function is called; loading state is shown; success toast appears on completion.
+3. **Given** send succeeds, **When** modal closes, **Then** selected posts update
+   to `stakeholder_review_pending` status in the UI (React Query invalidation).
+4. **Given** send fails, **When** error is returned, **Then** modal stays open
+   with error message; no status change on posts.
+5. **Given** Rafael adds optional notes, **When** batch is sent, **Then** notes
+   are persisted in `stakeholder_review_batches.notes`.
+
+---
+
+### Story 6.7: Weekly Auto-Send Scheduled Function
+
+As the platform,
+I want an automatic weekly send of admin-approved posts that have not yet been
+sent for stakeholder review,
+So that the approval loop completes even if Rafael forgets to trigger it manually.
+
+**Scheduled function:** `supabase/functions/weekly-stakeholder-send/index.ts`
+
+Registered in Supabase dashboard as a cron job:
+`0 11 * * 1` (11:00 UTC = 08:00 BRT, every Monday)
+
+**Procedure:**
+1. Query all `linkedin_carousels`, `instagram_posts`, `blog_posts` where:
+   - `status = 'admin_approved'`
+   - `id NOT IN (SELECT content_id FROM stakeholder_review_items)`
+2. If result set is empty → log "No posts to send. Skipping." and return 200.
+3. If result set has ≥1 post → call `send-stakeholder-review` internally
+   (direct Supabase function invocation or shared handler import) with:
+   - `post_refs`: all found posts
+   - `notes`: "Envio automático semanal – {ISO date}"
+   - `created_by`: system UUID (defined in env var `SYSTEM_USER_ID`)
+4. Log result: batch_id, count sent, reviewer emails.
+
+**Idempotency:** Cron runs Monday. If Rafael manually sent on Friday (all posts
+already in `stakeholder_review_items`), query returns empty — no duplicate send.
+
+**Acceptance Criteria:**
+
+1. **Given** admin_approved posts not yet in any batch, **When** cron fires,
+   **Then** a batch is created and emails sent to both reviewers.
+2. **Given** no admin_approved posts pending, **When** cron fires, **Then**
+   function exits cleanly with log "No posts to send."
+3. **Given** Rafael manually sent all posts earlier that week, **When** cron
+   fires on Monday, **Then** no duplicate batch or duplicate email is sent.
+4. **Given** function invocation fails (Resend error), **When** error is caught,
+   **Then** function returns 500 with error logged; no partial batch is left
+   in `sent` status (rollback or clear created records).

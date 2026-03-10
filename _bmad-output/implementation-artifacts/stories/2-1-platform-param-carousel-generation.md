@@ -1,6 +1,6 @@
 # Story 2.1: Platform Param Carousel Generation
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -22,6 +22,12 @@ so that LinkedIn and Instagram outputs are tailored without duplicate pipelines.
   - [ ] Add regression checks for existing LinkedIn generation
 - [ ] Implement Instagram-specific copy branch (AC: 3)
   - [ ] Align output fields with existing `instagram_posts` structure
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][High] Enforce authenticated admin access before `generate-linkedin-carousel` saves LinkedIn or Instagram records through the service-role client. [supabase/functions/generate-linkedin-carousel/index.ts:323]
+- [ ] [AI-Review][Medium] Reject unsupported `platform` values instead of silently coercing them to `linkedin`. [supabase/functions/generate-linkedin-carousel/index.ts:35]
+- [ ] [AI-Review][Medium] Return platform-specific output config in non-persisted responses too; `plan` and preview payloads are still shaped generically via `toCarouselPayload`. [supabase/functions/generate-linkedin-carousel/index.ts:70]
 
 ## Dev Notes
 
@@ -52,3 +58,20 @@ GPT-5 Codex
 ### Completion Notes List
 
 ### File List
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Story Note: this story reached `review` with an empty File List and no completion evidence even though the platform contract now spans backend and frontend files.
+- Findings:
+  - [High] `generate-linkedin-carousel` still uses the service-role client without an admin gate, so platform-aware content generation is not restricted to the intended operator context. [supabase/functions/generate-linkedin-carousel/index.ts:323]
+  - [Medium] Unsupported platform values are silently normalized to `linkedin`, which means the contract does not really validate accepted values. [supabase/functions/generate-linkedin-carousel/index.ts:35]
+  - [Medium] The preview and plan responses remain generic even for Instagram, so platform-specific output config is only visible after persistence. [supabase/functions/generate-linkedin-carousel/index.ts:70]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

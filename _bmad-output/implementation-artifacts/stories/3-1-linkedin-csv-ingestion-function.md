@@ -1,6 +1,6 @@
 # Story 3.1: LinkedIn CSV Ingestion Function
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -22,6 +22,12 @@ so that monthly data imports are repeatable and safe.
   - [ ] Return accepted/rejected counts and row-level errors
 - [ ] Add duplicate period policy enforcement (AC: 3)
   - [ ] Implement deterministic conflict handling
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][High] Enforce a real duplicate-period policy for `conflict_policy=skip`; today the function still inserts new rows into already-imported periods unless the row hash matches exactly. [supabase/functions/ingest-linkedin-analytics/index.ts:330]
+- [ ] [AI-Review][High] Fail validation when required metric columns are missing instead of normalizing them to `0`. [supabase/functions/ingest-linkedin-analytics/index.ts:290]
+- [ ] [AI-Review][High] Restrict ingestion to admin users before service-role writes. [supabase/functions/ingest-linkedin-analytics/index.ts:200]
 
 ## Dev Notes
 
@@ -52,3 +58,20 @@ GPT-5 Codex
 ### Completion Notes List
 
 ### File List
+
+## Senior Developer Review (AI)
+
+- Reviewer: Rafaelalmeida
+- Date: 2026-03-10
+- Outcome: Changes Requested
+- Status Recommendation: `in-progress`
+- Git Note: local `git status` contains unrelated worktree changes, so the review was executed against the current implementation rather than a clean per-story diff.
+- Story Note: this story reached `review` with an empty File List and no completion evidence even though the ingestion function is present in the codebase.
+- Findings:
+  - [High] Duplicate-period handling is not deterministic in `skip` mode because the function only dedupes exact row hashes and still mixes uploads inside an existing month. [supabase/functions/ingest-linkedin-analytics/index.ts:330]
+  - [High] File-shape validation does not really happen before writes; rows missing required metric columns are still accepted with zeroed values. [supabase/functions/ingest-linkedin-analytics/index.ts:290]
+  - [High] The ingestion endpoint is available to any authenticated user, even though the workflow is meant to be an admin operator action. [supabase/functions/ingest-linkedin-analytics/index.ts:200]
+
+### Change Log
+
+- 2026-03-10: Senior Developer Review (AI) completed. Added follow-up items and returned status to `in-progress`.

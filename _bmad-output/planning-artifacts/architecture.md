@@ -502,6 +502,113 @@ lifetrek/
 - Template/brand lock path: `supabase/functions/regenerate-carousel-images/*`
 - Type authority path: `src/integrations/supabase/types.ts`
 
+## Epic 6 Architecture Extension — Stakeholder Email Approval System (2026-03-10)
+
+### Overview
+
+A second-level approval loop built on top of the existing `admin_approved` status.
+Zero new paid infrastructure: uses Resend (free tier: 3,000 emails/month) and
+Supabase scheduled functions (cron, free tier). All secure-but-unauthenticated
+stakeholder interactions are routed through token-validated public edge functions.
+
+### New Environment Variables (Supabase Dashboard)
+
+| Variable | Purpose |
+|---|---|
+| `RESEND_API_KEY` | Resend API key for email delivery |
+| `REVIEW_BASE_URL` | Vercel deployment URL (e.g., `https://lifetrek.vercel.app`) |
+| `STAKEHOLDER_EMAIL_1` | `rbianchini@lifetrek-medical.com` |
+| `STAKEHOLDER_EMAIL_2` | `njesus@lifetrek-medical.com` |
+| `SYSTEM_USER_ID` | UUID used as `created_by` for cron-triggered batches |
+
+### Data Architecture Addition
+
+Three new tables — all snake_case, UUID PKs, RLS-enforced:
+
+| Table | Owner | Purpose |
+|---|---|---|
+| `stakeholder_review_batches` | admin-write | One record per send event |
+| `stakeholder_review_tokens` | admin-write | One token per reviewer per batch |
+| `stakeholder_review_items` | admin-write / service-role-read | One record per post per batch |
+
+Content status additions (non-breaking additions to existing CHECK constraints):
+- `stakeholder_review_pending` — post sent, awaiting stakeholder response
+- `stakeholder_approved` — at least one stakeholder approved
+- `stakeholder_rejected` — all reviewers rejected, none approved
+
+### API & Communication Patterns Addition
+
+| Function | Auth | Notes |
+|---|---|---|
+| `send-stakeholder-review` | JWT + admin | Creates batch, builds HTML email, sends via Resend |
+| `stakeholder-review-action` | Token (no JWT) | Public; approve/reject/edit_suggest/fetch actions |
+| `weekly-stakeholder-send` | Cron (service role) | Scheduled: Monday 11:00 UTC; invokes send logic |
+
+All three follow the standard edge function structure:
+```
+supabase/functions/<fn-name>/
+  index.ts
+  handlers/
+  utils/
+  types.ts
+```
+
+`stakeholder-review-action` returns HTML responses (not JSON) for approve/reject
+actions because stakeholders click from email — the browser must show a human-readable
+confirmation page, not raw JSON.
+
+`send-stakeholder-review` uses `npm:resend` (Deno npm compatibility) for email delivery.
+No AI calls → no `_shared/cost-tracker` required in this function.
+
+### Frontend Architecture Addition
+
+| Route | Access | Component |
+|---|---|---|
+| `/review/:token` | Public (no auth) | `src/pages/StakeholderReview/StakeholderReviewPage.tsx` |
+
+Added to `src/App.tsx` routes without `ProtectedAdminRoute` wrapper.
+
+Admin changes (no new routes):
+- `ContentApprovalCore.tsx`: new status filter tabs, stakeholder status badge,
+  copy-edit suggestion diff + apply/dismiss, floating multi-select action bar
+- `SendReviewModal.tsx`: new component in `src/components/admin/content/`
+- `useStakeholderReview.ts`: new hook in `src/hooks/`
+
+### Approval State Machine
+
+```
+admin_approved
+    ↓ [Rafael clicks Send / cron fires]
+stakeholder_review_pending
+    ↓ [any reviewer approves]          ↓ [all reviewers reject, none approved]
+stakeholder_approved              stakeholder_rejected
+    ↓ [Rafael publishes]
+published
+```
+
+Rule enforcement: state transitions only via `stakeholder-review-action` and
+`send-stakeholder-review`. Content table direct writes are blocked by RLS for
+these status values — only service-role (used in edge functions) can set them.
+
+### Cron Schedule
+
+Registered in Supabase dashboard under Project → Edge Functions → Schedule:
+- Function: `weekly-stakeholder-send`
+- Schedule: `0 11 * * 1` (every Monday at 11:00 UTC)
+- No new infra — Supabase cron is available on the free tier
+
+### NFR Compliance
+
+| NFR | Compliance |
+|---|---|
+| Zero infra cost | Resend free tier (3,000/mo), Supabase cron free, no new servers |
+| No polling | Token validation is stateless; review page uses React Query one-shot fetch |
+| PT-BR | Email template and review page copy fully in PT-BR |
+| Security | Token UUID + expiry; service-role only for internal DB writes; no JWT exposed |
+| Event-driven | Status updates trigger Supabase Realtime → admin sees updates live |
+
+---
+
 ## Smart Regen Architecture Update (Implemented 2026-03-05)
 
 ### Scope Completed
