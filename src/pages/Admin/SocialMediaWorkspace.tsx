@@ -126,7 +126,7 @@ export default function SocialMediaWorkspace() {
         return prev;
       });
     } catch (err: any) {
-      toast.error(err?.message || "Falha ao gerar carrossel");
+      throw err instanceof Error ? err : new Error(err?.message || "Falha ao gerar carrossel");
     } finally {
       setIsGenerating(false);
     }

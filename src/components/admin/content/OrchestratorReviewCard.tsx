@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Sparkles, Pencil, RotateCcw, X } from "lucide-react";
 import type { OrchestratorGenerationParams } from "./ContentOrchestratorCore";
 
@@ -28,15 +30,51 @@ export function OrchestratorReviewCard({
   generationError,
 }: OrchestratorReviewCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [baselineParams] = useState(params);
 
-  const update = (field: keyof OrchestratorGenerationParams, value: any) => {
+  const update = (field: keyof OrchestratorGenerationParams, value: string | string[] | undefined) => {
     onParamsChange({ ...params, [field]: value });
+  };
+
+  const normalizeFieldValue = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value.join("\n").trim() : (value || "").trim();
+
+  const isEditedField = (field: keyof OrchestratorGenerationParams) =>
+    normalizeFieldValue(params[field]) !== normalizeFieldValue(baselineParams[field]);
+
+  const editedFieldClassName = (field: keyof OrchestratorGenerationParams) =>
+    isEditedField(field) ? "border-amber-300 bg-amber-50/80" : "";
+
+  const renderSummaryRow = (
+    field: keyof OrchestratorGenerationParams,
+    label: string,
+    value?: string | string[],
+  ) => {
+    if (!value || (Array.isArray(value) && value.length === 0)) return null;
+
+    const displayValue = Array.isArray(value) ? value.join(", ") : value;
+
+    return (
+      <div
+        className={cn(
+          "rounded-md px-2 py-1 transition-colors",
+          isEditedField(field) && "bg-amber-50 text-amber-900 ring-1 ring-amber-200",
+        )}
+      >
+        <strong>{label}:</strong> {displayValue}
+        {isEditedField(field) && (
+          <span className="ml-2 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+            Editado
+          </span>
+        )}
+      </div>
+    );
   };
 
   return (
     <div className="rounded-md border border-primary/20 bg-primary/5 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-700">Parâmetros de geração</span>
+        <span className="text-sm font-medium text-foreground">Parâmetros de geração</span>
         <div className="flex items-center gap-2">
           {confidence != null && (
             <Badge variant="secondary" className="text-[10px]">
@@ -62,7 +100,7 @@ export function OrchestratorReviewCard({
             <Input
               value={params.topic}
               onChange={(e) => update("topic", e.target.value)}
-              className="h-8 text-sm"
+              className={cn("h-8 text-sm", editedFieldClassName("topic"))}
             />
           </div>
           <div className="space-y-1">
@@ -70,12 +108,12 @@ export function OrchestratorReviewCard({
             <Input
               value={params.targetAudience || ""}
               onChange={(e) => update("targetAudience", e.target.value)}
-              className="h-8 text-sm"
+              className={cn("h-8 text-sm", editedFieldClassName("targetAudience"))}
             />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Plataforma</Label>
-            <div className="flex gap-2">
+            <div className={cn("flex gap-2 rounded-md p-1", editedFieldClassName("platform"))}>
               <Button
                 type="button"
                 variant={params.platform === "linkedin" ? "default" : "outline"}
@@ -101,7 +139,7 @@ export function OrchestratorReviewCard({
             <Input
               value={params.painPoint || ""}
               onChange={(e) => update("painPoint", e.target.value)}
-              className="h-8 text-sm"
+              className={cn("h-8 text-sm", editedFieldClassName("painPoint"))}
               placeholder="Opcional"
             />
           </div>
@@ -110,7 +148,7 @@ export function OrchestratorReviewCard({
             <Input
               value={params.desiredOutcome || ""}
               onChange={(e) => update("desiredOutcome", e.target.value)}
-              className="h-8 text-sm"
+              className={cn("h-8 text-sm", editedFieldClassName("desiredOutcome"))}
               placeholder="Opcional"
             />
           </div>
@@ -119,22 +157,30 @@ export function OrchestratorReviewCard({
             <Input
               value={params.ctaAction || ""}
               onChange={(e) => update("ctaAction", e.target.value)}
-              className="h-8 text-sm"
+              className={cn("h-8 text-sm", editedFieldClassName("ctaAction"))}
               placeholder="Opcional"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Provas / Diferenciais</Label>
+            <Textarea
+              value={(params.proofPoints || []).join("\n")}
+              onChange={(e) => update("proofPoints", e.target.value.split("\n").filter(Boolean))}
+              className={cn("text-sm", editedFieldClassName("proofPoints"))}
+              rows={2}
+              placeholder="Uma prova por linha"
             />
           </div>
         </div>
       ) : (
-        <div className="text-xs text-slate-700 space-y-1">
-          <div><strong>Tema:</strong> {params.topic}</div>
-          <div><strong>Público:</strong> {params.targetAudience}</div>
-          <div><strong>Plataforma:</strong> {params.platform}</div>
-          {params.painPoint && <div><strong>Dor:</strong> {params.painPoint}</div>}
-          {params.desiredOutcome && <div><strong>Resultado:</strong> {params.desiredOutcome}</div>}
-          {params.ctaAction && <div><strong>CTA:</strong> {params.ctaAction}</div>}
-          {params.proofPoints && params.proofPoints.length > 0 && (
-            <div><strong>Provas:</strong> {params.proofPoints.join(", ")}</div>
-          )}
+        <div className="text-xs text-muted-foreground space-y-1">
+          {renderSummaryRow("topic", "Tema", params.topic)}
+          {renderSummaryRow("targetAudience", "Público", params.targetAudience)}
+          {renderSummaryRow("platform", "Plataforma", params.platform)}
+          {renderSummaryRow("painPoint", "Dor", params.painPoint)}
+          {renderSummaryRow("desiredOutcome", "Resultado", params.desiredOutcome)}
+          {renderSummaryRow("ctaAction", "CTA", params.ctaAction)}
+          {renderSummaryRow("proofPoints", "Provas", params.proofPoints)}
         </div>
       )}
 

@@ -1,12 +1,11 @@
-// @ts-nocheck
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Send, Bot, User, ShieldAlert, Sparkles, FileText } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Sparkles, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FunctionsHttpError } from "@supabase/supabase-js";
@@ -69,11 +68,14 @@ export function ContentOrchestratorCore({
     const [savedFormData, setSavedFormData] = useState<OrchestratorGenerationParams | null>(null);
 
     // Helper to find the last topic mentioned in conversation
-    const currentTopic = messages
-        .filter(m => m.role === "assistant")
-        .reverse()
-        .find(m => m.content.toLowerCase().includes("tema") || m.content.toLowerCase().includes("tópico") || m.content.length < 100)
-        ?.content.split("\n")[0].replace(/[#*]/g, "").trim() || (messages.length > 0 ? messages[messages.length - 1].content : "");
+    const currentTopic = useMemo(() =>
+        messages
+            .filter(m => m.role === "assistant")
+            .reverse()
+            .find(m => m.content.toLowerCase().includes("tema") || m.content.toLowerCase().includes("tópico") || m.content.length < 100)
+            ?.content.split("\n")[0].replace(/[#*]/g, "").trim() || (messages.length > 0 ? messages[messages.length - 1].content : ""),
+        [messages]
+    );
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -177,7 +179,7 @@ export function ContentOrchestratorCore({
                         toast.error("Erro de autenticação. Verifique se está logado.");
                         throw error;
                     }
-                    if (error.status === 429) {
+                    if (error.context?.status === 429) {
                         toast.error("Limite de solicitações atingido. Aguarde 1 minuto.");
                         return;
                     }
@@ -265,7 +267,7 @@ export function ContentOrchestratorCore({
             {!embedded && (
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-3xl font-bold">Content Orchestrator</h1>
+                        <h1 className="text-3xl font-bold">Orquestrador de Conteúdo</h1>
                         <p className="text-muted-foreground mt-1">Estratégia e Planejamento de Conteúdo Lifetrek</p>
                     </div>
                 </div>
@@ -344,11 +346,11 @@ export function ContentOrchestratorCore({
                                             <div className={`prose ${m.role === "user" ? "prose-invert" : "dark:prose-invert"} max-w-none text-sm leading-relaxed whitespace-pre-wrap break-words`}>
                                                 <ReactMarkdown
                                                     components={{
-                                                        p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-                                                        ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2" {...props} />,
-                                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2" {...props} />,
-                                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                                                        strong: ({ node, ...props }) => <span className="font-bold" {...props} />,
+                                                        p: (props) => <p className="mb-2 last:mb-0" {...props} />,
+                                                        ul: (props) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                                                        ol: (props) => <ol className="list-decimal pl-4 mb-2" {...props} />,
+                                                        li: (props) => <li className="mb-1" {...props} />,
+                                                        strong: (props) => <span className="font-bold" {...props} />,
                                                     }}
                                                 >
                                                     {m.content}

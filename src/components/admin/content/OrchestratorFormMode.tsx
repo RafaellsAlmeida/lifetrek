@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -21,8 +22,14 @@ export function OrchestratorFormMode({
   isSubmitting,
   defaultPlatform,
 }: OrchestratorFormModeProps) {
-  const update = (field: keyof OrchestratorGenerationParams, value: any) => {
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const update = (field: keyof OrchestratorGenerationParams, value: string | string[] | undefined) => {
     onFormDataChange({ ...formData, [field]: value });
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   const isValid = formData.topic.trim().length > 0 && (formData.targetAudience?.trim() || "").length > 0;
@@ -38,10 +45,11 @@ export function OrchestratorFormMode({
             id="topic"
             value={formData.topic}
             onChange={(e) => update("topic", e.target.value)}
+            onBlur={() => handleBlur("topic")}
             placeholder="Ex: Usinagem CNC para dispositivos médicos"
-            className={!formData.topic.trim() ? "border-destructive/50" : ""}
+            className={touched.topic && !formData.topic.trim() ? "border-destructive/50" : ""}
           />
-          {!formData.topic.trim() && (
+          {touched.topic && !formData.topic.trim() && (
             <p className="text-xs text-destructive">Tema é obrigatório</p>
           )}
         </div>
@@ -54,10 +62,11 @@ export function OrchestratorFormMode({
             id="targetAudience"
             value={formData.targetAudience || ""}
             onChange={(e) => update("targetAudience", e.target.value)}
+            onBlur={() => handleBlur("targetAudience")}
             placeholder="Ex: OEM / Parceiros de Manufatura Contratada"
-            className={!(formData.targetAudience?.trim()) ? "border-destructive/50" : ""}
+            className={touched.targetAudience && !(formData.targetAudience?.trim()) ? "border-destructive/50" : ""}
           />
-          {!(formData.targetAudience?.trim()) && (
+          {touched.targetAudience && !(formData.targetAudience?.trim()) && (
             <p className="text-xs text-destructive">Público-alvo é obrigatório</p>
           )}
         </div>

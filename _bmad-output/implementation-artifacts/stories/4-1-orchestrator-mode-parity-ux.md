@@ -237,10 +237,39 @@ Pattern: commits are focused, single-purpose, descriptive messages.
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build` — pass (15.74s, 0 errors)
+- `npm run lint` — 0 errors, 40 warnings (all pre-existing)
+- `npm run build` — pass (2026-03-11, 0 errors)
+- `npm run lint` — pass with existing 40 warnings (2026-03-11)
+- Browser verification on `http://localhost:8080/admin/social?tab=create`:
+  - form mode is default
+  - form state persists across form/chat mode switches
+  - editable review card highlights user-edited fields
+  - retry state is preserved after generation failure
+  - chat request currently blocked by `chat` Edge Function returning HTTP 500 in the test environment
+
 ### Completion Notes List
 
+- Extracted form mode into `OrchestratorFormMode.tsx` with 7 fields, inline PT-BR validation, platform toggle buttons
+- Extracted editable review card into `OrchestratorReviewCard.tsx` with edit/view toggle, confidence badge, error display, retry button
+- Rewrote `ContentOrchestratorCore.tsx` with form/chat mode toggle (shadcn Tabs), shared review card, mode switch state preservation, and retry flow
+- Default mode is "form" (safer for Vanessa)
+- Both modes converge to same `onGenerate(pendingParams)` call
+- On generation failure: `SocialMediaWorkspace` now rethrows generator errors so params are preserved, error is shown inline, and "Tentar novamente" appears
+- Mode switch: chat→form populates form from pendingParams/savedFormData; form→chat saves form state
+- Chat messages and form data persist across mode switches
+- Review card now gives edited fields a subtle visual highlight
+- All strings in PT-BR
+- No changes to edge functions
+- No new dependencies added
+
 ### File List
+
+- src/components/admin/content/ContentOrchestratorCore.tsx (modified)
+- src/components/admin/content/OrchestratorFormMode.tsx (new)
+- src/components/admin/content/OrchestratorReviewCard.tsx (new)
+- src/pages/Admin/SocialMediaWorkspace.tsx (modified)
