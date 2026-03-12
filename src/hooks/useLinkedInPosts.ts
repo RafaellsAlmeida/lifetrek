@@ -79,11 +79,30 @@ export function useApproveLinkedInPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: carousel, error: fetchError } = await supabase
+                .from("linkedin_carousels")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            if (!carousel.slides?.length || (carousel.slides as any[]).some((s: any) => !s.image_url)) {
+                throw new Error("Carrossel precisa de pelo menos um slide com imagem para ser aprovado.");
+            }
+            if (!carousel.caption?.trim()) {
+                throw new Error("Carrossel precisa de legenda para ser aprovado.");
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+
             const { data, error } = await supabase
                 .from("linkedin_carousels")
                 .update({
                     status: "approved",
-                })
+                    approved_at: new Date().toISOString(),
+                    approved_by: user?.id,
+                } as any)
                 .eq("id", id)
                 .select()
                 .single();
@@ -99,7 +118,8 @@ export function useApproveLinkedInPost() {
         },
         onError: (error: any) => {
             console.error("Error approving carousel:", error);
-            toast.error("Erro ao aprovar post");
+            const message = error instanceof Error ? error.message : "Erro ao aprovar post";
+            toast.error(message);
         },
     });
 }
@@ -513,9 +533,27 @@ export function useApproveResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: resource, error: fetchError } = await (supabase
+                .from("resources" as any)
+                .select("*")
+                .eq("id", id)
+                .single() as any);
+
+            if (fetchError) throw fetchError;
+
+            if (!resource.title?.trim()) {
+                throw new Error("Recurso precisa de título para ser aprovado.");
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+
             const { data, error } = await (supabase
                 .from("resources" as any)
-                .update({ status: "published" })
+                .update({
+                    status: "approved",
+                    approved_at: new Date().toISOString(),
+                    approved_by: user?.id,
+                })
                 .eq("id", id)
                 .select()
                 .single() as any);
@@ -526,11 +564,12 @@ export function useApproveResource() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
             queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
-            toast.success("Recurso aprovado e publicado com sucesso!");
+            toast.success("Recurso aprovado com sucesso!");
         },
         onError: (error: any) => {
             console.error("Error approving resource:", error);
-            toast.error("Erro ao aprovar recurso");
+            const message = error instanceof Error ? error.message : "Erro ao aprovar recurso";
+            toast.error(message);
         },
     });
 }

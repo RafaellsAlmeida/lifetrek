@@ -55,9 +55,30 @@ export function useApproveInstagramPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: post, error: fetchError } = await (supabase
+                .from("instagram_posts" as any)
+                .select("*")
+                .eq("id", id)
+                .single() as any);
+
+            if (fetchError) throw fetchError;
+
+            if (!post.image_urls?.length && !post.image_url) {
+                throw new Error("Post precisa de imagem para ser aprovado.");
+            }
+            if (!post.caption?.trim()) {
+                throw new Error("Post precisa de legenda para ser aprovado.");
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+
             const { data, error } = await (supabase
                 .from("instagram_posts" as any)
-                .update({ status: "approved" })
+                .update({
+                    status: "approved",
+                    approved_at: new Date().toISOString(),
+                    approved_by: user?.id,
+                })
                 .eq("id", id)
                 .select()
                 .single() as any);
@@ -73,7 +94,8 @@ export function useApproveInstagramPost() {
         },
         onError: (error: any) => {
             console.error("Error approving Instagram post:", error);
-            toast.error("Erro ao aprovar post Instagram");
+            const message = error instanceof Error ? error.message : "Erro ao aprovar post Instagram";
+            toast.error(message);
         },
     });
 }

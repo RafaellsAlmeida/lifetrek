@@ -154,6 +154,12 @@ export function useApproveBlogPost() {
                 throw new Error("Preencha metadata.icp_primary e metadata.pillar_keyword antes de aprovar.");
             }
 
+            if (!(currentPost as any)?.content?.trim()) {
+                throw new Error("Artigo precisa de conteúdo para ser aprovado.");
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+
             const now = new Date().toISOString();
             const nextMetadata = {
                 ...metadata,
@@ -162,7 +168,12 @@ export function useApproveBlogPost() {
 
             const { data, error } = await supabase
                 .from("blog_posts")
-                .update({ status: "approved", metadata: nextMetadata } as any)
+                .update({
+                    status: "approved",
+                    metadata: nextMetadata,
+                    approved_at: now,
+                    approved_by: user?.id,
+                } as any)
                 .eq("id", id)
                 .select()
                 .single();

@@ -62,7 +62,7 @@ development_status:
 
   epic-4: in-progress
   4-1-orchestrator-mode-parity-ux: review
-  4-2-unified-approval-queue-behavior: ready-for-dev
+  4-2-unified-approval-queue-behavior: review
   4-3-operator-failure-recovery-ux: ready-for-dev
   4-4-human-editing-surfaces-blogs-resources: in-progress
   epic-4-retrospective: optional

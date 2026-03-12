@@ -282,14 +282,15 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             } else if (item.type === 'resource') {
                 await approveResource.mutateAsync(item.id);
             }
-            toast.success(`"${item.title}" aprovado.`, {
+            const typeLabels: Record<string, string> = { linkedin: 'LinkedIn', instagram: 'Instagram', blog: 'Blog', resource: 'Recurso' };
+            toast.success(`${typeLabels[item.type] || 'Conteúdo'} aprovado: ${item.title}`, {
                 action: {
                     label: "Desfazer",
                     onClick: async () => {
                         try {
                             const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
                                 item.type === 'blog' ? 'blog_posts' :
-                                    item.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                                    item.type === 'instagram' ? 'instagram_posts' : 'resources';
                             await (supabase.from(tableName as any).update({ status: previousStatus } as any) as any).eq('id', item.id);
                             toast.info("Acao desfeita.");
                             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
@@ -559,6 +560,52 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const isChecklistComplete = selectedItem ? getChecklistForType(selectedItem.type) : true;
 
+    const getPrerequisiteWarning = (item: any): string | null => {
+        if (!item) return null;
+        if (item.type === 'linkedin') {
+            const carousel = fullCarouselData || item.full_data;
+            const rawSlides = carousel?.slides;
+            const slides = Array.isArray(rawSlides)
+                ? rawSlides
+                : (Array.isArray(rawSlides?.slides) ? rawSlides.slides : []);
+            if (!slides.length || slides.some((s: any) => !s.image_url && !s.imageUrl)) {
+                return "Carrossel precisa de pelo menos um slide com imagem. Clique em 'Regenerar Slides com IA' abaixo.";
+            }
+            if (!carousel?.caption?.trim()) {
+                return "Carrossel precisa de legenda para ser aprovado. Edite o conteúdo para adicionar.";
+            }
+        }
+        if (item.type === 'instagram') {
+            const post = fullInstagramData || item.full_data;
+            if (!post?.image_urls?.length && !post?.image_url) {
+                return "Post precisa de imagem. Clique em 'Regenerar Imagem com IA' abaixo.";
+            }
+            if (!post?.caption?.trim()) {
+                return "Post precisa de legenda para ser aprovado. Edite o conteúdo para adicionar.";
+            }
+        }
+        if (item.type === 'blog') {
+            const blog = item.full_data;
+            const metadata = blog?.metadata || {};
+            if (!metadata?.icp_primary?.trim() || !metadata?.pillar_keyword?.trim()) {
+                return "Preencha metadata.icp_primary e metadata.pillar_keyword antes de aprovar.";
+            }
+            if (!blog?.content?.trim()) {
+                return "Artigo precisa de conteúdo para ser aprovado.";
+            }
+        }
+        if (item.type === 'resource') {
+            const resource = item.full_data;
+            if (!resource?.title?.trim()) {
+                return "Recurso precisa de título para ser aprovado.";
+            }
+        }
+        return null;
+    };
+
+    const prerequisiteWarning = selectedItem ? getPrerequisiteWarning(selectedItem) : null;
+    const canApprove = isChecklistComplete && !prerequisiteWarning;
+
     const renderPreview = () => {
         if (!selectedItem) return null;
 
@@ -590,6 +637,12 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             </Badge>
                         </div>
                     </div>
+
+                    {prerequisiteWarning && selectedItem.type === 'linkedin' && (
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
+                            <p className="text-sm text-destructive font-medium">{prerequisiteWarning}</p>
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <p className="text-sm"><strong>Público-alvo:</strong> {carousel?.target_audience || selectedItem.full_data?.target_audience || 'N/A'}</p>
@@ -708,17 +761,23 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         {blog.excerpt && (
                             <p className="text-muted-foreground italic">{blog.excerpt}</p>
                         )}
+                        {prerequisiteWarning && selectedItem.type === 'blog' && (
+                            <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mb-2">
+                                <p className="text-sm text-destructive font-medium">{prerequisiteWarning}</p>
+                            </div>
+                        )}
                         <Button
                             onClick={() => requestApproval(selectedItem)}
-                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || !isChecklistComplete}
+                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || !canApprove}
                             className="gap-2"
+                            title={prerequisiteWarning || (!isChecklistComplete ? "Complete o checklist primeiro" : undefined)}
                         >
                             {(approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending) ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                                 <Check className="h-4 w-4" />
                             )}
-                            {!isChecklistComplete ? "Complete o Checklist" : "Aprovar Conteudo"}
+                            {!canApprove ? "Complete o Checklist" : "Aprovar Conteudo"}
                         </Button>
                         <div className="flex gap-2 items-center mt-2">
                             <Badge variant="secondary">Blog</Badge>
@@ -811,6 +870,12 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
             return (
                 <div className="space-y-6">
+                    {prerequisiteWarning && selectedItem.type === 'instagram' && (
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mb-4">
+                            <p className="text-sm text-destructive font-medium">{prerequisiteWarning}</p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <h4 className="text-sm font-semibold text-muted-foreground border-b pb-2 mb-4">
@@ -892,6 +957,11 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         if (selectedItem.type === 'resource') {
             return (
                 <div className="space-y-4">
+                    {prerequisiteWarning && (
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mx-4">
+                            <p className="text-sm text-destructive font-medium">{prerequisiteWarning}</p>
+                        </div>
+                    )}
                     <ResourcePreview resource={selectedItem} />
                     <div className="bg-muted/30 p-4 rounded-lg border border-primary/5 mx-4">
                         <h5 className="text-xs font-bold uppercase text-muted-foreground mb-2">Checklist de Aprovacao</h5>
