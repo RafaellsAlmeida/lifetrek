@@ -5,21 +5,31 @@
 export const API_COSTS = {
   // OpenRouter Models
   "google/gemini-2.0-flash-001": 0.01,
+  "gemini-2.0-flash": 0.01,
   "google/gemini-2.0-flash-thinking-exp": 0.015,
   "google/gemini-2.0-flash-exp:free": 0.0,
   "google/gemini-1.5-pro": 0.025,
+  "google/gemini-2.0-pro-exp-02-05": 0.06,
+  "google/gemini-flash-1.5": 0.01,
   "anthropic/claude-3.5-sonnet": 0.03,
   "openai/gpt-4": 0.06,
   
   // Image Generation
+  "gemini-3-pro-image-preview": 0.25,
+  "google/gemini-3-pro-image-preview": 0.25,
+  "gemini-2.5-flash-image": 0.04,
   "stabilityai/stable-diffusion-xl-base-1.0": 0.07,
+  "stabilityai/stable-diffusion-3-medium": 0.06,
   "openai/dall-e-3": 0.04,
   "google/imagen-3": 0.08,
+  "black-forest-labs/flux-1.1-pro": 0.08,
+  "black-forest-labs/flux-dev": 0.04,
   
   // Embeddings
   "text-embedding-ada-002": 0.0001,
   "text-embedding-3-small": 0.00002,
   "openai/text-embedding-3-small": 0.00002,
+  "text-embedding-004": 0.00003,
   
   // Other
   "perplexity": 0.005,
@@ -29,6 +39,14 @@ export const API_COSTS = {
 } as const;
 
 export type APIService = keyof typeof API_COSTS;
+
+declare const Deno:
+  | {
+      env?: {
+        get?: (key: string) => string | undefined;
+      };
+    }
+  | undefined;
 
 interface CostCheckResult {
   allowed: boolean;
@@ -64,6 +82,192 @@ interface ExecuteCostTrackingParams {
   model: string;
   estimatedCost?: number;
   metadata?: Record<string, any>;
+}
+
+interface UsageMetrics {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+  input_tokens?: number;
+  output_tokens?: number;
+  cached_tokens?: number;
+  reasoning_tokens?: number;
+  thoughts_tokens?: number;
+  tool_use_prompt_tokens?: number;
+}
+
+interface LogUsageParams {
+  userId: string | null;
+  endpoint: string;
+  tokensUsed: number;
+}
+
+let parsedCostOverrides: Record<string, number> | null = null;
+
+function getCostOverrides(): Record<string, number> {
+  if (parsedCostOverrides) return parsedCostOverrides;
+
+  const rawOverrides = typeof Deno !== "undefined"
+    ? Deno.env?.get?.("API_COST_OVERRIDES_JSON")
+    : undefined;
+
+  if (!rawOverrides) {
+    parsedCostOverrides = {};
+    return parsedCostOverrides;
+  }
+
+  try {
+    const parsed = JSON.parse(rawOverrides);
+    parsedCostOverrides = Object.fromEntries(
+      Object.entries(parsed || {})
+        .map(([model, value]) => [model, Number(value)] as const)
+        .filter(([, value]) => Number.isFinite(value) && Number(value) >= 0)
+    );
+  } catch (error) {
+    console.error("Error parsing API_COST_OVERRIDES_JSON:", error);
+    parsedCostOverrides = {};
+  }
+
+  return parsedCostOverrides ?? {};
+}
+
+function sanitizeErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.slice(0, 500);
+  }
+
+  return String(error).slice(0, 500);
+}
+
+function toNonNegativeNumber(value: unknown): number | undefined {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+
+  return parsed;
+}
+
+function compactUsageMetrics(
+  metrics: UsageMetrics,
+): UsageMetrics | null {
+  const compacted = Object.fromEntries(
+    Object.entries(metrics).filter(([, value]) => value !== undefined),
+  ) as UsageMetrics;
+
+  return Object.keys(compacted).length > 0 ? compacted : null;
+}
+
+function normalizeUsageMetrics(payload: unknown): UsageMetrics | null {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const openAIStyleUsage = record.usage && typeof record.usage === "object"
+    ? record.usage as Record<string, unknown>
+    : null;
+  const geminiUsage = record.usageMetadata && typeof record.usageMetadata === "object"
+    ? record.usageMetadata as Record<string, unknown>
+    : null;
+
+  const normalized = compactUsageMetrics({
+    prompt_tokens: toNonNegativeNumber(
+      openAIStyleUsage?.prompt_tokens ?? geminiUsage?.promptTokenCount,
+    ),
+    completion_tokens: toNonNegativeNumber(
+      openAIStyleUsage?.completion_tokens ?? geminiUsage?.candidatesTokenCount,
+    ),
+    total_tokens: toNonNegativeNumber(
+      openAIStyleUsage?.total_tokens ?? geminiUsage?.totalTokenCount,
+    ),
+    input_tokens: toNonNegativeNumber(openAIStyleUsage?.input_tokens),
+    output_tokens: toNonNegativeNumber(openAIStyleUsage?.output_tokens),
+    cached_tokens: toNonNegativeNumber(
+      openAIStyleUsage?.cached_tokens ??
+        openAIStyleUsage?.cached_prompt_tokens ??
+        geminiUsage?.cachedContentTokenCount,
+    ),
+    reasoning_tokens: toNonNegativeNumber(openAIStyleUsage?.reasoning_tokens),
+    thoughts_tokens: toNonNegativeNumber(geminiUsage?.thoughtsTokenCount),
+    tool_use_prompt_tokens: toNonNegativeNumber(geminiUsage?.toolUsePromptTokenCount),
+  });
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (
+    normalized.total_tokens === undefined &&
+    normalized.prompt_tokens !== undefined &&
+    normalized.completion_tokens !== undefined
+  ) {
+    normalized.total_tokens = normalized.prompt_tokens + normalized.completion_tokens;
+  }
+
+  if (
+    normalized.total_tokens === undefined &&
+    normalized.input_tokens !== undefined &&
+    normalized.output_tokens !== undefined
+  ) {
+    normalized.total_tokens = normalized.input_tokens + normalized.output_tokens;
+  }
+
+  if (
+    normalized.total_tokens === undefined &&
+    normalized.prompt_tokens !== undefined
+  ) {
+    normalized.total_tokens = normalized.prompt_tokens;
+  }
+
+  if (
+    normalized.total_tokens === undefined &&
+    normalized.input_tokens !== undefined
+  ) {
+    normalized.total_tokens = normalized.input_tokens;
+  }
+
+  return normalized;
+}
+
+async function extractUsageMetrics(result: unknown): Promise<UsageMetrics | null> {
+  if (typeof Response !== "undefined" && result instanceof Response) {
+    const contentType = result.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().includes("json")) {
+      return null;
+    }
+
+    try {
+      const payload = await result.clone().json();
+      return normalizeUsageMetrics(payload);
+    } catch (error) {
+      console.warn("Unable to extract usage metrics from Response:", error);
+      return null;
+    }
+  }
+
+  return normalizeUsageMetrics(result);
+}
+
+async function logAPIUsage(
+  supabase: CostTrackingClient,
+  params: LogUsageParams,
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from("api_usage_logs")
+      .insert({
+        user_id: params.userId,
+        endpoint: params.endpoint,
+        tokens_used: params.tokensUsed,
+      });
+
+    if (error) {
+      console.error("Error logging API usage:", error);
+    }
+  } catch (error) {
+    console.error("Exception logging API usage:", error);
+  }
 }
 
 /**
@@ -140,7 +344,8 @@ export async function logAPICost(
  * Get estimated cost for a model
  */
 export function getModelCost(model: string): number {
-  return API_COSTS[model as APIService] || 0.01; // Default fallback
+  const overrides = getCostOverrides();
+  return overrides[model] ?? API_COSTS[model as APIService] ?? 0.01;
 }
 
 /**
@@ -224,16 +429,41 @@ export async function executeWithCostTracking<T>(
   fn: () => Promise<T>,
 ): Promise<T> {
   const startedAt = Date.now();
-  const result = await fn();
-  await recordCostEventSafely(supabase, {
-    ...params,
-    metadata: {
-      ...(params.metadata || {}),
-      duration_ms: Date.now() - startedAt,
-      request_outcome: "success",
-    },
-  });
-  return result;
+  try {
+    const result = await fn();
+    const usageMetrics = await extractUsageMetrics(result);
+    const totalTokens = usageMetrics?.total_tokens;
+
+    if (typeof totalTokens === "number" && totalTokens > 0) {
+      await logAPIUsage(supabase, {
+        userId: params.userId,
+        endpoint: params.operation,
+        tokensUsed: totalTokens,
+      });
+    }
+
+    await recordCostEventSafely(supabase, {
+      ...params,
+      metadata: {
+        ...(params.metadata || {}),
+        duration_ms: Date.now() - startedAt,
+        request_outcome: "success",
+        ...(usageMetrics ? { usage: usageMetrics, ...usageMetrics } : {}),
+      },
+    });
+    return result;
+  } catch (error) {
+    await recordCostEventSafely(supabase, {
+      ...params,
+      metadata: {
+        ...(params.metadata || {}),
+        duration_ms: Date.now() - startedAt,
+        request_outcome: "error",
+        error_message: sanitizeErrorMessage(error),
+      },
+    });
+    throw error;
+  }
 }
 
 /**

@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,14 +10,15 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY') || Deno.env.get('SUPABASE_ANON_KEY')!;
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 // Verify user is admin - check both admin_users table and user_roles table
-async function verifyAdmin(authHeader: string | null): Promise<boolean> {
+async function verifyAdmin(authHeader: string | null): Promise<{ id: string; email?: string | null } | null> {
   console.log('verifyAdmin called, authHeader exists:', !!authHeader);
   
   if (!authHeader) {
     console.log('No auth header provided');
-    return false;
+    return null;
   }
   
   try {
@@ -33,7 +35,7 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
     
     if (userError || !user) {
       console.log('User verification failed');
-      return false;
+      return null;
     }
     
     // Check admin_users table first
@@ -47,7 +49,7 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
     
     if (adminData) {
       console.log('User is admin via admin_users table');
-      return true;
+      return { id: user.id, email: user.email };
     }
     
     // Also check user_roles table for admin role
@@ -60,10 +62,10 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
     
     console.log('user_roles query - data:', roleData, 'error:', roleError?.message);
     
-    return !!roleData;
+    return roleData ? { id: user.id, email: user.email } : null;
   } catch (e) {
     console.error('Exception in verifyAdmin:', e);
-    return false;
+    return null;
   }
 }
 
@@ -103,9 +105,9 @@ serve(async (req) => {
   try {
     // Verify admin authorization
     const authHeader = req.headers.get('authorization');
-    const isAdmin = await verifyAdmin(authHeader);
+    const adminUser = await verifyAdmin(authHeader);
     
-    if (!isAdmin) {
+    if (!adminUser) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized - Admin access required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -129,6 +131,11 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
+    if (!supabaseServiceRoleKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+    }
+
+    const serviceSupabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     console.log('Enhancing product image for admin user');
 
@@ -161,51 +168,67 @@ TECHNICAL SPECS:
 
 OUTPUT GOAL: Magazine-quality product photography suitable for medical equipment catalogs, websites, and marketing materials.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        // IMPORTANT: use provider-qualified model id so the gateway returns an image payload
+    const data = await executeWithCostTracking(
+      serviceSupabase,
+      {
+        userId: adminUser.id,
+        operation: 'content.enhance-product-image.image-enhancement',
+        service: 'lovable',
         model: 'google/gemini-3-pro-image-preview',
-        messages: [
-          {
-            role: 'user',
-            content: [
+        metadata: {
+          image_input_kind: imageData.startsWith('data:image/') ? 'data_url' : 'remote_url',
+          image_input_length: imageData.length,
+          uses_custom_prompt: Boolean(prompt),
+        },
+      },
+      async () => {
+        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            // IMPORTANT: use provider-qualified model id so the gateway returns an image payload
+            model: 'google/gemini-3-pro-image-preview',
+            messages: [
               {
-                type: 'text',
-                text: enhancementPrompt
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageData
-                }
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: enhancementPrompt
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: imageData
+                    }
+                  }
+                ]
               }
-            ]
+            ],
+            modalities: ['image', 'text']
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Lovable AI API error:', response.status, errorText);
+          
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded. Please try again later.');
           }
-        ],
-        modalities: ['image', 'text']
-      }),
-    });
+          if (response.status === 402) {
+            throw new Error('Payment required. Please add credits to your workspace.');
+          }
+          
+          throw new Error(`AI API error: ${response.status}`);
+        }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Lovable AI API error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      }
-      if (response.status === 402) {
-        throw new Error('Payment required. Please add credits to your workspace.');
-      }
-      
-      throw new Error(`AI API error: ${response.status}`);
-    }
-
-    const data = await response.json();
+        return await response.json();
+      },
+    );
     
     console.log('AI response structure:', JSON.stringify({
       hasChoices: !!data.choices,

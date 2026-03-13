@@ -25,6 +25,7 @@ import { AssetLoader } from "./utils/assets.ts";
 import { handleAiGeneration } from "./handlers/ai.ts";
 import { handleHybridGeneration } from "./handlers/hybrid.ts";
 import { handleSmartGeneration } from "./handlers/smart.ts";
+import type { CostTrackingContext } from "./types.ts";
 
 declare const Deno: any;
 
@@ -248,7 +249,21 @@ serve(async (req: Request) => {
     // ========================================================================
     // LOAD BRAND ASSETS AND STYLE TEMPLATES (Refactored)
     // ========================================================================
-    const assetLoader = new AssetLoader(supabase);
+    const requestTrackingMetadata = {
+      carousel_id,
+      table_name,
+      requested_mode: requestedMode,
+      batch_mode: batch_mode === true,
+      requested_slide_index: typeof slide_index === "number" ? slide_index : null,
+      allow_ai_fallback,
+    };
+
+    const assetLoader = new AssetLoader(supabase, {
+      supabase,
+      userId: user.id,
+      operation: "content.regenerate-carousel-images.smart.selection-embedding",
+      metadata: requestTrackingMetadata,
+    });
     await assetLoader.load();
 
 
@@ -302,9 +317,28 @@ serve(async (req: Request) => {
     console.log(`[REGEN] Starting generation for ${slidesToProcess.length} items (Mode: ${requestedMode.toUpperCase()})...`);
 
     let processedSlides: SlideData[] = [];
+    const imageGenerationTracking: CostTrackingContext = {
+      supabase,
+      userId: user.id,
+      operation: requestedMode === "smart"
+        ? "content.regenerate-carousel-images.smart.ai-fallback-slide"
+        : "content.regenerate-carousel-images.ai.slide",
+      metadata: {
+        ...requestTrackingMetadata,
+        topic: carousel.topic || carousel.title || null,
+        total_items_in_request: slidesToProcess.length,
+      },
+    };
 
     if (requestedMode === 'ai') {
-      processedSlides = await handleAiGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);
+      processedSlides = await handleAiGeneration(
+        slidesToProcess,
+        carousel_id,
+        platform,
+        assetLoader,
+        supabase,
+        imageGenerationTracking,
+      );
     } else if (requestedMode === 'smart') {
       processedSlides = await handleSmartGeneration(
         slidesToProcess,
@@ -315,7 +349,8 @@ serve(async (req: Request) => {
         {
           topic: carousel.topic || carousel.title || "",
           allowAiFallback: allow_ai_fallback,
-        }
+        },
+        imageGenerationTracking,
       );
     } else {
       processedSlides = await handleHybridGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);

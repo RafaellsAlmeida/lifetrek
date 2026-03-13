@@ -7,6 +7,9 @@
  * @module generators/openrouter
  */
 
+import { executeWithCostTracking } from "../../_shared/costTracking.ts";
+import type { CostTrackingContext } from "../types.ts";
+
 declare const Deno: any;
 
 /** Models to try in order of preference */
@@ -40,7 +43,8 @@ const MODELS_TO_TRY = [
  */
 export async function generateWithOpenRouter(
     prompt: string,
-    apiKey: string
+    apiKey: string,
+    tracking?: CostTrackingContext,
 ): Promise<string | null> {
     if (!apiKey) {
         console.warn("[OPENROUTER] No API key configured, skipping");
@@ -51,37 +55,56 @@ export async function generateWithOpenRouter(
         try {
             console.log(`[OPENROUTER] Trying model: ${model}...`);
 
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${apiKey}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://lifetrek.io",
-                    "X-Title": "Lifetrek Content Generator"
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: "user",
-                            // Adjust prompt based on model type
-                            content: model.includes('gemini') || model.includes('gpt')
-                                ? prompt + "\n\nGenerate this image. Output ONLY the image, no text."
-                                : prompt // Pure image models (Flux, SD) just need the prompt
-                        }
-                    ],
-                    // Request image output if supported
-                    response_format: { type: "image" }
-                })
-            });
+            const executeCall = async () => {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://lifetrek.io",
+                        "X-Title": "Lifetrek Content Generator"
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            {
+                                role: "user",
+                                // Adjust prompt based on model type
+                                content: model.includes('gemini') || model.includes('gpt')
+                                    ? prompt + "\n\nGenerate this image. Output ONLY the image, no text."
+                                    : prompt // Pure image models (Flux, SD) just need the prompt
+                            }
+                        ],
+                        // Request image output if supported
+                        response_format: { type: "image" }
+                    })
+                });
 
-            if (!response.ok) {
-                const errText = await response.text();
-                console.warn(`[OPENROUTER] ${model} error: ${response.status} - ${errText.slice(0, 200)}`);
-                continue; // Try next model
-            }
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`OpenRouter Image Error (${response.status}): ${errText}`);
+                }
 
-            const data = await response.json();
+                return await response.json();
+            };
+
+            const data = tracking?.supabase
+                ? await executeWithCostTracking(
+                    tracking.supabase,
+                    {
+                        userId: tracking.userId || null,
+                        operation: tracking.operation,
+                        service: "openrouter",
+                        model,
+                        estimatedCost: tracking.estimatedCost,
+                        metadata: {
+                            ...(tracking.metadata || {}),
+                            fallback_provider: "openrouter",
+                        },
+                    },
+                    executeCall,
+                )
+                : await executeCall();
 
             // Check if response contains image data
             const content = data.choices?.[0]?.message?.content;

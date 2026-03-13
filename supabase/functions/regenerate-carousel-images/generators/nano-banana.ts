@@ -10,7 +10,8 @@
  * @module generators/nano-banana
  */
 
-import type { ReferenceImage } from "../types.ts";
+import { executeWithCostTracking } from "../../_shared/costTracking.ts";
+import type { CostTrackingContext, ReferenceImage } from "../types.ts";
 
 declare const Deno: any;
 
@@ -32,7 +33,8 @@ export async function generateWithNanoBanana(
     references: ReferenceImage[],
     aspectRatio: string,
     apiKey: string,
-    fallbackFn?: (prompt: string) => Promise<string | null>
+    fallbackFn?: (prompt: string) => Promise<string | null>,
+    tracking?: CostTrackingContext,
 ): Promise<string | null> {
     // Nano Banana Pro for professional asset production
     const MODEL = "gemini-3-pro-image-preview";
@@ -67,24 +69,39 @@ export async function generateWithNanoBanana(
     try {
         console.log(`[NANO-BANANA] Calling Gemini 3 Pro with ${references.length} references...`);
 
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody)
-        });
+        const executeCall = async () => {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody)
+            });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            console.error(`[NANO-BANANA] API error: ${response.status} - ${errText}`);
-
-            // Fallback to faster model
-            if (fallbackFn) {
-                return fallbackFn(prompt);
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Gemini Image Error (${response.status}): ${errText}`);
             }
-            return null;
-        }
 
-        const data = await response.json();
+            return await response.json();
+        };
+
+        const data = tracking?.supabase
+            ? await executeWithCostTracking(
+                tracking.supabase,
+                {
+                    userId: tracking.userId || null,
+                    operation: tracking.operation,
+                    service: "gemini",
+                    model: MODEL,
+                    estimatedCost: tracking.estimatedCost,
+                    metadata: {
+                        ...(tracking.metadata || {}),
+                        aspect_ratio: aspectRatio,
+                        reference_count: references.length,
+                    },
+                },
+                executeCall,
+            )
+            : await executeCall();
 
         // Extract image from response
         // Skip "thought images" (part.thought === true) as they are internal

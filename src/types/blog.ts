@@ -54,7 +54,17 @@ export interface BlogPost {
     featured_image: string | null;
     hero_image_url?: string | null;
     author_name: string;
-    status: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
+    status:
+        | 'draft'
+        | 'pending_review'
+        | 'approved'
+        | 'admin_approved'
+        | 'scheduled'
+        | 'published'
+        | 'rejected'
+        | 'stakeholder_review_pending'
+        | 'stakeholder_approved'
+        | 'stakeholder_rejected';
     seo_title: string | null;
     seo_description: string | null;
     keywords: string[] | null;
@@ -78,7 +88,17 @@ export interface BlogPostInsert {
     featured_image?: string;
     hero_image_url?: string;
     author_name?: string;
-    status?: 'draft' | 'pending_review' | 'approved' | 'scheduled' | 'published' | 'rejected';
+    status?:
+        | 'draft'
+        | 'pending_review'
+        | 'approved'
+        | 'admin_approved'
+        | 'scheduled'
+        | 'published'
+        | 'rejected'
+        | 'stakeholder_review_pending'
+        | 'stakeholder_approved'
+        | 'stakeholder_rejected';
     seo_title?: string;
     seo_description?: string;
     keywords?: string[];

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ResourcePreview } from './ResourcePreview';
-import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe, Trash } from "lucide-react";
+import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe, Trash, Send } from "lucide-react";
 import { toast } from "sonner";
 import { showActionableError } from "@/lib/showActionableError";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
@@ -56,6 +56,7 @@ import {
 import { ImageWithFallback } from "@/components/ui/ImageFallback";
 import { InstagramPostPreview } from "./InstagramPostPreview";
 import { ContentItemCard } from "./ContentItemCard";
+import { SendReviewModal } from "./SendReviewModal";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -77,9 +78,57 @@ import {
 } from "./contentApprovalState";
 import { getApprovalBlockers } from "./approvalBlockers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+    StakeholderReviewItem,
+    stakeholderContentTypeFromUiType,
+    useApplyCopyEditSuggestion,
+    useDismissCopyEditSuggestion,
+    useStakeholderReviewItems,
+    useStakeholderStatusItems,
+    useStakeholderSuggestionItems,
+} from "@/hooks/useStakeholderReview";
 
 interface ContentApprovalCoreProps {
     embedded?: boolean;
+}
+
+function isStakeholderSendEligible(item: any) {
+    const status = item?.status || item?.full_data?.status;
+    return ["linkedin", "instagram", "blog"].includes(item?.type) && ["approved", "admin_approved"].includes(status);
+}
+
+function getSelectedContentData(selectedItem: any, fullCarouselData: any, fullInstagramData: any) {
+    if (!selectedItem) return null;
+    const localData = selectedItem.full_data || {};
+    if (selectedItem.type === "linkedin") return { ...(fullCarouselData || {}), ...localData };
+    if (selectedItem.type === "instagram") return { ...(fullInstagramData || {}), ...localData };
+    return localData;
+}
+
+function buildSelectedItemFromUpdatedContent(item: any, updatedContent: any) {
+    const contentPreview =
+        item?.type === "blog"
+            ? updatedContent?.excerpt || updatedContent?.content?.substring?.(0, 150) || ""
+            : item?.type === "linkedin"
+                ? updatedContent?.slides?.[0]?.headline || updatedContent?.caption?.substring?.(0, 100) || ""
+                : updatedContent?.caption?.substring?.(0, 100) || "";
+
+    const title =
+        item?.type === "blog"
+            ? updatedContent?.title || item?.title
+            : item?.type === "linkedin"
+                ? updatedContent?.topic || item?.title
+                : updatedContent?.topic || item?.title || "Post Instagram";
+
+    return {
+        ...item,
+        title,
+        content_preview: contentPreview,
+        full_data: {
+            ...(item?.full_data || {}),
+            ...(updatedContent || {}),
+        },
+    };
 }
 
 export function ContentApprovalCore({ embedded = false }: ContentApprovalCoreProps) {
@@ -87,9 +136,24 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const { data: items, isLoading } = useContentApprovalItems();
-    const { data: rejectedItems, isLoading: isLoadingRejected } = useRejectedContentItems();
-    const { data: approvedItems, isLoading: isLoadingApproved } = useApprovedContentItems();
+    const {
+        data: items,
+        isLoading,
+        error: errorPending,
+        refetch: refetchPending,
+    } = useContentApprovalItems();
+    const {
+        data: rejectedItems,
+        isLoading: isLoadingRejected,
+        error: errorRejected,
+        refetch: refetchRejected,
+    } = useRejectedContentItems();
+    const {
+        data: approvedItems,
+        isLoading: isLoadingApproved,
+        error: errorApproved,
+        refetch: refetchApproved,
+    } = useApprovedContentItems();
     const approveLinkedIn = useApproveLinkedInPost();
     const rejectLinkedIn = useRejectLinkedInPost();
     const approveBlog = useApproveBlogPost();
@@ -133,6 +197,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     const [isBatchProcessing, setIsBatchProcessing] = useState(false);
     const [batchProgress, setBatchProgress] = useState(0);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedSendIds, setSelectedSendIds] = useState<Set<string>>(new Set());
+    const [sendReviewModalOpen, setSendReviewModalOpen] = useState(false);
     const [approvalConfirmItem, setApprovalConfirmItem] = useState<any | null>(null);
     const [batchApprovalConfirmItems, setBatchApprovalConfirmItems] = useState<any[] | null>(null);
     const [batchRejectDialogOpen, setBatchRejectDialogOpen] = useState(false);
@@ -166,6 +232,14 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         () => getApprovalBlockers(selectedItem, { carousel: fullCarouselData, instagram: fullInstagramData }),
         [selectedItem, fullCarouselData, fullInstagramData],
     );
+    const selectedStakeholderContentType = stakeholderContentTypeFromUiType(selectedItem?.type);
+    const { data: stakeholderReviewItems = [] } = useStakeholderReviewItems(selectedStakeholderContentType, selectedItem?.id);
+    const { data: stakeholderPendingItems = [] } = useStakeholderStatusItems("stakeholder_review_pending");
+    const { data: stakeholderApprovedItems = [] } = useStakeholderStatusItems("stakeholder_approved");
+    const { data: stakeholderRejectedItems = [] } = useStakeholderStatusItems("stakeholder_rejected");
+    const { data: stakeholderSuggestionItems = [] } = useStakeholderSuggestionItems();
+    const applyCopyEditSuggestion = useApplyCopyEditSuggestion();
+    const dismissCopyEditSuggestion = useDismissCopyEditSuggestion();
 
     const handleSyncResources = async () => {
         setIsSyncing(true);
@@ -571,6 +645,27 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         }
     };
 
+    const toggleSendSelection = (id: string) => {
+        setSelectedSendIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const setAllSendSelections = (itemsToSelect: any[]) => {
+        const eligibleIds = itemsToSelect.filter(isStakeholderSendEligible).map((item) => item.id);
+        const allSelected = eligibleIds.length > 0 && eligibleIds.every((id) => selectedSendIds.has(id));
+
+        setSelectedSendIds(() => {
+            if (allSelected) {
+                return new Set();
+            }
+            return new Set(eligibleIds);
+        });
+    };
+
     const getChecklistForType = (type: string) => {
         if (type === 'instagram') return Object.values(acceptanceCriteria).every(v => v);
         if (type === 'linkedin') return Object.values(linkedInChecklistForType).every(v => v);
@@ -581,8 +676,212 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const isChecklistComplete = selectedItem ? getChecklistForType(selectedItem.type) : true;
     const selectedItemStatus = selectedItem?.status || selectedItem?.full_data?.status;
-    const showPreviewDecisionActions = !!selectedItem && !["approved", "published", "scheduled", "rejected", "archived"].includes(selectedItemStatus || "");
+    const selectedContentData = getSelectedContentData(selectedItem, fullCarouselData, fullInstagramData);
+    const latestStakeholderReview: StakeholderReviewItem | null =
+        stakeholderReviewItems[0] || selectedItem?.stakeholderReviewItem || null;
+    const showPreviewDecisionActions = !!selectedItem && ![
+        "approved",
+        "admin_approved",
+        "published",
+        "scheduled",
+        "rejected",
+        "archived",
+        "edit_suggested",
+        "stakeholder_review_pending",
+        "stakeholder_approved",
+        "stakeholder_rejected",
+    ].includes(selectedItemStatus || "");
     const canApproveSelectedItem = previewApprovalBlockers.messages.length === 0;
+
+    const handleApplyStakeholderSuggestion = async () => {
+        if (!latestStakeholderReview) return;
+        const updatedContent = await applyCopyEditSuggestion.mutateAsync(latestStakeholderReview);
+        setSelectedItem((current: any) => current ? buildSelectedItemFromUpdatedContent(current, updatedContent) : current);
+    };
+
+    const handleDismissStakeholderSuggestion = async () => {
+        if (!latestStakeholderReview) return;
+        await dismissCopyEditSuggestion.mutateAsync(latestStakeholderReview.id);
+    };
+
+    const renderStakeholderReviewPanel = () => {
+        if (!selectedItem) return null;
+
+        const status = latestStakeholderReview?.status || selectedItemStatus;
+        const reviewedBy = latestStakeholderReview?.reviewed_by_email;
+        const reviewedAt = latestStakeholderReview?.reviewed_at
+            ? format(new Date(latestStakeholderReview.reviewed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+            : null;
+
+        if (!status || ![
+            "stakeholder_review_pending",
+            "stakeholder_approved",
+            "stakeholder_rejected",
+            "pending",
+            "approved",
+            "rejected",
+            "edit_suggested",
+        ].includes(status)) {
+            return null;
+        }
+
+        return (
+            <div className="space-y-4 rounded-xl border border-primary/10 bg-slate-50/70 p-5">
+                <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                        Revisão do stakeholder
+                    </h4>
+                </div>
+
+                {(status === "stakeholder_review_pending" || status === "pending") && (
+                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                        Lote enviado para revisão. Aguardando retorno dos stakeholders.
+                    </div>
+                )}
+
+                {(status === "stakeholder_approved" || status === "approved") && (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                        <p className="font-medium">
+                            Aprovado por {reviewedBy || "stakeholder"}{reviewedAt ? ` em ${reviewedAt}` : ""}.
+                        </p>
+                    </div>
+                )}
+
+                {(status === "stakeholder_rejected" || status === "rejected") && (
+                    <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+                        <p className="font-medium">
+                            Rejeitado por {reviewedBy || "stakeholder"}{reviewedAt ? ` em ${reviewedAt}` : ""}.
+                        </p>
+                        {latestStakeholderReview?.reviewer_comment ? (
+                            <p className="mt-2 whitespace-pre-wrap leading-6 text-rose-800">
+                                {latestStakeholderReview.reviewer_comment}
+                            </p>
+                        ) : null}
+                    </div>
+                )}
+
+                {status === "edit_suggested" && latestStakeholderReview?.copy_edits && (
+                    <div className="space-y-4">
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                            <p className="font-medium">
+                                Sugestão de cópia enviada por {reviewedBy || "stakeholder"}{reviewedAt ? ` em ${reviewedAt}` : ""}.
+                            </p>
+                        </div>
+
+                        {selectedItem.type === "blog" ? (
+                            <div className="space-y-3">
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-lg bg-rose-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">Título original</p>
+                                        <p className="mt-2 text-sm text-rose-900">{selectedContentData?.title || "Sem título"}</p>
+                                    </div>
+                                    <div className="rounded-lg bg-emerald-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Título sugerido</p>
+                                        <p className="mt-2 text-sm text-emerald-900">
+                                            {String((latestStakeholderReview.copy_edits as any)?.title || "Sem sugestão")}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-lg bg-rose-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">Resumo original</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-rose-900">
+                                            {selectedContentData?.excerpt || "Sem resumo"}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg bg-emerald-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Resumo sugerido</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-emerald-900">
+                                            {String((latestStakeholderReview.copy_edits as any)?.excerpt || "Sem sugestão")}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-lg bg-rose-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">Legenda original</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-rose-900">
+                                            {selectedContentData?.caption || "Sem legenda"}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg bg-emerald-50 p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Legenda sugerida</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-emerald-900">
+                                            {String((latestStakeholderReview.copy_edits as any)?.caption || "Sem sugestão")}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {Array.isArray((latestStakeholderReview.copy_edits as any)?.slides) && (
+                                    <div className="space-y-3">
+                                        {((latestStakeholderReview.copy_edits as any).slides as any[]).map((slide, index) => {
+                                            const originalSlide = Array.isArray(selectedContentData?.slides)
+                                                ? selectedContentData.slides.find((candidate: any, candidateIndex: number) =>
+                                                    (typeof candidate?.index === "number" ? candidate.index : candidateIndex) ===
+                                                    (typeof slide?.index === "number" ? slide.index : index),
+                                                )
+                                                : null;
+
+                                            return (
+                                                <div key={`${selectedItem.id}-stakeholder-slide-${index}`} className="grid gap-3 md:grid-cols-2">
+                                                    <div className="rounded-lg bg-rose-50 p-3">
+                                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">
+                                                            Slide {(typeof slide?.index === "number" ? slide.index : index) + 1} original
+                                                        </p>
+                                                        <p className="mt-2 text-sm font-medium text-rose-900">
+                                                            {originalSlide?.headline || "Sem headline"}
+                                                        </p>
+                                                        <p className="mt-1 whitespace-pre-wrap text-sm text-rose-900">
+                                                            {originalSlide?.body || originalSlide?.copy || "Sem corpo"}
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-lg bg-emerald-50 p-3">
+                                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                                                            Slide {(typeof slide?.index === "number" ? slide.index : index) + 1} sugerido
+                                                        </p>
+                                                        <p className="mt-2 text-sm font-medium text-emerald-900">
+                                                            {slide?.headline || "Sem headline"}
+                                                        </p>
+                                                        <p className="mt-1 whitespace-pre-wrap text-sm text-emerald-900">
+                                                            {slide?.body || "Sem corpo"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleDismissStakeholderSuggestion}
+                                disabled={dismissCopyEditSuggestion.isPending || applyCopyEditSuggestion.isPending}
+                            >
+                                {dismissCopyEditSuggestion.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Descartar
+                            </Button>
+                            <Button
+                                type="button"
+                                className="bg-[#004F8F] hover:bg-[#003c6d]"
+                                onClick={handleApplyStakeholderSuggestion}
+                                disabled={dismissCopyEditSuggestion.isPending || applyCopyEditSuggestion.isPending}
+                            >
+                                {applyCopyEditSuggestion.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Aplicar sugestão
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     const handlePreviewEdit = () => {
         if (!selectedItem) return;
@@ -603,7 +902,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 );
             }
 
-            const carousel = fullCarouselData || selectedItem.full_data;
+            const carousel = selectedContentData || selectedItem.full_data;
             const rawSlides = carousel?.slides;
             const slides = Array.isArray(rawSlides)
                 ? rawSlides
@@ -731,7 +1030,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         }
 
         if (selectedItem.type === 'blog') {
-            const blog = selectedItem.full_data;
+            const blog = selectedContentData || selectedItem.full_data;
             return (
                 <div className="space-y-4">
                     <div>
@@ -826,7 +1125,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 );
             }
 
-            const post = fullInstagramData || selectedItem.full_data;
+            const post = selectedContentData || selectedItem.full_data;
 
             return (
                 <div className="space-y-6">
@@ -1003,6 +1302,12 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const displayApproved = filterItems(approvedItems || []);
     const displayRejected = filterItems(rejectedItems || []);
+    const displayStakeholderPending = filterItems(stakeholderPendingItems || []);
+    const displayStakeholderApproved = filterItems(stakeholderApprovedItems || []);
+    const displayStakeholderRejected = filterItems(stakeholderRejectedItems || []);
+    const displayStakeholderSuggestions = filterItems(stakeholderSuggestionItems || []);
+    const sendEligibleApprovedItems = displayApproved.filter(isStakeholderSendEligible);
+    const selectedSendItems = sendEligibleApprovedItems.filter((item) => selectedSendIds.has(item.id));
 
     return (
         <div className={`space-y-6 ${embedded ? '' : 'container mx-auto max-w-7xl py-8'}`}>
@@ -1066,7 +1371,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             </div>
 
             {/* Batch Action Bar */}
-            {selectedIds.length > 0 && (
+            {selectedIds.length > 0 && !["approved", "stakeholder-review", "stakeholder-approved", "stakeholder-rejected", "stakeholder-suggestions"].includes(activeTab) && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300">
                     <Card className="bg-slate-900 text-white shadow-2xl border-none p-2 flex items-center gap-4 px-6 rounded-full overflow-hidden">
                         <div className="absolute inset-0 bg-blue-600/10 pointer-events-none" />
@@ -1104,6 +1409,45 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                 </div>
             )}
 
+            {activeTab === "approved" && selectedSendItems.length > 0 && (
+                <div className="fixed bottom-6 left-1/2 z-50 w-[min(92vw,720px)] -translate-x-1/2 animate-in slide-in-from-bottom-4 duration-300">
+                    <Card className="overflow-hidden border-none bg-[#004F8F] p-2 text-white shadow-2xl">
+                        <div className="flex flex-col gap-3 rounded-full px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/14">
+                                    <Send className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold">
+                                        {selectedSendItems.length} {selectedSendItems.length === 1 ? "post selecionado" : "posts selecionados"}
+                                    </p>
+                                    <p className="text-xs text-white/80">
+                                        Envio para revisão externa dos stakeholders.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 sm:justify-end">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-9 rounded-full px-4 text-white/80 hover:bg-white/10 hover:text-white"
+                                    onClick={() => setSelectedSendIds(new Set())}
+                                >
+                                    Limpar
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="h-9 rounded-full bg-white px-4 text-[#004F8F] hover:bg-slate-100"
+                                    onClick={() => setSendReviewModalOpen(true)}
+                                >
+                                    Enviar para Aprovação
+                                </Button>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
+
             {isBatchProcessing && (
                 <div className="fixed top-0 left-0 right-0 z-[100] h-1.5 bg-slate-100">
                     <div
@@ -1114,7 +1458,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid w-full ${embedded ? 'grid-cols-3' : 'grid-cols-7'} mb-6 h-auto p-1 bg-slate-100/50`}>
+                <TabsList className="mb-6 flex h-auto w-full flex-wrap items-center justify-start gap-2 bg-slate-100/50 p-2">
                     <TabsTrigger value="all" className="py-2">Geral ({approvalItems.length})</TabsTrigger>
                     {!embedded && (
                         <>
@@ -1125,6 +1469,10 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </>
                     )}
                     <TabsTrigger value="approved" className="py-2 text-green-600">Aprovados ({displayApproved.length})</TabsTrigger>
+                    <TabsTrigger value="stakeholder-review" className="py-2 text-sky-700">Em revisão ({displayStakeholderPending.length})</TabsTrigger>
+                    <TabsTrigger value="stakeholder-approved" className="py-2 text-emerald-700">Aprovado ✓ ({displayStakeholderApproved.length})</TabsTrigger>
+                    <TabsTrigger value="stakeholder-rejected" className="py-2 text-rose-700">Rejeitado ({displayStakeholderRejected.length})</TabsTrigger>
+                    <TabsTrigger value="stakeholder-suggestions" className="py-2 text-amber-700">Sugestões ({displayStakeholderSuggestions.length})</TabsTrigger>
                     <TabsTrigger value="rejected" className="py-2 text-rose-600">Rejeitados ({displayRejected.length})</TabsTrigger>
                 </TabsList>
 
@@ -1221,10 +1569,34 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
                 <TabsContent value="approved" className="space-y-6 animate-in fade-in duration-300">
                     <div className="flex items-center justify-between border-b pb-3">
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                            <h2 className="text-xl font-bold">Itens Aprovados</h2>
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 font-bold">{displayApproved.length}</Badge>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <h2 className="text-xl font-bold">Itens Aprovados</h2>
+                                <Badge variant="secondary" className="bg-green-100 text-green-700 font-bold">{displayApproved.length}</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Selecione posts aprovados para enviar aos stakeholders. Recursos seguem disponíveis só para pré-visualização e agendamento.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {sendEligibleApprovedItems.length > 0 ? (
+                                <>
+                                    <Button
+                                        type="button"
+                                        variant="link"
+                                        className="h-auto px-0 text-sm text-[#004F8F]"
+                                        onClick={() => setAllSendSelections(sendEligibleApprovedItems)}
+                                    >
+                                        {sendEligibleApprovedItems.length > 0 && selectedSendItems.length === sendEligibleApprovedItems.length
+                                            ? "Limpar seleção"
+                                            : "Selecionar todos"}
+                                    </Button>
+                                    <Badge variant="outline" className="border-[#004F8F]/20 bg-[#004F8F]/5 text-[#004F8F]">
+                                        {sendEligibleApprovedItems.length} elegíveis para envio
+                                    </Badge>
+                                </>
+                            ) : null}
                         </div>
                     </div>
                     {displayApproved.length === 0 ? (
@@ -1244,8 +1616,128 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                                     onSchedule={(item) => { setSchedulingItem(item); setIsSchedulingOpen(true); }}
                                     navigationQuery={getNavigationQuery()}
                                     isApprovedView
-                                    isSelected={selectedIds.includes(item.id)}
-                                    onSelect={toggleSelect}
+                                    isSelected={selectedSendIds.has(item.id)}
+                                    onSelect={isStakeholderSendEligible(item) ? toggleSendSelection : undefined}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="stakeholder-review" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-5 w-5 text-sky-700" />
+                            <h2 className="text-xl font-bold">Posts em revisão externa</h2>
+                            <Badge variant="secondary" className="bg-sky-100 text-sky-700 font-bold">{displayStakeholderPending.length}</Badge>
+                        </div>
+                    </div>
+                    {displayStakeholderPending.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <ShieldCheck className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhum post aguardando revisão externa.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayStakeholderPending.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={() => { }}
+                                    onReject={() => { }}
+                                    navigationQuery={getNavigationQuery()}
+                                    isApprovedView
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="stakeholder-approved" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-emerald-700" />
+                            <h2 className="text-xl font-bold">Posts aprovados pelo stakeholder</h2>
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-bold">{displayStakeholderApproved.length}</Badge>
+                        </div>
+                    </div>
+                    {displayStakeholderApproved.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <CheckCircle className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhum post aprovado pelo stakeholder.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayStakeholderApproved.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={() => { }}
+                                    onReject={() => { }}
+                                    navigationQuery={getNavigationQuery()}
+                                    isApprovedView
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="stakeholder-rejected" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-rose-700" />
+                            <h2 className="text-xl font-bold">Posts rejeitados pelo stakeholder</h2>
+                            <Badge variant="secondary" className="bg-rose-100 text-rose-700 font-bold">{displayStakeholderRejected.length}</Badge>
+                        </div>
+                    </div>
+                    {displayStakeholderRejected.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <ThumbsDown className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhum post rejeitado pelo stakeholder.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayStakeholderRejected.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={() => { }}
+                                    onReject={() => { }}
+                                    navigationQuery={getNavigationQuery()}
+                                    isApprovedView
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="stakeholder-suggestions" className="space-y-6 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-amber-600" />
+                            <h2 className="text-xl font-bold">Sugestões de cópia</h2>
+                            <Badge variant="secondary" className="bg-amber-100 text-amber-700 font-bold">{displayStakeholderSuggestions.length}</Badge>
+                        </div>
+                    </div>
+                    {displayStakeholderSuggestions.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-2xl border border-dashed text-muted-foreground">
+                            <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                            <p>Nenhuma sugestão pendente no momento.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {displayStakeholderSuggestions.map((item) => (
+                                <ContentItemCard
+                                    key={item.id}
+                                    item={item}
+                                    onPreview={handlePreview}
+                                    onApprove={() => { }}
+                                    onReject={() => { }}
+                                    navigationQuery={getNavigationQuery()}
+                                    isApprovedView
                                 />
                             ))}
                         </div>
@@ -1505,6 +1997,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         </div>
                     )}
                     {renderPreview()}
+                    {renderStakeholderReviewPanel()}
                     {showPreviewDecisionActions && (
                         <DialogFooter className="gap-2 sm:justify-between">
                             <Button
@@ -1608,6 +2101,25 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <SendReviewModal
+                open={sendReviewModalOpen}
+                onOpenChange={setSendReviewModalOpen}
+                posts={selectedSendItems}
+                onSent={async () => {
+                    setSelectedSendIds(new Set());
+                    setActiveTab("stakeholder-review");
+                    await Promise.all([
+                        queryClient.invalidateQueries({ queryKey: ["approved_content_items"] }),
+                        queryClient.invalidateQueries({ queryKey: ["stakeholder-review-status-items"] }),
+                        queryClient.invalidateQueries({ queryKey: ["stakeholder-review-items"] }),
+                        queryClient.invalidateQueries({ queryKey: ["stakeholder-review-suggestion-items"] }),
+                        queryClient.invalidateQueries({ queryKey: ["linkedin_carousels"] }),
+                        queryClient.invalidateQueries({ queryKey: ["instagram_posts"] }),
+                        queryClient.invalidateQueries({ queryKey: ["blog-posts"] }),
+                    ]);
+                }}
+            />
 
             {/* Single Approval Confirmation */}
             <AlertDialog open={!!approvalConfirmItem} onOpenChange={(open) => { if (!open) setApprovalConfirmItem(null); }}>

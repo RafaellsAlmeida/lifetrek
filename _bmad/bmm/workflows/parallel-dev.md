@@ -11,6 +11,13 @@ Use this workflow when multiple stories are in `ready-for-dev` status and you wa
 1. **Gemini CLI** must be installed and authenticated.
 2. **Sprint Status** must have stories marked as `ready-for-dev`.
 
+## Safe Execution Guidelines
+
+When running parallel agents, strictly adhere to these limitations and rules:
+1. **Isolated Context:** Ensure stories operated in parallel do not have overlapping file modification scope. If two stories modify the same core components concurrently, they will conflict when worktrees are merged.
+2. **Database State:** Do not run parallel stories that destructively alter or rely on the exact same shared database mock records.
+3. **Merging:** After parallel execution, merge the worktree branches carefully to the main branch and resolve any inevitable structural conflicts manually.
+
 ## Execution
 
 ### 1. Run All Ready Stories

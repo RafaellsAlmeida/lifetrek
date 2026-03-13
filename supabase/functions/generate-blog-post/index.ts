@@ -131,28 +131,30 @@ async function createOpenRouterEmbedding(
         throw new Error(`Embedding API error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const embedding = data?.data?.[0]?.embedding;
-      if (Array.isArray(embedding)) return embedding;
-
-      return null;
+      return await response.json();
     };
 
+    const data = tracking
+      ? await executeWithCostTracking(
+        tracking.supabase,
+        {
+          userId: tracking.userId,
+          operation: tracking.operation,
+          service: "openrouter",
+          model,
+          metadata: tracking.metadata,
+        },
+        executeCall,
+      )
+      : await executeCall();
+
     if (!tracking) {
-      return await executeCall();
+      const embedding = data?.data?.[0]?.embedding;
+      return Array.isArray(embedding) ? embedding : null;
     }
 
-    return await executeWithCostTracking(
-      tracking.supabase,
-      {
-        userId: tracking.userId,
-        operation: tracking.operation,
-        service: "openrouter",
-        model,
-        metadata: tracking.metadata,
-      },
-      executeCall,
-    );
+    const embedding = data?.data?.[0]?.embedding;
+    return Array.isArray(embedding) ? embedding : null;
   } catch (error) {
     clearTimeout(timeoutId);
     console.error("Embedding API error:", error);

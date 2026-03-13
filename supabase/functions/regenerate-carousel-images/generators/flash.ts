@@ -7,6 +7,9 @@
  * @module generators/flash
  */
 
+import { executeWithCostTracking } from "../../_shared/costTracking.ts";
+import type { CostTrackingContext } from "../types.ts";
+
 declare const Deno: any;
 
 /**
@@ -27,7 +30,8 @@ export async function generateWithFlash(
     prompt: string,
     aspectRatio: string,
     apiKey: string,
-    fallbackFn?: (prompt: string) => Promise<string | null>
+    fallbackFn?: (prompt: string) => Promise<string | null>,
+    tracking?: CostTrackingContext,
 ): Promise<string | null> {
     const MODEL = "gemini-2.5-flash-image";
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
@@ -45,23 +49,38 @@ export async function generateWithFlash(
     try {
         console.log(`[FLASH] Calling Gemini Flash...`);
 
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody)
-        });
+        const executeCall = async () => {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody)
+            });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            console.error(`[FLASH] API error: ${response.status} - ${errText}`);
-
-            if (fallbackFn) {
-                return fallbackFn(prompt);
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Gemini Flash Image Error (${response.status}): ${errText}`);
             }
-            return null;
-        }
 
-        const data = await response.json();
+            return await response.json();
+        };
+
+        const data = tracking?.supabase
+            ? await executeWithCostTracking(
+                tracking.supabase,
+                {
+                    userId: tracking.userId || null,
+                    operation: tracking.operation,
+                    service: "gemini",
+                    model: MODEL,
+                    estimatedCost: tracking.estimatedCost,
+                    metadata: {
+                        ...(tracking.metadata || {}),
+                        aspect_ratio: aspectRatio,
+                    },
+                },
+                executeCall,
+            )
+            : await executeCall();
         const candidate = data.candidates?.[0]?.content?.parts || [];
 
         for (const part of candidate) {

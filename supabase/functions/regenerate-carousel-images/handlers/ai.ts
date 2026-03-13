@@ -6,7 +6,7 @@
  * @module handlers/ai
  */
 
-import { SlideData, PlatformConfig, ReferenceImage } from "../types.ts";
+import { CostTrackingContext, SlideData, PlatformConfig, ReferenceImage } from "../types.ts";
 import { generateWithNanoBanana } from "../generators/nano-banana.ts";
 import { generateWithFlash } from "../generators/flash.ts";
 import { generateWithOpenRouter } from "../generators/openrouter.ts";
@@ -21,7 +21,8 @@ export async function handleAiGeneration(
     carouselId: string,
     platform: PlatformConfig,
     assetLoader: AssetLoader,
-    supabase: any
+    supabase: any,
+    costContext?: CostTrackingContext,
 ): Promise<SlideData[]> {
     const processedSlides: SlideData[] = [];
     const styleReference = assetLoader.getStyleReference();
@@ -43,18 +44,21 @@ export async function handleAiGeneration(
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || Deno.env.get("OPEN_ROUTER_API_KEY");
 
-    const createGenerator = () => {
-        const openRouterFallback = (prompt: string) =>
-            generateWithOpenRouter(prompt, OPENROUTER_API_KEY || '');
-
-        const flashFallback = (prompt: string) =>
-            generateWithFlash(prompt, platform.aspectRatio, GEMINI_API_KEY || '', openRouterFallback);
-
-        return (prompt: string, refs: ReferenceImage[]) =>
-            generateWithNanoBanana(prompt, refs, platform.aspectRatio, GEMINI_API_KEY || '', flashFallback);
-    };
-
-    const generateImage = createGenerator();
+    const buildSlideTrackingContext = (slide: SlideData, slideNum: number): CostTrackingContext | undefined =>
+        costContext
+            ? {
+                ...costContext,
+                metadata: {
+                    ...(costContext.metadata || {}),
+                    regen_mode: "ai",
+                    slide_index: slideNum - 1,
+                    slide_number: slideNum,
+                    slide_headline: slide.headline || null,
+                    slide_type: slide.type || null,
+                    reference_count: referenceImages.length,
+                },
+            }
+            : undefined;
 
     for (let i = 0; i < slides.length; i++) {
         const slide = slides[i];
@@ -72,7 +76,21 @@ export async function handleAiGeneration(
             styleReference
         );
 
-        const imageUrl = await generateImage(prompt, referenceImages);
+        const tracking = buildSlideTrackingContext(slide, slideNum);
+        const openRouterFallback = (fallbackPrompt: string) =>
+            generateWithOpenRouter(fallbackPrompt, OPENROUTER_API_KEY || '', tracking);
+
+        const flashFallback = (fallbackPrompt: string) =>
+            generateWithFlash(fallbackPrompt, platform.aspectRatio, GEMINI_API_KEY || '', openRouterFallback, tracking);
+
+        const imageUrl = await generateWithNanoBanana(
+            prompt,
+            referenceImages,
+            platform.aspectRatio,
+            GEMINI_API_KEY || '',
+            flashFallback,
+            tracking,
+        );
 
         if (imageUrl) {
             const fileName = `ai-${carouselId.slice(0, 8)}-${platform.isBlog ? 'cover' : 's' + slideNum}-${Date.now()}.png`;

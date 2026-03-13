@@ -61,6 +61,7 @@ const PitchDeck = lazy(() => import("./pages/PitchDeck"));
 const ResourceDetail = lazy(() => import("./pages/ResourceDetail"));
 const BlogPostDetails = lazy(() => import("./pages/BlogPostDetails"));
 const FatigueValidationGuide = lazy(() => import("./pages/FatigueValidationGuide"));
+const StakeholderReviewPage = lazy(() => import("./pages/StakeholderReview/StakeholderReviewPage"));
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,15 @@ const App = () => (
                 </Route>
 
                 {/* Admin Routes */}
+                <Route
+                  path="/review/:token"
+                  element={
+                    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><LoadingSpinner /></div>}>
+                      <StakeholderReviewPage />
+                    </Suspense>
+                  }
+                />
+
                 <Route path="/admin/login" element={<AdminLogin />} />
 
                 <Route element={<ProtectedAdminRoute />}>

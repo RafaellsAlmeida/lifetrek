@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { executeWithCostTracking } from "../_shared/costTracking.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -46,26 +47,50 @@ Deno.serve(async (req) => {
             console.log(`[EMBED] Generating embedding for: ${template.template_name}`);
 
             // Use Gemini embedding API
-            const embedResponse = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${geminiKey}`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "models/text-embedding-004",
-                        content: { parts: [{ text: textToEmbed }] },
-                        outputDimensionality: 768
-                    })
-                }
-            );
+            let embedResponse: any;
+            try {
+                embedResponse = await executeWithCostTracking(
+                    supabase,
+                    {
+                        userId: null,
+                        operation: "content.generate-style-embeddings.template-embedding",
+                        service: "gemini",
+                        model: "text-embedding-004",
+                        metadata: {
+                            template_id: template.id,
+                            template_name: template.template_name,
+                            style_type: template.style_type,
+                            output_dimensionality: 768,
+                        },
+                    },
+                    async () => {
+                        const response = await fetch(
+                            `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${geminiKey}`,
+                            {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    model: "models/text-embedding-004",
+                                    content: { parts: [{ text: textToEmbed }] },
+                                    outputDimensionality: 768
+                                })
+                            }
+                        );
 
-            if (!embedResponse.ok) {
-                const errText = await embedResponse.text();
-                console.error(`[EMBED] Failed for ${template.template_name}: ${errText}`);
+                        if (!response.ok) {
+                            const errText = await response.text();
+                            throw new Error(`Embedding API Error (${response.status}): ${errText}`);
+                        }
+
+                        return await response.json();
+                    },
+                );
+            } catch (error) {
+                console.error(`[EMBED] Failed for ${template.template_name}:`, error);
                 continue;
             }
 
-            const embedData = await embedResponse.json();
+            const embedData = embedResponse;
             const embedding = embedData.embedding?.values;
 
             if (!embedding || embedding.length !== 768) {
@@ -99,7 +124,7 @@ Deno.serve(async (req) => {
     } catch (error) {
         console.error("[EMBED] Error:", error);
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
         );
     }

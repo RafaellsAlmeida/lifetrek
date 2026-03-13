@@ -1,6 +1,6 @@
 # Story 6.4: Public Review Page `/review/[token]`
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,18 +20,18 @@ so that I can give detailed feedback without needing an admin account.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add public route to App.tsx (AC: #1, #4)
-  - [ ] 1.1 In `src/App.tsx`, add a new public route: `/review/:token` → `<StakeholderReviewPage />`
-  - [ ] 1.2 Route must NOT be wrapped in `ProtectedAdminRoute`
-  - [ ] 1.3 The route component is lazy-loaded
+- [x] Task 1: Add public route to App.tsx (AC: #1, #4)
+  - [x] 1.1 In `src/App.tsx`, add a new public route: `/review/:token` → `<StakeholderReviewPage />`
+  - [x] 1.2 Route must NOT be wrapped in `ProtectedAdminRoute`
+  - [x] 1.3 The route component is lazy-loaded
 
-- [ ] Task 2: Create `StakeholderReviewPage` component (AC: #1, #2, #3, #4, #5)
-  - [ ] 2.1 Create file: `src/pages/StakeholderReview/StakeholderReviewPage.tsx`
-  - [ ] 2.2 On mount, fetch from `stakeholder-review-action?token={token}&action=fetch`
-  - [ ] 2.3 Display reviewer name and expiry info at top
-  - [ ] 2.4 Progress bar: "X de N posts revisados"
-  - [ ] 2.5 If token expired/invalid: show PT-BR error page ("Este link expirou. Peça a Rafael um novo envio.")
-  - [ ] 2.6 For each item, render a card with:
+- [x] Task 2: Create `StakeholderReviewPage` component (AC: #1, #2, #3, #4, #5)
+  - [x] 2.1 Create file: `src/pages/StakeholderReview/StakeholderReviewPage.tsx`
+  - [x] 2.2 On mount, fetch from `stakeholder-review-action?token={token}&action=fetch`
+  - [x] 2.3 Display reviewer name and expiry info at top
+  - [x] 2.4 Progress bar: "X de N posts revisados"
+  - [x] 2.5 If token expired/invalid: show PT-BR error page ("Este link expirou. Peça a Rafael um novo envio.")
+  - [x] 2.6 For each item, render a card with:
     - Content type badge (LinkedIn / Instagram / Blog Post)
     - Thumbnail (first slide image or blog hero, 120x120px)
     - Caption (read-only, italic)
@@ -42,10 +42,10 @@ so that I can give detailed feedback without needing an admin account.
       - "❌ Rejeitar" button → expands inline comment form, on submit calls reject
       - "✏️ Editar cópia" button → expands inline editor for caption + slides
 
-- [ ] Task 3: Add `action=fetch` endpoint to `stakeholder-review-action` Edge Function (AC: #1)
-  - [ ] 3.1 In `supabase/functions/stakeholder-review-action/index.ts`, handle `action=fetch`
-  - [ ] 3.2 Validate token, return batch items with content details (type, title, caption, thumbnail_url, slides)
-  - [ ] 3.3 Response format:
+- [x] Task 3: Add `action=fetch` endpoint to `stakeholder-review-action` Edge Function (AC: #1)
+  - [x] 3.1 In `supabase/functions/stakeholder-review-action/index.ts`, handle `action=fetch`
+  - [x] 3.2 Validate token, return batch items with content details (type, title, caption, thumbnail_url, slides)
+  - [x] 3.3 Response format:
     ```json
     {
       "data": {
@@ -56,15 +56,15 @@ so that I can give detailed feedback without needing an admin account.
     }
     ```
 
-- [ ] Task 4: Add `action=edit_suggest` POST endpoint (AC: #3)
-  - [ ] 4.1 Handle POST to `stakeholder-review-action` with `action=edit_suggest`
-  - [ ] 4.2 Validate token, store `copy_edits` in `stakeholder_review_items`, set `status = 'edit_suggested'`
-  - [ ] 4.3 Return 200 with `{ data: { success: true } }`
+- [x] Task 4: Add `action=edit_suggest` POST endpoint (AC: #3)
+  - [x] 4.1 Handle POST to `stakeholder-review-action` with `action=edit_suggest`
+  - [x] 4.2 Validate token, store `copy_edits` in `stakeholder_review_items`, set `status = 'edit_suggested'`
+  - [x] 4.3 Return 200 with `{ data: { success: true } }`
 
-- [ ] Task 5: Mobile-responsive styling (AC: #5)
-  - [ ] 5.1 Cards use flex-col on small screens
-  - [ ] 5.2 Action buttons are at least 44px tall (tappable)
-  - [ ] 5.3 Caption text is `text-sm` min to remain readable
+- [x] Task 5: Mobile-responsive styling (AC: #5)
+  - [x] 5.1 Cards use flex-col on small screens
+  - [x] 5.2 Action buttons are at least 44px tall (tappable)
+  - [x] 5.3 Caption text is `text-sm` min to remain readable
 
 ## Dev Notes
 
@@ -115,10 +115,26 @@ so that I can give detailed feedback without needing an admin account.
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build`
+- `deno check supabase/functions/stakeholder-review-action/index.ts`
+- Playwright verification against a disposable seeded review batch on 2026-03-13
+
 ### Completion Notes List
 
+- Added the standalone public route `/review/:token` outside the main site chrome and admin auth.
+- Implemented the PT-BR stakeholder review page with query-param targeting, progress, inline reject/edit flows, and locked reviewed states.
+- Extended `stakeholder-review-action` to normalize `fetch`, support JSON `approve` and `reject`, and standardize `edit_suggest` responses while preserving HTML email-link flows.
+- Verified valid-token, targeted-card, approve, reject, edit-suggest, expired-token, invalid-token, and 375px mobile cases using disposable seeded test batches.
+- Cleaned up the disposable seeded batches and restored content statuses after verification.
+- Found Playwright snapshot `output/playwright/story-6-4-review-page-desktop.png`.
+
 ### File List
+
+- `src/pages/StakeholderReview/StakeholderReviewPage.tsx`
+- `src/App.tsx`
+- `supabase/functions/stakeholder-review-action/index.ts`
+- `output/playwright/story-6-4-review-page-desktop.png`

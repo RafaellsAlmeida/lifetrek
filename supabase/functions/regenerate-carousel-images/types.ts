@@ -134,3 +134,11 @@ export interface PlatformConfig {
     isBlog: boolean;
     isResource: boolean;
 }
+
+export interface CostTrackingContext {
+    supabase?: any;
+    userId?: string | null;
+    operation: string;
+    estimatedCost?: number;
+    metadata?: Record<string, unknown>;
+}

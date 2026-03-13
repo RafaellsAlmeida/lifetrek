@@ -6,7 +6,17 @@ export interface Resource {
     type: 'checklist' | 'guide' | 'calculator';
     persona?: string;
     thumbnail_url?: string;
-    status: 'draft' | 'pending_approval' | 'approved' | 'scheduled' | 'published' | 'rejected';
+    status:
+        | 'draft'
+        | 'pending_approval'
+        | 'approved'
+        | 'admin_approved'
+        | 'scheduled'
+        | 'published'
+        | 'rejected'
+        | 'stakeholder_review_pending'
+        | 'stakeholder_approved'
+        | 'stakeholder_rejected';
     slug: string;
     metadata: Record<string, unknown> | null;
     user_id?: string;

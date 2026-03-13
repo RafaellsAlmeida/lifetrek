@@ -38,16 +38,20 @@ interface PostData {
   slide_headlines: string[];
 }
 
-async function fetchPostData(supabase: ReturnType<typeof createClient>, ref: PostRef): Promise<PostData> {
+function hasAdminApprovedStatus(status: string | null | undefined): boolean {
+  return status === "approved" || status === "admin_approved";
+}
+
+async function fetchPostData(supabase: any, ref: PostRef): Promise<PostData> {
   if (ref.content_type === "linkedin_carousel") {
-    const { data, error } = await supabase
+    const { data, error }: { data: any; error: any } = await supabase
       .from("linkedin_carousels")
       .select("topic, caption, slides, image_urls, status")
       .eq("id", ref.content_id)
       .single();
 
     if (error || !data) throw new Error(`linkedin_carousel ${ref.content_id} not found`);
-    if (data.status !== "approved") {
+    if (!hasAdminApprovedStatus(data.status)) {
       throw new Error(`Post ${ref.content_id} must be approved before sending (current: ${data.status})`);
     }
     if (!data.caption?.trim()) {
@@ -67,14 +71,14 @@ async function fetchPostData(supabase: ReturnType<typeof createClient>, ref: Pos
   }
 
   if (ref.content_type === "instagram_post") {
-    const { data, error } = await supabase
+    const { data, error }: { data: any; error: any } = await supabase
       .from("instagram_posts")
       .select("caption, slides, image_urls, status")
       .eq("id", ref.content_id)
       .single();
 
     if (error || !data) throw new Error(`instagram_post ${ref.content_id} not found`);
-    if (data.status !== "approved") {
+    if (!hasAdminApprovedStatus(data.status)) {
       throw new Error(`Post ${ref.content_id} must be approved before sending (current: ${data.status})`);
     }
     if (!data.caption?.trim()) {
@@ -93,14 +97,14 @@ async function fetchPostData(supabase: ReturnType<typeof createClient>, ref: Pos
   }
 
   // blog_post
-  const { data, error } = await supabase
+  const { data, error }: { data: any; error: any } = await supabase
     .from("blog_posts")
     .select("title, excerpt, hero_image_url, status")
     .eq("id", ref.content_id)
     .single();
 
   if (error || !data) throw new Error(`blog_post ${ref.content_id} not found`);
-  if (data.status !== "approved") {
+  if (!hasAdminApprovedStatus(data.status)) {
     throw new Error(`Post ${ref.content_id} must be approved before sending (current: ${data.status})`);
   }
   if (!data.title?.trim() && !data.excerpt?.trim()) {
@@ -479,15 +483,6 @@ serve(async (req) => {
 
     const itemIds: Record<string, string> = Object.fromEntries(items.map(i => [i.content_id, i.id]));
 
-    // --- Update content statuses ---
-    for (const p of posts) {
-      const table =
-        p.ref.content_type === "linkedin_carousel" ? "linkedin_carousels" :
-        p.ref.content_type === "instagram_post"    ? "instagram_posts" :
-                                                     "blog_posts";
-      await supabase.from(table).update({ status: "stakeholder_review_pending" }).eq("id", p.ref.content_id);
-    }
-
     // --- Send emails ---
     const resend = new Resend(resendApiKey);
     const supabaseFunctionsUrl = `${supabaseUrl}/functions/v1`;
@@ -520,6 +515,32 @@ serve(async (req) => {
         console.error(`[STAKEHOLDER-REVIEW] Failed to send to ${tokenRow.reviewer_email}:`, msg);
         sendResults.push({ email: tokenRow.reviewer_email, error: msg });
       }
+    }
+
+    const sendFailures = sendResults.filter((result) => result.error);
+    if (sendFailures.length > 0) {
+      await supabase.from("stakeholder_review_batches").delete().eq("id", batch.id);
+      return new Response(
+        JSON.stringify({
+          error: "Falha ao enviar emails de revisão. O lote foi cancelado.",
+          data: {
+            batch_id: batch.id,
+            sent_to: STAKEHOLDER_EMAILS,
+            item_count: posts.length,
+            send_results: sendResults,
+          },
+        }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // --- Update content statuses only after successful send ---
+    for (const p of posts) {
+      const table =
+        p.ref.content_type === "linkedin_carousel" ? "linkedin_carousels" :
+        p.ref.content_type === "instagram_post" ? "instagram_posts" :
+          "blog_posts";
+      await supabase.from(table).update({ status: "stakeholder_review_pending" }).eq("id", p.ref.content_id);
     }
 
     return new Response(

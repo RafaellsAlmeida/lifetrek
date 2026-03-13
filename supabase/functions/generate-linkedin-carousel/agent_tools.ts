@@ -57,33 +57,32 @@ export async function generateEmbedding(
         throw new Error(`OpenRouter Embedding Error: ${response.status}`);
       }
 
-      const data = await response.json();
-      let embedding = data.data?.[0]?.embedding;
-    
-      if (embedding && embedding.length > dimensions) {
-        embedding = embedding.slice(0, dimensions);
-      } else if (embedding && embedding.length < dimensions) {
-        embedding = [...embedding, ...new Array(dimensions - embedding.length).fill(0)];
-      }
-
-      return embedding || null;
+      return await response.json();
     };
 
-    if (!costContext?.supabase) {
-      return await executeCall();
+    const data = !costContext?.supabase
+      ? await executeCall()
+      : await executeWithCostTracking(
+          costContext.supabase,
+          {
+            userId: costContext.userId || null,
+            operation: costContext.operation,
+            service: "openrouter",
+            model: "openai/text-embedding-3-small",
+            metadata: costContext.metadata,
+          },
+          executeCall,
+        );
+
+    let embedding = data?.data?.[0]?.embedding;
+
+    if (embedding && embedding.length > dimensions) {
+      embedding = embedding.slice(0, dimensions);
+    } else if (embedding && embedding.length < dimensions) {
+      embedding = [...embedding, ...new Array(dimensions - embedding.length).fill(0)];
     }
 
-    return await executeWithCostTracking(
-      costContext.supabase,
-      {
-        userId: costContext.userId || null,
-        operation: costContext.operation,
-        service: "openrouter",
-        model: "openai/text-embedding-3-small",
-        metadata: costContext.metadata,
-      },
-      executeCall,
-    );
+    return embedding || null;
   } catch (error) {
     console.error("❌ Embedding generation error:", error);
     return null;

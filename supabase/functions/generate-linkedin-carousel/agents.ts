@@ -150,26 +150,24 @@ async function callOpenRouter(
       throw new Error(`OpenRouter Error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || "";
+    return await response.json();
   };
 
-  if (!costContext?.supabase) {
-    return await executeCall();
-  }
-
   try {
-    return await executeWithCostTracking(
-      costContext.supabase,
-      {
-        userId: costContext.userId || null,
-        operation: costContext.operation,
-        service: "openrouter",
-        model: TEXT_MODEL,
-        metadata: costContext.metadata,
-      },
-      executeCall,
-    );
+    const data = !costContext?.supabase
+      ? await executeCall()
+      : await executeWithCostTracking(
+          costContext.supabase,
+          {
+            userId: costContext.userId || null,
+            operation: costContext.operation,
+            service: "openrouter",
+            model: TEXT_MODEL,
+            metadata: costContext.metadata,
+          },
+          executeCall,
+        );
+    return data?.choices?.[0]?.message?.content || "";
   } catch (error) {
     if (error instanceof Error && error.message === OPENROUTER_FALLBACK_ERROR) {
       return await callGeminiText(messages, temperature, costContext);
@@ -214,31 +212,30 @@ async function callOpenRouterImage(
         throw new Error(`OpenRouter Image Error (${response.status}): ${errorText}`);
       }
 
-      const data = await response.json();
-      const parts = data.choices?.[0]?.message?.content;
-      if (Array.isArray(parts)) {
-        const imagePart = parts.find((p: any) => p.type === 'image_url');
-        if (imagePart?.image_url?.url) return imagePart.image_url.url;
-      }
-      if (typeof parts === 'string' && parts.startsWith('http')) return parts;
-      return null;
+      return await response.json();
     };
 
-    if (!costContext?.supabase) {
-      return await executeCall();
-    }
+    const data = !costContext?.supabase
+      ? await executeCall()
+      : await executeWithCostTracking(
+          costContext.supabase,
+          {
+            userId: costContext.userId || null,
+            operation: costContext.operation,
+            service: "openrouter",
+            model: IMAGE_MODEL,
+            metadata: costContext.metadata,
+          },
+          executeCall,
+        );
 
-    return await executeWithCostTracking(
-      costContext.supabase,
-      {
-        userId: costContext.userId || null,
-        operation: costContext.operation,
-        service: "openrouter",
-        model: IMAGE_MODEL,
-        metadata: costContext.metadata,
-      },
-      executeCall,
-    );
+    const parts = data?.choices?.[0]?.message?.content;
+    if (Array.isArray(parts)) {
+      const imagePart = parts.find((p: any) => p.type === "image_url");
+      if (imagePart?.image_url?.url) return imagePart.image_url.url;
+    }
+    if (typeof parts === "string" && parts.startsWith("http")) return parts;
+    return null;
 
   } catch (error) {
     console.error("OpenRouter Image Call Failed:", error);
@@ -280,31 +277,29 @@ async function callGeminiImage(
         throw new Error(`Gemini Image Error (${response.status}): ${errorText}`);
       }
 
-      const data = await response.json();
-      const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-
-      if (!imagePart) {
-        throw new Error("No image generated in Gemini response");
-      }
-
-      return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+      return await response.json();
     };
 
-    if (!costContext?.supabase) {
-      return await executeCall();
+    const data = !costContext?.supabase
+      ? await executeCall()
+      : await executeWithCostTracking(
+          costContext.supabase,
+          {
+            userId: costContext.userId || null,
+            operation: costContext.operation,
+            service: "gemini",
+            model: "gemini-3-pro-image-preview",
+            metadata: costContext.metadata,
+          },
+          executeCall,
+        );
+
+    const imagePart = data?.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+    if (!imagePart) {
+      throw new Error("No image generated in Gemini response");
     }
 
-    return await executeWithCostTracking(
-      costContext.supabase,
-      {
-        userId: costContext.userId || null,
-        operation: costContext.operation,
-        service: "gemini",
-        model: "gemini-3-pro-image-preview",
-        metadata: costContext.metadata,
-      },
-      executeCall,
-    );
+    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
     console.error("Gemini Image Call Failed:", error);
     // FALLBACK TO OPENROUTER

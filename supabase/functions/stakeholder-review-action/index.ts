@@ -7,13 +7,12 @@
  * Supported actions (via GET query params):
  *   ?token=<uuid>&item=<item_id>&action=approve           → approve item, return HTML
  *   ?token=<uuid>&item=<item_id>&action=reject             → show rejection comment form
- *   ?token=<uuid>&item=<item_id>&action=fetch              → return batch items as JSON
+ *   ?token=<uuid>&action=fetch                             → return batch items as JSON
  *
- * Reject form POST:
- *   POST body: { token, item_id, action: "reject", comment: string }
- *
- * Edit-suggest POST:
- *   POST body: { token, item_id, action: "edit_suggest", copy_edits: object }
+ * SPA JSON actions (via POST):
+ *   { token, item_id, action: "approve" }                 → approve item, return JSON
+ *   { token, item_id, action: "reject", comment }         → reject item, return JSON/HTML
+ *   { token, item_id, action: "edit_suggest", copy_edits }→ save copy edits, return JSON
  */
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -24,8 +23,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BRAND_BLUE  = "#004F8F";
+const BRAND_BLUE = "#004F8F";
 const BRAND_GREEN = "#1A7A3E";
+
+function jsonResponse(payload: unknown, statusCode = 200): Response {
+  return new Response(JSON.stringify(payload), {
+    status: statusCode,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function jsonError(error: string, statusCode = 400, extra?: Record<string, unknown>): Response {
+  return jsonResponse({ error, ...extra }, statusCode);
+}
 
 // ─── HTML page helpers ────────────────────────────────────────────────────────
 
@@ -91,6 +101,106 @@ function errorPage(message: string, statusCode = 400): Response {
   `, statusCode);
 }
 
+function formatReviewerName(reviewerEmail: string): string {
+  const firstName = reviewerEmail.split("@")[0].split(".")[0] ?? reviewerEmail;
+  return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+}
+
+function getContentTable(contentType: string): "linkedin_carousels" | "instagram_posts" | "blog_posts" {
+  return contentType === "linkedin_carousel"
+    ? "linkedin_carousels"
+    : contentType === "instagram_post"
+      ? "instagram_posts"
+      : "blog_posts";
+}
+
+function normalizeSlides(rawSlides: unknown): Array<{ index: number; headline: string; body: string }> {
+  const baseSlides = Array.isArray(rawSlides)
+    ? rawSlides
+    : rawSlides && typeof rawSlides === "object" && Array.isArray((rawSlides as { slides?: unknown[] }).slides)
+      ? (rawSlides as { slides: unknown[] }).slides
+      : [];
+
+  return baseSlides
+    .map((slide, index) => {
+      if (!slide || typeof slide !== "object") {
+        return null;
+      }
+
+      const record = slide as Record<string, unknown>;
+      const headline =
+        typeof record.headline === "string" ? record.headline :
+          typeof record.title === "string" ? record.title :
+            typeof record.heading === "string" ? record.heading :
+              typeof record.label === "string" ? record.label :
+                "";
+      const body =
+        typeof record.body === "string" ? record.body :
+          typeof record.content === "string" ? record.content :
+            typeof record.text === "string" ? record.text :
+              typeof record.description === "string" ? record.description :
+                "";
+
+      if (!headline.trim() && !body.trim()) {
+        return null;
+      }
+
+      return {
+        index,
+        headline: headline.trim(),
+        body: body.trim(),
+      };
+    })
+    .filter((slide): slide is { index: number; headline: string; body: string } => slide !== null);
+}
+
+function reviewedConflictResponse(
+  itemId: string,
+  currentStatus: string,
+  wantsJson: boolean,
+): Response {
+  if (wantsJson) {
+    return jsonError("Este conteúdo já foi revisado.", 409, {
+      data: {
+        success: false,
+        item_id: itemId,
+        status: currentStatus,
+      },
+    });
+  }
+
+  return htmlPage("Já revisado", `
+    <div class="icon">🔒</div>
+    <h1>Conteúdo já revisado</h1>
+    <p>Esta ação não pode mais ser alterada porque o conteúdo já foi revisado.</p>
+    <p class="subtle">Pode fechar esta janela.</p>
+  `);
+}
+
+function idempotentActionResponse(
+  itemId: string,
+  currentStatus: string,
+  wantsJson: boolean,
+): Response {
+  if (wantsJson) {
+    return jsonResponse({
+      data: {
+        success: true,
+        item_id: itemId,
+        status: currentStatus,
+        already_reviewed: true,
+      },
+    });
+  }
+
+  return htmlPage("Já revisado", `
+    <div class="icon">✅</div>
+    <h1>Já revisado</h1>
+    <p>Este conteúdo já foi revisado anteriormente.</p>
+    <p class="subtle">Obrigado pelo seu tempo.</p>
+  `);
+}
+
 // ─── Token validation ─────────────────────────────────────────────────────────
 
 interface TokenRow {
@@ -102,59 +212,50 @@ interface TokenRow {
 }
 
 async function validateToken(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   token: string,
-): Promise<{ ok: true; row: TokenRow } | { ok: false; reason: string }> {
+): Promise<{ ok: true; row: TokenRow } | { ok: false; reason: string; statusCode: number }> {
   const { data, error } = await supabase
     .from("stakeholder_review_tokens")
     .select("id, batch_id, reviewer_email, expires_at, last_used_at")
     .eq("token", token)
     .maybeSingle();
 
-  if (error || !data) return { ok: false, reason: "Token inválido." };
+  if (error || !data) return { ok: false, reason: "Link inválido.", statusCode: 404 };
 
   const now = new Date();
   const expiry = new Date(data.expires_at);
-  if (now > expiry) return { ok: false, reason: "Este link expirou. Peça a Rafael um novo envio." };
+  if (now > expiry) return { ok: false, reason: "Este link expirou. Peça a Rafael um novo envio.", statusCode: 410 };
 
   return { ok: true, row: data as TokenRow };
+}
+
+async function touchToken(supabase: any, token: string): Promise<void> {
+  await supabase
+    .from("stakeholder_review_tokens")
+    .update({ last_used_at: new Date().toISOString() })
+    .eq("token", token);
 }
 
 // ─── Content status updater ───────────────────────────────────────────────────
 
 async function trySetContentApproved(
-  supabase: ReturnType<typeof createClient>,
-  batchId: string,
+  supabase: any,
   contentType: string,
   contentId: string,
 ): Promise<void> {
-  // Only set stakeholder_approved if no other approved item exists for this content
-  // (avoid downgrading if someone already approved via a different reviewer)
-  const { data: existing } = await supabase
-    .from("stakeholder_review_items")
-    .select("id")
-    .eq("batch_id", batchId)
-    .eq("content_id", contentId)
-    .eq("status", "approved")
-    .maybeSingle();
-
-  if (existing) return; // already approved by another reviewer — skip
-
-  const table =
-    contentType === "linkedin_carousel" ? "linkedin_carousels" :
-    contentType === "instagram_post"    ? "instagram_posts" :
-                                          "blog_posts";
-
-  await supabase.from(table).update({ status: "stakeholder_approved" }).eq("id", contentId);
+  await supabase
+    .from(getContentTable(contentType))
+    .update({ status: "stakeholder_approved" })
+    .eq("id", contentId);
 }
 
 async function trySetContentRejected(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   batchId: string,
   contentType: string,
   contentId: string,
 ): Promise<void> {
-  // Only reject if no approved item exists for this content in this batch
   const { data: approvedItem } = await supabase
     .from("stakeholder_review_items")
     .select("id")
@@ -163,77 +264,98 @@ async function trySetContentRejected(
     .eq("status", "approved")
     .maybeSingle();
 
-  if (approvedItem) return; // first approval wins — do not downgrade to rejected
+  if (approvedItem) return;
 
-  const table =
-    contentType === "linkedin_carousel" ? "linkedin_carousels" :
-    contentType === "instagram_post"    ? "instagram_posts" :
-                                          "blog_posts";
-
-  await supabase.from(table).update({ status: "stakeholder_rejected" }).eq("id", contentId);
+  await supabase
+    .from(getContentTable(contentType))
+    .update({ status: "stakeholder_rejected" })
+    .eq("id", contentId);
 }
 
 // ─── Fetch action (returns JSON for review page) ──────────────────────────────
 
 async function handleFetch(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   tokenRow: TokenRow,
 ): Promise<Response> {
   const { data: items, error } = await supabase
     .from("stakeholder_review_items")
-    .select("id, content_type, content_id, status, reviewer_comment, copy_edits")
+    .select("id, batch_id, content_type, content_id, status, reviewer_comment, copy_edits, reviewed_by_email, reviewed_at")
     .eq("batch_id", tokenRow.batch_id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: "Failed to fetch items" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonError("Falha ao carregar os itens de revisão.", 500);
   }
 
-  // Enrich each item with content data
   const enriched = await Promise.all(
     (items ?? []).map(async (item: Record<string, unknown>) => {
-      let title = "", caption = "", thumbnail_url = null, slides: unknown[] = [];
+      const contentType = String(item.content_type);
+      const contentId = String(item.content_id);
+      let title = "";
+      let caption = "";
+      let thumbnailUrl: string | null = null;
+      let slides: Array<{ index: number; headline: string; body: string }> = [];
 
-      if (item.content_type === "linkedin_carousel") {
+      if (contentType === "linkedin_carousel") {
         const { data } = await supabase
           .from("linkedin_carousels")
           .select("topic, caption, slides, image_urls")
-          .eq("id", item.content_id)
+          .eq("id", contentId)
           .single();
+
         if (data) {
-          title = data.topic;
-          caption = data.caption;
-          thumbnail_url = Array.isArray(data.image_urls) ? data.image_urls[0] : null;
-          slides = Array.isArray(data.slides) ? data.slides : [];
+          title = data.topic || "Post LinkedIn";
+          caption = data.caption || "";
+          thumbnailUrl = Array.isArray(data.image_urls)
+            ? (data.image_urls.find((value: unknown) => typeof value === "string" && value.length > 0) ?? null)
+            : null;
+          slides = normalizeSlides(data.slides);
         }
-      } else if (item.content_type === "instagram_post") {
+      } else if (contentType === "instagram_post") {
         const { data } = await supabase
           .from("instagram_posts")
           .select("caption, slides, image_urls")
-          .eq("id", item.content_id)
+          .eq("id", contentId)
           .single();
+
         if (data) {
           title = "Post Instagram";
-          caption = data.caption;
-          thumbnail_url = Array.isArray(data.image_urls) ? data.image_urls[0] : null;
-          slides = Array.isArray(data.slides) ? data.slides : [];
+          caption = data.caption || "";
+          thumbnailUrl = Array.isArray(data.image_urls)
+            ? (data.image_urls.find((value: unknown) => typeof value === "string" && value.length > 0) ?? null)
+            : null;
+          slides = normalizeSlides(data.slides);
         }
-      } else if (item.content_type === "blog_post") {
+      } else if (contentType === "blog_post") {
         const { data } = await supabase
           .from("blog_posts")
           .select("title, excerpt, hero_image_url")
-          .eq("id", item.content_id)
+          .eq("id", contentId)
           .single();
+
         if (data) {
-          title = data.title;
-          caption = data.excerpt;
-          thumbnail_url = data.hero_image_url;
+          title = data.title || "Blog Post";
+          caption = data.excerpt || "";
+          thumbnailUrl = data.hero_image_url ?? null;
+          slides = [];
         }
       }
 
-      return { ...item, title, caption, thumbnail_url, slides };
-    })
+      return {
+        item_id: String(item.id),
+        content_type: contentType,
+        content_id: contentId,
+        status: String(item.status),
+        title,
+        caption,
+        thumbnail_url: thumbnailUrl,
+        slides,
+        reviewer_comment: item.reviewer_comment ?? null,
+        copy_edits: item.copy_edits ?? null,
+        reviewed_by_email: item.reviewed_by_email ?? null,
+        reviewed_at: item.reviewed_at ?? null,
+      };
+    }),
   );
 
   const { data: batch } = await supabase
@@ -242,17 +364,15 @@ async function handleFetch(
     .eq("id", tokenRow.batch_id)
     .single();
 
-  return new Response(
-    JSON.stringify({
-      data: {
-        reviewer_email: tokenRow.reviewer_email,
-        expires_at: batch?.expires_at,
-        notes: batch?.notes,
-        items: enriched,
-      },
-    }),
-    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-  );
+  return jsonResponse({
+    data: {
+      reviewer_name: formatReviewerName(tokenRow.reviewer_email),
+      reviewer_email: tokenRow.reviewer_email,
+      expires_at: batch?.expires_at ?? tokenRow.expires_at,
+      notes: batch?.notes ?? null,
+      items: enriched,
+    },
+  });
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
@@ -262,31 +382,31 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseUrl        = Deno.env.get("SUPABASE_URL")!;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const supabase           = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   const url = new URL(req.url);
 
-  // ── GET requests (from email links) ────────────────────────────────────────
   if (req.method === "GET") {
-    const token  = url.searchParams.get("token") ?? "";
+    const token = url.searchParams.get("token") ?? "";
     const itemId = url.searchParams.get("item") ?? "";
     const action = url.searchParams.get("action") ?? "";
+    const wantsJson = action === "fetch";
 
-    if (!token) return errorPage("Token em falta.");
+    if (!token) {
+      return wantsJson ? jsonError("Token em falta.", 400) : errorPage("Token em falta.");
+    }
 
     const validation = await validateToken(supabase, token);
     if (!validation.ok) {
-      return errorPage(validation.reason);
+      return wantsJson
+        ? jsonError(validation.reason, validation.statusCode)
+        : errorPage(validation.reason, validation.statusCode);
     }
-    const { row: tokenRow } = validation;
 
-    // Update last_used_at
-    await supabase
-      .from("stakeholder_review_tokens")
-      .update({ last_used_at: new Date().toISOString() })
-      .eq("token", token);
+    const { row: tokenRow } = validation;
+    await touchToken(supabase, token);
 
     if (action === "fetch") {
       return handleFetch(supabase, tokenRow);
@@ -294,7 +414,6 @@ serve(async (req) => {
 
     if (!itemId) return errorPage("Item em falta.");
 
-    // Fetch the review item
     const { data: item, error: itemError } = await supabase
       .from("stakeholder_review_items")
       .select("id, batch_id, content_type, content_id, status")
@@ -306,36 +425,38 @@ serve(async (req) => {
 
     if (action === "approve") {
       if (item.status === "approved") {
-        return htmlPage("Já aprovado", `
-          <div class="icon">✅</div>
-          <h1>Já aprovado</h1>
-          <p>Você já aprovou este conteúdo anteriormente.</p>
-          <p class="subtle">Obrigado pelo seu tempo!</p>
-        `);
+        return idempotentActionResponse(itemId, "approved", false);
+      }
+
+      if (item.status !== "pending") {
+        return reviewedConflictResponse(itemId, item.status, false);
       }
 
       await supabase
         .from("stakeholder_review_items")
-        .update({ status: "approved", reviewed_by_email: tokenRow.reviewer_email, reviewed_at: new Date().toISOString() })
+        .update({
+          status: "approved",
+          reviewed_by_email: tokenRow.reviewer_email,
+          reviewed_at: new Date().toISOString(),
+        })
         .eq("id", itemId);
 
-      await trySetContentApproved(supabase, item.batch_id, item.content_type, item.content_id);
-
-      const reviewerFirstName = tokenRow.reviewer_email.split("@")[0].split(".")[0];
-      const name = reviewerFirstName.charAt(0).toUpperCase() + reviewerFirstName.slice(1);
+      await trySetContentApproved(supabase, item.content_type, item.content_id);
 
       return htmlPage("Aprovado!", `
         <div class="icon">✅</div>
         <h1>Conteúdo aprovado!</h1>
-        <p>Obrigado, <strong>${name}</strong>. Seu feedback foi registrado com sucesso.</p>
+        <p>Obrigado, <strong>${formatReviewerName(tokenRow.reviewer_email)}</strong>. Seu feedback foi registrado com sucesso.</p>
         <p style="font-size:13px;color:#64748b;">Rafael será notificado e tomará as próximas ações de publicação.</p>
         <p class="subtle">Pode fechar esta janela.</p>
       `);
     }
 
     if (action === "reject") {
-      // Show rejection form
-      const reviewUrl = url.toString().replace("action=reject", "action=reject_form");
+      if (item.status !== "pending") {
+        return reviewedConflictResponse(itemId, item.status, false);
+      }
+
       return htmlPage("Rejeitar conteúdo", `
         <div class="icon">❌</div>
         <h1>Rejeitar conteúdo</h1>
@@ -356,11 +477,11 @@ serve(async (req) => {
     return errorPage("Ação desconhecida.");
   }
 
-  // ── POST requests (form submissions) ───────────────────────────────────────
   if (req.method === "POST") {
     let body: Record<string, unknown>;
-
     const contentType = req.headers.get("content-type") ?? "";
+    const wantsJson = contentType.includes("application/json");
+
     if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       body = Object.fromEntries(formData.entries());
@@ -368,22 +489,27 @@ serve(async (req) => {
       body = await req.json().catch(() => ({}));
     }
 
-    const token  = String(body.token ?? "");
+    const token = String(body.token ?? "");
     const itemId = String(body.item_id ?? "");
     const action = String(body.action ?? "");
 
-    if (!token) return errorPage("Token em falta.");
+    if (!token) {
+      return wantsJson ? jsonError("Token em falta.", 400) : errorPage("Token em falta.");
+    }
 
     const validation = await validateToken(supabase, token);
-    if (!validation.ok) return errorPage(validation.reason);
+    if (!validation.ok) {
+      return wantsJson
+        ? jsonError(validation.reason, validation.statusCode)
+        : errorPage(validation.reason, validation.statusCode);
+    }
+
     const { row: tokenRow } = validation;
+    await touchToken(supabase, token);
 
-    await supabase
-      .from("stakeholder_review_tokens")
-      .update({ last_used_at: new Date().toISOString() })
-      .eq("token", token);
-
-    if (!itemId) return errorPage("Item em falta.");
+    if (!itemId) {
+      return wantsJson ? jsonError("Item em falta.", 400) : errorPage("Item em falta.");
+    }
 
     const { data: item, error: itemError } = await supabase
       .from("stakeholder_review_items")
@@ -392,9 +518,49 @@ serve(async (req) => {
       .eq("batch_id", tokenRow.batch_id)
       .maybeSingle();
 
-    if (itemError || !item) return errorPage("Item de revisão não encontrado.");
+    if (itemError || !item) {
+      return wantsJson ? jsonError("Item de revisão não encontrado.", 404) : errorPage("Item de revisão não encontrado.");
+    }
+
+    if (action === "approve") {
+      if (item.status === "approved") {
+        return idempotentActionResponse(itemId, "approved", wantsJson);
+      }
+
+      if (item.status !== "pending") {
+        return reviewedConflictResponse(itemId, item.status, wantsJson);
+      }
+
+      await supabase
+        .from("stakeholder_review_items")
+        .update({
+          status: "approved",
+          reviewed_by_email: tokenRow.reviewer_email,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", itemId);
+
+      await trySetContentApproved(supabase, item.content_type, item.content_id);
+
+      return wantsJson
+        ? jsonResponse({ data: { success: true, status: "approved", item_id: itemId } })
+        : htmlPage("Aprovado!", `
+            <div class="icon">✅</div>
+            <h1>Conteúdo aprovado!</h1>
+            <p>Obrigado, <strong>${formatReviewerName(tokenRow.reviewer_email)}</strong>. Seu feedback foi registrado com sucesso.</p>
+            <p class="subtle">Pode fechar esta janela.</p>
+          `);
+    }
 
     if (action === "reject") {
+      if (item.status === "rejected") {
+        return idempotentActionResponse(itemId, "rejected", wantsJson);
+      }
+
+      if (item.status !== "pending") {
+        return reviewedConflictResponse(itemId, item.status, wantsJson);
+      }
+
       const comment = String(body.comment ?? "").trim();
 
       await supabase
@@ -409,6 +575,17 @@ serve(async (req) => {
 
       await trySetContentRejected(supabase, item.batch_id, item.content_type, item.content_id);
 
+      if (wantsJson) {
+        return jsonResponse({
+          data: {
+            success: true,
+            status: "rejected",
+            item_id: itemId,
+            reviewer_comment: comment || null,
+          },
+        });
+      }
+
       return htmlPage("Feedback registrado", `
         <div class="icon">📝</div>
         <h1>Feedback registrado</h1>
@@ -419,11 +596,17 @@ serve(async (req) => {
     }
 
     if (action === "edit_suggest") {
+      if (item.status === "edit_suggested") {
+        return idempotentActionResponse(itemId, "edit_suggested", true);
+      }
+
+      if (item.status !== "pending") {
+        return reviewedConflictResponse(itemId, item.status, true);
+      }
+
       const copyEdits = body.copy_edits;
-      if (!copyEdits || typeof copyEdits !== "object") {
-        return new Response(JSON.stringify({ error: "copy_edits required" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (!copyEdits || typeof copyEdits !== "object" || Array.isArray(copyEdits)) {
+        return jsonError("copy_edits obrigatório.", 400);
       }
 
       await supabase
@@ -436,13 +619,16 @@ serve(async (req) => {
         })
         .eq("id", itemId);
 
-      return new Response(
-        JSON.stringify({ data: { ok: true, message: "Sugestão de edição salva." } }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({
+        data: {
+          success: true,
+          status: "edit_suggested",
+          item_id: itemId,
+        },
+      });
     }
 
-    return errorPage("Ação desconhecida.");
+    return wantsJson ? jsonError("Ação desconhecida.", 400) : errorPage("Ação desconhecida.");
   }
 
   return new Response("Method not allowed", { status: 405 });

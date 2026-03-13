@@ -1,4 +1,6 @@
+import { executeWithCostTracking } from "../../_shared/costTracking.ts";
 import { CompanyAsset } from "../types.ts";
+import type { CostTrackingContext } from "../types.ts";
 
 declare const Deno: any;
 
@@ -127,9 +129,11 @@ export class AssetLoader {
   private supabase: any;
   private assets: LoadedAsset[] = [];
   private styleTemplates: any[] = [];
+  private tracking?: CostTrackingContext;
 
-  constructor(supabase: any) {
+  constructor(supabase: any, tracking?: CostTrackingContext) {
     this.supabase = supabase;
+    this.tracking = tracking;
   }
 
   async load() {
@@ -387,26 +391,46 @@ export class AssetLoader {
     }
 
     try {
-      const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openRouterKey}`,
-        },
-        body: JSON.stringify({
-          model: "openai/text-embedding-3-small",
-          input,
-          dimensions,
-        }),
-      });
+      const executeCall = async () => {
+        const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openRouterKey}`,
+          },
+          body: JSON.stringify({
+            model: "openai/text-embedding-3-small",
+            input,
+            dimensions,
+          }),
+        });
 
-      if (!response.ok) {
-        const body = await response.text();
-        console.warn(`[ASSET_LOADER] Embedding API failed: ${body}`);
-        return undefined;
-      }
+        if (!response.ok) {
+          const body = await response.text();
+          throw new Error(`OpenRouter Embedding Error (${response.status}): ${body}`);
+        }
 
-      const data = await response.json();
+        return await response.json();
+      };
+
+      const data = this.tracking?.supabase
+        ? await executeWithCostTracking(
+            this.tracking.supabase,
+            {
+              userId: this.tracking.userId || null,
+              operation: this.tracking.operation,
+              service: "openrouter",
+              model: "openai/text-embedding-3-small",
+              estimatedCost: this.tracking.estimatedCost,
+              metadata: {
+                ...(this.tracking.metadata || {}),
+                embedding_dimensions: dimensions,
+                query_length: input.length,
+              },
+            },
+            executeCall,
+          )
+        : await executeCall();
       const embedding = data?.data?.[0]?.embedding;
       return parseVector(embedding);
     } catch (error) {

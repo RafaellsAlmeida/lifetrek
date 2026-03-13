@@ -53,6 +53,10 @@ export function ContentItemCard({
         const status = item.status || item.full_data?.status;
         if (status === 'published') return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 text-[10px]">Ao Vivo</Badge>;
         if (status === 'scheduled') return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px]">Agendado</Badge>;
+        if (status === 'stakeholder_review_pending') return <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 text-[10px]">Em revisão</Badge>;
+        if (status === 'stakeholder_approved') return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]">Aprovado pelo stakeholder</Badge>;
+        if (status === 'stakeholder_rejected') return <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 text-[10px]">Rejeitado pelo stakeholder</Badge>;
+        if (status === 'edit_suggested') return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px]">Sugestão de cópia</Badge>;
         return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">Aprovado</Badge>;
     };
 
