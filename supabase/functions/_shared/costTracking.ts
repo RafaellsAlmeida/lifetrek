@@ -1,3 +1,5 @@
+import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+
 // Cost Tracking Helper for Supabase Edge Functions
 // Usage: Import and use around expensive API calls
 
@@ -103,6 +105,7 @@ interface LogUsageParams {
 }
 
 let parsedCostOverrides: Record<string, number> | null = null;
+let defaultCostTrackingClient: CostTrackingClient | null = null;
 
 function getCostOverrides(): Record<string, number> {
   if (parsedCostOverrides) return parsedCostOverrides;
@@ -129,6 +132,24 @@ function getCostOverrides(): Record<string, number> {
   }
 
   return parsedCostOverrides ?? {};
+}
+
+export function getDefaultCostTrackingClient(): CostTrackingClient | null {
+  if (defaultCostTrackingClient) return defaultCostTrackingClient;
+
+  const supabaseUrl = typeof Deno !== "undefined"
+    ? Deno.env?.get?.("SUPABASE_URL")
+    : undefined;
+  const supabaseKey = typeof Deno !== "undefined"
+    ? Deno.env?.get?.("SUPABASE_SERVICE_ROLE_KEY")
+    : undefined;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+
+  defaultCostTrackingClient = createClient(supabaseUrl, supabaseKey);
+  return defaultCostTrackingClient;
 }
 
 function sanitizeErrorMessage(error: unknown): string {

@@ -24,7 +24,7 @@ import {
   getLlmRankingPlaybookContext,
   isLlmRankingTopic
 } from "./topic_playbooks.ts";
-import { executeWithCostTracking } from "../_shared/costTracking.ts";
+import { executeWithCostTracking, getDefaultCostTrackingClient } from "../_shared/costTracking.ts";
 
 // Font cache for Satori
 let fontData: ArrayBuffer | null = null;
@@ -57,6 +57,26 @@ const OPENROUTER_FALLBACK_ERROR = "__openrouter_fallback__";
 
 function getPlatformLabel(platform?: CarouselParams["platform"]): "LinkedIn" | "Instagram" {
   return platform === "instagram" ? "Instagram" : "LinkedIn";
+}
+
+function resolveCostTrackingContext(
+  costContext: CostTrackingContext | undefined,
+  operation: string,
+  metadata: Record<string, unknown> = {},
+): CostTrackingContext | undefined {
+  const supabase = costContext?.supabase ?? getDefaultCostTrackingClient();
+  if (!supabase) return undefined;
+
+  return {
+    supabase,
+    userId: costContext?.userId || null,
+    operation: costContext?.operation || operation,
+    metadata: {
+      execution_source: costContext?.supabase ? "function" : "local-module",
+      ...(costContext?.metadata || {}),
+      ...metadata,
+    },
+  };
 }
 
 async function callGeminiText(

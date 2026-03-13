@@ -1,7 +1,7 @@
 // Story 7.2 & 7.4: Agent Tools - RAG Asset Retrieval and Utilities
 // Story 7.7: Vector embeddings for carousel learning loop
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { executeWithCostTracking } from "../_shared/costTracking.ts";
+import { executeWithCostTracking, getDefaultCostTrackingClient } from "../_shared/costTracking.ts";
 
 // Removed Google Generative AI dependency to eliminate Google Cloud costs/keys.
 // Embedding generation is temporarily disabled or needs to be moved to an OpenRouter compatible provider if available (e.g. Voyage AI or others via OpenRouter if supported, or just disabled).
@@ -11,6 +11,26 @@ export interface CostTrackingContext {
   userId?: string | null;
   operation: string;
   metadata?: Record<string, unknown>;
+}
+
+function resolveCostTrackingContext(
+  costContext: CostTrackingContext | undefined,
+  operation: string,
+  metadata: Record<string, unknown> = {},
+): CostTrackingContext | undefined {
+  const supabase = costContext?.supabase ?? getDefaultCostTrackingClient();
+  if (!supabase) return undefined;
+
+  return {
+    supabase,
+    userId: costContext?.userId || null,
+    operation: costContext?.operation || operation,
+    metadata: {
+      execution_source: costContext?.supabase ? "function" : "local-module",
+      ...(costContext?.metadata || {}),
+      ...metadata,
+    },
+  };
 }
 
 /**
@@ -60,16 +80,25 @@ export async function generateEmbedding(
       return await response.json();
     };
 
-    const data = !costContext?.supabase
+    const tracking = resolveCostTrackingContext(
+      costContext,
+      "content.generate-linkedin-carousel.embedding",
+      {
+        embedding_dimensions: dimensions,
+        query_length: input.length,
+      },
+    );
+
+    const data = !tracking?.supabase
       ? await executeCall()
       : await executeWithCostTracking(
-          costContext.supabase,
+          tracking.supabase,
           {
-            userId: costContext.userId || null,
-            operation: costContext.operation,
+            userId: tracking.userId || null,
+            operation: tracking.operation,
             service: "openrouter",
             model: "openai/text-embedding-3-small",
-            metadata: costContext.metadata,
+            metadata: tracking.metadata,
           },
           executeCall,
         );
@@ -227,15 +256,24 @@ export async function deepResearch(
       return await response.json();
     };
 
-    const data = costContext?.supabase
+    const tracking = resolveCostTrackingContext(
+      costContext,
+      "content.generate-linkedin-carousel.research",
+      {
+        query,
+        max_time_ms: maxTimeMs,
+      },
+    );
+
+    const data = tracking?.supabase
       ? await executeWithCostTracking(
-          costContext.supabase,
+          tracking.supabase,
           {
-            userId: costContext.userId || null,
-            operation: costContext.operation,
+            userId: tracking.userId || null,
+            operation: tracking.operation,
             service: "perplexity",
             model: "sonar-reasoning",
-            metadata: costContext.metadata,
+            metadata: tracking.metadata,
           },
           executeCall,
         )
