@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { detectMixedLanguage, normalizeExcerptForCard } from "./contentApprovalUtils";
+import { getApprovalBlockers } from "./approvalBlockers";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContentItemCardProps {
     item: any;
@@ -83,6 +85,8 @@ export function ContentItemCard({
 
     const previewText = normalizeExcerptForCard(item.content_preview || item.excerpt);
     const isMixedLanguage = detectMixedLanguage(item.content_preview || item.excerpt);
+    const approvalBlockers = getApprovalBlockers(item);
+    const canApprove = approvalBlockers.messages.length === 0;
 
     return (
         <Card className={`group relative overflow-hidden border-primary/5 hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md ${isApprovedView ? 'flex' : ''} ${isSelected ? 'ring-2 ring-primary border-primary/30' : ''}`}>
@@ -184,13 +188,33 @@ export function ContentItemCard({
                                 <Globe className="h-3.5 w-3.5" /> Site
                             </Button>
 
-                            <Button
-                                size="sm"
-                                onClick={() => onApprove(item)}
-                                className="h-8 gap-2 text-xs bg-green-600 hover:bg-green-700 shadow-sm"
-                            >
-                                <ThumbsUp className="h-3.5 w-3.5" /> Aprovar
-                            </Button>
+                            {canApprove ? (
+                                <Button
+                                    size="sm"
+                                    onClick={() => onApprove(item)}
+                                    className="h-8 gap-2 text-xs bg-green-600 hover:bg-green-700 shadow-sm"
+                                >
+                                    <ThumbsUp className="h-3.5 w-3.5" /> Aprovar
+                                </Button>
+                            ) : (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span tabIndex={0}>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                disabled
+                                                className="h-8 gap-2 text-xs bg-green-600 shadow-sm"
+                                            >
+                                                <ThumbsUp className="h-3.5 w-3.5" /> Aprovar
+                                            </Button>
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-sm">
+                                        {approvalBlockers.messages.join(" ")}
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
 
                             <Button
                                 variant="destructive"

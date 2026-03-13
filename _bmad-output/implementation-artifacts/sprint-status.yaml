@@ -1,4 +1,4 @@
-# generated: 2026-03-06
+# generated: 2026-03-13
 # project: lifetrek
 # project_key: NOKEY
 # tracking_system: file-system
@@ -33,7 +33,7 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-03-06
+generated: 2026-03-13
 project: lifetrek
 project_key: NOKEY
 tracking_system: file-system
@@ -62,23 +62,23 @@ development_status:
 
   epic-4: in-progress
   4-1-orchestrator-mode-parity-ux: review
-  4-2-unified-approval-queue-behavior: ready-for-dev
+  4-2-unified-approval-queue-behavior: review
   4-3-operator-failure-recovery-ux: ready-for-dev
   4-4-human-editing-surfaces-blogs-resources: in-progress
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-real-asset-first-enforcement: backlog
-  5-2-access-and-audit-guardrails: backlog
-  5-3-cross-domain-no-regression-verification: backlog
+  epic-5: in-progress
+  5-1-real-asset-first-enforcement: ready-for-dev
+  5-2-access-and-audit-guardrails: ready-for-dev
+  5-3-cross-domain-no-regression-verification: ready-for-dev
   epic-5-retrospective: optional
 
   epic-6: in-progress
   6-1-stakeholder-review-db-schema: done
   6-2-send-stakeholder-review-function: done
   6-3-stakeholder-review-action-function: done
-  6-4-public-review-page: backlog
-  6-5-admin-stakeholder-status-ui: backlog
-  6-6-admin-manual-send-trigger: backlog
-  6-7-weekly-auto-send-cron: backlog
+  6-4-public-review-page: ready-for-dev
+  6-5-admin-stakeholder-status-ui: ready-for-dev
+  6-6-admin-manual-send-trigger: ready-for-dev
+  6-7-weekly-auto-send-cron: ready-for-dev
   epic-6-retrospective: optional

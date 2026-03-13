@@ -331,6 +331,8 @@ export type Database = {
       blog_posts: {
         Row: {
           ai_generated: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           author_id: string | null
           category_id: string | null
           content: string
@@ -354,6 +356,8 @@ export type Database = {
         }
         Insert: {
           ai_generated?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           author_id?: string | null
           category_id?: string | null
           content: string
@@ -377,6 +381,8 @@ export type Database = {
         }
         Update: {
           ai_generated?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           author_id?: string | null
           category_id?: string | null
           content?: string
@@ -989,6 +995,8 @@ export type Database = {
         Row: {
           admin_user_id: string
           ai_generated: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           caption: string
           created_at: string
           cta_action: string | null
@@ -1013,6 +1021,8 @@ export type Database = {
         Insert: {
           admin_user_id: string
           ai_generated?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           caption: string
           created_at?: string
           cta_action?: string | null
@@ -1037,6 +1047,8 @@ export type Database = {
         Update: {
           admin_user_id?: string
           ai_generated?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           caption?: string
           created_at?: string
           cta_action?: string | null
@@ -1291,6 +1303,8 @@ export type Database = {
       linkedin_carousels: {
         Row: {
           admin_user_id: string
+          approved_at: string | null
+          approved_by: string | null
           assets_used: string[] | null
           caption: string
           content_embedding: string | null
@@ -1323,6 +1337,8 @@ export type Database = {
         }
         Insert: {
           admin_user_id: string
+          approved_at?: string | null
+          approved_by?: string | null
           assets_used?: string[] | null
           caption: string
           content_embedding?: string | null
@@ -1355,6 +1371,8 @@ export type Database = {
         }
         Update: {
           admin_user_id?: string
+          approved_at?: string | null
+          approved_by?: string | null
           assets_used?: string[] | null
           caption?: string
           content_embedding?: string | null
@@ -1638,6 +1656,8 @@ export type Database = {
       }
       resources: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           content: string
           created_at: string | null
           description: string | null
@@ -1654,6 +1674,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           content: string
           created_at?: string | null
           description?: string | null
@@ -1670,6 +1692,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           content?: string
           created_at?: string | null
           description?: string | null

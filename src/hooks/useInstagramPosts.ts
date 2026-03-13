@@ -1,13 +1,43 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { showActionableError } from "@/lib/showActionableError";
 
 interface InstagramPost {
     id: string;
     status: string;
     rejection_reason?: string | null;
     rejected_at?: string | null;
+    approved_at?: string | null;
+    approved_by?: string | null;
     [key: string]: any;
+}
+
+const approvalQueryKeys = [
+    ["instagram_posts"],
+    ["content_approval_items"],
+    ["content-approval-items"],
+    ["approved_content_items"],
+    ["blog-posts"],
+    ["linkedin_carousels"],
+    ["resources"],
+] as const;
+
+function invalidateApprovalQueries(queryClient: ReturnType<typeof useQueryClient>) {
+    return Promise.all(
+        approvalQueryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey: [...queryKey] })),
+    );
+}
+
+function validateInstagramApproval(post: InstagramPost) {
+    const primaryImage = typeof post.image_url === "string" ? post.image_url.trim() : "";
+    const fallbackImage = Array.isArray(post.image_urls)
+        ? post.image_urls.find((value: unknown) => typeof value === "string" && value.trim().length > 0)
+        : "";
+
+    if ((!primaryImage && !fallbackImage) || !post.caption?.trim()) {
+        throw new Error("Post precisa de imagem e legenda para ser aprovado.");
+    }
 }
 
 // Fetch all Instagram posts (optionally filter by status)
@@ -55,9 +85,26 @@ export function useApproveInstagramPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: post, error: fetchError } = await (supabase
+                .from("instagram_posts" as any)
+                .select("*")
+                .eq("id", id)
+                .single() as any);
+
+            if (fetchError) throw fetchError;
+
+            validateInstagramApproval(post as InstagramPost);
+
+            const { data: auth } = await supabase.auth.getUser();
+            const approvedAt = new Date().toISOString();
+
             const { data, error } = await (supabase
                 .from("instagram_posts" as any)
-                .update({ status: "approved" })
+                .update({
+                    status: "approved",
+                    approved_at: approvedAt,
+                    approved_by: auth.user?.id ?? null,
+                })
                 .eq("id", id)
                 .select()
                 .single() as any);
@@ -66,14 +113,12 @@ export function useApproveInstagramPost() {
             return data as InstagramPost;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["instagram_posts"] });
-            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+            void invalidateApprovalQueries(queryClient);
             toast.success("Post Instagram aprovado!");
         },
         onError: (error: any) => {
             console.error("Error approving Instagram post:", error);
-            toast.error("Erro ao aprovar post Instagram");
+            showActionableError(error, 'aprovação de post Instagram');
         },
     });
 }
@@ -106,7 +151,7 @@ export function useRejectInstagramPost() {
         },
         onError: (error: any) => {
             console.error("Error rejecting Instagram post:", error);
-            toast.error("Erro ao rejeitar post Instagram");
+            showActionableError(error, 'rejeição de post Instagram');
         },
     });
 }
@@ -134,7 +179,7 @@ export function usePublishInstagramPost() {
         },
         onError: (error: any) => {
             console.error("Error publishing Instagram post:", error);
-            toast.error("Erro ao publicar post Instagram");
+            showActionableError(error, 'publicação de post Instagram');
         },
     });
 }
@@ -159,7 +204,7 @@ export function useDeleteInstagramPost() {
         },
         onError: (error: any) => {
             console.error("Error deleting Instagram post:", error);
-            toast.error("Erro ao deletar post Instagram");
+            showActionableError(error, 'exclusão de post Instagram');
         },
     });
 }

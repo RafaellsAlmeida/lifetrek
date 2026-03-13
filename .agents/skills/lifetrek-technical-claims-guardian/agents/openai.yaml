@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek Technical Claims Guardian"
+  short_description: "Audit technical claims against the website, assets, and approved brand language."
+  default_prompt: "Review this content for claim safety using Lifetrek website language, local assets, and approved technical wording."

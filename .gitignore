@@ -61,3 +61,6 @@ cacao-ai-07483356a7e4.json
 # MCP server configs (contain API tokens — NEVER commit)
 mcp_servers.json
 .mcp.json
+
+# Parallel agent logs
+logs/parallel-agents/

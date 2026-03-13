@@ -2,8 +2,53 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
+import { showActionableError } from "@/lib/showActionableError";
 
 type LinkedInCarousel = Tables<"linkedin_carousels">;
+
+type ResourceRow = Tables<"resources">;
+
+const approvalQueryKeys = [
+    ["content_approval_items"],
+    ["content-approval-items"],
+    ["approved_content_items"],
+    ["linkedin_carousels"],
+    ["instagram_posts"],
+    ["blog-posts"],
+    ["resources"],
+] as const;
+
+function invalidateApprovalQueries(queryClient: ReturnType<typeof useQueryClient>) {
+    return Promise.all(
+        approvalQueryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey: [...queryKey] })),
+    );
+}
+
+function getSlideImageUrl(slide: any) {
+    if (!slide || typeof slide !== "object") return "";
+    const imageUrl = slide.image_url || slide.imageUrl;
+    return typeof imageUrl === "string" ? imageUrl.trim() : "";
+}
+
+function validateLinkedInApproval(carousel: LinkedInCarousel) {
+    const slides = Array.isArray(carousel.slides)
+        ? carousel.slides
+        : Array.isArray((carousel.slides as any)?.slides)
+            ? (carousel.slides as any).slides
+            : [];
+
+    const hasMissingImage = slides.some((slide: any) => !getSlideImageUrl(slide));
+
+    if (!slides.length || hasMissingImage || !carousel.caption?.trim()) {
+        throw new Error("Carrossel precisa de pelo menos um slide com imagem e legenda para ser aprovado.");
+    }
+}
+
+function validateResourceApproval(resource: ResourceRow) {
+    if (!resource.title?.trim()) {
+        throw new Error("Recurso precisa de título para ser aprovado.");
+    }
+}
 
 // Fetch all LinkedIn carousels (optionally filter by status)
 export function useLinkedInPosts(status?: string) {
@@ -68,7 +113,7 @@ export function useUpdateLinkedInPost() {
         },
         onError: (error: any) => {
             console.error("Error updating LinkedIn carousel:", error);
-            toast.error("Erro ao atualizar post");
+            showActionableError(error, 'atualização de post LinkedIn');
         },
     });
 }
@@ -79,10 +124,25 @@ export function useApproveLinkedInPost() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: carousel, error: fetchError } = await supabase
+                .from("linkedin_carousels")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            validateLinkedInApproval(carousel as LinkedInCarousel);
+
+            const { data: auth } = await supabase.auth.getUser();
+            const approvedAt = new Date().toISOString();
+
             const { data, error } = await supabase
                 .from("linkedin_carousels")
                 .update({
                     status: "approved",
+                    approved_at: approvedAt,
+                    approved_by: auth.user?.id ?? null,
                 })
                 .eq("id", id)
                 .select()
@@ -92,14 +152,12 @@ export function useApproveLinkedInPost() {
             return data as LinkedInCarousel;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["linkedin_carousels"] });
-            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+            void invalidateApprovalQueries(queryClient);
             toast.success("Post aprovado com sucesso!");
         },
         onError: (error: any) => {
             console.error("Error approving carousel:", error);
-            toast.error("Erro ao aprovar post");
+            showActionableError(error, 'aprovação de carrossel LinkedIn');
         },
     });
 }
@@ -132,7 +190,7 @@ export function useRejectLinkedInPost() {
         },
         onError: (error: any) => {
             console.error("Error rejecting carousel:", error);
-            toast.error("Erro ao rejeitar post");
+            showActionableError(error, 'rejeição de post LinkedIn');
         },
     });
 }
@@ -161,7 +219,7 @@ export function usePublishLinkedInPost() {
         },
         onError: (error: any) => {
             console.error("Error publishing carousel:", error);
-            toast.error("Erro ao publicar post");
+            showActionableError(error, 'publicação de post LinkedIn');
         },
     });
 }
@@ -203,7 +261,7 @@ export function useDeleteLinkedInPost() {
         },
         onError: (error: any) => {
             console.error("Error deleting carousel:", error);
-            toast.error("Erro ao deletar post");
+            showActionableError(error, 'exclusão de post LinkedIn');
         },
     });
 }
@@ -414,6 +472,56 @@ export function useApprovedContentItems() {
     return useQuery({
         queryKey: ["approved_content_items"],
         queryFn: async () => {
+            const fetchApprovedLinkedIn = async () => {
+                const withAuditFields = await supabase
+                    .from("linkedin_carousels")
+                    .select("id, topic, status, created_at, target_audience, caption, slides, scheduled_date, approved_at, approved_by")
+                    .in("status", ["approved", "published", "scheduled"])
+                    .order("created_at", { ascending: false })
+                    .limit(50);
+
+                if (!withAuditFields.error) {
+                    return withAuditFields;
+                }
+
+                const message = String(withAuditFields.error.message || "");
+                if (!message.includes("approved_at") && !message.includes("approved_by")) {
+                    return withAuditFields;
+                }
+
+                return supabase
+                    .from("linkedin_carousels")
+                    .select("id, topic, status, created_at, target_audience, caption, slides, scheduled_date")
+                    .in("status", ["approved", "published", "scheduled"])
+                    .order("created_at", { ascending: false })
+                    .limit(50);
+            };
+
+            const fetchApprovedInstagram = async () => {
+                const withAuditFields = await (supabase
+                    .from("instagram_posts" as any)
+                    .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date, approved_at, approved_by")
+                    .in("status", ["approved", "published", "scheduled"])
+                    .order("updated_at", { ascending: false })
+                    .limit(50) as any);
+
+                if (!withAuditFields.error) {
+                    return withAuditFields;
+                }
+
+                const message = String(withAuditFields.error.message || "");
+                if (!message.includes("approved_at") && !message.includes("approved_by")) {
+                    return withAuditFields;
+                }
+
+                return (supabase
+                    .from("instagram_posts" as any)
+                    .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date")
+                    .in("status", ["approved", "published", "scheduled"])
+                    .order("updated_at", { ascending: false })
+                    .limit(50) as any);
+            };
+
             const { data: blogs, error: blogsError } = await supabase
                 .from("blog_posts")
                 .select("*")
@@ -423,21 +531,11 @@ export function useApprovedContentItems() {
 
             if (blogsError) throw blogsError;
 
-            const { data: linkedInCarousels, error: linkedInError } = await supabase
-                .from("linkedin_carousels")
-                .select("id, topic, status, created_at, target_audience, caption, slides, scheduled_date")
-                .in("status", ["approved", "published", "scheduled"])
-                .order("created_at", { ascending: false })
-                .limit(50);
+            const { data: linkedInCarousels, error: linkedInError } = await fetchApprovedLinkedIn();
 
             if (linkedInError) throw linkedInError;
 
-            const { data: instagramPosts, error: instagramError } = await (supabase
-                .from("instagram_posts" as any)
-                .select("id, topic, status, created_at, updated_at, target_audience, caption, hashtags, scheduled_date")
-                .in("status", ["approved", "published", "scheduled"])
-                .order("updated_at", { ascending: false })
-                .limit(50) as any);
+            const { data: instagramPosts, error: instagramError } = await fetchApprovedInstagram();
 
             if (instagramError) console.error("[ContentApproval] Error fetching approved Instagram:", instagramError);
 
@@ -457,7 +555,7 @@ export function useApprovedContentItems() {
                     content_preview: blog.excerpt || blog.content.substring(0, 150),
                     status: blog.status,
                     created_at: blog.created_at,
-                    approved_at: blog.published_at || blog?.metadata?.approved_at || blog.updated_at || blog.created_at,
+                    approved_at: blog.approved_at || blog.published_at || blog?.metadata?.approved_at || blog.updated_at || blog.created_at,
                     ai_generated: blog.ai_generated || false,
                     full_data: blog,
                 })),
@@ -468,7 +566,7 @@ export function useApprovedContentItems() {
                     content_preview: carousel.slides?.[0]?.headline || carousel.caption?.substring(0, 100) || '',
                     status: carousel.status,
                     created_at: carousel.created_at,
-                    approved_at: carousel.scheduled_date || carousel.created_at,
+                    approved_at: carousel.approved_at || carousel.scheduled_date || carousel.created_at,
                     ai_generated: true,
                     full_data: carousel,
                 })),
@@ -479,7 +577,7 @@ export function useApprovedContentItems() {
                     content_preview: post.caption?.substring(0, 100) || '',
                     status: post.status,
                     created_at: post.created_at,
-                    approved_at: post.updated_at,
+                    approved_at: post.approved_at || post.updated_at,
                     ai_generated: true,
                     full_data: post,
                 })),
@@ -490,7 +588,7 @@ export function useApprovedContentItems() {
                     content_preview: resource.description || '',
                     status: resource.status,
                     created_at: resource.created_at,
-                    approved_at: resource.updated_at,
+                    approved_at: resource.approved_at || resource.updated_at,
                     ai_generated: false,
                     full_data: resource,
                 })),
@@ -513,9 +611,26 @@ export function useApproveResource() {
 
     return useMutation({
         mutationFn: async (id: string) => {
+            const { data: resource, error: fetchError } = await (supabase
+                .from("resources" as any)
+                .select("*")
+                .eq("id", id)
+                .single() as any);
+
+            if (fetchError) throw fetchError;
+
+            validateResourceApproval(resource as ResourceRow);
+
+            const { data: auth } = await supabase.auth.getUser();
+            const approvedAt = new Date().toISOString();
+
             const { data, error } = await (supabase
                 .from("resources" as any)
-                .update({ status: "published" })
+                .update({
+                    status: "approved",
+                    approved_at: approvedAt,
+                    approved_by: auth.user?.id ?? null,
+                })
                 .eq("id", id)
                 .select()
                 .single() as any);
@@ -524,13 +639,12 @@ export function useApproveResource() {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
-            toast.success("Recurso aprovado e publicado com sucesso!");
+            void invalidateApprovalQueries(queryClient);
+            toast.success("Recurso aprovado com sucesso!");
         },
         onError: (error: any) => {
             console.error("Error approving resource:", error);
-            toast.error("Erro ao aprovar recurso");
+            showActionableError(error, 'aprovação de recurso');
         },
     });
 }
@@ -558,7 +672,7 @@ export function useRejectResource() {
         },
         onError: (error: any) => {
             console.error("Error rejecting resource:", error);
-            toast.error("Erro ao rejeitar recurso");
+            showActionableError(error, 'rejeição de recurso');
         },
     });
 }

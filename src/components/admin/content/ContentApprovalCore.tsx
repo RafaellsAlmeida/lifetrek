@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { ResourcePreview } from './ResourcePreview';
 import { Loader2, Check, X, Eye, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Clock, Instagram, Linkedin, FileText, CheckCircle, Sparkles, BookOpen, Globe, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { showActionableError } from "@/lib/showActionableError";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import ReactMarkdown from "react-markdown";
@@ -73,6 +75,8 @@ import {
     saveApprovalViewState,
     serializeApprovalStateToQuery
 } from "./contentApprovalState";
+import { getApprovalBlockers } from "./approvalBlockers";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContentApprovalCoreProps {
     embedded?: boolean;
@@ -158,6 +162,10 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const selectedInstagramId = selectedItem?.type === 'instagram' ? selectedItem.id : null;
     const { data: fullInstagramData, isLoading: isLoadingInstagram } = useInstagramPost(selectedInstagramId);
+    const previewApprovalBlockers = useMemo(
+        () => getApprovalBlockers(selectedItem, { carousel: fullCarouselData, instagram: fullInstagramData }),
+        [selectedItem, fullCarouselData, fullInstagramData],
+    );
 
     const handleSyncResources = async () => {
         setIsSyncing(true);
@@ -165,7 +173,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             toast.info("Sincronizando recursos...");
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error: any) {
-            toast.error(`Erro: ${error.message}`);
+            showActionableError(error, 'sincronização de recursos');
         } finally {
             setIsSyncing(false);
         }
@@ -192,7 +200,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             for (const dup of duplicates) {
                 const tableName = dup.type === 'linkedin' ? 'linkedin_carousels' :
                     dup.type === 'blog' ? 'blog_posts' :
-                        dup.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                        dup.type === 'instagram' ? 'instagram_posts' : 'resources';
 
                 await supabase.from(tableName as any).delete().eq('id', dup.id);
             }
@@ -200,7 +208,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             toast.success(`${duplicates.length} duplicados removidos.`);
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error: any) {
-            toast.error(`Erro ao limpar: ${error.message}`);
+            showActionableError(error, 'limpeza de duplicatas');
         } finally {
             setIsCleaning(false);
         }
@@ -282,20 +290,34 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             } else if (item.type === 'resource') {
                 await approveResource.mutateAsync(item.id);
             }
-            toast.success(`"${item.title}" aprovado.`, {
+            const contentTypeLabel =
+                item.type === "linkedin" ? "LinkedIn" :
+                    item.type === "instagram" ? "Instagram" :
+                        item.type === "blog" ? "Artigo" : "Recurso";
+
+            toast.success(`${contentTypeLabel} aprovado: ${item.title}`, {
                 action: {
                     label: "Desfazer",
                     onClick: async () => {
                         try {
                             const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
                                 item.type === 'blog' ? 'blog_posts' :
-                                    item.type === 'instagram' ? 'instagram_posts' : 'content_templates';
-                            await (supabase.from(tableName as any).update({ status: previousStatus } as any) as any).eq('id', item.id);
+                                    item.type === 'instagram' ? 'instagram_posts' : 'resources';
+                            const currentMetadata = item.type === "blog" ? { ...(item.full_data?.metadata || {}) } : null;
+                            if (currentMetadata && "approved_at" in currentMetadata) {
+                                delete currentMetadata.approved_at;
+                            }
+
+                            const rollbackPayload = item.type === "blog"
+                                ? { status: previousStatus, approved_at: null, approved_by: null, metadata: currentMetadata }
+                                : { status: previousStatus, approved_at: null, approved_by: null };
+
+                            await (supabase.from(tableName as any).update(rollbackPayload as any) as any).eq('id', item.id);
                             toast.info("Acao desfeita.");
                             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
                             await queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
-                        } catch {
-                            toast.error("Erro ao desfazer.");
+                        } catch (error) {
+                            showActionableError(error, 'desfazer aprovação');
                         }
                     },
                 },
@@ -303,6 +325,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             });
         } catch (error) {
             console.error('Error approving:', error);
+            throw error;
         }
     };
 
@@ -328,7 +351,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const handleReject = async () => {
         if (!selectedItem || !rejectionReason.trim()) {
-            toast.error("Por favor, informe o motivo da rejeicao");
+            toast.warning("Por favor, informe o motivo da rejeição");
             return;
         }
 
@@ -354,13 +377,13 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         try {
                             const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
                                 item.type === 'blog' ? 'blog_posts' :
-                                    item.type === 'instagram' ? 'instagram_posts' : 'content_templates';
+                                    item.type === 'instagram' ? 'instagram_posts' : 'resources';
                             await (supabase.from(tableName as any).update({ status: previousStatus } as any) as any).eq('id', item.id);
                             toast.info("Acao desfeita.");
                             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
                             await queryClient.invalidateQueries({ queryKey: ["rejected_content_items"] });
-                        } catch {
-                            toast.error("Erro ao desfazer.");
+                        } catch (error) {
+                            showActionableError(error, 'desfazer rejeição');
                         }
                     },
                 },
@@ -411,7 +434,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
             await queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
         } catch (error: any) {
-            toast.error(`Erro ao agendar: ${error.message}`);
+            showActionableError(error, 'agendamento de post');
         }
     };
 
@@ -424,7 +447,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             const tableName = item.type === 'linkedin' ? 'linkedin_carousels' :
                 item.type === 'instagram' ? 'instagram_posts' :
                     item.type === 'blog' ? 'blog_posts' :
-                        item.type === 'resource' ? 'content_templates' : null;
+                        item.type === 'resource' ? 'resources' : null;
 
             if (!tableName) {
                 throw new Error("Tipo de item não suporta regeneração de imagem");
@@ -455,8 +478,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             // Ideally we'd update selectedItem with new data, but invalidating query should trigger re-render of hooks
 
         } catch (error: any) {
-            console.error("Regeneration error:", error);
-            toast.error(`Falha na regeneração: ${error.message}`);
+            showActionableError(error, 'regeneração de imagens');
         } finally {
             setIsRegenerating(false);
         }
@@ -480,7 +502,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             setSelectedIds([]);
             await queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
         } catch (error: any) {
-            toast.error(`Erro na aprovação em massa: ${error.message}`);
+            showActionableError(error, 'aprovação em massa');
         } finally {
             setIsBatchProcessing(false);
             setBatchProgress(0);
@@ -495,7 +517,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
 
     const handleBatchRejectSelected = async () => {
         if (selectedIds.length === 0 || !batchRejectReason.trim()) {
-            toast.error("Por favor, informe o motivo da rejeicao");
+            toast.warning("Por favor, informe o motivo da rejeição");
             return;
         }
 
@@ -526,7 +548,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             setSelectedIds([]);
             setBatchRejectReason("");
         } catch (error) {
-            toast.error("Erro ao rejeitar alguns itens.");
+            showActionableError(error, 'rejeição em massa');
         } finally {
             setIsBatchProcessing(false);
             setBatchProgress(0);
@@ -558,6 +580,15 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     };
 
     const isChecklistComplete = selectedItem ? getChecklistForType(selectedItem.type) : true;
+    const selectedItemStatus = selectedItem?.status || selectedItem?.full_data?.status;
+    const showPreviewDecisionActions = !!selectedItem && !["approved", "published", "scheduled", "rejected", "archived"].includes(selectedItemStatus || "");
+    const canApproveSelectedItem = previewApprovalBlockers.messages.length === 0;
+
+    const handlePreviewEdit = () => {
+        if (!selectedItem) return;
+        setPreviewDialogOpen(false);
+        handleEdit(selectedItem);
+    };
 
     const renderPreview = () => {
         if (!selectedItem) return null;
@@ -708,18 +739,6 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                         {blog.excerpt && (
                             <p className="text-muted-foreground italic">{blog.excerpt}</p>
                         )}
-                        <Button
-                            onClick={() => requestApproval(selectedItem)}
-                            disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || !isChecklistComplete}
-                            className="gap-2"
-                        >
-                            {(approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending) ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <Check className="h-4 w-4" />
-                            )}
-                            {!isChecklistComplete ? "Complete o Checklist" : "Aprovar Conteudo"}
-                        </Button>
                         <div className="flex gap-2 items-center mt-2">
                             <Badge variant="secondary">Blog</Badge>
                             {blog.ai_generated && (
@@ -1017,6 +1036,10 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     </div>
                 </div>
             )}
+
+            {errorPending && <ErrorBanner error={errorPending} context="itens pendentes" onRetry={() => refetchPending()} className="mb-6" />}
+            {errorRejected && <ErrorBanner error={errorRejected} context="itens rejeitados" onRetry={() => refetchRejected()} className="mb-6" />}
+            {errorApproved && <ErrorBanner error={errorApproved} context="itens aprovados" onRetry={() => refetchApproved()} className="mb-6" />}
 
             <div className="flex flex-col md:flex-row items-center gap-4 bg-white/50 p-4 rounded-xl border border-primary/5 shadow-sm">
                 <div className="relative flex-1 w-full">
@@ -1449,7 +1472,85 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             Visualize o conteúdo gerado antes de aprovar ou rejeitar.
                         </DialogDescription>
                     </DialogHeader>
+                    {previewApprovalBlockers.messages.length > 0 && (
+                        <div className="rounded-md border border-destructive/20 bg-destructive/10 p-4 space-y-3">
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-destructive">Aprovação bloqueada até corrigir os itens abaixo.</p>
+                                <ul className="list-disc pl-5 text-sm text-destructive space-y-1">
+                                    {previewApprovalBlockers.messages.map((message) => (
+                                        <li key={message}>{message}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {previewApprovalBlockers.canRegenerateImages && selectedItem && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-2"
+                                        onClick={() => handleRegenerateImages(selectedItem)}
+                                        disabled={isRegenerating}
+                                    >
+                                        <RefreshCw className={`h-4 w-4 ${isRegenerating ? "animate-spin" : ""}`} />
+                                        {isRegenerating ? "Regenerando..." : "Regenerar Imagens"}
+                                    </Button>
+                                )}
+                                {previewApprovalBlockers.canEdit && selectedItem && (
+                                    <Button type="button" variant="link" size="sm" className="h-auto px-0" onClick={handlePreviewEdit}>
+                                        Editar
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     {renderPreview()}
+                    {showPreviewDecisionActions && (
+                        <DialogFooter className="gap-2 sm:justify-between">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setPreviewDialogOpen(false);
+                                    setRejectDialogOpen(true);
+                                }}
+                            >
+                                Rejeitar
+                            </Button>
+                            {canApproveSelectedItem ? (
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        setPreviewDialogOpen(false);
+                                        requestApproval(selectedItem);
+                                    }}
+                                    disabled={approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || approveResource.isPending || !isChecklistComplete}
+                                    className="gap-2 bg-green-600 hover:bg-green-700"
+                                >
+                                    {(approveLinkedIn.isPending || approveBlog.isPending || approveInstagram.isPending || approveResource.isPending) ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Check className="h-4 w-4" />
+                                    )}
+                                    {!isChecklistComplete ? "Complete o Checklist" : "Aprovar Conteúdo"}
+                                </Button>
+                            ) : (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span tabIndex={0}>
+                                            <Button type="button" disabled className="gap-2">
+                                                <Check className="h-4 w-4" />
+                                                Aprovar Conteúdo
+                                            </Button>
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-sm">
+                                        {previewApprovalBlockers.messages.join(" ")}
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
+                        </DialogFooter>
+                    )}
                 </DialogContent>
             </Dialog>
 

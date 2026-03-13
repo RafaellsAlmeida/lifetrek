@@ -2,6 +2,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BlogPost, BlogPostInsert, BlogPostUpdate, BlogCategory } from "@/types/blog";
 import { toast } from "sonner";
+import { showActionableError } from "@/lib/showActionableError";
+
+const approvalQueryKeys = [
+    ["blog-posts"],
+    ["content_approval_items"],
+    ["content-approval-items"],
+    ["approved_content_items"],
+    ["linkedin_carousels"],
+    ["instagram_posts"],
+    ["resources"],
+] as const;
+
+function invalidateApprovalQueries(queryClient: ReturnType<typeof useQueryClient>) {
+    return Promise.all(
+        approvalQueryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey: [...queryKey] })),
+    );
+}
 
 export function useBlogPosts(publishedOnly = true) {
     return useQuery({
@@ -82,7 +99,7 @@ export function useCreateBlogPost() {
         },
         onError: (error) => {
             console.error("Error creating blog post:", error);
-            toast.error("Erro ao criar artigo");
+            showActionableError(error, 'criação de artigo');
         },
     });
 }
@@ -108,7 +125,7 @@ export function useUpdateBlogPost() {
         },
         onError: (error) => {
             console.error("Error updating blog post:", error);
-            toast.error("Erro ao atualizar artigo");
+            showActionableError(error, 'atualização de artigo');
         },
     });
 }
@@ -128,7 +145,7 @@ export function useDeleteBlogPost() {
         },
         onError: (error) => {
             console.error("Error deleting blog post:", error);
-            toast.error("Erro ao excluir artigo");
+            showActionableError(error, 'exclusão de artigo');
         },
     });
 }
@@ -154,6 +171,12 @@ export function useApproveBlogPost() {
                 throw new Error("Preencha metadata.icp_primary e metadata.pillar_keyword antes de aprovar.");
             }
 
+            if (!currentPost.content?.trim()) {
+                throw new Error("Preencha o conteúdo do artigo antes de aprovar.");
+            }
+
+            const { data: auth } = await supabase.auth.getUser();
+
             const now = new Date().toISOString();
             const nextMetadata = {
                 ...metadata,
@@ -162,7 +185,12 @@ export function useApproveBlogPost() {
 
             const { data, error } = await supabase
                 .from("blog_posts")
-                .update({ status: "approved", metadata: nextMetadata } as any)
+                .update({
+                    status: "approved",
+                    approved_at: now,
+                    approved_by: auth.user?.id ?? null,
+                    metadata: nextMetadata,
+                } as any)
                 .eq("id", id)
                 .select()
                 .single();
@@ -171,15 +199,12 @@ export function useApproveBlogPost() {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
-            queryClient.invalidateQueries({ queryKey: ["content_approval_items"] });
-            queryClient.invalidateQueries({ queryKey: ["approved_content_items"] });
+            void invalidateApprovalQueries(queryClient);
             toast.success("Artigo aprovado com sucesso!");
         },
         onError: (error) => {
             console.error("Error approving blog post:", error);
-            const message = error instanceof Error ? error.message : "Erro ao aprovar artigo";
-            toast.error(message);
+            showActionableError(error, 'aprovação de artigo');
         },
     });
 }
@@ -233,8 +258,7 @@ export function usePublishBlogPost() {
         },
         onError: (error) => {
             console.error("Error publishing blog post:", error);
-            const message = error instanceof Error ? error.message : "Erro ao publicar artigo";
-            toast.error(message);
+            showActionableError(error, 'publicação de artigo');
         },
     });
 }
