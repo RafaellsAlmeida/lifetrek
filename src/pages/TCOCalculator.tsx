@@ -52,18 +52,8 @@ export default function TCOCalculator() {
 
         const importLanded = (priceBRL + freightPerUnitBRL) * totalTaxMult;
 
-        // 2. Local Price (Lifetrek) logic with category deltas
-        // deltas show the typical savings coefficient (Lifetrek vs Import Landed)
-        const deltas = {
-            swiss_machining: 0.78, // 22% savings
-            cnc_turning: 0.85,    // 15% savings
-            injection_molding: 0.90, // 10% savings (too high tooling usually)
-            '3d_printing': 0.70,     // 30% savings vs US/EU specialized shops
-            other: 0.80
-        };
-
-        const savingsMult = deltas[data.category] || 0.80;
-        const localLanded = importLanded * savingsMult;
+        // 2. Local scenario is user-provided to avoid unsupported savings assumptions.
+        const localLanded = data.localUnitPrice;
 
         const annualImportTotal = importLanded * data.annualVolume;
         const annualLocalTotal = localLanded * data.annualVolume;
@@ -72,8 +62,12 @@ export default function TCOCalculator() {
         // 3. Capital Released
         const monthlyVol = data.annualVolume / 12;
         const capitalImport = data.stockCoverageMonths * monthlyVol * importLanded;
-        const capitalLocal = 1.0 * monthlyVol * localLanded; // Local assumes 1 month or less
+        const capitalLocal = data.localStockCoverageMonths * monthlyVol * localLanded;
         const capitalReleased = capitalImport - capitalLocal;
+        const savingsPercent =
+            annualImportTotal > 0
+                ? ((annualSavings / annualImportTotal) * 100)
+                : 0;
 
         setResults({
             importLandedUnitPrice: importLanded,
@@ -81,9 +75,9 @@ export default function TCOCalculator() {
             annualImportTotal,
             annualLocalTotal,
             annualSavings,
-            leadTimeReduction: data.importLeadTimeDays - 15, // Lifetrek AVG 15-20d for continuous supply
+            leadTimeReduction: Math.max(data.importLeadTimeDays - data.localLeadTimeDays, 0),
             capitalReleased,
-            savingsPercent: Math.round((1 - savingsMult) * 100)
+            savingsPercent,
         });
 
         window.scrollTo({ top: 400, behavior: 'smooth' });
@@ -150,7 +144,7 @@ export default function TCOCalculator() {
                         Calculadora Total Landed Cost (TCO)
                     </h1>
                     <p className="text-xl md:text-2xl text-primary-foreground/80 font-light max-w-2xl mx-auto leading-relaxed">
-                        Compare o custo real de importação vs. fornecimento local Lifetrek e descubra quanto capital você pode liberar do seu estoque.
+                        Compare cenários de importação e fornecimento local com base nas premissas que você informar. Use o resultado como triagem financeira inicial, não como cotação formal.
                     </p>
                 </div>
             </header>
@@ -218,9 +212,9 @@ export default function TCOCalculator() {
                         {/* Value Props */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {[
-                                { icon: ShieldCheck, title: "ISO 13485", desc: "Qualidade de classe mundial garantida." },
-                                { icon: TrendingDown, title: "De-Risking", desc: "Elimine riscos de câmbio e geopolíticos." },
-                                { icon: MessageSquare, title: "Suporte Local", desc: "Engenharia dedicada no fuso horário local." }
+                                { icon: ShieldCheck, title: "Premissas Explícitas", desc: "Câmbio, impostos e preço local ficam visíveis para revisão." },
+                                { icon: TrendingDown, title: "Cenário Comparável", desc: "Veja delta financeiro, estoque e lead time na mesma tela." },
+                                { icon: MessageSquare, title: "Validação Comercial", desc: "Use a simulação para preparar uma cotação técnico-comercial." }
                             ].map((p, i) => (
                                 <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center gap-2">
                                     <p.icon className="w-8 h-8 text-primary/40" />

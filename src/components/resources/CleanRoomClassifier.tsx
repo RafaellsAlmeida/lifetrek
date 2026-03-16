@@ -65,7 +65,7 @@ interface Recommendation {
     maxParticles05: string;
     maxParticles5: string;
     keyControls: string[];
-    investment: string;
+    implementationEffort: string;
     color: string;
     bgColor: string;
 }
@@ -82,7 +82,7 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
             "Limpeza programada",
             "Vestimenta padrão de fábrica",
         ],
-        investment: "Baixo — adapta infraestrutura existente",
+        implementationEffort: "Baixo",
         color: "text-green-700",
         bgColor: "bg-green-50",
     },
@@ -92,13 +92,13 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
         maxParticles05: "3.520.000/m³",
         maxParticles5: "29.300/m³",
         keyControls: [
-            "Filtros HEPA (H13) no sistema de HVAC",
-            "Pressão diferencial positiva (≥5 Pa)",
+            "Filtração HEPA e fluxo de materiais definidos",
+            "Pressurização coerente com a zona adjacente",
             "Vestimenta controlada (jaleco, touca, sapatilha)",
-            "Monitoramento de partículas semestral",
+            "Monitoramento periódico conforme plano",
             "Controle de acesso",
         ],
-        investment: "Moderado — R$ 200-500k para área de 50m²",
+        implementationEffort: "Moderado",
         color: "text-blue-700",
         bgColor: "bg-blue-50",
     },
@@ -108,15 +108,14 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
         maxParticles05: "352.000/m³",
         maxParticles5: "2.930/m³",
         keyControls: [
-            "Filtros HEPA (H14) com ≥20 trocas de ar/hora",
-            "Pressão diferencial positiva (≥10 Pa entre zonas)",
+            "Filtração e cascata de pressão definidas por projeto",
             "Vestimenta completa (macacão, luvas, máscara, sapatilhas)",
             "Antecâmara com air lock",
-            "Monitoramento contínuo de partículas e microbiológico",
-            "Qualificação IQ/OQ/PQ documentada",
+            "Monitoramento ambiental e rotina de limpeza documentados",
+            "Qualificação e requalificação alinhadas ao processo",
             "Requalificação anual (ISO 14644-2)",
         ],
-        investment: "Alto — R$ 500k-1.5M para área de 50m²",
+        implementationEffort: "Alto",
         color: "text-purple-700",
         bgColor: "bg-purple-50",
     },
@@ -126,15 +125,15 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
         maxParticles05: "35.200/m³",
         maxParticles5: "293/m³",
         keyControls: [
-            "Fluxo laminar unidirecional (≥0.36 m/s)",
-            "Filtros ULPA (U15/U16)",
-            "Vestimenta de sala limpa completa com escafandro",
-            "Monitoramento contínuo em tempo real",
+            "Fluxo unidirecional quando o processo realmente exigir",
+            "Barreiras e transferência de materiais altamente controladas",
+            "Vestimenta integral e disciplina operacional reforçada",
+            "Monitoramento contínuo conforme análise de risco",
             "Validação microbiológica rigorosa",
             "Treinamento anual documentado de todos os operadores",
             "Protocolo de transferência de materiais via pass-through",
         ],
-        investment: "Muito alto — R$ 1.5M+ para área de 50m²",
+        implementationEffort: "Muito alto",
         color: "text-red-700",
         bgColor: "bg-red-50",
     },
@@ -178,6 +177,10 @@ export default function CleanRoomClassifier() {
             </div>
 
             <div className="p-6 space-y-8">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    Ferramenta de triagem baseada em ISO 14644-1/2 e no nível de controle exigido pelo processo. A classificação final deve ser definida com especialista em contaminação e validada no projeto.
+                </div>
+
                 {QUESTIONS.map((q, qIdx) => (
                     <div key={q.id}>
                         <div className="flex items-start gap-3 mb-4">
@@ -259,12 +262,17 @@ export default function CleanRoomClassifier() {
                                 </ul>
                             </div>
 
-                            {/* Investment */}
+                            <div className="bg-white rounded-lg p-4 border mb-6">
+                                <div className="text-xs text-slate-500 mb-1">Esforço típico de implementação</div>
+                                <div className="text-lg font-bold text-slate-800">{rec.implementationEffort}</div>
+                            </div>
+
+                            {/* Implementation effort */}
                             <div className="bg-white rounded-lg p-4 border flex items-start gap-3">
                                 <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                                 <div>
-                                    <div className="text-sm font-semibold text-slate-800">Investimento Estimado</div>
-                                    <div className="text-sm text-slate-600">{rec.investment}</div>
+                                    <div className="text-sm font-semibold text-slate-800">Nota de implementação</div>
+                                    <div className="text-sm text-slate-600">Confirme HVAC, barreiras, monitoramento e rotina operacional com especialista antes de definir layout ou CAPEX.</div>
                                 </div>
                             </div>
 

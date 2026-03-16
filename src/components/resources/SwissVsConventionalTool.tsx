@@ -96,9 +96,9 @@ function calculateRecommendation(specs: PartSpecs) {
     else { conventionalScore += 3; swissScore += 1; }
 
     const results = [
-        { process: "CNC Swiss (Torno Suíço)", score: swissScore, machine: "Citizen Cincom L20/M32", color: "text-[#004F8F]", bg: "bg-blue-50", border: "border-blue-200" },
-        { process: "CNC Convencional (Torno/Centro)", score: conventionalScore, machine: "Torno CNC + Centro de Usinagem", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" },
-        { process: "Fresamento 5 Eixos", score: fiveAxisScore, machine: "Centro de Usinagem 5-Eixos", color: "text-[#1A7A3E]", bg: "bg-green-50", border: "border-green-200" },
+        { process: "CNC Swiss (Torno Suíço)", score: swissScore, machine: "Célula Swiss-type compatível", color: "text-[#004F8F]", bg: "bg-blue-50", border: "border-blue-200" },
+        { process: "CNC Convencional (Torno/Centro)", score: conventionalScore, machine: "Torno CNC + centro de usinagem compatível", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" },
+        { process: "Fresamento 5 Eixos", score: fiveAxisScore, machine: "Centro de usinagem multi-eixos compatível", color: "text-[#1A7A3E]", bg: "bg-green-50", border: "border-green-200" },
     ];
 
     results.sort((a, b) => b.score - a.score);
@@ -167,6 +167,10 @@ export default function SwissVsConventionalTool() {
             </div>
 
             <div className="p-6 space-y-8">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    Recomendação indicativa para triagem. A rota final depende de geometria, fixação, volume, plano de inspeção e capacidade confirmada no desenho.
+                </div>
+
                 {/* Q1: Diameter */}
                 <div>
                     <div className="flex items-center gap-3 mb-3">

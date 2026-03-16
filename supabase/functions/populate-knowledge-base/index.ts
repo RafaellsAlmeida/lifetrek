@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 // @ts-ignore
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
+import { buildApprovedCompaniesKnowledgeText } from "../_shared/approvedCompanies.ts";
 
 declare const Deno: any;
 
@@ -88,15 +89,7 @@ Veterinary:
   {
     source_type: "brand_book",
     source_id: "clients",
-    content: `# Lifetrek Medical - Client Portfolio
-
-Current Clients:
-FGM Dental Group, Neortho, Ultradent Products, Traumec, Razek, Vincula, CPMH, Evolve, GMI, HCS, Impol, Implanfix, IOL, Plenum, Medens, OBL Dental, Orthometric, Óssea, React, Russer, TechImport, Toride.
-
-Strategic Messaging by Avatar:
-- OEMs: "Eliminate supplier risks. ISO 13485 certified quality system."
-- R&D: "Accelerate product development. From ESD prototypes to mass production."
-- Proof Points: 30+ years experience, 100% Quality Board, In-House Finishing.`,
+    content: buildApprovedCompaniesKnowledgeText(),
     metadata: { category: "clients", priority: "medium", keywords: ["clients", "oem", "portfolio", "references"] }
   },
 

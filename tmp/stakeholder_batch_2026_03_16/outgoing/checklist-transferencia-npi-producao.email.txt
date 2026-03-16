@@ -1,0 +1,28 @@
+Assunto: Aprovacao de recurso para publicacao - Checklist de Transferencia NPI para Producao
+
+Solicito aprovacao final deste recurso revisado apos auditoria tecnica de claims em 16/03/2026.
+
+Titulo: Checklist de Transferencia NPI para Producao
+Slug: checklist-transferencia-npi-producao
+Status atual: approved
+
+Por que vale para prospects:
+Entrega um gate tecnico util para times de engenharia, qualidade e supply antes do ramp-up, com foco em CTQ, metrologia, fornecedores criticos e contencao.
+
+Principais correcoes de risco:
+- Removido tom implicito de que transferencia pode seguir sem criterios formais de liberacao.
+- Incluidos bloqueios explicitos para CTQ sem metodo confiavel, fornecedor critico nao qualificado e documentacao incompleta.
+- Conteudo reorientado para evidencias e ownership, nao generalidades.
+
+Fontes verificadas:
+- https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers
+- https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfLearn/search.cfm?educationID=115
+- https://www.fda.gov/medical-devices/medical-device-regulation-and-guidance/guidance-and-regulatory-procedures-staff-and-industry-medical-devices-quality-system-regulationfinal
+- https://www.gov.br/mdic/pt-br/assuntos/produtividade/mais-produtividade/produtos/calculadora-de-custo-de-internacao-do-produto-product-landed-cost-and-selling-price-calculator
+- https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes
+
+Anexos:
+- Conteudo revisado em HTML: checklist-transferencia-npi-producao.html
+- Auditoria consolidada: research-audit.md
+
+Se aprovado, o item pode seguir para status published e liberacao no website.

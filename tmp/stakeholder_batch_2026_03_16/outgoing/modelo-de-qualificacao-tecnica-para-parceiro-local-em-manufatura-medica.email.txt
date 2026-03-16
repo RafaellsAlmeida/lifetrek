@@ -1,0 +1,28 @@
+Assunto: Aprovacao de blog para publicacao - Modelo de qualificação técnica para parceiro local em manufatura médica
+
+Solicito aprovacao final deste blog revisado apos auditoria tecnica de claims em 16/03/2026.
+
+Titulo: Modelo de qualificação técnica para parceiro local em manufatura médica
+Slug: modelo-de-qualificacao-tecnica-para-parceiro-local-em-manufatura-medica
+Status atual: approved
+
+Por que vale para prospects:
+Ajuda o prospect a qualificar parceiro local com perguntas objetivas sobre processo, medicao, rastreabilidade e governanca, reduzindo risco de selecao por promessa vaga.
+
+Principais correcoes de risco:
+- Claims regulatorios e de capacidade foram suavizados para evitar inferencias nao comprovadas.
+- Removida falsa precisao em custo, prazo e readiness.
+- CTA e framing mudados para avaliacao tecnica pratica.
+
+Fontes verificadas:
+- https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers
+- https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfLearn/search.cfm?educationID=115
+- https://www.fda.gov/medical-devices/medical-device-regulation-and-guidance/guidance-and-regulatory-procedures-staff-and-industry-medical-devices-quality-system-regulationfinal
+- https://www.gov.br/mdic/pt-br/assuntos/produtividade/mais-produtividade/produtos/calculadora-de-custo-de-internacao-do-produto-product-landed-cost-and-selling-price-calculator
+- https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes
+
+Anexos:
+- Conteudo revisado em HTML: modelo-de-qualificacao-tecnica-para-parceiro-local-em-manufatura-medica.html
+- Auditoria consolidada: research-audit.md
+
+Se aprovado, o item pode seguir para status published e liberacao no website.

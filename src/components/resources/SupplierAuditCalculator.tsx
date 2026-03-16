@@ -231,6 +231,10 @@ export default function SupplierAuditCalculator({ formData, setIsModalOpen, prev
             </div>
 
             <div className="p-6 space-y-6">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    Autoavaliação inicial. O score não substitui auditoria de 1ª ou 2ª parte, revisão documental nem amostragem em campo.
+                </div>
+
                 {AUDIT_CATEGORIES.map(category => (
                     <div key={category.id} className="border rounded-lg overflow-hidden">
                         <div className="bg-slate-50 px-4 py-3 flex items-center justify-between">

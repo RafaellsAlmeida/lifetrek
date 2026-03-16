@@ -48,6 +48,17 @@ export interface SlideData {
         color_emphasis?: string;
         background_elements?: string;
     };
+    /** Vision QA overall score (0-100) */
+    qa_score?: number;
+    /** Vision QA detailed breakdown */
+    qa_breakdown?: {
+        total: number;
+        brand_consistency: number;
+        readability: number;
+        composition: number;
+        content_relevance: number;
+        feedback: string;
+    };
 }
 
 /**

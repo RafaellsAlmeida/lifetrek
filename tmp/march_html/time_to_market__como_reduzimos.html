@@ -1,154 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #111; }
+        .slide { 
+            width: 1080px; height: 1080px; 
+            position: relative; 
+            background-size: cover; 
+            background-position: center;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
 
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #111; }
-                .slide { 
-                    width: 1080px; height: 1080px; 
-                    position: relative; 
-                    background-size: cover; 
-                    background-position: center;
-                    overflow: hidden;
-                    margin-bottom: 24px;
-                }
-                .glass-card {
-                    position: absolute;
-                    left: 60px; top: 120px;
-                    width: 540px;
-                    background: rgba(0, 79, 143, 0.9);
-                    border-radius: 32px;
-                    padding: 60px;
-                    color: white;
-                    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
-                }
-                .step {
-                    color: #4ade80;
-                    font-weight: 800;
-                    font-size: 20px;
-                    text-transform: uppercase;
-                    margin-bottom: 12px;
-                    letter-spacing: 1px;
-                }
-                h1 {
-                    font-size: 52px;
-                    line-height: 1.1;
-                    margin: 0 0 32px 0;
-                    font-weight: 900;
-                }
-                p {
-                    font-size: 26px;
-                    line-height: 1.5;
-                    margin: 0;
-                    color: rgba(255,255,255,0.9);
-                    font-weight: 400;
-                }
-                .branding-line {
-                    position: absolute;
-                    bottom: 0; left: 0;
-                    width: 100%; height: 15px;
-                    background: linear-gradient(90deg, #004F8F 0%, #1A7A3E 100%);
-                }
-                .top-branding {
-                    position: absolute;
-                    top: 60px; right: 60px;
-                    display: flex;
-                    align-items: center;
-                    gap: 24px;
-                }
-                .iso-badge {
-                    height: 70px;
-                    border-radius: 4px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                }
-                .logo-box {
-                    background: white;
-                    padding: 12px 24px;
-                    border-radius: 16px;
-                    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-                    display: flex;
-                    align-items: center; justify-content: center;
-                }
-                .logo {
-                    width: 160px;
-                    object-fit: contain;
-                }
-            </style>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
-        </head>
-        <body>
-            
-            <div class="slide" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/products/medical-screw-hero.webp')">
-                <div class="glass-card">
-                    <div class="step">PASSOS 1</div>
-                    <h1>O Problema: Ciclos de Prototipagem Demorados?</h1>
-                    <p>Longos ciclos de prototipagem atrasam o lançamento de produtos, aumentam os custos e dão vantagem à concorrência. A Lifetrek Medical tem a solução.</p>
-                </div>
-                <div class="branding-line"></div>
-                <div class="top-branding">
-                    <div class="logo-box">
-                        <img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" class="logo" />
-                    </div>
-                </div>
+        /* Common Elements */
+        .logo-box {
+            background: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center; justify-content: center;
+        }
+        .logo {
+            width: 160px;
+            object-fit: contain;
+        }
+
+        /* Template A (Body & CTA) */
+        .slide-body .overlay-blue {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 30, 70, 0.65); /* blue overlay ~70% */
+        }
+        .slide-body .glass-card {
+            position: absolute;
+            left: 60px; top: 180px;
+            width: 65%;
+            background: rgba(8, 18, 35, 0.80);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 60px;
+            color: white;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        .slide-body .label {
+            color: #1A7A3E; /* Innovation Green */
+            font-weight: 800;
+            font-size: 24px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            letter-spacing: 1.5px;
+        }
+        .slide-body h1 {
+            font-size: 46px;
+            line-height: 1.2;
+            margin: 0 0 24px 0;
+            font-weight: 700;
+            color: white;
+        }
+        .slide-body p {
+            font-size: 24px;
+            line-height: 1.5;
+            margin: 0;
+            color: rgba(255,255,255,0.9);
+            font-weight: 400;
+        }
+        .slide-body .top-branding-a {
+            position: absolute;
+            top: 60px; right: 60px;
+            z-index: 10;
+        }
+        .slide-body .bottom-accent {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 12px;
+            background: #004F8F;
+        }
+
+        /* Template B (Hook) */
+        .slide-hook .overlay-full {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 79, 143, 0.85), rgba(0, 30, 70, 0.95)); /* Dark blue gradient */
+        }
+        .slide-hook .top-branding-b {
+            position: absolute;
+            top: 60px; right: 60px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .slide-hook .top-branding-b .logo {
+            width: 200px;
+            filter: brightness(0) invert(1);
+            margin-bottom: 24px;
+        }
+        .slide-hook .horizontal-rule {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.8);
+        }
+        .slide-hook .content-hook {
+            position: absolute;
+            left: 60px; top: 350px;
+            width: 900px;
+            z-index: 10;
+        }
+        .slide-hook .content-hook h1 {
+            font-size: 76px;
+            line-height: 1.15;
+            margin: 0;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+        }
+        .slide-hook .bottom-bar {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 90px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide-hook .accent-line {
+            width: 100%;
+            height: 8px;
+            background: #F07818; /* orange accent */
+        }
+        .slide-hook .counter-box {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 60px;
+        }
+        .slide-hook .counter-text {
+            color: rgba(255,255,255,0.9);
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .slide-hook .sparkle {
+            color: #F07818;
+            font-size: 32px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Hook (Template B) -->
+    <div class="slide slide-hook" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/facility/exterior-hero.webp')">
+        <div class="overlay-full"></div>
+        <div class="top-branding-b">
+            <img src="file:///Users/rafaelalmeida/lifetrek/src/assets/logo.png" class="logo" />
+            <div class="horizontal-rule"></div>
+        </div>
+        <div class="content-hook">
+            <h1>O PRAZO EXTENSO DE PROTOTIPAGEM ESTÁ CUSTANDO A SUA VANTAGEM COMPETITIVA?</h1>
+        </div>
+        <div class="bottom-bar">
+            <div class="accent-line"></div>
+            <div class="counter-box">
+                <span class="counter-text">1 de 5</span>
+                <span class="sparkle">◆</span>
             </div>
-            
-            <div class="slide" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/products/spinal-implants-optimized.webp')">
-                <div class="glass-card">
-                    <div class="step">PASSOS 2</div>
-                    <h1>A Solução: Manufatura Integrada Lifetrek Medical</h1>
-                    <p>Integramos design, engenharia e produção em um fluxo de trabalho contínuo, otimizando cada etapa do processo de prototipagem.</p>
-                </div>
-                <div class="branding-line"></div>
-                <div class="top-branding">
-                    <div class="logo-box">
-                        <img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" class="logo" />
-                    </div>
-                </div>
+        </div>
+    </div>
+
+    <!-- Ponto de Dor (Template A) -->
+    <div class="slide slide-body" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/facility/production-overview.jpg')">
+        <div class="overlay-blue"></div>
+        <div class="top-branding-a">
+            <div class="logo-box">
+                <img src="file:///Users/rafaelalmeida/lifetrek/src/assets/logo.png" class="logo" />
             </div>
-            
-            <div class="slide" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/products/surgical-instruments-new.webp')">
-                <div class="glass-card">
-                    <div class="step">PASSOS 3</div>
-                    <h1>A Evidência: Redução de 40% no Tempo de Prototipagem</h1>
-                    <p>Nossa abordagem integrada comprovadamente reduz o ciclo de prototipagem em 40%, permitindo iterações mais rápidas e eficientes.</p>
-                </div>
-                <div class="branding-line"></div>
-                <div class="top-branding">
-                    <div class="logo-box">
-                        <img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" class="logo" />
-                    </div>
-                </div>
+        </div>
+        <div class="glass-card">
+            <div class="label">O PROBLEMA</div>
+            <h1>Atrasos na Transferência de Tecnologia</h1>
+            <p>Desenvolver dispositivos médicos lida com atrasos causados ​​por longas cadeias de suprimento e validação ineficiente. A cada troca entre fornecedores diversos, o risco de falhas no projeto multiplica e atrasa o lançamento (time-to-market).</p>
+        </div>
+        <div class="bottom-accent"></div>
+    </div>
+
+    <!-- Solução (Template A) -->
+    <div class="slide slide-body" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/facility/grinding-room.jpg')">
+        <div class="overlay-blue"></div>
+        <div class="top-branding-a">
+            <div class="logo-box">
+                <img src="file:///Users/rafaelalmeida/lifetrek/src/assets/logo.png" class="logo" />
             </div>
-            
-            <div class="slide" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/products/dental-implants-diagram.webp')">
-                <div class="glass-card">
-                    <div class="step">PASSOS 4</div>
-                    <h1>O Benefício: Lançamento Mais Rápido e Vantagem Competitiva</h1>
-                    <p>Chegue ao mercado antes da concorrência, capture uma fatia maior do mercado e maximize seu retorno sobre o investimento com a Lifetrek Medical.</p>
-                </div>
-                <div class="branding-line"></div>
-                <div class="top-branding">
-                    <div class="logo-box">
-                        <img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" class="logo" />
-                    </div>
-                </div>
+        </div>
+        <div class="glass-card">
+            <div class="label">A SOLUÇÃO</div>
+            <h1>Engenharia de Manufatura Integrada</h1>
+            <p>A Lifetrek centraliza as etapas chave: da aprovação conceitual aos protótipos em máquinas CNC otimizadas. Reduzimos o atrito e geramos iterações em dias usando fluxos integrados, em um só hub produtivo na América do Sul.</p>
+        </div>
+        <div class="bottom-accent"></div>
+    </div>
+
+    <!-- Benefício (Template A) -->
+    <div class="slide slide-body" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/facility/clean-room-3.png')">
+        <div class="overlay-blue"></div>
+        <div class="top-branding-a">
+            <div class="logo-box">
+                <img src="file:///Users/rafaelalmeida/lifetrek/src/assets/logo.png" class="logo" />
             </div>
-            
-            <div class="slide" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/products/product-display.png')">
-                <div class="glass-card">
-                    <div class="step">PASSOS 5</div>
-                    <h1>Chamada para Ação: Descubra Como Podemos Ajudar</h1>
-                    <p>Entre em contato com a Lifetrek Medical hoje mesmo e descubra como a manufatura integrada pode acelerar sua inovação e impulsionar seu sucesso.</p>
-                </div>
-                <div class="branding-line"></div>
-                <div class="top-branding">
-                    <div class="logo-box">
-                        <img src="file:///Users/rafaelalmeida/lifetrek/tmp/assets/logo.png" class="logo" />
-                    </div>
-                </div>
+        </div>
+        <div class="glass-card">
+            <div class="label">O BENEFÍCIO</div>
+            <h1>Mais Precisão em Tempo Recorde</h1>
+            <p>Encurtamos mais de 40% do tempo do ciclo de desenvolvimento, providenciando não apenas componentes robustos perfeitamente acabados, mas otimizando o seu DFM desde o primeiro contato.</p>
+        </div>
+        <div class="bottom-accent"></div>
+    </div>
+
+    <!-- CTA (Template A) -->
+    <div class="slide slide-body" style="background-image: url('file:///Users/rafaelalmeida/lifetrek/src/assets/facility/reception.webp')">
+        <div class="overlay-blue"></div>
+        <div class="top-branding-a">
+            <div class="logo-box">
+                <img src="file:///Users/rafaelalmeida/lifetrek/src/assets/logo.png" class="logo" />
             </div>
-            
-        </body>
-        </html>
-        
+        </div>
+        <div class="glass-card">
+            <div class="label">PRÓXIMO PASSO</div>
+            <h1>Acelere Suas Remessas Críticas</h1>
+            <p>Acesse capacidade ágil disponível sem abrir mão do controle de qualidade. Conecte sua equipe de desenvolvimento ainda hoje e garanta tração imediata ao seu projeto.</p>
+        </div>
+        <div class="bottom-accent" style="background: #1A7A3E;"></div>
+    </div>
+
+</body>
+</html>

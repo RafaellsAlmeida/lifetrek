@@ -41,6 +41,7 @@ interface LoadedAsset extends CompanyAsset {
   tags: string[];
   qualityScore: number;
   embedding?: number[];
+  embeddingV2?: number[];  // Gemini Embedding 2 (768d multimodal)
 }
 
 const INTENT_THRESHOLDS: Record<SlideIntent, number> = {
@@ -173,7 +174,7 @@ export class AssetLoader {
     // Optional table introduced by new migration. Keep function compatible if table is not present.
     const { data: embeddingRowsRaw, error: embeddingError } = await this.supabase
       .from("asset_embeddings")
-      .select("asset_id, asset_url, category, tags, search_text, embedding, quality_score, active")
+      .select("asset_id, asset_url, category, tags, search_text, embedding, embedding_v2, quality_score, active")
       .eq("active", true)
       .limit(5000);
 
@@ -187,6 +188,7 @@ export class AssetLoader {
         const existing = byUrl.get(row.asset_url);
         if (existing) {
           if (!existing.embedding) existing.embedding = parseVector(row.embedding);
+          if (!existing.embeddingV2) existing.embeddingV2 = parseVector(row.embedding_v2);
           continue;
         }
 
@@ -201,6 +203,7 @@ export class AssetLoader {
           tags,
           qualityScore: Number(row.quality_score ?? 0.75),
           embedding: parseVector(row.embedding),
+          embeddingV2: parseVector(row.embedding_v2),
         };
         this.assets.push(extra);
         byUrl.set(extra.url, extra);
@@ -380,7 +383,75 @@ export class AssetLoader {
     return first;
   }
 
-  private async generateEmbedding(input: string, dimensions = 1536): Promise<number[] | undefined> {
+  /**
+   * Try Gemini Embedding 2 (768d multimodal) first, fall back to OpenRouter text-embedding-3-small (1536d).
+   * Returns { embedding, useGeminiEmbedding } to indicate which model was used.
+   */
+  private async generateEmbeddingWithModel(input: string): Promise<{ embedding?: number[]; useGeminiEmbedding: boolean }> {
+    // Try Gemini Embedding 2 first
+    const geminiKey = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
+    if (geminiKey) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-exp-03-07:embedContent?key=${geminiKey}`;
+
+        const executeGeminiCall = async () => {
+          const response = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: {
+                parts: [{ text: input }]
+              },
+              outputDimensionality: 768
+            }),
+          });
+
+          if (!response.ok) {
+            const body = await response.text();
+            throw new Error(`Gemini Embedding Error (${response.status}): ${body}`);
+          }
+
+          return await response.json();
+        };
+
+        const data = this.tracking?.supabase
+          ? await executeWithCostTracking(
+              this.tracking.supabase,
+              {
+                userId: this.tracking.userId || null,
+                operation: this.tracking.operation,
+                service: "google",
+                model: "gemini-embedding-exp-03-07",
+                estimatedCost: 0.0001,
+                metadata: {
+                  ...(this.tracking.metadata || {}),
+                  embedding_dimensions: 768,
+                  query_length: input.length,
+                },
+              },
+              executeGeminiCall,
+            )
+          : await executeGeminiCall();
+
+        const embedding = parseVector(data?.embedding?.values);
+        if (embedding && embedding.length > 0) {
+          console.log(`[ASSET_LOADER] Gemini Embedding 2 generated (${embedding.length}d)`);
+          return { embedding, useGeminiEmbedding: true };
+        }
+      } catch (error) {
+        console.warn("[ASSET_LOADER] Gemini embedding failed, falling back to OpenRouter.", error);
+      }
+    }
+
+    // Fall back to OpenRouter text-embedding-3-small (1536d)
+    const embedding = await this.generateEmbeddingOpenRouter(input, 1536);
+    return { embedding, useGeminiEmbedding: false };
+  }
+
+  /**
+   * Generate embedding using OpenRouter text-embedding-3-small (legacy 1536d path).
+   */
+  private async generateEmbeddingOpenRouter(input: string, dimensions = 1536): Promise<number[] | undefined> {
     const openRouterKey =
       Deno.env.get("OPENROUTER_API_KEY") ||
       Deno.env.get("OPEN_ROUTER_API_KEY") ||
@@ -434,9 +505,22 @@ export class AssetLoader {
       const embedding = data?.data?.[0]?.embedding;
       return parseVector(embedding);
     } catch (error) {
-      console.warn("[ASSET_LOADER] Embedding generation failed, using lexical scoring only.", error);
+      console.warn("[ASSET_LOADER] OpenRouter embedding generation failed, using lexical scoring only.", error);
       return undefined;
     }
+  }
+
+  /**
+   * Legacy wrapper: generates embedding via best available model.
+   * Kept for backward compatibility.
+   */
+  private async generateEmbedding(input: string, dimensions = 1536): Promise<number[] | undefined> {
+    // If dimensions == 1536, caller expects legacy path only (e.g. for comparing against old embeddings)
+    if (dimensions === 1536) {
+      return this.generateEmbeddingOpenRouter(input, dimensions);
+    }
+    const result = await this.generateEmbeddingWithModel(input);
+    return result.embedding;
   }
 
   async getSmartBackgroundForSlide(params: {
@@ -472,17 +556,50 @@ export class AssetLoader {
       };
     }
 
-    const queryEmbedding = await this.generateEmbedding(queryText, 1536);
+    // Check if any assets have Gemini v2 embeddings populated
+    const hasV2Embeddings = dedupedPool.some((a) => a.embeddingV2 && a.embeddingV2.length > 0);
+
+    // Generate query embedding: prefer Gemini 768d if v2 embeddings are available, otherwise fall back to 1536d
+    let queryEmbedding: number[] | undefined;
+    let queryEmbeddingV2: number[] | undefined;
+    let useGeminiEmbedding = false;
+
+    if (hasV2Embeddings) {
+      const result = await this.generateEmbeddingWithModel(queryText);
+      if (result.useGeminiEmbedding && result.embedding) {
+        queryEmbeddingV2 = result.embedding;
+        useGeminiEmbedding = true;
+        console.log(`[ASSET_LOADER] Using Gemini Embedding 2 for query (768d multimodal)`);
+      } else {
+        // Gemini failed but v2 embeddings exist; fall back to legacy path
+        queryEmbedding = result.embedding;
+      }
+    }
+
+    // If we don't have a v2 query embedding yet, generate legacy 1536d
+    if (!queryEmbeddingV2 && !queryEmbedding) {
+      queryEmbedding = await this.generateEmbeddingOpenRouter(queryText, 1536);
+    }
 
     const scored = dedupedPool
       .map((asset) => {
-        const cosine = cosineSimilarity(queryEmbedding, asset.embedding);
+        // Use v2 cosine if both query and asset have Gemini embeddings, otherwise fall back to v1
+        let cosine = 0;
+        let embeddingSource = "none";
+        if (useGeminiEmbedding && queryEmbeddingV2 && asset.embeddingV2 && asset.embeddingV2.length > 0) {
+          cosine = cosineSimilarity(queryEmbeddingV2, asset.embeddingV2);
+          embeddingSource = "gemini-v2";
+        } else if (queryEmbedding && asset.embedding && asset.embedding.length > 0) {
+          cosine = cosineSimilarity(queryEmbedding, asset.embedding);
+          embeddingSource = "openai-v1";
+        }
+
         const keywordBoost = this.computeKeywordBoost(intent, queryText, asset);
         const curatedBoost = this.computeCuratedBoost(intent, queryText, asset);
         const score = Math.min(0.99, Math.max(0, cosine + keywordBoost + curatedBoost));
 
         const reasonParts: string[] = [];
-        if (cosine > 0) reasonParts.push(`cosine=${cosine.toFixed(3)}`);
+        if (cosine > 0) reasonParts.push(`cosine=${cosine.toFixed(3)}(${embeddingSource})`);
         if (keywordBoost > 0) reasonParts.push(`keyword_boost=${keywordBoost.toFixed(3)}`);
         if (curatedBoost > 0) reasonParts.push(`curated_boost=${curatedBoost.toFixed(3)}`);
         if (!reasonParts.length) reasonParts.push("lexical fallback");

@@ -88,18 +88,31 @@ export async function handleSmartGeneration(
 
     let imageInput: string | null = null;
 
-    if (!selection.useAi && selection.url) {
-      usedAssetUrls.push(selection.url);
+    // Determine if we should use a real photo with Satori overlay.
+    // In "real_only" mode (allowAiFallback=false) or when a real asset was selected,
+    // always composite a real facility photo — never generate AI images.
+    const useRealPhoto = !selection.useAi || !allowAiFallback;
+    const realPhotoUrl = selection.url || assetLoader.getFacilityPhotoForSlide(i, slide.headline || '', slide.body || '');
+
+    if (useRealPhoto && realPhotoUrl) {
+      usedAssetUrls.push(realPhotoUrl);
+
+      if (selection.useAi) {
+        // Score was below threshold but we're forcing real photos
+        console.log(`[SMART_HANDLER] [${slideNum}] Score below threshold (${selection.score.toFixed(2)}) but using best real photo (real_only mode)`);
+        slide.asset_source = "real";
+        slide.selection_reason = `${selection.reason} [forced real_only]`;
+      }
 
       const overlaySize =
         platform.aspectRatio === "1:1"
           ? { width: 1080, height: 1080 }
           : { width: 720, height: 900 };
 
-      let satoriBgUrl = selection.url;
-      if (selection.url.includes("/object/public/")) {
+      let satoriBgUrl = realPhotoUrl;
+      if (realPhotoUrl.includes("/object/public/")) {
         satoriBgUrl =
-          selection.url.replace("/object/public/", "/render/image/public/") +
+          realPhotoUrl.replace("/object/public/", "/render/image/public/") +
           `?width=${overlaySize.width}&height=${overlaySize.height}&resize=cover&quality=70`;
       }
 
@@ -113,9 +126,9 @@ export async function handleSmartGeneration(
         imageInput = `data:image/png;base64,${chunkBase64(compositeBuffer)}`;
       } catch (error) {
         console.error(`[SMART_HANDLER] [${slideNum}] Satori failed, falling back to raw selected asset`, error);
-        imageInput = selection.url;
+        imageInput = realPhotoUrl;
       }
-    } else {
+    } else if (allowAiFallback) {
       const prompt = buildBrandPrompt(
         slide,
         slideNum,

@@ -82,6 +82,10 @@ export default function ToleranceLookup() {
             </div>
 
             <div className="p-6 space-y-6">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    Faixas indicativas para triagem comercial e técnica. Capabilidade final depende de geometria, relação L/D, fixação, estratégia de medição, condição da ferramenta, volume e MSA do método.
+                </div>
+
                 {/* Material Selection */}
                 <div>
                     <label className="text-sm font-semibold text-slate-700 mb-3 block">1. Selecione o Material</label>
@@ -140,8 +144,8 @@ export default function ToleranceLookup() {
                 {result ? (
                     <div className="border rounded-xl overflow-hidden">
                         <div className="bg-slate-50 px-6 py-4 border-b">
-                            <h4 className="font-bold text-slate-800">Tolerâncias Típicas Alcançáveis</h4>
-                            <p className="text-xs text-slate-500 mt-1">Valores para condições de produção estável com ferramentas em bom estado</p>
+                            <h4 className="font-bold text-slate-800">Faixas de Referência</h4>
+                            <p className="text-xs text-slate-500 mt-1">Valores indicativos para produção estável; confirmar no desenho e no plano metrológico do projeto</p>
                         </div>
                         <div className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

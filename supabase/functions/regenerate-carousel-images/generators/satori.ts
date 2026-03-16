@@ -62,6 +62,13 @@ export async function generateOverlay(
     // Define Colors
     const { primaryBlue, innovationGreen, white, lightGray } = BRAND_COLORS;
 
+    // Dynamic font sizing to prevent overflow
+    const headlineLen = (slide.headline || '').length;
+    const headlineFontSize = headlineLen > 80 ? '32px' : headlineLen > 55 ? '36px' : headlineLen > 35 ? '42px' : '48px';
+
+    const bodyLen = (slide.body || '').length;
+    const bodyFontSize = bodyLen > 300 ? '18px' : bodyLen > 200 ? '20px' : '24px';
+
     // Build children array (no background image to avoid stack overflow)
     const cardChildren: any[] = [
         // Category Label
@@ -87,10 +94,12 @@ export async function generateOverlay(
                 style: {
                     fontFamily: 'Inter',
                     fontWeight: 800,
-                    fontSize: '48px',
+                    fontSize: headlineFontSize,
                     color: white,
                     marginBottom: '24px',
                     lineHeight: '1.1',
+                    wordBreak: 'break-word',
+                    overflow: 'hidden',
                 },
                 children: slide.headline,
             },
@@ -102,7 +111,7 @@ export async function generateOverlay(
                 style: {
                     fontFamily: 'Inter',
                     fontWeight: 400,
-                    fontSize: '24px',
+                    fontSize: bodyFontSize,
                     color: lightGray,
                     lineHeight: '1.4',
                 },
@@ -171,8 +180,96 @@ export async function generateOverlay(
         },
     };
 
-    // NOTE: Logo and ISO badge images are intentionally excluded from Satori.
-    // Satori's image fetching can cause stack overflow on large/remote images.
+    // Logo and ISO badge are included as pre-resized images via Supabase image
+    // transform (/render/image/public/ + ?width=N&resize=contain). This keeps them
+    // under ~50KB each, avoiding the stack-overflow risk that raw full-size images
+    // cause in Satori's internal image fetcher.
+
+    /**
+     * Build a pre-resized Supabase image transform URL.
+     * Replaces `/object/public/` with `/render/image/public/` and appends resize params.
+     * For non-Supabase URLs, returns the original URL unchanged (best-effort).
+     */
+    function buildResizedUrl(originalUrl: string, w: number, h: number): string {
+        if (originalUrl.includes('/object/public/')) {
+            const transformed = originalUrl.replace('/object/public/', '/render/image/public/');
+            return `${transformed}?width=${w}&height=${h}&resize=contain&quality=80`;
+        }
+        return originalUrl;
+    }
+
+    // Top bar with logo (only when showLogo + logoUrl are present)
+    const topBar = (slide.showLogo && slide.logoUrl)
+        ? {
+            type: 'div',
+            props: {
+                style: {
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'flex-end',
+                    padding: '30px 30px 0 0',
+                },
+                children: [
+                    {
+                        type: 'img',
+                        props: {
+                            src: buildResizedUrl(slide.logoUrl, 180, 60),
+                            width: 150,
+                            height: 50,
+                            style: {},
+                        },
+                    },
+                ],
+            },
+        }
+        : null;
+
+    // Bottom bar with ISO 13485 badge (only when showISOBadge + isoUrl are present)
+    const bottomBar = (slide.showISOBadge && slide.isoUrl)
+        ? {
+            type: 'div',
+            props: {
+                style: {
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'flex-end',
+                    padding: '0 30px 30px 0',
+                },
+                children: [
+                    {
+                        type: 'img',
+                        props: {
+                            src: buildResizedUrl(slide.isoUrl, 70, 70),
+                            width: 60,
+                            height: 60,
+                            style: {},
+                        },
+                    },
+                ],
+            },
+        }
+        : null;
+
+    // Middle section wraps the card and fills remaining vertical space
+    const middleSection = {
+        type: 'div',
+        props: {
+            style: {
+                display: 'flex',
+                flex: '1',
+                width: '100%',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+            },
+            children: [cardNode],
+        },
+    };
+
+    // Assemble content wrapper children: topBar (optional) + middle + bottomBar (optional)
+    const wrapperChildren: any[] = [];
+    if (topBar) wrapperChildren.push(topBar);
+    wrapperChildren.push(middleSection);
+    if (bottomBar) wrapperChildren.push(bottomBar);
 
     // When using a real photo background, wrap content in a blue-tint overlay layer
     // (nested flex div avoids position:absolute compatibility issues in Satori)
@@ -182,16 +279,26 @@ export async function generateOverlay(
             props: {
                 style: {
                     display: 'flex',
+                    flexDirection: 'column',
                     width: '100%',
                     height: '100%',
-                    justifyContent: 'flex-start',
-                    alignItems: 'center',
                     backgroundColor: 'rgba(0, 20, 65, 0.58)',
                 },
-                children: [cardNode],
+                children: wrapperChildren,
             },
         }
-        : cardNode;
+        : {
+            type: 'div',
+            props: {
+                style: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100%',
+                },
+                children: wrapperChildren,
+            },
+        };
 
     // Render SVG with Satori
     const svg = await satori(

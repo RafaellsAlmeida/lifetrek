@@ -25,6 +25,7 @@ import { AssetLoader } from "./utils/assets.ts";
 import { handleAiGeneration } from "./handlers/ai.ts";
 import { handleHybridGeneration } from "./handlers/hybrid.ts";
 import { handleSmartGeneration } from "./handlers/smart.ts";
+import { scoreCarouselDesign } from "./qa/vision-scorer.ts";
 import type { CostTrackingContext } from "./types.ts";
 
 declare const Deno: any;
@@ -195,7 +196,7 @@ serve(async (req: Request) => {
       table_name = "linkedin_carousels",
       slide_index,
       mode = "hybrid",
-      allow_ai_fallback = true
+      allow_ai_fallback = false
     }: RegenerateRequest = rawBody as unknown as RegenerateRequest;
 
     const requestedMode: 'ai' | 'hybrid' | 'smart' =
@@ -354,6 +355,18 @@ serve(async (req: Request) => {
       );
     } else {
       processedSlides = await handleHybridGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);
+    }
+
+    // ========================================================================
+    // VISION QA SCORING (non-blocking — failures won't stop the pipeline)
+    // ========================================================================
+    try {
+      console.log(`[REGEN] Running vision QA scoring on ${processedSlides.length} slides...`);
+      await scoreCarouselDesign(processedSlides, { supabase, userId: user.id });
+      const avgScore = processedSlides.reduce((sum, s) => sum + (s.qa_score || 0), 0) / processedSlides.length;
+      console.log(`[REGEN] QA average score: ${avgScore.toFixed(1)}/100`);
+    } catch (qaError) {
+      console.warn(`[REGEN] QA scoring failed (non-blocking):`, qaError);
     }
 
     // ========================================================================

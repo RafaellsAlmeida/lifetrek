@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Banknote, Calendar, ChevronRight, TrendingDown, Warehouse } from "lucide-react";
+import { AlertTriangle, Calendar, ChevronRight, TrendingDown, Warehouse } from "lucide-react";
 
 export interface TCOResultsData {
     importLandedUnitPrice: number;
@@ -20,6 +19,14 @@ interface TCOResultsProps {
 }
 
 export function TCOResults({ results, onConsult }: TCOResultsProps) {
+    const isSavingsPositive = results.annualSavings >= 0;
+    const savingsLabel = isSavingsPositive
+        ? `Redução estimada de ${Math.abs(results.savingsPercent).toFixed(1)}% no cenário informado`
+        : `O cenário local está ${Math.abs(results.savingsPercent).toFixed(1)}% acima da importação`;
+    const relativeBarWidth = results.importLandedUnitPrice > 0
+        ? Math.min((results.localLandedUnitPrice / results.importLandedUnitPrice) * 100, 100)
+        : 0;
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-700">
             <Card className="bg-primary text-primary-foreground overflow-hidden border-none shadow-2xl">
@@ -27,7 +34,7 @@ export function TCOResults({ results, onConsult }: TCOResultsProps) {
                     <TrendingDown className="w-32 h-32" />
                 </div>
                 <CardHeader>
-                    <CardTitle className="text-xl uppercase tracking-widest opacity-80">Econômia Anual Estimada</CardTitle>
+                    <CardTitle className="text-xl uppercase tracking-widest opacity-80">Delta Anual Estimado</CardTitle>
                     <div className="text-5xl font-black">
                         R$ {results.annualSavings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
@@ -35,7 +42,18 @@ export function TCOResults({ results, onConsult }: TCOResultsProps) {
                 <CardContent>
                     <div className="flex items-center gap-2 text-primary-foreground/90 font-medium">
                         <TrendingDown className="w-5 h-5" />
-                        <span>Redução de {results.savingsPercent.toFixed(1)}% no Total Landed Cost</span>
+                        <span>{savingsLabel}</span>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="border-amber-200 bg-amber-50">
+                <CardContent className="pt-6">
+                    <div className="flex items-start gap-3 text-sm text-amber-900">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <p>
+                            Simulação baseada nas premissas informadas no formulário. Impostos de importação, preço local, lead time e cobertura de estoque devem ser validados com dados reais antes de qualquer decisão.
+                        </p>
                     </div>
                 </CardContent>
             </Card>
@@ -50,7 +68,7 @@ export function TCOResults({ results, onConsult }: TCOResultsProps) {
                         <div className="text-2xl font-bold">
                             R$ {results.capitalReleased.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Estimativa com redução de 6 para 1 mês de cobertura.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Comparação entre a cobertura de estoque importada e a cobertura local informada.</p>
                     </CardContent>
                 </Card>
 
@@ -63,7 +81,7 @@ export function TCOResults({ results, onConsult }: TCOResultsProps) {
                         <div className="text-2xl font-bold">
                             {results.leadTimeReduction} Dias
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">De 90 dias (global) para 30 dias (local Lifetrek).</p>
+                        <p className="text-xs text-muted-foreground mt-1">Diferença entre o lead time de importação e o lead time local preenchidos no cenário.</p>
                     </CardContent>
                 </Card>
             </div>
@@ -87,21 +105,21 @@ export function TCOResults({ results, onConsult }: TCOResultsProps) {
                     <div className="flex items-end justify-between gap-4">
                         <div className="flex-1 space-y-2">
                             <div className="flex justify-between text-sm font-bold text-primary">
-                                <span>Local (Lifetrek)</span>
+                                <span>Local (cenário informado)</span>
                                 <span className="font-mono">R$ {results.localLandedUnitPrice.toFixed(2)}</span>
                             </div>
                             <div className="h-4 bg-muted rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-primary transition-all duration-1000"
-                                    style={{ width: `${(results.localLandedUnitPrice / results.importLandedUnitPrice) * 100}%` }}
+                                    style={{ width: `${relativeBarWidth}%` }}
                                 />
                             </div>
                         </div>
                     </div>
-                    <div className="bg-green-500/10 p-4 rounded-lg flex items-center justify-between mt-4">
-                        <span className="text-sm font-bold text-green-700">Delta Unitário:</span>
-                        <span className="text-lg font-black text-green-700">
-                            - R$ {(results.importLandedUnitPrice - results.localLandedUnitPrice).toFixed(2)}
+                    <div className={`p-4 rounded-lg flex items-center justify-between mt-4 ${isSavingsPositive ? "bg-green-500/10" : "bg-red-500/10"}`}>
+                        <span className={`text-sm font-bold ${isSavingsPositive ? "text-green-700" : "text-red-700"}`}>Delta Unitário:</span>
+                        <span className={`text-lg font-black ${isSavingsPositive ? "text-green-700" : "text-red-700"}`}>
+                            {isSavingsPositive ? "-" : "+"} R$ {Math.abs(results.importLandedUnitPrice - results.localLandedUnitPrice).toFixed(2)}
                         </span>
                     </div>
                 </CardContent>

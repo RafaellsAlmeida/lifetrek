@@ -117,7 +117,6 @@ export default function Calculator() {
     if (data.partComplexity === "highly-complex" && data.tolerances === "ultra-precision") feasibilityScore -= 15;
     if (data.material === "peek" || data.material === "cobalt-chrome") feasibilityScore -= 5;
     if (data.secondaryOps.length > 3) feasibilityScore -= 10;
-    if (data.certifications.includes("fda") || data.certifications.includes("iso13485")) feasibilityScore += 10;
 
     // Recommendations
     const recommendations: string[] = [];
@@ -131,7 +130,7 @@ export default function Calculator() {
       recommendations.push("Ultra-precision requires state-of-the-art CNC machining - our specialty");
     }
     if (data.certifications.length > 0) {
-      recommendations.push("ISO 13485 certified facility - compliant with all required standards");
+      recommendations.push("Confirm documentation, validation, and market-specific regulatory needs before treating this estimate as a quote.");
     }
     if (data.partComplexity === "highly-complex") {
       recommendations.push("Complex geometry ideal for our 5-axis CNC capabilities");
@@ -199,20 +198,19 @@ export default function Calculator() {
             </div>
             
             <h1 className="font-bold mb-6">
-              Manufacturing Cost & Feasibility Calculator
+              Manufacturing Feasibility & Budgetary Estimate
             </h1>
             
             <p className="text-xl sm:text-2xl opacity-90 leading-relaxed max-w-3xl mx-auto">
-              Get instant cost estimates and feasibility analysis for your medical device manufacturing project. 
-              Industry-leading precision from Brazil's premier state-of-the-art CNC facility.
+              Build an initial scenario for your medical manufacturing project. Results are directional and should be validated with drawing review, process definition, inspection strategy, and documentation scope.
             </p>
 
             {/* Value Props */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 max-w-3xl mx-auto">
               {[
-                { icon: TrendingUp, text: "Accurate Cost Estimates" },
-                { icon: CheckCircle2, text: "Instant Feasibility Score" },
-                { icon: CalculatorIcon, text: "Detailed Breakdown" }
+                { icon: TrendingUp, text: "Budgetary Estimate" },
+                { icon: CheckCircle2, text: "Feasibility Screening" },
+                { icon: CalculatorIcon, text: "Cost Drivers" }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 bg-primary-foreground/10 backdrop-blur-sm px-4 py-3 rounded-lg">
                   <item.icon className="w-5 h-5 flex-shrink-0" />

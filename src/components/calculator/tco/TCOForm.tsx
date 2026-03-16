@@ -24,6 +24,9 @@ export interface TCOInputs {
     exchangeRate: number;
     importLeadTimeDays: number;
     stockCoverageMonths: number;
+    localUnitPrice: number;
+    localLeadTimeDays: number;
+    localStockCoverageMonths: number;
 }
 
 interface TCOFormProps {
@@ -37,10 +40,13 @@ export function TCOForm({ onCalculate }: TCOFormProps) {
         annualVolume: 12000,
         importUnitPrice: 45.00,
         importFreight: 2500,
-        importTaxesPercent: 60,
-        exchangeRate: 5.85,
+        importTaxesPercent: 17,
+        exchangeRate: 5.16,
         importLeadTimeDays: 90,
-        stockCoverageMonths: 6
+        stockCoverageMonths: 6,
+        localUnitPrice: 225,
+        localLeadTimeDays: 30,
+        localStockCoverageMonths: 1,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,10 +120,13 @@ export function TCOForm({ onCalculate }: TCOFormProps) {
                             <Input id="importFreight" name="importFreight" type="number" value={formData.importFreight} onChange={handleChange} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="importTaxesPercent">Tarifa Impostos (%)</Label>
+                            <Label htmlFor="importTaxesPercent">Carga tributária estimada (%)</Label>
                             <Input id="importTaxesPercent" name="importTaxesPercent" type="number" value={formData.importTaxesPercent} onChange={handleChange} />
                         </div>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                        Ajuste impostos conforme NCM, origem, INCOTERM e UF de destino. Não existe alíquota única aplicável a todos os componentes médicos.
+                    </p>
                 </div>
 
                 <div className="space-y-4 pt-6 border-t">
@@ -134,6 +143,32 @@ export function TCOForm({ onCalculate }: TCOFormProps) {
                             <Input id="importLeadTimeDays" name="importLeadTimeDays" type="number" value={formData.importLeadTimeDays} onChange={handleChange} />
                         </div>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                        Base cambial sugerida: PTAX Banco Central em 11/03/2026. Atualize conforme sua última referência financeira.
+                    </p>
+                </div>
+
+                <div className="space-y-4 pt-6 border-t">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
+                        <Home className="w-4 h-4" /> Cenário Local / Cotação de Referência (BRL)
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="localUnitPrice">Preço Unitário Local (R$)</Label>
+                            <Input id="localUnitPrice" name="localUnitPrice" type="number" value={formData.localUnitPrice} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="localLeadTimeDays">Lead Time Local (Dias)</Label>
+                            <Input id="localLeadTimeDays" name="localLeadTimeDays" type="number" value={formData.localLeadTimeDays} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="localStockCoverageMonths">Cobertura Local (Meses)</Label>
+                            <Input id="localStockCoverageMonths" name="localStockCoverageMonths" type="number" step="0.1" value={formData.localStockCoverageMonths} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Use uma cotação real ou meta interna. Sem preço local validado, trate o resultado apenas como simulação comercial preliminar.
+                    </p>
                 </div>
 
                 <Button className="w-full py-7 text-lg gap-2 shadow-xl shadow-primary/20 font-black uppercase tracking-widest" onClick={() => onCalculate(formData)}>

@@ -64,3 +64,4 @@ mcp_servers.json
 
 # Parallel agent logs
 logs/parallel-agents/
+.aider*

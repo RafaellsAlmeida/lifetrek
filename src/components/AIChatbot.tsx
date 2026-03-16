@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,24 @@ interface Message {
   content: string;
 }
 
+const BUFFER_WINDOW_MS = 5000;
+const INITIAL_ASSISTANT_MESSAGE: Message = {
+  role: "assistant",
+  content:
+    "Olá! Sou a Julia, assistente virtual da Lifetrek. Posso te ajudar com dúvidas sobre nossa fábrica, capacidade técnica, produtos e portfólio. Como posso ajudar?",
+};
+
+function formatBufferedUserMessages(batch: Message[]): string {
+  if (batch.length === 1) {
+    return batch[0].content;
+  }
+
+  return [
+    "Mensagens enviadas em sequência pelo usuário:",
+    ...batch.map((message, index) => `${index + 1}. ${message.content.trim()}`),
+  ].join("\n");
+}
+
 export const AIChatbot = () => {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
@@ -21,17 +39,14 @@ export const AIChatbot = () => {
   const [sessionId] = useState(() => crypto.randomUUID());
 
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content:
-        "Olá! Sou a Julia, assistente virtual da Lifetrek. Estou aqui para ajudar sobre nossa fábrica, capacidade técnica e produtos. Como posso ajudar?",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([INITIAL_ASSISTANT_MESSAGE]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const conversationHistoryRef = useRef<Message[]>([INITIAL_ASSISTANT_MESSAGE]);
+  const pendingBatchRef = useRef<Message[]>([]);
+  const bufferTimerRef = useRef<number | null>(null);
 
   const [hasTrackedOpen, setHasTrackedOpen] = useState(false);
 
@@ -43,7 +58,15 @@ export const AIChatbot = () => {
 
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
-  const openChatbot = (reason: "manual" | "auto_scroll") => {
+  useEffect(() => {
+    return () => {
+      if (bufferTimerRef.current !== null) {
+        window.clearTimeout(bufferTimerRef.current);
+      }
+    };
+  }, []);
+
+  const openChatbot = useCallback((reason: "manual" | "auto_scroll") => {
     setIsOpen(true);
     if (!hasTrackedOpen) {
       setHasTrackedOpen(true);
@@ -53,7 +76,7 @@ export const AIChatbot = () => {
         page_path: location.pathname,
       });
     }
-  };
+  }, [hasTrackedOpen, location.pathname, sessionId]);
 
   // Show button and auto-open on scroll (only on landing page)
   useEffect(() => {
@@ -75,30 +98,33 @@ export const AIChatbot = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLandingPage, hasAutoOpened, hasTrackedOpen, location.pathname, sessionId]);
+  }, [isLandingPage, hasAutoOpened, hasTrackedOpen, location.pathname, openChatbot, sessionId]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const flushBufferedMessages = async () => {
+    const batch = pendingBatchRef.current;
+    if (!batch.length || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+    pendingBatchRef.current = [];
+    bufferTimerRef.current = null;
     setIsLoading(true);
 
-    void trackChatbotEvent("message_sent", {
-      sessionId,
-      conversationDepth: messages.length,
-      isFirstMessage: messages.length === 1,
-      messageLength: input.length,
-      page_path: location.pathname,
-    });
+    const groupedUserMessage: Message = {
+      role: "user",
+      content: formatBufferedUserMessages(batch),
+    };
+    const requestMessages = [...conversationHistoryRef.current, groupedUserMessage];
 
     try {
-      // Use the NEW dedicated 'website-bot' function
       const { data, error } = await supabase.functions.invoke("website-bot", {
         body: {
-          messages: [...messages, userMessage],
-          sessionId
+          messages: requestMessages,
+          sessionId,
+          clientBuffer: {
+            grouped: batch.length > 1,
+            count: batch.length,
+            windowMs: BUFFER_WINDOW_MS,
+            rawMessages: batch.map((message) => message.content),
+          },
         },
       });
 
@@ -113,7 +139,9 @@ export const AIChatbot = () => {
       }
 
       if (data?.response) {
-        setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
+        const assistantMessage: Message = { role: "assistant", content: data.response };
+        conversationHistoryRef.current = [...requestMessages, assistantMessage];
+        setMessages((prev) => [...prev, assistantMessage]);
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -121,6 +149,36 @@ export const AIChatbot = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const scheduleBufferedFlush = () => {
+    if (bufferTimerRef.current !== null) {
+      window.clearTimeout(bufferTimerRef.current);
+    }
+
+    bufferTimerRef.current = window.setTimeout(() => {
+      void flushBufferedMessages();
+    }, BUFFER_WINDOW_MS);
+  };
+
+  const handleSend = () => {
+    const trimmedInput = input.trim();
+    if (!trimmedInput || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: trimmedInput };
+    setMessages((prev) => [...prev, userMessage]);
+    pendingBatchRef.current = [...pendingBatchRef.current, userMessage];
+    setInput("");
+
+    void trackChatbotEvent("message_sent", {
+      sessionId,
+      conversationDepth: messages.length,
+      isFirstMessage: messages.length === 1,
+      messageLength: trimmedInput.length,
+      page_path: location.pathname,
+    });
+
+    scheduleBufferedFlush();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

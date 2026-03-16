@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Download, TrendingUp, Clock, CheckCircle2, DollarSign } from "lucide-react";
+import { AlertTriangle, Download, Clock, CheckCircle2, DollarSign } from "lucide-react";
 import type { CalculationResults } from "@/pages/Calculator";
 
 interface CalculatorResultsProps {
@@ -24,8 +24,15 @@ export function CalculatorResults({ results, onGetDetailedReport }: CalculatorRe
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-[var(--shadow-elevated)] space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold">Your Results</h2>
-        <p className="text-muted-foreground">Instant cost estimate and feasibility analysis</p>
+        <h2 className="text-2xl font-bold">Your Preliminary Results</h2>
+        <p className="text-muted-foreground">Directional budgetary estimate for early screening only</p>
+      </div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="flex items-start gap-3 text-sm text-amber-900">
+          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+          <p>These values are not a formal quotation. Final cost and lead time depend on drawing review, routing, validation scope, inspection plan, batch size, and commercial terms.</p>
+        </div>
       </div>
 
       {/* Feasibility Score */}
@@ -53,17 +60,19 @@ export function CalculatorResults({ results, onGetDetailedReport }: CalculatorRe
             <p className="text-2xl font-bold text-primary">
               ${results.estimatedCost.perUnit.toLocaleString()}
             </p>
+            <p className="text-[11px] text-muted-foreground mt-2">Budgetary estimate</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-4">
             <p className="text-xs text-muted-foreground mb-1">Annual Total</p>
             <p className="text-2xl font-bold text-primary">
               ${results.estimatedCost.annual.toLocaleString()}
             </p>
+            <p className="text-[11px] text-muted-foreground mt-2">Scenario-based projection</p>
           </div>
         </div>
 
         <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Tooling Cost (One-time)</p>
+          <p className="text-xs text-muted-foreground mb-1">Tooling Cost (Preliminary)</p>
           <p className="text-xl font-bold">
             ${results.estimatedCost.tooling.toLocaleString()}
           </p>
@@ -95,10 +104,12 @@ export function CalculatorResults({ results, onGetDetailedReport }: CalculatorRe
           <div className="bg-muted/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground mb-1">Prototype</p>
             <p className="text-sm font-bold">{results.leadTime.prototype}</p>
+            <p className="text-[11px] text-muted-foreground mt-2">Indicative range</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground mb-1">Production</p>
             <p className="text-sm font-bold">{results.leadTime.production}</p>
+            <p className="text-[11px] text-muted-foreground mt-2">Indicative range</p>
           </div>
         </div>
       </div>
@@ -128,7 +139,7 @@ export function CalculatorResults({ results, onGetDetailedReport }: CalculatorRe
           Get Detailed PDF Report
         </Button>
         <p className="text-xs text-center text-muted-foreground mt-3">
-          Free detailed analysis with material specs, timeline breakdown, and expert recommendations
+          We will validate the scenario and send a reviewed version with assumptions called out explicitly
         </p>
       </div>
     </div>

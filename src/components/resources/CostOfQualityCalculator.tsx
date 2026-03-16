@@ -193,6 +193,10 @@ export default function CostOfQualityCalculator({
       </div>
 
       <div className="p-6 space-y-6">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Estimativa para triagem interna. O cálculo não inclui recall, field action, custo de validação, perda comercial ou impacto regulatório secundário.
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Volume mensal (pecas)</label>
@@ -246,6 +250,7 @@ export default function CostOfQualityCalculator({
           </div>
           <div className="text-2xl font-bold mb-1">{currency(totals.total)} / ano</div>
           <p className="text-sm opacity-90">{riskBand.helper}</p>
+          <p className="mt-2 text-xs opacity-80">Faixa de referência baseada apenas nas entradas desta simulação.</p>
         </div>
 
         <div className="flex items-center gap-3">

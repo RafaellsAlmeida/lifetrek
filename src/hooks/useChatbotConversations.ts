@@ -1,12 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database, Json } from "@/integrations/supabase/types";
+
+type ChatbotConversationRow = Omit<
+  Database["public"]["Tables"]["chatbot_conversations"]["Row"],
+  "role" | "created_at"
+> & {
+  role: "user" | "assistant" | "system";
+  created_at: string;
+};
+
+type ChatbotConversationMetadata = {
+  ip?: string;
+  client_buffer?: {
+    count?: number;
+  };
+};
+
+function toConversationMetadata(metadata: Json | null): ChatbotConversationMetadata {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return {};
+  }
+
+  return metadata as unknown as ChatbotConversationMetadata;
+}
 
 export interface ChatbotMessage {
   id: string;
   session_id: string;
   role: "user" | "assistant" | "system";
   content: string;
-  metadata: Record<string, any>;
+  metadata: Json | null;
   created_at: string;
 }
 
@@ -18,9 +42,11 @@ export interface ChatbotSession {
   user_message_count: number;
   first_user_message: string;
   detected_name?: string;
+  detected_company?: string;
   detected_email?: string;
   detected_phone?: string;
   detected_interest?: string;
+  grouped_message_count?: number;
   ip?: string;
 }
 
@@ -35,17 +61,17 @@ export function useChatbotConversations() {
       setLoading(true);
 
       // Fetch all messages ordered by time, then group by session on the client
-      const { data, error } = await (supabase
-        .from("chatbot_conversations" as any)
+      const { data, error } = await supabase
+        .from("chatbot_conversations")
         .select("*")
-        .order("created_at", { ascending: true }) as any);
+        .order("created_at", { ascending: true });
 
       if (error) {
         console.error("Error fetching chatbot conversations:", error);
         return;
       }
 
-      const messages = (data || []) as ChatbotMessage[];
+      const messages = (data || []) as ChatbotConversationRow[];
 
       // Group by session_id
       const sessionMap = new Map<string, ChatbotMessage[]>();
@@ -65,20 +91,26 @@ export function useChatbotConversations() {
 
         // Extract contact info from metadata
         let detectedName: string | undefined;
+        let detectedCompany: string | undefined;
         let detectedEmail: string | undefined;
         let detectedPhone: string | undefined;
         let detectedInterest: string | undefined;
+        let groupedMessageCount: number | undefined;
         let ip: string | undefined;
 
         for (const msg of msgs) {
-          const meta = msg.metadata || {};
+          const meta = toConversationMetadata(msg.metadata);
           if (meta.ip) ip = meta.ip;
+          if (msg.detected_company) detectedCompany = msg.detected_company;
           // The website-bot inserts detected_* as top-level fields,
           // but they may fail (schema mismatch). Check metadata too.
-          if ((msg as any).detected_name) detectedName = (msg as any).detected_name;
-          if ((msg as any).detected_email) detectedEmail = (msg as any).detected_email;
-          if ((msg as any).detected_phone) detectedPhone = (msg as any).detected_phone;
-          if ((msg as any).detected_interest) detectedInterest = (msg as any).detected_interest;
+          if (msg.detected_name) detectedName = msg.detected_name;
+          if (msg.detected_email) detectedEmail = msg.detected_email;
+          if (msg.detected_phone) detectedPhone = msg.detected_phone;
+          if (msg.detected_interest) detectedInterest = msg.detected_interest;
+          if (typeof meta?.client_buffer?.count === "number") {
+            groupedMessageCount = Math.max(groupedMessageCount || 0, meta.client_buffer.count);
+          }
         }
 
         sessionList.push({
@@ -89,9 +121,11 @@ export function useChatbotConversations() {
           user_message_count: userMsgs.length,
           first_user_message: firstUserMsg?.content || "(sem mensagem)",
           detected_name: detectedName,
+          detected_company: detectedCompany,
           detected_email: detectedEmail,
           detected_phone: detectedPhone,
           detected_interest: detectedInterest,
+          grouped_message_count: groupedMessageCount,
           ip,
         });
       }
@@ -113,18 +147,18 @@ export function useChatbotConversations() {
     try {
       setMessagesLoading(true);
 
-      const { data, error } = await (supabase
-        .from("chatbot_conversations" as any)
+      const { data, error } = await supabase
+        .from("chatbot_conversations")
         .select("*")
         .eq("session_id", sessionId)
-        .order("created_at", { ascending: true }) as any);
+        .order("created_at", { ascending: true });
 
       if (error) {
         console.error("Error fetching messages:", error);
         return;
       }
 
-      setSelectedMessages((data || []) as ChatbotMessage[]);
+      setSelectedMessages((data || []) as ChatbotConversationRow[]);
     } catch (err) {
       console.error("Error in fetchMessages:", err);
     } finally {

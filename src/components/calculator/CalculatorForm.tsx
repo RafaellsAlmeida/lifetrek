@@ -49,7 +49,7 @@ export function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     <form onSubmit={handleSubmit} className="bg-card border border-border/50 rounded-2xl p-8 shadow-[var(--shadow-soft)] space-y-6">
       <div className="space-y-2 mb-6">
         <h2 className="text-2xl font-bold">Project Details</h2>
-        <p className="text-muted-foreground">Tell us about your manufacturing requirements</p>
+        <p className="text-muted-foreground">Provide the baseline assumptions for a preliminary screening. Final pricing requires drawing and process review.</p>
       </div>
 
       {/* Part Complexity */}
@@ -141,14 +141,14 @@ export function CalculatorForm({ onCalculate }: CalculatorFormProps) {
         </Select>
       </div>
 
-      {/* Certifications */}
+      {/* Regulatory & quality requirements */}
       <div className="space-y-3">
-        <Label>Required Certifications</Label>
+        <Label>Regulatory & Quality Requirements</Label>
         <div className="space-y-2">
           {[
-            { id: "iso13485", label: "ISO 13485 (Medical Devices)" },
-            { id: "fda", label: "FDA Compliance" },
-            { id: "ce", label: "CE Marking" }
+            { id: "iso13485", label: "ISO 13485 supplier alignment" },
+            { id: "fda", label: "FDA / 510(k) documentation support" },
+            { id: "ce", label: "CE / MDR documentation support" }
           ].map((cert) => (
             <div key={cert.id} className="flex items-center space-x-2">
               <Checkbox
@@ -190,7 +190,7 @@ export function CalculatorForm({ onCalculate }: CalculatorFormProps) {
 
       <Button type="submit" size="lg" className="w-full">
         <Calculator className="w-5 h-5 mr-2" />
-        Calculate Cost & Feasibility
+        Run Preliminary Screening
       </Button>
     </form>
   );

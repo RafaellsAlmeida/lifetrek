@@ -1,0 +1,58 @@
+[
+  {
+    "id": "79c95c4f-a776-47ca-ac27-3bcde578f7a5",
+    "slug": "checklist-producao-local",
+    "title": "Checklist: Quando Faz Sentido Produzir Local",
+    "description": "Checklist de triagem para decidir quando um SKU merece piloto local com foco em risco de abastecimento, prontidao tecnica e premissas por item.",
+    "content": "## Objetivo\n\nAvaliar se vale abrir um piloto de producao local para um SKU medico sem depender de promessa generica de custo ou lead time.\n\n## Pergunta central\n\nEste SKU sofre mais com falta de previsibilidade do que com o preco nominal de compra?\n\n## Sinais de que o SKU merece triagem prioritaria\n\n- Lead time externo pressiona cobertura de estoque ou janela comercial\n- Variacao cambial afeta decisao de compra ou margem\n- Ha fragmentacao excessiva entre usinagem, acabamento, montagem e liberacao\n- O time tecnico precisa iterar desenho ou processo com mais velocidade\n- O custo da ruptura e maior do que o custo de reavaliar a rota atual\n\n## Evidencias que precisam entrar na decisao\n\n### 1. Exposicao de abastecimento\n\n- Tempo total porta a porta por SKU\n- Dependencia de um unico fornecedor, pais ou etapa critica\n- Historico recente de atraso, falta ou variacao de qualidade\n\n### 2. Capital e planejamento\n\n- Cobertura media de estoque exigida para nao parar a operacao\n- Sensibilidade a cambio e frete\n- Relevancia do SKU para receita, atendimento ou lancamento\n\n### 3. Prontidao tecnica\n\n- Desenho e CTQs estao maduros?\n- Existe metodo de medicao claro para as caracteristicas criticas?\n- O processo local necessario esta mapeado ou ainda depende de definicao?\n\n### 4. Governanca da transferencia\n\n- Donos definidos para engenharia, qualidade, supply e regulatorio\n- Criterios de piloto aprovados antes da primeira ordem\n- Plano de contencao e retorno para a rota anterior, se necessario\n\n## Quando pausar em vez de migrar\n\n- Quando o SKU ainda muda a cada rodada de engenharia\n- Quando nao ha evidencia minima de medicao e liberacao\n- Quando o parceiro local ainda nao foi qualificado para o escopo\n- Quando o risco regulatorio do projeto nao foi entendido pelo time responsavel\n\n## Como usar junto com o TCO\n\nNao use um unico percentual de imposto ou uma economia padrao para todos os SKUs. Para comparar importacao e fornecimento local, monte premissas por item considerando NCM, origem, INCOTERM, cobertura de estoque, cambio e preco local de referencia.\n\n## Proximo passo recomendado\n\nSe o SKU concentrar risco de abastecimento, pressao de estoque e necessidade de iteracao tecnica, avance para um piloto com premissas documentadas. Se o problema for apenas preco pontual, revise a base de custo antes de abrir a transferencia.\n\n## Fontes consultadas\n\n- FDA CDRH Learn, Purchasing Controls\n- FDA, Quality Management System Regulation Final Rule\n- Brasil Mais Produtivo, Product-Landed-Cost and Selling-Price Calculator\n- Banco Central do Brasil, PTAX de venda\n",
+    "status": "approved",
+    "metadata": {
+      "tags": [
+        "nearshoring",
+        "priorizacao"
+      ],
+      "sources": [
+        "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers",
+        "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfLearn/search.cfm?educationID=115",
+        "https://www.fda.gov/medical-devices/medical-device-regulation-and-guidance/guidance-and-regulatory-procedures-staff-and-industry-medical-devices-quality-system-regulationfinal",
+        "https://www.gov.br/mdic/pt-br/assuntos/produtividade/mais-produtividade/produtos/calculadora-de-custo-de-internacao-do-produto-product-landed-cost-and-selling-price-calculator",
+        "https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes"
+      ],
+      "verified_on": "2026-03-16T14:04:55.084Z",
+      "review_owner": "Supply Chain Engineering",
+      "value_promise": "Priorizar SKUs para migracao local com criterio objetivo.",
+      "review_version": "p0-2026-02-20-v1",
+      "interactive_block": "LocalProductionChecklistTool",
+      "verification_note": "Claims softened and aligned to official sources on 2026-03-16.",
+      "estimated_read_minutes": 6
+    }
+  },
+  {
+    "id": "2900696f-8d64-4654-8d92-c05a89c6f2ca",
+    "slug": "checklist-transferencia-npi-producao",
+    "title": "Checklist de Transferencia NPI para Producao",
+    "description": "Checklist de prontidao para transferir NPI para producao com gate tecnico, fornecedores criticos, metrologia e estabilizacao do lote piloto.",
+    "content": "## Objetivo\n\nGarantir que a transferencia de NPI para producao ocorra com criterios explicitos de liberacao, responsabilidade definida e plano de contencao desde o lote piloto.\n\n## Quando usar este checklist\n\n- Transferencia de um novo SKU do desenvolvimento para a rotina fabril\n- Mudanca relevante de processo, fornecedor, ferramental ou estrategia de medicao\n- Aumento de volume que exige revisao de capacidade e controle\n- Reentrada de um item com historico de desvio, retrabalho ou atraso recorrente\n\n## 1. Pacote tecnico\n\n- Desenho 2D, modelo 3D e revisoes de engenharia alinhados entre cliente, qualidade e operacao\n- CTQs e caracteristicas funcionais identificadas com metodo de medicao definido\n- Materiais, acabamento, limpeza e requisitos de embalagem confirmados\n- Lista de documentos obrigatorios do projeto versionada antes do piloto\n\n## 2. Processo e risco\n\n- Fluxo de processo aprovado com etapas, responsaveis e pontos de verificacao\n- PFMEA revisado com foco nos riscos residuais do ramp-up\n- Parametros criticos de processo e janelas de ajuste definidos\n- Criterios de go/no-go do lote piloto aprovados antes da liberacao\n\n## 3. Compras e fornecedores criticos\n\n- Fornecedores que afetam CTQ, acabamento ou disponibilidade qualificados para o escopo\n- Requisitos tecnicos e de qualidade comunicados para cada fornecedor critico\n- Plano de contingencia definido para materia-prima, tratamento ou etapa terceirizada\n- Criticos de recebimento e segregacao por status claros para o time de operacao\n\n## 4. Metrologia e liberacao\n\n- Plano de inspecao inicial alinhado com risco, funcionalidade e historico do processo\n- Metodo de medicao, fixtures e equipamentos adequados para as CTQs\n- Analise de repetibilidade, reprodutibilidade ou incerteza prevista quando aplicavel\n- Reacao definida para tendencia, deriva dimensional ou desvio de documentacao\n\n## 5. Go-live e estabilizacao\n\n- Objetivo do piloto acordado: o que valida, o que nao valida e quais evidencias serao coletadas\n- Ritual de acompanhamento das primeiras ordens definido entre engenharia, qualidade e operacao\n- Dashboard minimo com OTD, first-pass yield, desvios e tempo de resposta\n- Licoes aprendidas registradas antes de ampliar volume ou escopo\n\n## Itens que devem bloquear o go-live\n\n- CTQs sem metodo de verificacao confiavel\n- Fornecedor critico sem qualificacao para o escopo do projeto\n- Processo piloto sem criterio formal de liberacao\n- Responsavel por CAPA, contencao ou decisao de lote nao definido\n- Documentacao obrigatoria do cliente ou do SGQ ainda incompleta\n\n## KPIs minimos para a fase de estabilizacao\n\n- OTD do lote piloto e das primeiras ordens recorrentes\n- First-pass yield\n- Desvios por lote e tempo de resposta para contencao\n- Recorrencia de nao conformidade por CTQ\n- Prazo para fechamento de acao corretiva associada a transferencia\n\n## Como usar na pratica\n\nUse este checklist como gate de decisao, nao como lista burocratica. Se houver lacuna em processo, metrologia ou fornecedor critico, trate a transferencia como projeto em aberto ate que o risco tenha dono, prazo e evidencia de fechamento.\n\n## Fontes consultadas\n\n- FDA, Design Control Guidance for Medical Device Manufacturers\n- FDA CDRH Learn, Purchasing Controls\n- FDA, Quality Management System Regulation Final Rule\n",
+    "status": "approved",
+    "metadata": {
+      "tags": [
+        "npi",
+        "transferencia"
+      ],
+      "sources": [
+        "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/design-control-guidance-medical-device-manufacturers",
+        "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfLearn/search.cfm?educationID=115",
+        "https://www.fda.gov/medical-devices/medical-device-regulation-and-guidance/guidance-and-regulatory-procedures-staff-and-industry-medical-devices-quality-system-regulationfinal",
+        "https://www.gov.br/mdic/pt-br/assuntos/produtividade/mais-produtividade/produtos/calculadora-de-custo-de-internacao-do-produto-product-landed-cost-and-selling-price-calculator",
+        "https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes"
+      ],
+      "verified_on": "2026-03-16T14:04:55.084Z",
+      "review_owner": "NPI Program Office",
+      "value_promise": "Fechar lacunas criticas antes do go-live.",
+      "review_version": "p0-2026-02-20-v1",
+      "interactive_block": "NpiTransferChecklistTool",
+      "verification_note": "Claims softened and aligned to official sources on 2026-03-16.",
+      "estimated_read_minutes": 7
+    }
+  }
+]

@@ -44,6 +44,7 @@ export default function ChatbotInbox() {
     return (
       s.first_user_message.toLowerCase().includes(q) ||
       (s.detected_name?.toLowerCase().includes(q)) ||
+      (s.detected_company?.toLowerCase().includes(q)) ||
       (s.detected_email?.toLowerCase().includes(q)) ||
       (s.detected_interest?.toLowerCase().includes(q))
     );
@@ -80,7 +81,7 @@ export default function ChatbotInbox() {
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
             <Input
-              placeholder="Buscar por nome, email, interesse..."
+              placeholder="Buscar por nome, empresa, email, interesse..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8 h-8 text-xs bg-white border-slate-200 focus-visible:ring-slate-200"
@@ -133,6 +134,11 @@ export default function ChatbotInbox() {
                   <p className="text-[11px] text-slate-500 truncate">
                     {session.first_user_message}
                   </p>
+                  {session.detected_company && (
+                    <p className="text-[10px] text-slate-400 truncate">
+                      Empresa: {session.detected_company}
+                    </p>
+                  )}
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <Badge
                       variant="outline"
@@ -140,6 +146,14 @@ export default function ChatbotInbox() {
                     >
                       {session.message_count} msgs
                     </Badge>
+                    {session.grouped_message_count && session.grouped_message_count > 1 && (
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 border-amber-200 text-amber-700"
+                      >
+                        batch {session.grouped_message_count}
+                      </Badge>
+                    )}
                     {session.detected_interest && session.detected_interest !== "Geral" && (
                       <Badge
                         variant="outline"
@@ -177,6 +191,12 @@ export default function ChatbotInbox() {
                     {selectedSession.detected_name || "Visitante"}
                   </h3>
                   <div className="flex items-center gap-3 mt-1">
+                    {selectedSession.detected_company && (
+                      <span className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <Tag className="h-3 w-3" />
+                        {selectedSession.detected_company}
+                      </span>
+                    )}
                     {selectedSession.detected_email && (
                       <span className="flex items-center gap-1 text-[11px] text-slate-500">
                         <Mail className="h-3 w-3" />
@@ -205,6 +225,11 @@ export default function ChatbotInbox() {
                   <Badge variant="secondary" className="text-[10px]">
                     {selectedSession.user_message_count} perguntas
                   </Badge>
+                  {selectedSession.grouped_message_count && selectedSession.grouped_message_count > 1 && (
+                    <Badge variant="secondary" className="text-[10px]">
+                      batch {selectedSession.grouped_message_count}
+                    </Badge>
+                  )}
                   <Badge variant="secondary" className="text-[10px]">
                     {selectedSession.message_count} mensagens total
                   </Badge>
