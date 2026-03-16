@@ -198,7 +198,9 @@ async function generateCarouselOnce(
     const rawImages = await designerAgent(supabase, params, copy, costContext);
 
     let images = rawImages;
-    if (params.style_mode === "hybrid-composite") {
+    // Skip Satori composition for single-image posts — they use a clean AI image
+    const isSingleImage = params.format === 'single-image';
+    if (params.style_mode === "hybrid-composite" && !isSingleImage) {
         images = await compositorAgent(copy, rawImages);
     }
 

@@ -26,6 +26,7 @@ import { handleAiGeneration } from "./handlers/ai.ts";
 import { handleHybridGeneration } from "./handlers/hybrid.ts";
 import { handleSmartGeneration } from "./handlers/smart.ts";
 import { scoreCarouselDesign } from "./qa/vision-scorer.ts";
+import { resolveImageStrategy, resolveImageCount } from "./config/image-strategy.ts";
 import type { CostTrackingContext } from "./types.ts";
 
 declare const Deno: any;
@@ -273,12 +274,22 @@ serve(async (req: Request) => {
     // ========================================================================
     let slides: SlideData[] = carousel.slides || [];
 
-    // Determine platform config (mocked here, should move to utils/platform.ts ideally)
+    // Determine platform config
     const platform = {
       isBlog: table_name === 'blog_posts',
-      isResource: table_name === 'resources' || table_name === 'product_catalog', // product items can be resources
+      isResource: table_name === 'resources' || table_name === 'product_catalog',
       aspectRatio: table_name === 'instagram_posts' ? '1:1' : '4:5'
     };
+
+    // Resolve image strategy based on content type / format
+    const imageStrategy = resolveImageStrategy({
+      format: carousel.format,
+      tableName: table_name,
+      platform: table_name === 'instagram_posts' ? 'instagram' : 'linkedin',
+      postType: carousel.post_type,
+      slideCount: slides.length,
+    });
+    console.log(`[REGEN] Image strategy: ${imageStrategy.description} (mode=${imageStrategy.mode}, count=${imageStrategy.imageCount})`);
 
     // Handle specific slide regeneration logic
     if (typeof slide_index === 'number') {
@@ -315,34 +326,47 @@ serve(async (req: Request) => {
     // ========================================================================
     // DISPATCH TO HANDLERS
     // ========================================================================
-    console.log(`[REGEN] Starting generation for ${slidesToProcess.length} items (Mode: ${requestedMode.toUpperCase()})...`);
+    // If the image strategy says "ai-only" (single-image, blog, feed post),
+    // force AI mode regardless of what the user requested — avoids Satori
+    // overlay / "frankensteining" multiple images on a standalone post.
+    const effectiveMode = imageStrategy.mode === 'ai-only' ? 'ai' : requestedMode;
+    const effectiveSlideCount = resolveImageCount(imageStrategy, slidesToProcess.length);
+
+    // For single-image posts, only process the first slide (1 image)
+    const actualSlidesToProcess = effectiveSlideCount < slidesToProcess.length
+      ? slidesToProcess.slice(0, effectiveSlideCount)
+      : slidesToProcess;
+
+    console.log(`[REGEN] Starting generation for ${actualSlidesToProcess.length} items (Mode: ${effectiveMode.toUpperCase()}, Strategy: ${imageStrategy.description})...`);
 
     let processedSlides: SlideData[] = [];
     const imageGenerationTracking: CostTrackingContext = {
       supabase,
       userId: user.id,
-      operation: requestedMode === "smart"
+      operation: effectiveMode === "smart"
         ? "content.regenerate-carousel-images.smart.ai-fallback-slide"
         : "content.regenerate-carousel-images.ai.slide",
       metadata: {
         ...requestTrackingMetadata,
         topic: carousel.topic || carousel.title || null,
-        total_items_in_request: slidesToProcess.length,
+        total_items_in_request: actualSlidesToProcess.length,
+        image_strategy: imageStrategy.description,
+        image_strategy_mode: imageStrategy.mode,
       },
     };
 
-    if (requestedMode === 'ai') {
+    if (effectiveMode === 'ai') {
       processedSlides = await handleAiGeneration(
-        slidesToProcess,
+        actualSlidesToProcess,
         carousel_id,
         platform,
         assetLoader,
         supabase,
         imageGenerationTracking,
       );
-    } else if (requestedMode === 'smart') {
+    } else if (effectiveMode === 'smart') {
       processedSlides = await handleSmartGeneration(
-        slidesToProcess,
+        actualSlidesToProcess,
         carousel_id,
         platform,
         assetLoader,
@@ -354,7 +378,7 @@ serve(async (req: Request) => {
         imageGenerationTracking,
       );
     } else {
-      processedSlides = await handleHybridGeneration(slidesToProcess, carousel_id, platform, assetLoader, supabase);
+      processedSlides = await handleHybridGeneration(actualSlidesToProcess, carousel_id, platform, assetLoader, supabase);
     }
 
     // ========================================================================

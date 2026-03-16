@@ -87,7 +87,9 @@ ${specificInstructions}
 3. Show REAL medical manufacturing context (not abstract graphics)
 4. RENDER TEXT with high legibility - Inter font, large size, high contrast
 5. GLASSMORPHISM CARD must have proper blur and transparency
-6. Clean, sharp focus on both text and background imagery.`;
+6. Clean, sharp focus on both text and background imagery
+7. ONE SINGLE COHESIVE IMAGE — NEVER combine, collage, or stitch multiple images together
+8. Each slide must have exactly ONE background — no "frankensteined" composites of multiple photos`;
 }
 
 /**
@@ -233,7 +235,8 @@ export function buildBackgroundPrompt(
         - This image will have a glassmorphism card overlaid programmatically.
         - Ensure the LEFT 60% of the image has interesting texture but isn't too busy (where text will go).
         - Focus heavily on the lighting, depth, and medical manufacturing context.
-        - Clean, high-res photography style.`);
+        - Clean, high-res photography style.
+        - ONE SINGLE cohesive background — NEVER collage or combine multiple images together.`);
 
     // Incorporate Designer agent's art direction if available
     if (slide.art_direction) {

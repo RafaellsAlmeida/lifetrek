@@ -612,8 +612,12 @@ Output JSON: { "topic": "...", "caption": "...", "slides": [{ "type": "hook", "h
 
 /**
  * Agent 3: Designer
- * Searches for real assets (products, facilities) first using vector RAG, 
+ * Searches for real assets (products, facilities) first using vector RAG,
  * generates AI images only as fallback.
+ *
+ * Image strategy depends on post format:
+ * - single-image / blog / feed → 1 AI-generated image (no Satori overlay)
+ * - carousel → every slide gets a real photo background (for Satori overlay)
  */
 export async function designerAgent(
   supabase: SupabaseClient,
@@ -625,6 +629,7 @@ export async function designerAgent(
   console.log("🎨 Designer Agent: Creating visual assets...");
 
   const brand = getBrandGuidelines(params.profileType);
+  const isSingleImage = params.format === 'single-image';
 
   // RAG for Design Rules
   let designRules = "";
@@ -649,28 +654,83 @@ export async function designerAgent(
   const equipmentPriority = (params.selectedEquipment || []).map((item) => item.toLowerCase());
   const hasReferenceImage = Boolean(params.referenceImage);
 
-  // Decide which slides get images (Hook and last slide always, middle one if long)
-  const middleIndex = Math.floor(copy.slides.length / 2);
+  // ──────────────────────────────────────────────────────────────
+  // SINGLE-IMAGE MODE: Generate one clean AI image for the whole post
+  // (like blog covers / recent Instagram posts). No Satori overlay.
+  // ──────────────────────────────────────────────────────────────
+  if (isSingleImage) {
+    console.log("🎨 Designer: SINGLE-IMAGE mode — generating 1 AI image for entire post");
+    const mainSlide = copy.slides[0] || { headline: params.topic, body: "" };
+
+    const prompt = `Create a single, clean, professional image for a ${params.platform === 'instagram' ? 'Instagram' : 'LinkedIn'} post by Lifetrek Medical.
+
+Topic: "${params.topic}"
+Headline: "${mainSlide.headline}"
+
+=== STYLE ===
+- Premium editorial photography or photorealistic illustration
+- Medical device manufacturing context: CNC machines, cleanrooms, titanium implants, precision instruments
+- Lifetrek brand colors: #004F8F (blue), #1A7A3E (green), #F07818 (orange)
+- High quality, cinematic lighting, depth of field
+- ONE cohesive image — do NOT combine or collage multiple images together
+- NO text, NO typography, NO logos, NO badges on the image
+${designRules}
+
+=== CRITICAL ===
+- This is a SINGLE standalone image — not a slide in a carousel.
+- Must look polished as a standalone social media post.
+- Focus on a single visual concept, not a collage.`.trim();
+
+    try {
+      const imageUrl = await callGeminiImage(prompt, costContext ? {
+        ...costContext,
+        operation: "content.generate-linkedin-carousel.designer.single-image",
+        metadata: {
+          ...(costContext.metadata || {}),
+          topic: params.topic,
+          platform: params.platform || "linkedin",
+          format: "single-image",
+        },
+      } : undefined) || "";
+
+      // Mark all slides as using this single AI image
+      for (let i = 0; i < copy.slides.length; i++) {
+        images.push({
+          slide_index: i,
+          image_url: i === 0 ? imageUrl : "",
+          asset_source: i === 0 ? (imageUrl ? 'ai-generated' : 'text-only') : 'text-only',
+        });
+      }
+    } catch (e) {
+      console.warn("⚠️ Single-image generation failed", e);
+      images.push({
+        slide_index: 0,
+        image_url: `https://placehold.co/1024x1024/f1f5f9/334155?text=Generation+Failed`,
+        asset_source: 'placeholder',
+      });
+    }
+
+    console.log(`✅ Designer: Single image created in ${Date.now() - startTime}ms`);
+    return images;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // CAROUSEL MODE: Every slide gets its own image.
+  // Prioritise real facility photos for Satori overlay.
+  // Each slide uses ONE background — never composites multiple images.
+  // ──────────────────────────────────────────────────────────────
+  console.log(`🎨 Designer: CAROUSEL mode — generating images for ${copy.slides.length} slides`);
 
   for (let i = 0; i < copy.slides.length; i++) {
     const slide = copy.slides[i];
-    const shouldHaveImage = i === 0 || i === middleIndex || i === copy.slides.length - 1;
-
-    if (!shouldHaveImage) {
-      images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
-      continue;
-    }
 
     // 1. Try real asset with semantic search
-    // Combine headline and visual_description for better matching
-    // ENHANCED: Explicitly look for metrology, equipment, and product terms if applicable
     let assetQuery = `${slide.headline} ${slide.visual_description || ""}`.trim();
 
     if (equipmentPriority.length > 0) {
       assetQuery += ` ${equipmentPriority.join(" ")}`;
     }
 
-    // Add priority keywords if the topic suggests technical equipment
     if (assetQuery.toLowerCase().includes('precision') || assetQuery.toLowerCase().includes('quality')) {
       assetQuery += " metrology equipment measuring";
     }
@@ -700,18 +760,16 @@ export async function designerAgent(
       continue;
     }
 
-    // 2. Fallback to AI Generation with Brand Infusion (Story 7.2)
+    // 2. Fallback to AI Generation — one clean background per slide
     const isHybrid = params.style_mode === 'hybrid-composite';
 
     console.log(`🤖 Designer: Generating image for slide ${i} (Mode: ${params.style_mode || 'ai-native'})`);
 
     let prompt = "";
     if (isHybrid) {
-      // Hybrid Mode: Clean background, no text
-      prompt = `Professional medical engineering background. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. NO TEXT, NO TYPOGRAPHY, NO WORDS, clean background. Focus on materials and textures (titanium, glass, cleanroom).`.trim();
+      prompt = `Professional medical engineering background. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. NO TEXT, NO TYPOGRAPHY, NO WORDS, clean background. Focus on materials and textures (titanium, glass, cleanroom). ONE single cohesive image — do NOT collage or combine multiple images.`.trim();
     } else {
-      // AI-Native Mode (Legacy): Try to include text/composition in the image
-      prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. Text overlay: "${slide.headline}".`.trim();
+      prompt = `Professional medical device manufacturing illustration, premium cleanroom factory setting. Abstract concept of: ${slide.headline}. ${designRules}. Clean, sharp, high quality, 4k. Text overlay: "${slide.headline}". ONE single cohesive image — do NOT collage or combine multiple images.`.trim();
     }
 
     if (equipmentPriority.length > 0) {
@@ -722,7 +780,6 @@ export async function designerAgent(
     }
 
     try {
-      // Use the shared callOpenRouterImage function for consistency
       console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
       const imageUrl = await callGeminiImage(prompt, costContext ? {
         ...costContext,
@@ -742,7 +799,6 @@ export async function designerAgent(
       });
     } catch (e) {
       console.warn(`⚠️ Design generation failed for slide ${i}`, e);
-      // Fallback to placeholder so design is visible even if API fails
       images.push({
         slide_index: i,
         image_url: `https://placehold.co/1024x1024/f1f5f9/334155?text=Flux+Generation+Failed+${i}`,
