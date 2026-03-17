@@ -5,13 +5,22 @@ import {
   lookupCompany,
   normalizeForLookup,
 } from "../_shared/companyLookup.ts";
+import {
+  buildLeadCaptureReply,
+  buildLeadReadyPromptHint,
+  buildPostCaptureReply,
+  collectKnownContact,
+  inferLeadQualification,
+  wantsCommercialHelp,
+  type LeadQualificationState,
+} from "./leadQualification.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RESPONSE_STYLE_VERSION = "website-bot-v2-humanized";
+const RESPONSE_STYLE_VERSION = "website-bot-v3-lead-qualification";
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 type ChatMessage = {
@@ -36,22 +45,6 @@ function checkRateLimit(id: string): boolean {
   if (entry.count >= 20) return false;
   entry.count += 1;
   return true;
-}
-
-function extractContact(text: string) {
-  const result: Record<string, string> = {};
-  const email = text.match(/[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i);
-  if (email) result.email = email[0].toLowerCase();
-
-  const digitsOnly = text.replace(/\D/g, "");
-  if (digitsOnly.length >= 10) {
-    result.phone = digitsOnly.slice(0, 13);
-  }
-
-  const name = text.match(/(?:me chamo|meu nome e|meu nome é|sou)\s+([A-ZÀ-Ý][A-Za-zÀ-ÿ'-]+)/i);
-  if (name) result.name = name[1];
-
-  return result;
 }
 
 function detectInterest(text: string): string {
@@ -219,8 +212,9 @@ function buildSystemPrompt(options: {
   companyHint: string;
   interest: string;
   clientBuffer: ClientBufferMetadata | null;
+  leadQualificationHint: string;
 }) {
-  const { ragContext, companyHint, interest, clientBuffer } = options;
+  const { ragContext, companyHint, interest, clientBuffer, leadQualificationHint } = options;
   const groupedHint =
     clientBuffer?.grouped && (clientBuffer.count ?? 0) > 1
       ? "O usuario enviou varias mensagens em sequencia. Responda os pontos principais no mesmo retorno, sem ignorar a mensagem mais recente."
@@ -240,6 +234,7 @@ Regras obrigatorias:
 - Nao invente clientes, pedidos ativos, marcas ou detalhes comerciais.
 - Se houver match de portifolio aprovado, fale em linguagem de portifolio/parceria aprovada, nao em fabricacao ativa confirmada agora.
 - Se nao conseguir confirmar algo, diga isso de forma educada e ofereca verificacao.
+- Se ja tivermos nome, email e telefone para atendimento comercial, agradeca brevemente e nao peca esses dados novamente.
 - Se o usuario perguntar varias coisas no mesmo pacote, responda os pontos principais no mesmo retorno.
 
 Fatos base da Lifetrek:
@@ -252,25 +247,8 @@ Fatos base da Lifetrek:
 Indicacao de interesse detectado: ${interest}.
 ${groupedHint}
 ${companyHint}
+${leadQualificationHint}
 ${ragContext}`;
-}
-
-function wantsQuoteOrHandoff(text: string): boolean {
-  const normalized = text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  return [
-    "orcamento",
-    "orçamento",
-    "preco",
-    "preço",
-    "cotacao",
-    "cotação",
-    "whatsapp",
-    "comercial",
-    "contato",
-  ].some((term) => normalized.includes(term));
 }
 
 function baseCapabilityReply(interest: string, text: string): string {
@@ -330,22 +308,30 @@ function buildFallbackReply(options: {
   interest: string;
   companyLookup: Awaited<ReturnType<typeof lookupCompany>>;
   ragContext: string;
+  leadQualification: LeadQualificationState;
 }) {
-  const { allUserText, interest, companyLookup, ragContext } = options;
+  const { allUserText, interest, companyLookup, ragContext, leadQualification } = options;
   const parts = [
     baseCapabilityReply(interest, allUserText),
     buildRelationshipReply(companyLookup),
   ].filter((value): value is string => Boolean(value));
 
+  if (leadQualification.readyForCommercialFollowUp) {
+    const leadName = leadQualification.knownContact.name ? `, ${leadQualification.knownContact.name}` : "";
+    parts.unshift(`Perfeito${leadName}. Ja anotei seus dados de contato.`);
+  }
+
   if (!parts.length && ragContext) {
     parts.push("Tenho contexto suficiente para te orientar sobre essa frente da Lifetrek.");
   }
 
-  parts.push(
-    wantsQuoteOrHandoff(allUserText)
-      ? "Se quiser, eu já te direciono para o comercial no WhatsApp para orçamento ou validação interna."
-      : "Se fizer sentido, também posso te direcionar para o time comercial para validar o seu projeto.",
-  );
+  const followUpMessage = leadQualification.readyForCommercialFollowUp
+    ? "Se voce me disser qual produto, componente ou projeto quer cotar, eu consigo te orientar melhor e encaminhar para o comercial."
+    : wantsCommercialHelp(allUserText)
+      ? "Se quiser, eu ja deixo isso encaminhado com o time comercial assim que voce me passar seus dados de contato."
+      : "Se fizer sentido, também posso te direcionar para o time comercial para validar o seu projeto.";
+
+  parts.push(followUpMessage);
 
   return parts.slice(0, 3).join(" ");
 }
@@ -389,16 +375,33 @@ serve(async (req) => {
       ? rawBufferedMessages.join(" ")
       : userMessages.map((message) => message.content).join(" ");
     const lastUserMessage = rawBufferedMessages.at(-1) ?? userMessages.at(-1)?.content ?? "";
+    const historicalUserMessages = userMessages.slice(0, -1).map((message) => message.content);
+    const userInputs = [
+      ...historicalUserMessages,
+      ...(rawBufferedMessages.length ? rawBufferedMessages : lastUserMessage ? [lastUserMessage] : []),
+    ];
+    const conversationText = userInputs.join(" ").trim();
 
-    const contact = extractContact(allUserText);
-    const interest = detectInterest(allUserText);
-    const companyLookup = await lookupCompany(supabase, allUserText || lastUserMessage);
+    const leadQualification = inferLeadQualification({
+      userMessages: userInputs,
+      lastUserMessage,
+      conversationText: conversationText || allUserText,
+    });
+    const contact = collectKnownContact(userInputs);
+    const interest = detectInterest(allUserText || conversationText);
+    const companyLookup = await lookupCompany(
+      supabase,
+      conversationText || allUserText || lastUserMessage,
+    );
     const detectedCompany = companyLookup.matchedCompany || companyLookup.detectedCompany;
+    const qualifiedCompanyReference = companyLookup.matchSource
+      ? (companyLookup.matchedCompany || companyLookup.detectedCompany)
+      : null;
 
     const { context: ragContext, retrieval } = await fetchKnowledgeContext(
       supabase,
       apiKey,
-      allUserText || lastUserMessage,
+      conversationText || allUserText || lastUserMessage,
       interest,
       companyLookup.matchedCompany,
     );
@@ -408,6 +411,11 @@ serve(async (req) => {
       companyHint: buildCompanyPromptHint(companyLookup),
       interest,
       clientBuffer: clientBuffer ?? null,
+      leadQualificationHint: buildLeadReadyPromptHint({
+        state: leadQualification,
+        interest,
+        detectedCompany: qualifiedCompanyReference,
+      }),
     });
 
     let reply = "";
@@ -415,7 +423,26 @@ serve(async (req) => {
     let aiFallbackUsed = false;
     let providerError: string | null = null;
 
-    if (apiKey) {
+    if (leadQualification.shouldRequestContact) {
+      reply = buildLeadCaptureReply({
+        state: leadQualification,
+        interest,
+        detectedCompany: qualifiedCompanyReference,
+      });
+      modelLabel = "deterministic-lead-capture";
+    } else {
+      const postCaptureReply = buildPostCaptureReply({
+        state: leadQualification,
+        interest,
+      });
+
+      if (postCaptureReply) {
+        reply = postCaptureReply;
+        modelLabel = "deterministic-post-capture";
+      }
+    }
+
+    if (!reply && apiKey) {
       try {
         const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
@@ -441,16 +468,17 @@ serve(async (req) => {
       } catch (error) {
         providerError = error instanceof Error ? error.message : String(error);
       }
-    } else {
+    } else if (!reply) {
       providerError = "OPEN_ROUTER_API missing";
     }
 
     if (!reply) {
       reply = buildFallbackReply({
-        allUserText,
+        allUserText: conversationText || allUserText,
         interest,
         companyLookup,
         ragContext,
+        leadQualification,
       });
       modelLabel = "deterministic-fallback";
       aiFallbackUsed = true;
@@ -470,6 +498,7 @@ serve(async (req) => {
             source: "chatbot",
             client_buffer: clientBuffer ?? null,
             company_lookup: companyLookup,
+            lead_qualification: leadQualification,
             response_style_version: RESPONSE_STYLE_VERSION,
           },
           detected_name: contact.name,
@@ -495,6 +524,7 @@ serve(async (req) => {
           company_lookup: companyLookup,
           retrieval,
           client_buffer: clientBuffer ?? null,
+          lead_qualification: leadQualification,
           ai_fallback_used: aiFallbackUsed,
           provider_error: providerError,
           response_style_version: RESPONSE_STYLE_VERSION,
@@ -505,7 +535,11 @@ serve(async (req) => {
       console.error("Assistant save error:", error);
     }
 
-    if (contact.email || contact.phone) {
+    const shouldPersistLead =
+      leadQualification.readyForCommercialFollowUp ||
+      (!leadQualification.wantsCommercialHelp && Boolean(contact.email || contact.phone));
+
+    if (shouldPersistLead && (contact.email || contact.phone)) {
       (async () => {
         try {
           const leadEmail = contact.email || `chatbot${Date.now()}@placeholder.lifetrek.com.br`;
@@ -518,7 +552,7 @@ serve(async (req) => {
               company: detectedCompany || null,
               project_type: interest,
               business_challenges: "Capturado via chatbot do site",
-              message: allUserText.slice(0, 500),
+              message: (conversationText || allUserText).slice(0, 500),
             },
             { onConflict: "email" },
           );
@@ -533,6 +567,7 @@ serve(async (req) => {
               interest,
               has_email: Boolean(contact.email),
               has_phone: Boolean(contact.phone),
+              ready_for_commercial_follow_up: leadQualification.readyForCommercialFollowUp,
               detected_company: detectedCompany,
             },
           });

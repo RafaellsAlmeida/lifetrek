@@ -4,14 +4,11 @@ import { AssetLoader } from "../supabase/functions/regenerate-carousel-images/ut
 import { handleHybridGeneration } from "../supabase/functions/regenerate-carousel-images/handlers/hybrid.ts";
 import { handleAiGeneration } from "../supabase/functions/regenerate-carousel-images/handlers/ai.ts";
 
-// Load .env file
-const env = await config({ path: ".env" });
-
-// Mock Deno.env for local execution
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || env.SUPABASE_URL || "https://dlflpvmdzkeouhgqwqba.supabase.co";
-const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || env.SUPABASE_SERVICE_ROLE_KEY || Deno.env.get("SUPABASE_ACCESS_TOKEN") || env.SUPABASE_ACCESS_TOKEN;
-const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") || env.GEMINI_API_KEY;
-const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY") || env.OPENROUTER_API_KEY;
+// Skip dotenv due to os error 1
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "https://dlflpvmdzkeouhgqwqba.supabase.co";
+const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ACCESS_TOKEN");
+const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY");
+const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
 
 // Ensure keys are in Deno.env for the handlers to pick up
 if (GEMINI_KEY) Deno.env.set("GEMINI_API_KEY", GEMINI_KEY);
