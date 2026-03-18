@@ -43,6 +43,7 @@ type ReviewItem = {
   slides: ReviewItemSlide[];
   reviewer_comment?: string | null;
   copy_edits?: unknown;
+  content?: string | null;
 };
 
 type ReviewFetchResponse = {
@@ -692,6 +693,18 @@ export default function StakeholderReviewPage() {
                               </div>
                             ))}
                           </div>
+                        </div>
+                      ) : null}
+
+                      {item.content && item.content_type === "blog_post" ? (
+                        <div className="mt-5 rounded-[24px] border border-[#E3ECF6] bg-[#FBFCFE] p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                            Conteúdo do Artigo
+                          </p>
+                          <div
+                            className="prose prose-sm prose-slate mt-4 max-w-none break-words"
+                            dangerouslySetInnerHTML={{ __html: item.content }}
+                          />
                         </div>
                       ) : null}
 

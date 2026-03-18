@@ -295,6 +295,7 @@ async function handleFetch(
       let caption = "";
       let thumbnailUrl: string | null = null;
       let slides: Array<{ index: number; headline: string; body: string }> = [];
+      let content: string | null = null;
 
       if (contentType === "linkedin_carousel") {
         const { data } = await supabase
@@ -329,7 +330,7 @@ async function handleFetch(
       } else if (contentType === "blog_post") {
         const { data } = await supabase
           .from("blog_posts")
-          .select("title, excerpt, hero_image_url")
+          .select("title, excerpt, hero_image_url, content")
           .eq("id", contentId)
           .single();
 
@@ -338,6 +339,7 @@ async function handleFetch(
           caption = data.excerpt || "";
           thumbnailUrl = data.hero_image_url ?? null;
           slides = [];
+          content = data.content ?? null;
         }
       }
 
@@ -350,6 +352,7 @@ async function handleFetch(
         caption,
         thumbnail_url: thumbnailUrl,
         slides,
+        content,
         reviewer_comment: item.reviewer_comment ?? null,
         copy_edits: item.copy_edits ?? null,
         reviewed_by_email: item.reviewed_by_email ?? null,
