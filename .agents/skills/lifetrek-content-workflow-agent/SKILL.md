@@ -15,7 +15,8 @@ Use this skill as the IDE command center for the full content process.
 5. Quality analysis (`lifetrek-linkedin-analyst-agent`)
 6. Variant ranking (`lifetrek-linkedin-ranker-agent`)
 7. Human editing (`lifetrek-content-editor-agent`)
-8. Final approval package (JSON + publish notes)
+18. Final approval package (JSON + publish notes)
+19. Local Execution (Optional via `lifetrek-local-carousel-generator`)
 
 ## Inputs
 - `campaign_goal`
@@ -48,6 +49,10 @@ Use this skill as the IDE command center for the full content process.
   "next_action": "submit_for_approval"
 }
 ```
+
+## Execution Modes
+- **Remote (Default)**: Submit final package to `/admin/content-approval` which triggers Edge Functions.
+- **Local (Developer/Fast Iteration)**: Use the `lifetrek-local-carousel-generator` skill to run scripts via Deno.
 
 ## Guardrails
 - Use PT-BR output for user-facing text.

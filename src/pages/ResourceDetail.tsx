@@ -31,7 +31,7 @@ export default function ResourceDetail() {
         company: ""
     });
 
-    const resourceContent = resource?.content ?? "";
+    const resourceContent = (resource?.content ?? "").replace(/\\n/g, "\n");
     const resolvedSlug = resource?.slug ?? slug ?? "resource";
     const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
     const downloadUrl = typeof metadata.download_url === "string" ? metadata.download_url : undefined;

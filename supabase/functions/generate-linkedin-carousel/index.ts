@@ -83,6 +83,69 @@ function toCarouselPayload(params: CarouselParams, copy: any, images: any[] = []
     };
 }
 
+/**
+ * Upload base64 images to Supabase Storage and replace image_url with public URLs.
+ */
+async function uploadImagesToStorage(
+    supabase: ServiceSupabaseClient,
+    images: any[],
+    carouselId: string,
+): Promise<any[]> {
+    const uploaded = [];
+    for (const img of images) {
+        if (!img.image_url || !img.image_url.startsWith("data:")) {
+            uploaded.push(img);
+            continue;
+        }
+
+        try {
+            // Extract base64 data
+            const matches = img.image_url.match(/^data:([^;]+);base64,(.+)$/s);
+            if (!matches) {
+                uploaded.push(img);
+                continue;
+            }
+            const mimeType = matches[1];
+            const base64Data = matches[2];
+            const ext = mimeType.includes("png") ? "png" : "jpg";
+            const fileName = `carousel-${carouselId}-s${img.slide_index}-${Date.now()}.${ext}`;
+
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let j = 0; j < binaryString.length; j++) {
+                bytes[j] = binaryString.charCodeAt(j);
+            }
+
+            const { error } = await supabase.storage
+                .from("content_assets")
+                .upload(`generated/${fileName}`, bytes, {
+                    contentType: mimeType,
+                    upsert: false,
+                });
+
+            if (error) {
+                console.error(`Upload failed for slide ${img.slide_index}:`, error.message);
+                uploaded.push(img);
+                continue;
+            }
+
+            const { data: urlData } = supabase.storage
+                .from("content_assets")
+                .getPublicUrl(`generated/${fileName}`);
+
+            uploaded.push({
+                ...img,
+                image_url: urlData.publicUrl,
+            });
+            console.log(`📤 Uploaded slide ${img.slide_index}: ${urlData.publicUrl}`);
+        } catch (e) {
+            console.error(`Upload error for slide ${img.slide_index}:`, e);
+            uploaded.push(img);
+        }
+    }
+    return uploaded;
+}
+
 function extractHashtags(text: string): string[] {
     if (!text) return [];
     const matches = text.match(/#[\p{L}\p{N}_]+/gu) || [];
@@ -202,6 +265,10 @@ async function generateCarouselOnce(
         images = await compositorAgent(copy, rawImages);
     }
 
+    // Upload base64 images to Supabase Storage
+    const carouselId = crypto.randomUUID().slice(0, 8);
+    send?.("step", { step: "upload", status: "in_progress", message: "Fazendo upload das imagens..." });
+    images = await uploadImagesToStorage(supabase, images, carouselId);
     send?.("image_progress", { completed: 1, total: 1 });
     send?.("step", { step: "images", status: "completed", message: "Imagens finalizadas" });
 

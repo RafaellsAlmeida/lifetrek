@@ -21,6 +21,10 @@ const corsHeaders = {
 };
 
 const RESPONSE_STYLE_VERSION = "website-bot-v3-lead-qualification";
+const OPENAI_CHAT_MODEL = "gpt-4o-mini";
+const OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
+const OPENROUTER_CHAT_MODEL = "google/gemini-2.0-flash-001";
+const OPENROUTER_EMBEDDING_MODEL = "openai/text-embedding-3-small";
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 type ChatMessage = {
@@ -102,39 +106,199 @@ function uniqueTokens(query: string, interest: string, matchedCompany: string | 
 }
 
 async function fetchEmbedding(
-  apiKey: string,
+  openAiKey: string | undefined,
+  openRouterKey: string | undefined,
   input: string,
-): Promise<number[] | null> {
-  try {
-    const embResponse = await fetch("https://openrouter.ai/api/v1/embeddings", {
+): Promise<{ embedding: number[] | null; provider: string | null; error: string | null }> {
+  if (openAiKey) {
+    try {
+      const embResponse = await fetch("https://api.openai.com/v1/embeddings", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: OPENAI_EMBEDDING_MODEL,
+          input,
+        }),
+      });
+
+      if (embResponse.ok) {
+        const embData = await embResponse.json();
+        const embedding = embData.data?.[0]?.embedding ?? null;
+        if (embedding) {
+          return { embedding, provider: `openai:${OPENAI_EMBEDDING_MODEL}`, error: null };
+        }
+      } else {
+        const errorText = await embResponse.text();
+        console.error("OpenAI embedding request failed:", embResponse.status, errorText);
+      }
+    } catch (error) {
+      console.error("OpenAI embedding error:", error);
+    }
+  }
+
+  if (openRouterKey) {
+    try {
+      const embResponse = await fetch("https://openrouter.ai/api/v1/embeddings", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openRouterKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://lifetrek.com.br",
+        },
+        body: JSON.stringify({
+          model: OPENROUTER_EMBEDDING_MODEL,
+          input,
+        }),
+      });
+
+      if (embResponse.ok) {
+        const embData = await embResponse.json();
+        const embedding = embData.data?.[0]?.embedding ?? null;
+        if (embedding) {
+          return { embedding, provider: `openrouter:${OPENROUTER_EMBEDDING_MODEL}`, error: null };
+        }
+      } else {
+        const errorText = await embResponse.text();
+        console.error("OpenRouter embedding request failed:", embResponse.status, errorText);
+        return { embedding: null, provider: null, error: `openrouter ${embResponse.status}: ${errorText}` };
+      }
+    } catch (error) {
+      console.error("OpenRouter embedding error:", error);
+      return {
+        embedding: null,
+        provider: null,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  return { embedding: null, provider: null, error: "No embedding provider configured" };
+}
+
+function extractAssistantText(content: unknown): string {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "text" in item && typeof item.text === "string") {
+          return item.text;
+        }
+        return "";
+      })
+      .join("")
+      .trim();
+  }
+
+  return "";
+}
+
+async function fetchChatCompletion(options: {
+  openAiKey: string | undefined;
+  openRouterKey: string | undefined;
+  systemPrompt: string;
+  messages: ChatMessage[];
+}): Promise<{ reply: string; modelLabel: string; providerError: string | null }> {
+  const { openAiKey, openRouterKey, systemPrompt, messages } = options;
+
+  if (openAiKey) {
+    try {
+      const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: OPENAI_CHAT_MODEL,
+          messages: [{ role: "system", content: systemPrompt }, ...messages],
+          temperature: 0.35,
+          max_completion_tokens: 450,
+        }),
+      });
+
+      if (aiRes.ok) {
+        const data = await aiRes.json();
+        const reply = extractAssistantText(data.choices?.[0]?.message?.content);
+        if (reply) {
+          return {
+            reply,
+            modelLabel: `openai:${OPENAI_CHAT_MODEL}`,
+            providerError: null,
+          };
+        }
+      } else {
+        const errorText = await aiRes.text();
+        console.error("OpenAI chat request failed:", aiRes.status, errorText);
+      }
+    } catch (error) {
+      console.error("OpenAI chat error:", error);
+    }
+  }
+
+  if (openRouterKey) {
+    try {
+      const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${openRouterKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://lifetrek.com.br",
       },
       body: JSON.stringify({
-        model: "openai/text-embedding-3-small",
-        input,
+        model: OPENROUTER_CHAT_MODEL,
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        temperature: 0.35,
+        max_tokens: 450,
       }),
     });
 
-    if (!embResponse.ok) {
-      console.error("Embedding request failed:", embResponse.status, await embResponse.text());
-      return null;
+      if (aiRes.ok) {
+        const data = await aiRes.json();
+        const reply = extractAssistantText(data.choices?.[0]?.message?.content);
+        if (reply) {
+          return {
+            reply,
+            modelLabel: `openrouter:${OPENROUTER_CHAT_MODEL}`,
+            providerError: null,
+          };
+        }
+      } else {
+        const errorText = await aiRes.text();
+        console.error("OpenRouter chat request failed:", aiRes.status, errorText);
+        return {
+          reply: "",
+          modelLabel: "",
+          providerError: `openrouter ${aiRes.status}: ${errorText}`,
+        };
+      }
+    } catch (error) {
+      console.error("OpenRouter chat error:", error);
+      return {
+        reply: "",
+        modelLabel: "",
+        providerError: error instanceof Error ? error.message : String(error),
+      };
     }
-
-    const embData = await embResponse.json();
-    return embData.data?.[0]?.embedding ?? null;
-  } catch (error) {
-    console.error("Embedding error:", error);
-    return null;
   }
+
+  return {
+    reply: "",
+    modelLabel: "",
+    providerError: "No chat provider configured",
+  };
 }
 
 async function fetchKnowledgeContext(
   supabase: any,
-  apiKey: string | undefined,
+  openAiKey: string | undefined,
+  openRouterKey: string | undefined,
   query: string,
   interest: string,
   matchedCompany: string | null,
@@ -144,12 +308,15 @@ async function fetchKnowledgeContext(
     vectorResults: 0,
     textResults: 0,
     terms: [] as string[],
+    embeddingProvider: null as string | null,
   };
 
-  const vector = apiKey ? await fetchEmbedding(apiKey, query) : null;
-  if (vector) {
+  const embeddingResult = await fetchEmbedding(openAiKey, openRouterKey, query);
+  retrieval.embeddingProvider = embeddingResult.provider;
+
+  if (embeddingResult.embedding) {
     const { data, error } = await (supabase as any).rpc("match_knowledge_base", {
-      query_embedding: vector,
+      query_embedding: embeddingResult.embedding,
       match_count: 3,
       match_threshold: 0.3,
     }) as { data: any[] | null; error: any };
@@ -359,7 +526,8 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
+    const openAiKey = Deno.env.get("OPENAI_API_KEY");
+    const openRouterKey = Deno.env.get("OPEN_ROUTER_API") || Deno.env.get("OPEN_ROUTER_API_KEY");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -400,7 +568,8 @@ serve(async (req) => {
 
     const { context: ragContext, retrieval } = await fetchKnowledgeContext(
       supabase,
-      apiKey,
+      openAiKey,
+      openRouterKey,
       conversationText || allUserText || lastUserMessage,
       interest,
       companyLookup.matchedCompany,
@@ -442,34 +611,19 @@ serve(async (req) => {
       }
     }
 
-    if (!reply && apiKey) {
-      try {
-        const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://lifetrek.com.br",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.0-flash-001",
-            messages: [{ role: "system", content: systemPrompt }, ...typedMessages],
-            temperature: 0.35,
-            max_tokens: 450,
-          }),
-        });
+    if (!reply) {
+      const completion = await fetchChatCompletion({
+        openAiKey,
+        openRouterKey,
+        systemPrompt,
+        messages: typedMessages,
+      });
 
-        if (!aiRes.ok) {
-          providerError = await aiRes.text();
-        } else {
-          const data = await aiRes.json();
-          reply = data.choices?.[0]?.message?.content?.trim() || "";
-        }
-      } catch (error) {
-        providerError = error instanceof Error ? error.message : String(error);
+      reply = completion.reply;
+      if (completion.modelLabel) {
+        modelLabel = completion.modelLabel;
       }
-    } else if (!reply) {
-      providerError = "OPEN_ROUTER_API missing";
+      providerError = completion.providerError;
     }
 
     if (!reply) {

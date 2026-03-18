@@ -51,7 +51,7 @@ async function loadCompositorRuntime() {
 
 const OPEN_ROUTER_API = Deno.env.get("OPEN_ROUTER_API");
 const TEXT_MODEL = "google/gemini-2.0-flash-001";
-const IMAGE_MODEL = "google/gemini-2.0-flash-exp:free";
+const IMAGE_MODEL = "google/gemini-2.5-flash-image";
 const GEMINI_TEXT_MODEL = "gemini-2.0-flash";
 const OPENROUTER_FALLBACK_ERROR = "__openrouter_fallback__";
 
@@ -202,7 +202,11 @@ async function callOpenRouterImage(
   costContext?: CostTrackingContext,
 ): Promise<string | null> {
   try {
-    console.log("🎨 OpenRouter Image: Calling generation via chat completions...");
+    if (!OPEN_ROUTER_API) {
+      console.warn("⚠️ OPEN_ROUTER_API missing, cannot generate image via OpenRouter");
+      return null;
+    }
+    console.log(`🎨 OpenRouter Image: Calling ${IMAGE_MODEL}...`);
 
     const userContent = refImageUrl
       ? [
@@ -267,26 +271,30 @@ async function callGeminiImage(
   prompt: string,
   costContext?: CostTrackingContext,
 ): Promise<string | null> {
+  // Primary: OpenRouter with image-capable model (avoids Gemini direct API spending cap)
+  console.log("🎨 Image Gen: Trying OpenRouter with " + IMAGE_MODEL);
+  const orResult = await callOpenRouterImage(prompt, undefined, costContext);
+  if (orResult) return orResult;
+
+  // Fallback: Gemini direct API
   try {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not set in environment");
+      console.warn("⚠️ GEMINI_API_KEY not set, skipping Gemini fallback");
+      return null;
     }
 
+    console.log("⚠️ OpenRouter failed, trying Gemini direct API...");
     const executeCall = async () => {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-              responseModalities: ["IMAGE"],
-              imageConfig: {
-                aspectRatio: "1:1",
-                imageSize: "1K"
-              }
+              responseModalities: ["IMAGE", "TEXT"],
             }
           })
         }
@@ -308,7 +316,7 @@ async function callGeminiImage(
             userId: costContext.userId || null,
             operation: costContext.operation,
             service: "gemini",
-            model: "gemini-3-pro-image-preview",
+            model: "gemini-2.5-flash",
             metadata: costContext.metadata,
           },
           executeCall,
@@ -321,10 +329,8 @@ async function callGeminiImage(
 
     return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
   } catch (error) {
-    console.error("Gemini Image Call Failed:", error);
-    // FALLBACK TO OPENROUTER
-    console.log("⚠️ Gemini failed, switching to OpenRouter fallback...");
-    return await callOpenRouterImage(prompt, undefined, costContext);
+    console.error("❌ Both image providers failed:", error);
+    return null;
   }
 }
 
@@ -648,15 +654,13 @@ export async function designerAgent(
   const images: GeneratedImage[] = [];
   const equipmentPriority = (params.selectedEquipment || []).map((item) => item.toLowerCase());
   const hasReferenceImage = Boolean(params.referenceImage);
-
-  // Decide which slides get images (Hook and last slide always, middle one if long)
-  const middleIndex = Math.floor(copy.slides.length / 2);
+  const isCarousel = params.format !== 'single-image';
 
   for (let i = 0; i < copy.slides.length; i++) {
     const slide = copy.slides[i];
-    const shouldHaveImage = i === 0 || i === middleIndex || i === copy.slides.length - 1;
 
-    if (!shouldHaveImage) {
+    // For single-image format, only generate 1 image (the first slide)
+    if (!isCarousel && i > 0) {
       images.push({ slide_index: i, image_url: "", asset_source: 'text-only' });
       continue;
     }
@@ -722,8 +726,7 @@ export async function designerAgent(
     }
 
     try {
-      // Use the shared callOpenRouterImage function for consistency
-      console.log(`🎨 Designer: Calling image generator for slide ${i}...`);
+      console.log(`🤖 Designer: Calling AI image generator for slide ${i}...`);
       const imageUrl = await callGeminiImage(prompt, costContext ? {
         ...costContext,
         operation: "content.generate-linkedin-carousel.designer.image",
@@ -733,19 +736,28 @@ export async function designerAgent(
           platform: params.platform || "linkedin",
           slide_index: i,
         },
-      } : undefined) || "";
+      } : undefined);
 
-      images.push({
-        slide_index: i,
-        image_url: imageUrl,
-        asset_source: imageUrl ? 'ai-generated' : 'text-only'
-      });
+      if (imageUrl) {
+        console.log(`🎨 Designer: AI image generated for slide ${i} (${imageUrl.slice(0, 50)}...)`);
+        images.push({
+          slide_index: i,
+          image_url: imageUrl,
+          asset_source: 'ai-generated'
+        });
+      } else {
+        console.warn(`⚠️ Designer: AI returned null for slide ${i}, using placeholder`);
+        images.push({
+          slide_index: i,
+          image_url: `https://placehold.co/1080x1080/004F8F/ffffff?text=${encodeURIComponent(slide.headline?.slice(0, 30) || 'Slide ' + (i + 1))}`,
+          asset_source: 'placeholder'
+        });
+      }
     } catch (e) {
-      console.warn(`⚠️ Design generation failed for slide ${i}`, e);
-      // Fallback to placeholder so design is visible even if API fails
+      console.error(`❌ Designer: Image generation failed for slide ${i}:`, e);
       images.push({
         slide_index: i,
-        image_url: `https://placehold.co/1024x1024/f1f5f9/334155?text=Flux+Generation+Failed+${i}`,
+        image_url: `https://placehold.co/1080x1080/004F8F/ffffff?text=${encodeURIComponent(slide.headline?.slice(0, 30) || 'Slide ' + (i + 1))}`,
         asset_source: 'placeholder'
       });
     }
@@ -805,8 +817,8 @@ export async function compositorAgent(
     const image = images.find(img => img.slide_index === i);
     const bgUrl = image ? image.image_url : "";
 
-    // Skip composition if no background image (shouldn't happen)
-    if (!bgUrl) {
+    // Skip composition for text-only slides (single-image format non-primary slides)
+    if (!bgUrl && image?.asset_source === 'text-only') {
       compositedImages.push(image!);
       continue;
     }

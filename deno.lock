@@ -48,6 +48,7 @@
     "npm:@supabase/postgrest-js@2.99.1": "2.99.1",
     "npm:@supabase/realtime-js@2.99.1": "2.99.1",
     "npm:@supabase/storage-js@2.99.1": "2.99.1",
+    "npm:@supabase/supabase-js@2": "2.75.0",
     "npm:@supabase/supabase-js@2.75.0": "2.75.0",
     "npm:@supabase/supabase-js@^2.94.1": "2.95.1",
     "npm:@tailwindcss/typography@~0.5.16": "0.5.19_tailwindcss@3.4.19__postcss@8.5.6__jiti@1.21.7",

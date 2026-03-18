@@ -134,7 +134,7 @@ export const ResourceDetailPreviewContent: React.FC<ResourceDetailPreviewContent
                                 )
                             }}
                         >
-                            {resource.content || 'Nenhum conteúdo disponível.'}
+                            {(resource.content || '').replace(/\\n/g, '\n') || 'Nenhum conteúdo disponível.'}
                         </ReactMarkdown>
                     </div>
 
