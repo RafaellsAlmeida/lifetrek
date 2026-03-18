@@ -227,7 +227,7 @@ async function callOpenRouterImage(
         body: JSON.stringify({
           model: IMAGE_MODEL,
           messages: [{ role: "user", content: userContent }],
-          modalities: ["image"],
+          response_format: { type: "image" },
         })
       });
 
@@ -253,12 +253,27 @@ async function callOpenRouterImage(
           executeCall,
         );
 
-    const parts = data?.choices?.[0]?.message?.content;
+    const message = data?.choices?.[0]?.message;
+
+    // OpenRouter returns images in a separate "images" array field
+    const images = message?.images;
+    if (Array.isArray(images) && images.length > 0) {
+      const imgPart = images.find((p: any) => p.type === "image_url");
+      if (imgPart?.image_url?.url) {
+        console.log(`🎨 OpenRouter Image: Got image from 'images' field (${imgPart.image_url.url.slice(0, 30)}...)`);
+        return imgPart.image_url.url;
+      }
+    }
+
+    // Fallback: check content array (older API format)
+    const parts = message?.content;
     if (Array.isArray(parts)) {
       const imagePart = parts.find((p: any) => p.type === "image_url");
       if (imagePart?.image_url?.url) return imagePart.image_url.url;
     }
     if (typeof parts === "string" && parts.startsWith("http")) return parts;
+
+    console.warn("⚠️ OpenRouter Image: No image found in response. Keys:", Object.keys(message || {}));
     return null;
 
   } catch (error) {

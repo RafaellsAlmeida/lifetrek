@@ -105,10 +105,10 @@ async function fetchPostData(supabase: any, ref: PostRef): Promise<PostData> {
 
   if (error || !data) throw new Error(`blog_post ${ref.content_id} not found`);
   if (!hasAdminApprovedStatus(data.status)) {
-    throw new Error(`Post ${ref.content_id} must be approved before sending (current: ${data.status})`);
+    throw new Error(`O blog post deve estar com status 'Aprovado' antes de enviar (atual: ${data.status})`);
   }
-  if (!data.title?.trim() && !data.excerpt?.trim()) {
-    throw new Error(`Post ${ref.content_id} has no content. Add title and excerpt before sending.`);
+  if (!data.title?.trim()) {
+    throw new Error(`O blog post ${ref.content_id} não tem título. Adicione um título antes de enviar.`);
   }
 
   return {
