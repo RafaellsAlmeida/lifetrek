@@ -30,7 +30,6 @@ const STATIC_PAGES: SitemapEntry[] = [
   { path: "/assessment", changefreq: "monthly", priority: "0.7" },
   { path: "/product-catalog", changefreq: "weekly", priority: "0.8" },
   { path: "/blog", changefreq: "daily", priority: "0.9" },
-  { path: "/resources", changefreq: "weekly", priority: "0.9" },
 ];
 
 const formatDate = (value?: string | null) =>

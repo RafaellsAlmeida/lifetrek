@@ -18,6 +18,10 @@ import { useToast } from "@/hooks/use-toast";
 import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
 import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 import { Helmet } from "react-helmet-async";
+import {
+    CHECKLIST_DFM_IMPLANTES_FULL_MARKDOWN,
+    isChecklistDfmImplantesTeaserContent,
+} from "@/constants/checklistDfmImplantesFullContent";
 
 const LEAD_MAGNET_PDF_SLUGS = new Set([
     "scorecard-risco-supply-chain-2026",
@@ -49,7 +53,12 @@ export default function ResourceDetail() {
         company: ""
     });
 
-    const resourceContent = (resource?.content ?? "").replace(/\\n/g, "\n");
+    const rawResourceContent = (resource?.content ?? "").replace(/\\n/g, "\n");
+    const resourceContent =
+        resource?.slug === "checklist-dfm-implantes" &&
+        isChecklistDfmImplantesTeaserContent(rawResourceContent)
+            ? CHECKLIST_DFM_IMPLANTES_FULL_MARKDOWN
+            : rawResourceContent;
     const resolvedSlug = resource?.slug ?? slug ?? "resource";
     const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
     const downloadUrl = typeof metadata.download_url === "string" ? metadata.download_url : undefined;
@@ -115,7 +124,7 @@ export default function ResourceDetail() {
                     url: canonicalUrl,
                 };
             case 'checklist': {
-                const headings = (resource.content || "")
+                const headings = resourceContent
                     .split("\n")
                     .filter((line: string) => /^#{1,3}\s/.test(line))
                     .map((line: string) => line.replace(/^#{1,3}\s+/, "").trim());
@@ -436,6 +445,17 @@ export default function ResourceDetail() {
                                     ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
                                     li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
                                     p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
+                                    a: ({ href, children, ...props }) => (
+                                        <a
+                                            href={href}
+                                            className="text-primary font-medium underline underline-offset-2 hover:text-primary/90"
+                                            target={href?.startsWith("http") ? "_blank" : undefined}
+                                            rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                                            {...props}
+                                        >
+                                            {children}
+                                        </a>
+                                    ),
                                     table: ({ node, ...props }) => (
                                         <div className="overflow-x-auto my-8 border rounded-lg">
                                             <table className="min-w-full divide-y divide-slate-200" {...props} />
