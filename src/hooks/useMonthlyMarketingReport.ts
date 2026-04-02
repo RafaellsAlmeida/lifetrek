@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isPublicPagePath } from "@/lib/analyticsPath";
 
-export type MonthlyReportKey = "2026-01" | "2026-02";
+export type MonthlyReportKey = "2026-01" | "2026-02" | "2026-03";
 
 export const MONTHLY_REPORT_OPTIONS: Array<{ key: MonthlyReportKey; label: string }> = [
   { key: "2026-01", label: "Janeiro 2026" },
   { key: "2026-02", label: "Fevereiro 2026" },
+  { key: "2026-03", label: "Março 2026" },
 ];
 
 export type TopicCategory =
@@ -331,6 +332,116 @@ const SEEDED_POSTS: Record<MonthlyReportKey, SeededPost[]> = {
       engagementRatePct: 11.54,
     },
   ],
+  "2026-03": [
+    {
+      date: "2026-03-04",
+      title: "Protótipo para produção em escala",
+      slidesCount: 1,
+      impressions: 180,
+      clicks: 33,
+      ctrPct: 18.33,
+      reactions: 7,
+      comments: 0,
+      reposts: 0,
+      engagementRatePct: 22.22,
+    },
+    {
+      date: "2026-03-05",
+      title: "Fornecedor único ponto de falha — fluxo integrado",
+      slidesCount: 1,
+      impressions: 176,
+      clicks: 15,
+      ctrPct: 8.52,
+      reactions: 5,
+      comments: 0,
+      reposts: 0,
+      engagementRatePct: 11.36,
+    },
+    {
+      date: "2026-03-10",
+      title: "Sala limpa ISO 7 — competir com padrão europeu",
+      slidesCount: 1,
+      impressions: 267,
+      clicks: 16,
+      ctrPct: 5.99,
+      reactions: 10,
+      comments: 0,
+      reposts: 1,
+      engagementRatePct: 10.11,
+    },
+    {
+      date: "2026-03-12",
+      title: "Geometria complexa — tornos Swiss Citizen L20/M32",
+      slidesCount: 1,
+      impressions: 470,
+      clicks: 18,
+      ctrPct: 3.83,
+      reactions: 15,
+      comments: 1,
+      reposts: 0,
+      engagementRatePct: 7.23,
+    },
+    {
+      date: "2026-03-13",
+      title: "UDI marcação laser — rastreabilidade em dispositivos",
+      slidesCount: 1,
+      impressions: 241,
+      clicks: 13,
+      ctrPct: 5.39,
+      reactions: 9,
+      comments: 1,
+      reposts: 0,
+      engagementRatePct: 9.54,
+    },
+    {
+      date: "2026-03-17",
+      title: "TCO sourcing — decisões de competitividade 2026",
+      slidesCount: 1,
+      impressions: 107,
+      clicks: 5,
+      ctrPct: 4.67,
+      reactions: 6,
+      comments: 0,
+      reposts: 0,
+      engagementRatePct: 10.28,
+    },
+    {
+      date: "2026-03-18",
+      title: "Port-a-cath: engenharia nacional — Sala Limpa ISO 7",
+      slidesCount: 1,
+      impressions: 233,
+      clicks: 11,
+      ctrPct: 4.72,
+      reactions: 7,
+      comments: 0,
+      reposts: 2,
+      engagementRatePct: 8.58,
+    },
+    {
+      date: "2026-03-18",
+      title: "Metrologia de ponta — onde a engenharia encontra a perfeição",
+      slidesCount: 1,
+      impressions: 106,
+      clicks: 1,
+      ctrPct: 0.94,
+      reactions: 4,
+      comments: 0,
+      reposts: 0,
+      engagementRatePct: 4.72,
+    },
+    {
+      date: "2026-03-24",
+      title: "Parafuso pedicular — precisão como ativo de segurança",
+      slidesCount: 1,
+      impressions: 140,
+      clicks: 12,
+      ctrPct: 8.57,
+      reactions: 7,
+      comments: 0,
+      reposts: 0,
+      engagementRatePct: 13.57,
+    },
+  ],
 };
 
 function parseMonthRange(month: MonthlyReportKey) {
@@ -417,6 +528,18 @@ function classifyTopic(text: string): { category: TopicCategory; icp: ICPGroup }
       "usinagem",
       "validacao",
       "swiss",
+      "udi",
+      "marcacao",
+      "laser",
+      "citizen",
+      "cnc",
+      "fixacao",
+      "port-a-cath",
+      "portacath",
+      "kit esteril",
+      "kit estéril",
+      "geometria",
+      "parafuso",
     ])
   ) {
     return {
@@ -444,6 +567,12 @@ function classifyTopic(text: string): { category: TopicCategory; icp: ICPGroup }
       "oem",
       "parceria",
       "operacoes",
+      "tco",
+      "sourcing",
+      "de-risking",
+      "frete",
+      "tarifa",
+      "fornecedor",
     ])
   ) {
     return {

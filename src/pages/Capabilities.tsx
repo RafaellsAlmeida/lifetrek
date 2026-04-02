@@ -1,5 +1,4 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Award, Shield, TrendingUp, Target, Zap, Sparkles } from "lucide-react";
 import isoLogo from "@/assets/certifications/iso.webp";
 import cleanroom from "@/assets/facility/cleanroom.webp";
 import surgicalInstruments from "@/assets/products/surgical-instruments.jpg";
@@ -11,9 +10,9 @@ import zeissContura from "@/assets/metrology/zeiss-contura.png";
 import polimento from "@/assets/metrology/polimento.webp";
 import cortadora from "@/assets/metrology/cortadora.webp";
 import embutidora from "@/assets/metrology/embutidora.webp";
-import citizenL20 from "@/assets/equipment/citizen.webp";
+import citizenL20 from "@/assets/equipment/citizen-l20-new.png";
 import citizenM32 from "@/assets/equipment/citizen-m32-new.png";
-import tornosGT26 from "@/assets/equipment/tornos-gt26.webp";
+import tornosGT26 from "@/assets/equipment/tornos-g26.png";
 import walter from "@/assets/equipment/walter.webp";
 import robodrill from "@/assets/equipment/robodrill.webp";
 import electropolishLine from "@/assets/equipment/electropolish-line.webp";
@@ -31,46 +30,34 @@ export default function Capabilities() {
 
   const capabilities = [
     {
-      icon: Shield,
       title: t("capabilities.cleanrooms.title"),
       benefit: t("capabilities.cleanrooms.benefit"),
       description: t("capabilities.cleanrooms.text"),
       image: cleanroom,
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
     {
-      icon: Target,
       title: t("capabilities.metrology.title"),
       benefit: t("capabilities.metrology.benefit"),
       description: t("capabilities.metrology.text"),
       image: labOverview,
-      color: "text-accent",
-      bg: "bg-accent/10",
     },
     {
-      icon: Zap,
       title: t("capabilities.equipment.title"),
       benefit: t("capabilities.equipment.benefit"),
       description: t("capabilities.equipment.text"),
       image: citizenM32,
-      color: "text-accent-orange",
-      bg: "bg-accent-orange/10",
     },
     {
-      icon: Sparkles,
       title: t("capabilities.finishing.title"),
       benefit: t("capabilities.finishing.benefit"),
       description: t("capabilities.finishing.text"),
       image: electropolishLine,
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
   ];
 
   const cncMachines = [
-    { image: citizenL20, name: "Citizen M32", category: t("equipment.category.swiss") },
-    { image: citizenM32, name: "Citizen L20-VIII LFV", category: t("equipment.category.swiss") },
+    { image: citizenL20, name: "Citizen L20-VIII LFV", category: t("equipment.category.swiss") },
+    { image: citizenM32, name: "Citizen M32", category: t("equipment.category.swiss") },
     { image: tornosGT26, name: "Tornos GT-26", category: t("equipment.category.swiss") },
     { image: walter, name: "Walter Helitronic", category: t("equipment.category.grinder") },
     { image: robodrill, name: "FANUC Robodrill", category: t("equipment.category.machining") },
@@ -128,10 +115,7 @@ export default function Capabilities() {
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
 
               <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 rounded-xl bg-primary/10">
-                    <Shield className="h-8 w-8 text-primary" />
-                  </div>
+                <div className="mb-6">
                   <div>
                     <h3 className="text-xl font-bold text-foreground">Qualidade Certificada</h3>
                     <p className="text-sm text-muted-foreground">Padrão internacional</p>
@@ -160,10 +144,7 @@ export default function Capabilities() {
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent-orange/10 to-transparent rounded-tr-full" />
 
               <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 rounded-xl bg-accent/10">
-                    <TrendingUp className="h-8 w-8 text-accent" />
-                  </div>
+                <div className="mb-6">
                   <div>
                     <h3 className="text-xl font-bold text-foreground">Capacidade de Exportação</h3>
                     <p className="text-sm text-muted-foreground">Mercados globais</p>

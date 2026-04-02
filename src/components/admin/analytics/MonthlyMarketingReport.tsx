@@ -45,7 +45,7 @@ function formatMonthLabel(month: MonthlyReportKey) {
 }
 
 export function MonthlyMarketingReport() {
-  const [month, setMonth] = useState<MonthlyReportKey>("2026-02");
+  const [month, setMonth] = useState<MonthlyReportKey>("2026-03");
   const [followerDimension, setFollowerDimension] = useState<"industry" | "job_function">("industry");
   const { data, loading, error } = useMonthlyMarketingReport(month);
 

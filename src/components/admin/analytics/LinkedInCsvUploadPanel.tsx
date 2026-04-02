@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, FileWarning, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 interface ValidationResult {
   rows_total: number;
@@ -55,6 +56,40 @@ export function LinkedInCsvUploadPanel() {
     setFileName(file.name);
     setValidationResult(null);
     setIngestResult(null);
+
+    const isSpreadsheet = /\.(xls|xlsx)$/i.test(file.name);
+    if (isSpreadsheet) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: "array" });
+        const postSheet =
+          workbook.SheetNames.find((n) => /all\s*posts/i.test(n)) ??
+          workbook.SheetNames[0];
+        const sheet = workbook.Sheets[postSheet];
+        const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+        const headerIdx = rows.findIndex((r) =>
+          r.some((cell) => /post\s*(title|link|date)/i.test(String(cell))),
+        );
+        const dataRows = headerIdx >= 0 ? rows.slice(headerIdx) : rows;
+        const text = dataRows
+          .map((r) =>
+            r.map((cell) => {
+              const s = String(cell ?? "").replace(/"/g, '""');
+              return s.includes(",") || s.includes('"') || s.includes("\n")
+                ? `"${s}"`
+                : s;
+            }).join(","),
+          )
+          .join("\n");
+
+        setCsvText(text);
+        toast.info(`Convertido da aba "${postSheet}" (${dataRows.length - 1} linhas de dados)`);
+      } catch (err: any) {
+        toast.error("Erro ao converter arquivo XLS: " + (err?.message || "formato inválido"));
+      }
+      return;
+    }
 
     const text = await file.text();
     setCsvText(text);
@@ -122,19 +157,19 @@ export function LinkedInCsvUploadPanel() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-4 w-4 text-blue-600" />
-          LinkedIn CSV Upload
+          LinkedIn Analytics Upload
         </CardTitle>
         <CardDescription>
-          Valide o schema antes da ingestão e revise o resultado de linhas aceitas/rejeitadas.
+          Aceita CSV ou XLS/XLSX (exportado do LinkedIn). Valide o schema antes da ingestão.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="linkedin-csv-upload">Arquivo CSV</Label>
+          <Label htmlFor="linkedin-csv-upload">Arquivo CSV / XLS / XLSX</Label>
           <input
             id="linkedin-csv-upload"
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,text/csv,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
             onChange={(e) => void handleFileChange(e.target.files?.[0])}
           />

@@ -13,6 +13,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint --config ./config/eslint.config.js .",
     "preview": "vite preview",
+    "autoresearch": "npx --yes tsx --env-file=.env.local scripts/autoresearch-perf.ts",
     "remotion:studio": "remotion studio",
     "remotion:render": "remotion render",
     "test:e2e": "playwright test",
@@ -95,6 +96,7 @@
     "three": "^0.170.0",
     "use-image": "^1.1.4",
     "vaul": "^0.9.9",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

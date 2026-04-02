@@ -11,9 +11,9 @@ import polimento from "@/assets/metrology/polimento.webp";
 import cortadora from "@/assets/metrology/cortadora.webp";
 import embutidora from "@/assets/metrology/embutidora.webp";
 import doosan from "@/assets/equipment/doosan-new.png";
-import citizenM32 from "@/assets/equipment/citizen-new.png";
+import citizenM32 from "@/assets/equipment/citizen-m32-new.png";
 import citizenL20 from "@/assets/equipment/citizen-l20-new.png";
-import tornosGT26 from "@/assets/equipment/tornos-gt26.webp";
+import tornosGT26 from "@/assets/equipment/tornos-g26.png";
 import walter from "@/assets/equipment/walter.webp";
 import robodrill from "@/assets/equipment/robodrill.webp";
 import electropolishLine from "@/assets/equipment/electropolish-line-new.png";
@@ -27,7 +27,6 @@ import cleanRoom3 from "@/assets/facility/clean-room-3.png";
 import cleanRoom5 from "@/assets/facility/clean-room-5.png";
 import cleanRoom6 from "@/assets/facility/clean-room-6.png";
 import cleanRoom7 from "@/assets/facility/clean-room-7.png";
-import cleanRoomExterior from "@/assets/facility/clean-room-exterior.jpg";
 
 type EquipmentCategory = "Metrology" | "CNC" | "Sample Prep" | "Finishing" | "Clean Room";
 
@@ -217,17 +216,6 @@ const getEquipmentItems = (t: (key: string) => string): EquipmentItem[] => [
     ]
   },
   {
-    image: cleanRoomExterior,
-    title: "Módulos de Sala Limpa",
-    subtitle: "Estrutura Dedicada ISO 7",
-    category: "Clean Room",
-    specs: [
-      "4 Módulos Independentes",
-      "Sistema HVAC Dedicado",
-      "Área Total: 200m²"
-    ]
-  },
-  {
     image: cleanRoomHero,
     title: "Sala Limpa ISO 7",
     subtitle: "Ambiente Controlado Certificado",
@@ -373,11 +361,11 @@ export const EquipmentCarousel = () => {
             {filteredItems.map((item, index) => (
               <CarouselItem key={index} className="pl-2 md:pl-4 basis-[85%] sm:basis-[70%] md:basis-1/2 lg:basis-1/3">
                 <div className="group h-full">
-                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-white shadow-xl group-hover:shadow-2xl transition-all duration-500 group-hover:scale-[1.02]">
+                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-950/20 shadow-xl group-hover:shadow-2xl transition-all duration-500 group-hover:scale-[1.02]">
                     <img
                       src={item.image}
                       alt={`${item.title} - ${item.subtitle}`}
-                      className="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                       decoding="async"
                       width="400"
