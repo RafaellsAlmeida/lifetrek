@@ -4,9 +4,11 @@ import {
   MonthlyReportKey,
   useMonthlyMarketingReport,
 } from "@/hooks/useMonthlyMarketingReport";
+import { MonthlyReviewCadenceCard } from "@/components/admin/analytics/MonthlyReviewCadenceCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { buildMonthlyReviewCadence } from "@/lib/monthlyReviewCadence";
 import {
   Table,
   TableBody,
@@ -55,6 +57,7 @@ export function MonthlyMarketingReport() {
   const [followerDimension, setFollowerDimension] = useState<DemoDimension>("industry");
   const [visitorDimension, setVisitorDimension] = useState<DemoDimension>("industry");
   const { data, loading, error } = useMonthlyMarketingReport(month);
+  const reviewCadence = useMemo(() => buildMonthlyReviewCadence(month), [month]);
 
   const categoryChartData = useMemo(
     () =>
@@ -153,6 +156,8 @@ export function MonthlyMarketingReport() {
         </CardHeader>
       </Card>
 
+      <MonthlyReviewCadenceCard reviewCadence={reviewCadence} />
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
@@ -221,6 +226,45 @@ export function MonthlyMarketingReport() {
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
             Apenas páginas públicas (sem `/admin`)
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>LinkedIn Referral Sessions</CardDescription>
+            <CardTitle className="text-2xl">{data.ga4.linkedinReferral.sessions.toLocaleString()}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">
+            {data.ga4.linkedinReferral.users.toLocaleString()} usuários vindos de linkedin.com
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Resources Funnel Views</CardDescription>
+            <CardTitle className="text-2xl">{data.ga4.resourcesFunnel.views.toLocaleString()}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">Eventos `resource_view`</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Unlock Rate</CardDescription>
+            <CardTitle className="text-2xl">{formatPct(data.ga4.resourcesFunnel.unlockRatePct)}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">
+            {data.ga4.resourcesFunnel.unlocks} desbloqueios
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Download / Unlock</CardDescription>
+            <CardTitle className="text-2xl">
+              {formatPct(data.ga4.resourcesFunnel.downloadRateFromUnlockPct)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">
+            {data.ga4.resourcesFunnel.downloads} downloads de recurso
           </CardContent>
         </Card>
       </div>
@@ -306,6 +350,39 @@ export function MonthlyMarketingReport() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Format Mix</CardTitle>
+          <CardDescription>Comparativo por formato de conteúdo (video/carousel/image/poll/text)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Formato</TableHead>
+                  <TableHead className="text-right">Posts</TableHead>
+                  <TableHead className="text-right">Impressions</TableHead>
+                  <TableHead className="text-right">CTR</TableHead>
+                  <TableHead className="text-right">Engaj.</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.linkedin.formats.map((row) => (
+                  <TableRow key={row.format}>
+                    <TableCell className="font-medium uppercase">{row.format}</TableCell>
+                    <TableCell className="text-right">{row.posts}</TableCell>
+                    <TableCell className="text-right">{row.impressions.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{formatPct(row.weightedCtrPct)}</TableCell>
+                    <TableCell className="text-right">{formatPct(row.avgEngagementRatePct)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {data.linkedin.monthlyTrend && data.linkedin.monthlyTrend.length > 0 && (
         <Card>
@@ -406,6 +483,7 @@ export function MonthlyMarketingReport() {
                   <TableHead className="min-w-[80px]">Data</TableHead>
                   <TableHead className="min-w-[200px]">Post</TableHead>
                   <TableHead className="min-w-[90px]">Categoria</TableHead>
+                  <TableHead className="min-w-[80px]">Formato</TableHead>
                   <TableHead className="text-right">Impressions</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
                   <TableHead className="text-right">CTR</TableHead>
@@ -427,6 +505,11 @@ export function MonthlyMarketingReport() {
                       <TableCell>
                         <Badge variant="outline" className="text-[10px] whitespace-nowrap">
                           {post.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-[10px] whitespace-nowrap uppercase">
+                          {post.postFormat}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-medium">{post.impressions.toLocaleString()}</TableCell>

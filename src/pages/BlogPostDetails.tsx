@@ -9,6 +9,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { toast } from "sonner";
+import { FeaturedResourceInlineCard } from "@/components/resources/FeaturedResourceInlineCard";
+import { getFeaturedResourceForBlog } from "@/lib/featuredResource";
 
 const SITE_URL = "https://lifetrek-medical.com";
 
@@ -141,6 +143,9 @@ export default function BlogPostDetails() {
     const displayAuthor = post.author_name || "Equipe Lifetrek Medical";
     const showHtmlContent = isLikelyHtml(content);
     const featuredImageUrl = resolveAbsoluteUrl(post.featured_image);
+    const featuredResource = getFeaturedResourceForBlog(
+        [post.title, post.excerpt || "", post.seo_description || "", content].join(" "),
+    );
 
     return (
         <div className="min-h-screen bg-white pb-20">
@@ -301,6 +306,7 @@ export default function BlogPostDetails() {
 
             {/* Content using Markdown */}
             <div className="container mx-auto px-4 max-w-3xl">
+                {featuredResource ? <FeaturedResourceInlineCard resource={featuredResource} /> : null}
                 {showHtmlContent ? (
                     <article
                         className="prose prose-slate prose-lg max-w-none

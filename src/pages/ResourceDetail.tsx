@@ -17,6 +17,24 @@ import { useToast } from "@/hooks/use-toast";
 // import remarkGfm from 'remark-gfm';
 import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
 import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
+import { Helmet } from "react-helmet-async";
+
+const LEAD_MAGNET_PDF_SLUGS = new Set([
+    "scorecard-risco-supply-chain-2026",
+    "checklist-transferencia-npi-producao",
+    "checklist-producao-local",
+]);
+
+const stripMarkdown = (value: string) =>
+    value
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+        .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+        .replace(/^#{1,6}\s*/gm, "")
+        .replace(/[*_~>-]/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
 
 export default function ResourceDetail() {
     const { slug } = useParams();
@@ -71,6 +89,83 @@ export default function ResourceDetail() {
     if (isLoading) return <LoadingSpinner />;
     if (error || !resource) return <div className="p-8 text-center">Recurso não encontrado.</div>;
 
+    const SITE_URL = "https://lifetrek-medical.com";
+    const canonicalUrl = `${SITE_URL}/resources/${resource.slug}`;
+    const metaDescription = resource.description || resource.title;
+
+    const getStructuredData = () => {
+        switch (resource.type) {
+            case 'guide':
+                return {
+                    "@context": "https://schema.org",
+                    "@type": "TechArticle",
+                    headline: resource.title,
+                    description: metaDescription,
+                    author: { "@type": "Organization", name: "Lifetrek Medical" },
+                    publisher: {
+                        "@type": "Organization",
+                        name: "Lifetrek Medical",
+                        url: SITE_URL,
+                        logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
+                    },
+                    datePublished: resource.created_at,
+                    dateModified: resource.updated_at || resource.created_at,
+                    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
+                    inLanguage: "pt-BR",
+                    url: canonicalUrl,
+                };
+            case 'checklist': {
+                const headings = (resource.content || "")
+                    .split("\n")
+                    .filter((line: string) => /^#{1,3}\s/.test(line))
+                    .map((line: string) => line.replace(/^#{1,3}\s+/, "").trim());
+                return {
+                    "@context": "https://schema.org",
+                    "@type": "HowTo",
+                    name: resource.title,
+                    description: metaDescription,
+                    step: headings.map((text: string, i: number) => ({
+                        "@type": "HowToStep",
+                        position: i + 1,
+                        name: text,
+                    })),
+                    inLanguage: "pt-BR",
+                    url: canonicalUrl,
+                };
+            }
+            case 'calculator':
+                return {
+                    "@context": "https://schema.org",
+                    "@type": "WebApplication",
+                    name: resource.title,
+                    description: metaDescription,
+                    url: canonicalUrl,
+                    applicationCategory: "BusinessApplication",
+                    operatingSystem: "Any",
+                    inLanguage: "pt-BR",
+                };
+            default:
+                return {
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    headline: resource.title,
+                    description: metaDescription,
+                    url: canonicalUrl,
+                    inLanguage: "pt-BR",
+                };
+        }
+    };
+    const structuredData = getStructuredData();
+    const breadcrumbData = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+            { "@type": "ListItem", position: 2, name: "Recursos", item: `${SITE_URL}/resources` },
+            { "@type": "ListItem", position: 3, name: resource.title, item: canonicalUrl },
+        ],
+    };
+
     const handleUnlock = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsUnlocking(true);
@@ -85,7 +180,7 @@ export default function ResourceDetail() {
 
         try {
             const saveResult = await saveLeadWithCompat({
-                name: formData.name,
+                name: formData.name?.trim() || "Lead de recurso",
                 email: formData.email,
                 company: formData.company || undefined,
                 phone: "Nao informado",
@@ -166,6 +261,49 @@ export default function ResourceDetail() {
                 return;
             }
 
+            if (LEAD_MAGNET_PDF_SLUGS.has(resolvedSlug)) {
+                const { jsPDF } = await import("jspdf");
+                const doc = new jsPDF({ unit: "pt", format: "a4" });
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 56;
+                const maxWidth = pageWidth - margin * 2;
+                const contentText = stripMarkdown(resourceContent);
+                const lines = doc.splitTextToSize(contentText, maxWidth) as string[];
+
+                doc.setFillColor(0, 79, 143);
+                doc.rect(0, 0, pageWidth, 84, "F");
+                doc.setTextColor(255, 255, 255);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(18);
+                doc.text("Lifetrek Medical", margin, 34);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.text("Resource Brief", margin, 54);
+
+                doc.setTextColor(17, 24, 39);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(19);
+                doc.text(resource.title, margin, 128, { maxWidth });
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.setTextColor(71, 85, 105);
+                doc.text(`Fonte: ${currentUrl}`, margin, 152, { maxWidth });
+                doc.setTextColor(30, 41, 59);
+                doc.setFontSize(12);
+                doc.text(lines, margin, 184, {
+                    maxWidth,
+                    lineHeightFactor: 1.45,
+                });
+
+                doc.save(`${resolvedSlug}.pdf`);
+                await trackResourceDownload(resolvedSlug, resource.title, "pdf");
+                toast({
+                    title: "Download iniciado",
+                    description: "PDF gerado com identidade visual da Lifetrek.",
+                });
+                return;
+            }
+
             const generatedFile = [
                 `# ${resource.title}`,
                 "",
@@ -202,6 +340,32 @@ export default function ResourceDetail() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
+            <Helmet>
+                <title>{resource.title} | Lifetrek Medical</title>
+                <meta name="description" content={metaDescription} />
+                <meta name="robots" content="index, follow" />
+                <meta httpEquiv="content-language" content="pt-BR" />
+                <link rel="canonical" href={canonicalUrl} />
+
+                <meta property="og:title" content={resource.title} />
+                <meta property="og:description" content={metaDescription} />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:locale" content="pt_BR" />
+                <meta property="og:site_name" content="Lifetrek Medical" />
+
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={resource.title} />
+                <meta name="twitter:description" content={metaDescription} />
+
+                <script type="application/ld+json">
+                    {JSON.stringify(breadcrumbData)}
+                </script>
+                <script type="application/ld+json">
+                    {JSON.stringify(structuredData)}
+                </script>
+            </Helmet>
+
             {/* Header Section */}
             <div className="bg-white border-b border-slate-200">
                 <div className="container mx-auto px-4 py-8">
@@ -256,7 +420,7 @@ export default function ResourceDetail() {
                     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-10 text-center">
                         <h2 className="text-2xl font-bold text-slate-900 mb-3">Desbloqueie o recurso completo</h2>
                         <p className="text-slate-600 mb-6">
-                            Informe seu nome e email para acessar o conteudo completo e receber atualizacoes.
+                            Informe seu email corporativo para acessar o conteudo completo. Nome e empresa sao opcionais.
                         </p>
                         <Button size="lg" onClick={() => setIsModalOpen(true)}>
                             Desbloquear agora
@@ -351,18 +515,17 @@ export default function ResourceDetail() {
                     <DialogHeader>
                         <DialogTitle>Desbloquear recurso</DialogTitle>
                         <DialogDescription>
-                            Insira seu nome e email para acessar o conteudo completo.
+                            Insira seu email para acessar o conteudo completo. Nome e empresa sao opcionais.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleUnlock} className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Nome completo</Label>
+                            <Label htmlFor="name">Nome completo (opcional)</Label>
                             <Input
                                 id="name"
                                 placeholder="Seu nome"
                                 value={formData.name}
                                 onChange={(event) => setFormData({ ...formData, name: event.target.value })}
-                                required
                             />
                         </div>
                         <div className="space-y-2">

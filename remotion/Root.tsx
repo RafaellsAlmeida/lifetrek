@@ -21,6 +21,15 @@ import {
   SWISS_TURNING_WIDTH,
   SWISS_TURNING_HEIGHT,
 } from "./compositions/SwissTurningTour";
+import {
+  LinkedInShort,
+  LINKEDIN_SHORT_DEFAULT_DURATION,
+  LINKEDIN_SHORT_FPS,
+  LINKEDIN_SHORT_HEIGHT,
+  LINKEDIN_SHORT_MAX_DURATION,
+  LINKEDIN_SHORT_MIN_DURATION,
+  LINKEDIN_SHORT_WIDTH,
+} from "./compositions/LinkedInShort";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -48,6 +57,46 @@ export const RemotionRoot: React.FC = () => {
         fps={SWISS_TURNING_FPS}
         width={SWISS_TURNING_WIDTH}
         height={SWISS_TURNING_HEIGHT}
+      />
+      <Composition
+        id="LinkedInShort"
+        component={LinkedInShort}
+        durationInFrames={LINKEDIN_SHORT_DEFAULT_DURATION}
+        fps={LINKEDIN_SHORT_FPS}
+        width={LINKEDIN_SHORT_WIDTH}
+        height={LINKEDIN_SHORT_HEIGHT}
+        defaultProps={{
+          topic: "Citizen L20 Swiss turning titanium",
+          accentColor: "#1A7A3E",
+          durationInFrames: LINKEDIN_SHORT_DEFAULT_DURATION,
+          slides: [
+            {
+              text: "Citizen L20/M32 em corte real",
+              subtext: "Geometrias complexas em Ti Gr5 sem reposicionamento.",
+            },
+            {
+              text: "Validação com ZEISS CMM",
+              subtext: "Inspeção dimensional com rastreabilidade por lote.",
+            },
+            {
+              text: "Fluxo integrado em ISO 7",
+              subtext: "Da barra ao componente final em um único parceiro.",
+            },
+          ],
+        }}
+        calculateMetadata={({ props }) => {
+          const requestedDuration =
+            typeof (props as { durationInFrames?: unknown }).durationInFrames === "number"
+              ? ((props as { durationInFrames?: number }).durationInFrames as number)
+              : LINKEDIN_SHORT_DEFAULT_DURATION;
+          const durationInFrames = Math.max(
+            LINKEDIN_SHORT_MIN_DURATION,
+            Math.min(LINKEDIN_SHORT_MAX_DURATION, requestedDuration),
+          );
+          return {
+            durationInFrames,
+          };
+        }}
       />
       {/* Silent version - no audio */}
       <Composition

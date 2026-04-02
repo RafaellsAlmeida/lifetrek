@@ -55,6 +55,8 @@ import toride from "@/assets/clients/toride-new.png";
 import ultradent from "@/assets/clients/ultradent-new.png";
 import vincula from "@/assets/clients/vincula-new.png";
 import vetmaker from "@/assets/clients/vetmaker-new.png";
+import safira from "@/assets/clients/safira-logo.svg";
+import kynsan from "@/assets/clients/kynsan.jpg";
 
 export default function Home() {
   const {
@@ -175,6 +177,16 @@ export default function Home() {
   }, {
     src: vetmaker,
     alt: "Vetmaker Facilities - Veterinary orthopedic implants",
+    width: 128,
+    height: 64
+  }, {
+    src: safira,
+    alt: "Safira client logo",
+    width: 128,
+    height: 64
+  }, {
+    src: kynsan,
+    alt: "Kynsan client logo",
     width: 128,
     height: 64
   }];

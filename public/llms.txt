@@ -1,0 +1,32 @@
+# Lifetrek Medical
+
+> Lifetrek is a Brazilian medical device manufacturer specializing in precision CNC machining of orthopedic implants and surgical instruments, operating under ISO 13485 in an ISO 7 cleanroom environment.
+
+## About
+
+Lifetrek manufactures orthopedic implants and surgical instruments using Swiss-type CNC machining, 5-axis milling, and wire EDM. The facility includes ISO 7 cleanrooms, ZEISS CMM metrology, electropolishing, and laser marking with full UDI traceability.
+
+## Key Topics
+
+- Medical device manufacturing and supplier qualification
+- ISO 13485 quality management systems
+- ISO 7 cleanroom manufacturing for medical devices
+- Swiss machining and precision CNC for medical components
+- Titanium and 316L stainless steel processing
+- CMM inspection and metrology for medical tolerances
+- UDI laser marking and batch traceability
+- Electropolishing and surface finishing
+- NPI to production transfer for medical SKUs
+- Import vs local manufacturing in Brazil
+
+## Content
+
+- Blog: https://lifetrek-medical.com/blog
+- Resources: https://lifetrek-medical.com/resources
+- Capabilities: https://lifetrek-medical.com/capabilities
+- Products: https://lifetrek-medical.com/products
+
+## Contact
+
+- Website: https://lifetrek-medical.com
+- Location: Indaiatuba, SP, Brazil

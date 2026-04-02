@@ -25,6 +25,8 @@ import toride from "@/assets/clients/toride-new.png";
 import ultradent from "@/assets/clients/ultradent-new.png";
 import vincula from "@/assets/clients/vincula-new.png";
 import vetmaker from "@/assets/clients/vetmaker.png";
+import safira from "@/assets/clients/safira-logo.svg";
+import kynsan from "@/assets/clients/kynsan.jpg";
 
 export default function Clients() {
   const { t } = useLanguage();
@@ -53,6 +55,8 @@ export default function Clients() {
     { src: ultradent, alt: "Ultradent Products - Dental device manufacturer" },
     { src: vincula, alt: "Vincula - Medical device manufacturer client" },
     { src: vetmaker, alt: "Vetmaker Facilities - Veterinary orthopedic implants", scale: 1.5 },
+    { src: safira, alt: "Safira client logo" },
+    { src: kynsan, alt: "Kynsan client logo" },
   ];
 
   const clientTypes = [

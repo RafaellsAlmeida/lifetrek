@@ -42,6 +42,12 @@ export const Footer = () => {
               </div>
               <div>
                 <a
+                  href="/resources?utm_source=linkedin&utm_medium=organic&utm_campaign=apr-2026"
+                  className="flex items-center gap-2 hover:text-primary transition-colors text-foreground font-medium"
+                >
+                  Recursos técnicos (link in bio)
+                </a>
+                <a
                   href="https://www.linkedin.com/company/109570674/"
                   target="_blank"
                   rel="noopener noreferrer"

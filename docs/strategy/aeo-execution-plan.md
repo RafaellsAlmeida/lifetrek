@@ -291,3 +291,63 @@ Implement the first AEO sprint in this order:
 5. publish the first 3 canonical answer pages paired to existing resources
 
 If we do only those five things first, the plan becomes operational instead of theoretical.
+
+---
+
+## Implementation Status (audited 2026-04-02)
+
+### Track A: Technical Foundation
+
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| A1 | SEO head tags on `/resources` and `/resources/:slug` | NOT DONE | `ResourceDetail.tsx` has no Helmet, no meta/OG tags, no canonical. Blog pages (`BlogPostDetails.tsx:152-244`) have full Helmet+JSON-LD — use as reference pattern |
+| A2 | Resource structured data (JSON-LD) | NOT DONE | No schema.org markup on ResourceDetail. Blog has `BlogPosting`, `BreadcrumbList`, `FAQPage` schemas |
+| A3 | Dynamic sitemap | NOT DONE | `public/sitemap.xml` is static with 11 hardcoded pages. No `/blog/:slug` or `/resources/:slug` URLs. No generation script exists |
+| A4 | `llms.txt` | NOT DONE | File does not exist |
+| A5 | `robots.txt` AI-crawler guidance | NOT DONE | No GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot directives. Only traditional bots listed |
+| A6 | Resource allowlist removed | NOT DONE | `src/pages/Resources.tsx:28-35` has hardcoded `APPROVED_RESOURCE_SLUGS` Set with 6 slugs. Line 48-50 filters all resources through this set. This blocks all other published resources from appearing on the public site |
+
+### Track B: Content Operation
+
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| B1 | AEO metadata in admin blog editor | PARTIAL | TypeScript types exist in `src/types/blog.ts:34-36` (`cta_mode`, `pillar_keyword`, `entity_keywords`). Approval/publish flows enforce `pillar_keyword` + `icp_primary` (`src/hooks/useBlogPosts.ts:168-171`). `AdminBlog.tsx` reads `icp_primary` from metadata (line 71). BUT: no UI form fields exist in the editor to set `pillar_keyword`, `entity_keywords`, or `cta_mode` — users cannot fill these via the admin UI |
+| B2 | Standard AEO blog template | NOT DONE | |
+| B3 | Standard AEO resource metadata contract | NOT DONE | |
+| B4 | Backlog mapped to 5 AEO clusters | NOT DONE | |
+| B5 | First 3 canonical pages drafted | 1 OF 12 | One ISO 7 post exists in DB (`pending_review`, created 2026-02-12). 6 markdown drafts exist in `docs/content/drafts/` but are not published to `blog_posts` table |
+
+### Track C: Measurement
+
+| # | Item | Status |
+|---|------|--------|
+| C1 | 30-query benchmark set | NOT DONE |
+| C2 | Weekly citation tracking | NOT DONE |
+| C3 | Search Console monitoring | NOT DONE |
+| C4 | Branded query / conversion logging | NOT DONE |
+
+### Content Pipeline State (2026-04-02)
+
+| Type | Published | Approved | Pending Review | Draft |
+|------|-----------|----------|----------------|-------|
+| Blog posts | 1 | 2 | 22 | 6 |
+| Resources | 4 | 2 | 10 (pending_approval) | — |
+
+### Key File References
+
+| File | Role |
+|------|------|
+| `src/pages/BlogPostDetails.tsx:152-244` | Reference pattern — has full Helmet + 3 JSON-LD schemas |
+| `src/pages/ResourceDetail.tsx` | Target — needs Helmet + JSON-LD added |
+| `src/pages/Resources.tsx:28-50` | Target — allowlist to remove |
+| `src/pages/Admin/AdminBlog.tsx` | Target — needs AEO metadata form fields |
+| `src/types/blog.ts:34-36` | AEO metadata types already defined |
+| `src/hooks/useBlogPosts.ts:168-171, 227-230` | Approval/publish enforcement already checks `pillar_keyword` + `icp_primary` |
+| `src/components/admin/content/approvalBlockers.ts:79` | Approval blocker already validates `pillar_keyword` |
+| `public/sitemap.xml` | Target — replace with dynamic generation |
+| `public/robots.txt` | Target — add AI-crawler directives |
+| `docs/content/drafts/` | 6 markdown drafts available for conversion to blog_posts |
+
+### Overall Progress
+
+~5-10% complete. The plan (written 2026-03-24) is still theoretical. None of the 14-day sprint items have been executed. See `docs/strategy/aeo-implementation-sprint.md` for the actionable implementation plan.

@@ -57,7 +57,7 @@ import {
 import { BLOG_TOPICS, BlogTopic } from "@/config/blogTopics";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { BlogIcpCode, BlogPost } from "@/types/blog";
+import { BlogCtaMode, BlogIcpCode, BlogPost } from "@/types/blog";
 
 const ICP_LABELS: Record<BlogIcpCode, string> = {
     MI: "Implantes/Instrumentos",
@@ -86,6 +86,10 @@ interface BlogEditorState {
     keywords_csv: string;
     tags_csv: string;
     category_id: string;
+    icp_primary: "" | BlogIcpCode;
+    pillar_keyword: string;
+    entity_keywords_csv: string;
+    cta_mode: BlogCtaMode;
 }
 
 const initialEditorState: BlogEditorState = {
@@ -99,6 +103,10 @@ const initialEditorState: BlogEditorState = {
     keywords_csv: "",
     tags_csv: "",
     category_id: "",
+    icp_primary: "",
+    pillar_keyword: "",
+    entity_keywords_csv: "",
+    cta_mode: "article_only",
 };
 
 function generateSlug(input: string) {
@@ -159,6 +167,25 @@ export default function AdminBlog() {
 
     const openEditor = (post?: BlogPost) => {
         if (post) {
+            const metadata = ((post as any).metadata || {}) as Record<string, unknown>;
+            const metadataIcpPrimary = metadata.icp_primary;
+            const icpPrimary =
+                metadataIcpPrimary === "MI" ||
+                    metadataIcpPrimary === "OD" ||
+                    metadataIcpPrimary === "VT" ||
+                    metadataIcpPrimary === "HS" ||
+                    metadataIcpPrimary === "CM"
+                    ? metadataIcpPrimary
+                    : "";
+            const metadataEntityKeywords = Array.isArray(metadata.entity_keywords)
+                ? metadata.entity_keywords.map((keyword) => String(keyword).trim()).filter(Boolean)
+                : [];
+            const metadataCtaMode = metadata.cta_mode;
+            const ctaMode: BlogCtaMode =
+                metadataCtaMode === "diagnostico" || metadataCtaMode === "resource_optional"
+                    ? metadataCtaMode
+                    : "article_only";
+
             setEditingPostId(post.id);
             setEditor({
                 title: post.title || "",
@@ -171,6 +198,10 @@ export default function AdminBlog() {
                 keywords_csv: (post.keywords || []).join(", "),
                 tags_csv: (post.tags || []).join(", "),
                 category_id: post.category_id || "",
+                icp_primary: icpPrimary,
+                pillar_keyword: typeof metadata.pillar_keyword === "string" ? metadata.pillar_keyword : "",
+                entity_keywords_csv: metadataEntityKeywords.join(", "),
+                cta_mode: ctaMode,
             });
         } else {
             setEditingPostId(null);
@@ -204,6 +235,13 @@ export default function AdminBlog() {
             keywords: splitCsv(editor.keywords_csv),
             tags: splitCsv(editor.tags_csv),
             category_id: editor.category_id || null,
+            metadata: {
+                ...(((editingPostId ? posts?.find((post) => post.id === editingPostId) : null) as any)?.metadata || {}),
+                icp_primary: editor.icp_primary || undefined,
+                pillar_keyword: editor.pillar_keyword.trim() || undefined,
+                entity_keywords: splitCsv(editor.entity_keywords_csv),
+                cta_mode: editor.cta_mode,
+            },
         } as any;
 
         try {
@@ -545,6 +583,28 @@ export default function AdminBlog() {
                         </div>
 
                         <div className="space-y-2">
+                            <Label>ICP Primário</Label>
+                            <Select
+                                value={editor.icp_primary || "none"}
+                                onValueChange={(value) =>
+                                    setEditor((prev) => ({ ...prev, icp_primary: value === "none" ? "" : (value as BlogIcpCode) }))
+                                }
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o ICP primário" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Sem ICP</SelectItem>
+                                    <SelectItem value="MI">{ICP_LABELS.MI}</SelectItem>
+                                    <SelectItem value="OD">{ICP_LABELS.OD}</SelectItem>
+                                    <SelectItem value="VT">{ICP_LABELS.VT}</SelectItem>
+                                    <SelectItem value="HS">{ICP_LABELS.HS}</SelectItem>
+                                    <SelectItem value="CM">{ICP_LABELS.CM}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
                             <Label htmlFor="blog-excerpt">Resumo</Label>
                             <Textarea id="blog-excerpt" rows={3} value={editor.excerpt} onChange={(e) => setEditor((prev) => ({ ...prev, excerpt: e.target.value }))} />
                         </div>
@@ -562,6 +622,43 @@ export default function AdminBlog() {
                         <div className="space-y-2">
                             <Label htmlFor="blog-keywords">Keywords (CSV)</Label>
                             <Input id="blog-keywords" value={editor.keywords_csv} onChange={(e) => setEditor((prev) => ({ ...prev, keywords_csv: e.target.value }))} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-pillar-keyword">Pillar Keyword</Label>
+                            <Input
+                                id="blog-pillar-keyword"
+                                value={editor.pillar_keyword}
+                                onChange={(e) => setEditor((prev) => ({ ...prev, pillar_keyword: e.target.value }))}
+                                placeholder="Ex.: usinagem cnc para implantes"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="blog-entity-keywords">Entity Keywords (CSV)</Label>
+                            <Input
+                                id="blog-entity-keywords"
+                                value={editor.entity_keywords_csv}
+                                onChange={(e) => setEditor((prev) => ({ ...prev, entity_keywords_csv: e.target.value }))}
+                                placeholder="Ex.: ISO 13485, sala limpa ISO 7, ZEISS CMM"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>CTA Mode</Label>
+                            <Select
+                                value={editor.cta_mode}
+                                onValueChange={(value: BlogCtaMode) => setEditor((prev) => ({ ...prev, cta_mode: value }))}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="article_only">article_only</SelectItem>
+                                    <SelectItem value="diagnostico">diagnostico</SelectItem>
+                                    <SelectItem value="resource_optional">resource_optional</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-2">

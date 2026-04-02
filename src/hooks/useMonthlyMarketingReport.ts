@@ -25,6 +25,8 @@ export type ICPGroup =
   | "Executive Decision Makers"
   | "Talent / Broad Audience";
 
+export type PostFormat = "video" | "carousel" | "image" | "poll" | "text";
+
 export interface MonthlyPostItem {
   id: string;
   date: string;
@@ -33,6 +35,7 @@ export interface MonthlyPostItem {
   icp: ICPGroup;
   slidesCount: number;
   slidesBucket: "0" | "1" | "2-4" | "5+";
+  postFormat: PostFormat;
   impressions: number;
   clicks: number;
   ctrPct: number;
@@ -53,6 +56,14 @@ export interface CategorySummary {
 
 export interface ICPSummary {
   icp: ICPGroup;
+  posts: number;
+  impressions: number;
+  weightedCtrPct: number;
+  avgEngagementRatePct: number;
+}
+
+export interface FormatSummary {
+  format: PostFormat;
   posts: number;
   impressions: number;
   weightedCtrPct: number;
@@ -114,6 +125,7 @@ export interface MonthlyMarketingReportData {
     posts: MonthlyPostItem[];
     categories: CategorySummary[];
     icps: ICPSummary[];
+    formats: FormatSummary[];
     monthlyTrend?: MonthlyTrendRow[];
   };
   followers: {
@@ -140,6 +152,17 @@ export interface MonthlyMarketingReportData {
     publicPagesTracked: number;
     avgTimeOnPageSeconds: number;
     avgBounceRate: number;
+    linkedinReferral: {
+      sessions: number;
+      users: number;
+    };
+    resourcesFunnel: {
+      views: number;
+      unlocks: number;
+      downloads: number;
+      unlockRatePct: number;
+      downloadRateFromUnlockPct: number;
+    };
     topPublicPages: PublicPageRow[];
     dailyPublicViews: Array<{ date: string; pageViews: number }>;
   };
@@ -266,8 +289,10 @@ const VISITOR_UNIQUE_VIEWS = 236;
 
 type SeededPost = Omit<
   MonthlyPostItem,
-  "id" | "category" | "icp" | "slidesBucket"
->;
+  "id" | "category" | "icp" | "slidesBucket" | "postFormat"
+> & {
+  postFormat?: PostFormat;
+};
 
 const SEEDED_POSTS: Record<MonthlyReportKey, SeededPost[]> = {
   "2026-01": [
@@ -495,6 +520,7 @@ const SEEDED_POSTS: Record<MonthlyReportKey, SeededPost[]> = {
       date: "2026-03-10",
       title: "Sala limpa ISO 7 — competir com padrão europeu",
       slidesCount: 1,
+      postFormat: "video",
       impressions: 267,
       clicks: 16,
       ctrPct: 5.99,
@@ -784,6 +810,29 @@ function getSlidesBucket(slidesCount: number): "0" | "1" | "2-4" | "5+" {
   return "5+";
 }
 
+function detectPostFormat(args: {
+  slidesCount: number;
+  title: string;
+  caption?: string;
+  metrics?: Record<string, unknown>;
+}): PostFormat {
+  const title = normalizeText(args.title || "");
+  const caption = normalizeText(args.caption || "");
+  const combined = `${title} ${caption}`;
+  const metrics = args.metrics || {};
+
+  const videoViews = toNumber(metrics.video_views) || toNumber(metrics.videoViewCount);
+  if (videoViews > 0 || combined.includes("video") || combined.includes("tour")) {
+    return "video";
+  }
+  if (combined.includes("poll") || combined.includes("enquete") || /[a-d]\)/i.test(args.caption || "")) {
+    return "poll";
+  }
+  if (args.slidesCount >= 2) return "carousel";
+  if (args.slidesCount <= 0) return "text";
+  return "image";
+}
+
 function weightedCtr(totalClicks: number, totalImpressions: number): number {
   if (totalImpressions <= 0) return 0;
   return (totalClicks / totalImpressions) * 100;
@@ -801,12 +850,19 @@ function getSeededPosts(month: MonthlyReportKey): MonthlyPostItem[] {
 function getSeededPostsForMonth(month: Exclude<MonthlyReportKey, "all">): MonthlyPostItem[] {
   return (SEEDED_POSTS[month] || []).map((post, index) => {
     const classification = classifyTopic(post.title);
+    const postFormat =
+      post.postFormat ||
+      detectPostFormat({
+        slidesCount: post.slidesCount,
+        title: post.title,
+      });
     return {
       id: `seed-${month}-${index + 1}`,
       ...post,
       category: classification.category,
       icp: classification.icp,
       slidesBucket: getSlidesBucket(post.slidesCount),
+      postFormat,
     };
   });
 }
@@ -855,7 +911,7 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
     setError(null);
 
     try {
-      const [postRes, pageRes] = await Promise.all([
+      const [postRes, pageRes, linkedinSourceRes, resourceEventsRes, resourceUnlocksRes] = await Promise.all([
         (supabase
           .from("linkedin_carousels" as any)
           .select("id, topic, caption, created_at, slides, performance_metrics")
@@ -871,12 +927,36 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           .lt("snapshot_date", range.endIso)
           .not("page_path", "ilike", "/admin%")
           .order("snapshot_date", { ascending: true }) as any),
+        (supabase
+          .from("ga4_traffic_sources" as any)
+          .select("source, sessions, users")
+          .gte("snapshot_date", range.startIso)
+          .lt("snapshot_date", range.endIso)
+          .ilike("source", "%linkedin%") as any),
+        (supabase
+          .from("analytics_events")
+          .select("event_type")
+          .gte("created_at", `${range.startIso}T00:00:00.000Z`)
+          .lt("created_at", `${range.endIso}T00:00:00.000Z`)
+          .in("event_type", ["resource_view", "resource_download"])),
+        (supabase
+          .from("contact_leads")
+          .select("id")
+          .gte("created_at", `${range.startIso}T00:00:00.000Z`)
+          .lt("created_at", `${range.endIso}T00:00:00.000Z`)
+          .ilike("message", "Mini auth unlock for /resources/%")),
       ]);
 
       if (postRes.error) {
         console.warn("LinkedIn monthly report: falling back to seeded posts.", postRes.error);
       }
       if (pageRes.error) throw pageRes.error;
+      if (resourceEventsRes.error) {
+        console.warn("Resource funnel events unavailable.", resourceEventsRes.error);
+      }
+      if (resourceUnlocksRes.error) {
+        console.warn("Resource unlock leads unavailable.", resourceUnlocksRes.error);
+      }
 
       const latestSnapshotDate: string | null = FOLLOWER_SNAPSHOT_DATE;
       const followerRows: FollowerIndustryRow[] = [...FOLLOWER_INDUSTRIES];
@@ -904,6 +984,12 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
         const engagementRatePct =
           toNumber(metrics.engagement_rate) ||
           toNumber(metrics.engagement_rate_pct);
+        const postFormat = detectPostFormat({
+          slidesCount,
+          title,
+          caption: String(row.caption || ""),
+          metrics,
+        });
 
         return {
           id: String(row.id),
@@ -913,6 +999,7 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           icp: classification.icp,
           slidesCount,
           slidesBucket: getSlidesBucket(slidesCount),
+          postFormat,
           impressions,
           clicks,
           ctrPct,
@@ -1000,6 +1087,25 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
         };
       });
 
+      const formatOrder: PostFormat[] = ["video", "carousel", "image", "poll", "text"];
+      const formats: FormatSummary[] = formatOrder.map((format) => {
+        const items = posts.filter((p) => p.postFormat === format);
+        const impressions = items.reduce((sum, p) => sum + p.impressions, 0);
+        const clicks = items.reduce((sum, p) => sum + p.clicks, 0);
+        const avgEngagementRatePct =
+          items.length > 0
+            ? items.reduce((sum, p) => sum + p.engagementRatePct, 0) / items.length
+            : 0;
+
+        return {
+          format,
+          posts: items.length,
+          impressions,
+          weightedCtrPct: weightedCtr(clicks, impressions),
+          avgEngagementRatePct,
+        };
+      });
+
       const rawPages = (pageRes.data || []).filter((row: any) => isPublicPagePath(row.page_path));
       const pageMap = new Map<string, PublicPageRow & { timeWeighted: number; bounceWeighted: number }>();
       const dayMap = new Map<string, number>();
@@ -1054,6 +1160,28 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           pageViews,
         }));
 
+      const linkedinReferral = {
+        sessions: (linkedinSourceRes.data || []).reduce(
+          (sum: number, row: any) => sum + toNumber(row.sessions),
+          0,
+        ),
+        users: (linkedinSourceRes.data || []).reduce(
+          (sum: number, row: any) => sum + toNumber(row.users),
+          0,
+        ),
+      };
+
+      const resourceViews = (resourceEventsRes.data || []).filter(
+        (row) => row.event_type === "resource_view",
+      ).length;
+      const resourceDownloads = (resourceEventsRes.data || []).filter(
+        (row) => row.event_type === "resource_download",
+      ).length;
+      const resourceUnlocks = (resourceUnlocksRes.data || []).length;
+      const unlockRatePct = resourceViews > 0 ? (resourceUnlocks / resourceViews) * 100 : 0;
+      const downloadRateFromUnlockPct =
+        resourceUnlocks > 0 ? (resourceDownloads / resourceUnlocks) * 100 : 0;
+
       setData({
         month,
         linkedin: {
@@ -1068,6 +1196,7 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           posts,
           categories,
           icps,
+          formats,
           monthlyTrend: month === "all" ? buildMonthlyTrend() : undefined,
         },
         followers: {
@@ -1094,6 +1223,14 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           publicPagesTracked: allPublicPages.length,
           avgTimeOnPageSeconds: totalPublicViews > 0 ? weightedAvgTime / totalPublicViews : 0,
           avgBounceRate: totalPublicViews > 0 ? weightedAvgBounce / totalPublicViews : 0,
+          linkedinReferral,
+          resourcesFunnel: {
+            views: resourceViews,
+            unlocks: resourceUnlocks,
+            downloads: resourceDownloads,
+            unlockRatePct,
+            downloadRateFromUnlockPct,
+          },
           topPublicPages,
           dailyPublicViews,
         },

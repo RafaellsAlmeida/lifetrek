@@ -33,7 +33,6 @@ function formatBufferedUserMessages(batch: Message[]): string {
 
 export const AIChatbot = () => {
   const location = useLocation();
-  const isLandingPage = location.pathname === "/";
 
   // Session ID for conversation tracking
   const [sessionId] = useState(() => crypto.randomUUID());
@@ -42,7 +41,6 @@ export const AIChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([INITIAL_ASSISTANT_MESSAGE]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showButton, setShowButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationHistoryRef = useRef<Message[]>([INITIAL_ASSISTANT_MESSAGE]);
   const pendingBatchRef = useRef<Message[]>([]);
@@ -56,8 +54,6 @@ export const AIChatbot = () => {
     }
   }, [messages]);
 
-  const [hasAutoOpened, setHasAutoOpened] = useState(false);
-
   useEffect(() => {
     return () => {
       if (bufferTimerRef.current !== null) {
@@ -66,39 +62,17 @@ export const AIChatbot = () => {
     };
   }, []);
 
-  const openChatbot = useCallback((reason: "manual" | "auto_scroll") => {
+  const openChatbot = useCallback(() => {
     setIsOpen(true);
     if (!hasTrackedOpen) {
       setHasTrackedOpen(true);
       void trackChatbotEvent("opened", {
         sessionId,
-        open_reason: reason,
+        open_reason: "manual",
         page_path: location.pathname,
       });
     }
   }, [hasTrackedOpen, location.pathname, sessionId]);
-
-  // Show button and auto-open on scroll (only on landing page)
-  useEffect(() => {
-    if (!isLandingPage) {
-      setShowButton(true); // Always show button on other pages (but opaque/disabled style)
-      return;
-    }
-
-    const handleScroll = () => {
-      const scrollDepth = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      if (scrollDepth > 50) {
-        setShowButton(true);
-        if (!hasAutoOpened) {
-          openChatbot("auto_scroll");
-          setHasAutoOpened(true);
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLandingPage, hasAutoOpened, hasTrackedOpen, location.pathname, openChatbot, sessionId]);
 
   const flushBufferedMessages = async () => {
     const batch = pendingBatchRef.current;
@@ -191,15 +165,15 @@ export const AIChatbot = () => {
 
   return (
     <>
-      {/* Floating Button - Bottom Right, Larger */}
-      {!isOpen && showButton && (
+      {/* Floating Button - Bottom Right, Compact */}
+      {!isOpen && (
         <Button
-          onClick={() => openChatbot("manual")}
-          size="lg"
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-50 bg-primary"
+          onClick={openChatbot}
+          size="icon"
+          className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-xl transition-transform duration-200 hover:scale-105 z-50 bg-primary"
           aria-label="Abrir chat do Assistente Trek"
         >
-          <MessageCircle className="h-7 w-7" />
+          <MessageCircle className="h-5 w-5" />
         </Button>
       )}
 

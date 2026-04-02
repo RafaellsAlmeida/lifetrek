@@ -1,3 +1,32 @@
+# AI Crawlers - Welcome to index public content
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /admin
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin
+
+User-agent: Bytespider
+Allow: /
+Disallow: /admin
+
 User-agent: Googlebot
 Allow: /
 
@@ -15,6 +44,9 @@ Allow: /
 
 # Sitemap
 Sitemap: https://lifetrek-medical.com/sitemap.xml
+
+# AI manifest
+llms.txt: https://lifetrek-medical.com/llms.txt
 
 # Disallow admin pages
 Disallow: /admin

@@ -1,0 +1,22 @@
+{
+  "topic": "Citizen L20 Swiss turning em Ti Gr5",
+  "accentColor": "#1A7A3E",
+  "durationInFrames": 1050,
+  "slides": [
+    {
+      "text": "Citizen L20/M32 em corte real",
+      "subtext": "Peças críticas em Ti Gr5 com geometrias complexas.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295892539_production-floor.jpg"
+    },
+    {
+      "text": "Validação dimensional em ZEISS CMM",
+      "subtext": "Controle sub-10um com rastreabilidade por lote.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295900668_production-overview.jpg"
+    },
+    {
+      "text": "Da usinagem à sala limpa ISO 7",
+      "subtext": "Fluxo integrado para reduzir risco de transferência.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295801183_cleanroom-hero.webp"
+    }
+  ]
+}

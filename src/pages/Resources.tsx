@@ -24,17 +24,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 
-const APPROVED_RESOURCE_SLUGS = new Set([
-    "checklist-dfm-implantes",
-    "roadmap-90-dias-migracao-skus",
-    "fatigue-validation-guide",
-    "checklist-auditoria-fornecedores",
-    "checklist-auditoria-iso-13485",
-    "checklist-auditoria-fornecedores-medicos"
-]);
-
-// Deployment trigger
 export default function Resources() {
     const { data: resources, isLoading, error } = useResources(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -45,9 +36,7 @@ export default function Resources() {
             resource.description.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = activeTab === "all" || resource.type === activeTab;
 
-        const isApproved = APPROVED_RESOURCE_SLUGS.has(resource.slug);
-
-        return matchesSearch && matchesType && isApproved;
+        return matchesSearch && matchesType;
     });
 
     const getIcon = (type: string) => {
@@ -70,6 +59,24 @@ export default function Resources() {
 
     return (
         <div className="min-h-screen bg-slate-50">
+            <Helmet>
+                <title>Recursos Técnicos | Lifetrek Medical</title>
+                <meta name="description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href="https://lifetrek-medical.com/resources" />
+
+                <meta property="og:title" content="Recursos Técnicos | Lifetrek Medical" />
+                <meta property="og:description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://lifetrek-medical.com/resources" />
+                <meta property="og:locale" content="pt_BR" />
+                <meta property="og:site_name" content="Lifetrek Medical" />
+
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Recursos Técnicos | Lifetrek Medical" />
+                <meta name="twitter:description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+            </Helmet>
+
             {/* Header Section */}
             <div className="bg-white border-b">
                 <div className="container mx-auto px-4 py-16 text-center">
