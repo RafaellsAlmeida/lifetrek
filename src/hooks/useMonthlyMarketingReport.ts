@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isPublicPagePath } from "@/lib/analyticsPath";
 
-export type MonthlyReportKey = "2026-01" | "2026-02" | "2026-03";
+export type MonthlyReportKey = "2026-01" | "2026-02" | "2026-03" | "all";
 
 export const MONTHLY_REPORT_OPTIONS: Array<{ key: MonthlyReportKey; label: string }> = [
-  { key: "2026-01", label: "Janeiro 2026" },
-  { key: "2026-02", label: "Fevereiro 2026" },
+  { key: "all", label: "Consolidado (Jan–Mar)" },
   { key: "2026-03", label: "Março 2026" },
+  { key: "2026-02", label: "Fevereiro 2026" },
+  { key: "2026-01", label: "Janeiro 2026" },
 ];
 
 export type TopicCategory =
@@ -72,6 +73,33 @@ export interface PublicPageRow {
   bounceRate: number;
 }
 
+export interface MonthlyTrendRow {
+  month: string;
+  label: string;
+  posts: number;
+  impressions: number;
+  clicks: number;
+  reactions: number;
+  comments: number;
+  reposts: number;
+  weightedCtrPct: number;
+  avgEngagementRatePct: number;
+  avgReactionsPerPost: number;
+}
+
+export interface DemographicRow {
+  label: string;
+  value: number;
+  percentage: number;
+}
+
+export interface FollowerGrowthRow {
+  month: string;
+  label: string;
+  newFollowers: number;
+  cumulative: number;
+}
+
 export interface MonthlyMarketingReportData {
   month: MonthlyReportKey;
   linkedin: {
@@ -86,11 +114,26 @@ export interface MonthlyMarketingReportData {
     posts: MonthlyPostItem[];
     categories: CategorySummary[];
     icps: ICPSummary[];
+    monthlyTrend?: MonthlyTrendRow[];
   };
   followers: {
     snapshotDate: string | null;
+    totalFollowers: number;
     industries: FollowerIndustryRow[];
     jobFunctions: FollowerIndustryRow[];
+    seniority: DemographicRow[];
+    locations: DemographicRow[];
+    companySizes: DemographicRow[];
+    growth: FollowerGrowthRow[];
+  };
+  visitors: {
+    totalViews: number;
+    uniqueViews: number;
+    industries: DemographicRow[];
+    jobFunctions: DemographicRow[];
+    seniority: DemographicRow[];
+    locations: DemographicRow[];
+    companySizes: DemographicRow[];
   };
   ga4: {
     publicPageViews: number;
@@ -102,33 +145,124 @@ export interface MonthlyMarketingReportData {
   };
 }
 
-const FALLBACK_FOLLOWER_INDUSTRIES: FollowerIndustryRow[] = [
-  { label: "Medical Equipment Manufacturing", followers: 39, percentage: 26.7 },
-  { label: "Hospitals and Health Care", followers: 12, percentage: 8.2 },
-  { label: "Machinery Manufacturing", followers: 9, percentage: 6.2 },
-  { label: "Motor Vehicle Manufacturing", followers: 5, percentage: 3.4 },
+const FOLLOWER_SNAPSHOT_DATE = "2026-03-31";
+const FOLLOWER_TOTAL = 146;
+
+const FOLLOWER_INDUSTRIES: FollowerIndustryRow[] = [
+  { label: "Medical Equipment Manufacturing", followers: 47, percentage: 32.2 },
+  { label: "Hospitals and Health Care", followers: 10, percentage: 6.8 },
+  { label: "Machinery Manufacturing", followers: 10, percentage: 6.8 },
+  { label: "Motor Vehicle Manufacturing", followers: 6, percentage: 4.1 },
+  { label: "Manufacturing", followers: 5, percentage: 3.4 },
+  { label: "Wellness and Fitness Services", followers: 5, percentage: 3.4 },
   { label: "Industrial Machinery Manufacturing", followers: 5, percentage: 3.4 },
   { label: "Software Development", followers: 4, percentage: 2.7 },
-  { label: "Appliances, Electrical, and Electronics Manufacturing", followers: 4, percentage: 2.7 },
+  { label: "Business Consulting and Services", followers: 4, percentage: 2.7 },
   { label: "Transportation, Logistics, Supply Chain and Storage", followers: 4, percentage: 2.7 },
-  { label: "Business Consulting and Services", followers: 3, percentage: 2.1 },
-  { label: "Pharmaceutical Manufacturing", followers: 3, percentage: 2.1 },
 ];
 
-const FALLBACK_FOLLOWER_JOB_FUNCTIONS: FollowerIndustryRow[] = [
+const FOLLOWER_JOB_FUNCTIONS: FollowerIndustryRow[] = [
   { label: "Engineering", followers: 21, percentage: 14.4 },
-  { label: "Operations", followers: 20, percentage: 13.7 },
-  { label: "Business Development", followers: 15, percentage: 10.3 },
-  { label: "Arts and Design", followers: 11, percentage: 7.5 },
-  { label: "Sales", followers: 11, percentage: 7.5 },
+  { label: "Operations", followers: 21, percentage: 14.4 },
+  { label: "Business Development", followers: 18, percentage: 12.3 },
+  { label: "Sales", followers: 15, percentage: 10.3 },
+  { label: "Arts and Design", followers: 12, percentage: 8.2 },
   { label: "Information Technology", followers: 7, percentage: 4.8 },
   { label: "Research", followers: 6, percentage: 4.1 },
   { label: "Media and Communication", followers: 4, percentage: 2.7 },
+  { label: "Quality Assurance", followers: 4, percentage: 2.7 },
   { label: "Consulting", followers: 3, percentage: 2.1 },
-  { label: "Finance", followers: 3, percentage: 2.1 },
 ];
 
-const FALLBACK_FOLLOWER_SNAPSHOT_DATE = "2026-02-27";
+const FOLLOWER_SENIORITY: DemographicRow[] = [
+  { label: "Entry", value: 66, percentage: 45.2 },
+  { label: "Senior", value: 41, percentage: 28.1 },
+  { label: "Director", value: 10, percentage: 6.8 },
+  { label: "CXO", value: 8, percentage: 5.5 },
+  { label: "Manager", value: 5, percentage: 3.4 },
+  { label: "VP", value: 5, percentage: 3.4 },
+  { label: "Owner", value: 3, percentage: 2.1 },
+  { label: "Partner", value: 2, percentage: 1.4 },
+];
+
+const FOLLOWER_LOCATIONS: DemographicRow[] = [
+  { label: "Greater Campinas, Brazil", value: 44, percentage: 30.1 },
+  { label: "Greater São Paulo Area, Brazil", value: 28, percentage: 19.2 },
+  { label: "Rio Claro, Brazil", value: 12, percentage: 8.2 },
+  { label: "Joinville, Brazil", value: 7, percentage: 4.8 },
+  { label: "Greater Curitiba, Brazil", value: 7, percentage: 4.8 },
+  { label: "Sorocaba, Brazil", value: 6, percentage: 4.1 },
+  { label: "Greater Orlando", value: 4, percentage: 2.7 },
+  { label: "Santo André, Brazil", value: 3, percentage: 2.1 },
+];
+
+const FOLLOWER_COMPANY_SIZES: DemographicRow[] = [
+  { label: "11-50", value: 29, percentage: 19.9 },
+  { label: "51-200", value: 25, percentage: 17.1 },
+  { label: "201-500", value: 19, percentage: 13.0 },
+  { label: "501-1000", value: 15, percentage: 10.3 },
+  { label: "1001-5000", value: 11, percentage: 7.5 },
+  { label: "2-10", value: 10, percentage: 6.8 },
+  { label: "10001+", value: 7, percentage: 4.8 },
+  { label: "1 (self-employed)", value: 3, percentage: 2.1 },
+  { label: "5001-10000", value: 2, percentage: 1.4 },
+];
+
+const FOLLOWER_GROWTH: FollowerGrowthRow[] = [
+  { month: "2026-01", label: "Jan", newFollowers: 63, cumulative: 63 },
+  { month: "2026-02", label: "Fev", newFollowers: 22, cumulative: 85 },
+  { month: "2026-03", label: "Mar", newFollowers: 16, cumulative: 101 },
+];
+
+const VISITOR_INDUSTRIES: DemographicRow[] = [
+  { label: "Medical Equipment Manufacturing", value: 119, percentage: 24.3 },
+  { label: "IT Services and IT Consulting", value: 90, percentage: 18.4 },
+  { label: "Industrial Machinery Manufacturing", value: 35, percentage: 7.2 },
+  { label: "Hospitals and Health Care", value: 31, percentage: 6.3 },
+  { label: "Telecommunications", value: 23, percentage: 4.7 },
+  { label: "Freight and Package Transportation", value: 19, percentage: 3.9 },
+  { label: "Manufacturing", value: 18, percentage: 3.7 },
+  { label: "Machinery Manufacturing", value: 11, percentage: 2.2 },
+  { label: "Metal Treatments", value: 11, percentage: 2.2 },
+  { label: "Automation Machinery Manufacturing", value: 11, percentage: 2.2 },
+];
+
+const VISITOR_JOB_FUNCTIONS: DemographicRow[] = [
+  { label: "Sales", value: 88, percentage: 36.2 },
+  { label: "Operations", value: 78, percentage: 32.1 },
+  { label: "Arts and Design", value: 42, percentage: 17.3 },
+  { label: "Business Development", value: 22, percentage: 9.1 },
+  { label: "Engineering", value: 13, percentage: 5.3 },
+];
+
+const VISITOR_SENIORITY: DemographicRow[] = [
+  { label: "Entry", value: 199, percentage: 66.9 },
+  { label: "Senior", value: 78, percentage: 26.3 },
+  { label: "Owner", value: 11, percentage: 3.7 },
+  { label: "Director", value: 9, percentage: 3.0 },
+];
+
+const VISITOR_LOCATIONS: DemographicRow[] = [
+  { label: "Greater Campinas, Brazil", value: 150, percentage: 38.4 },
+  { label: "Sorocaba, Brazil", value: 90, percentage: 23.0 },
+  { label: "Greater São Paulo Area, Brazil", value: 66, percentage: 16.9 },
+  { label: "Rio Claro, Brazil", value: 17, percentage: 4.3 },
+  { label: "Itanhaém, Brazil", value: 16, percentage: 4.1 },
+  { label: "Greater Belo Horizonte, Brazil", value: 13, percentage: 3.3 },
+  { label: "Greater Ribeirão Preto, Brazil", value: 12, percentage: 3.1 },
+  { label: "Porto Metropolitan Area, Portugal", value: 10, percentage: 2.6 },
+];
+
+const VISITOR_COMPANY_SIZES: DemographicRow[] = [
+  { label: "11-50", value: 98, percentage: 52.7 },
+  { label: "51-200", value: 41, percentage: 22.0 },
+  { label: "2-10", value: 19, percentage: 10.2 },
+  { label: "201-500", value: 18, percentage: 9.7 },
+  { label: "501-1000", value: 10, percentage: 5.4 },
+];
+
+const VISITOR_TOTAL_VIEWS = 489;
+const VISITOR_UNIQUE_VIEWS = 236;
 
 type SeededPost = Omit<
   MonthlyPostItem,
@@ -445,6 +579,19 @@ const SEEDED_POSTS: Record<MonthlyReportKey, SeededPost[]> = {
 };
 
 function parseMonthRange(month: MonthlyReportKey) {
+  if (month === "all") {
+    const first = SINGLE_MONTH_KEYS[0];
+    const last = SINGLE_MONTH_KEYS[SINGLE_MONTH_KEYS.length - 1];
+    const [fy, fm] = first.split("-").map(Number);
+    const [ly, lm] = last.split("-").map(Number);
+    const start = new Date(Date.UTC(fy, fm - 1, 1));
+    const end = new Date(Date.UTC(ly, lm, 1));
+    return {
+      startIso: start.toISOString().slice(0, 10),
+      endIso: end.toISOString().slice(0, 10),
+      endInclusiveIso: new Date(end.getTime() - 1).toISOString().slice(0, 10),
+    };
+  }
   const [yearStr, monthStr] = month.split("-");
   const year = Number(yearStr);
   const monthIndex = Number(monthStr) - 1;
@@ -642,7 +789,16 @@ function weightedCtr(totalClicks: number, totalImpressions: number): number {
   return (totalClicks / totalImpressions) * 100;
 }
 
+const SINGLE_MONTH_KEYS: Exclude<MonthlyReportKey, "all">[] = ["2026-01", "2026-02", "2026-03"];
+
 function getSeededPosts(month: MonthlyReportKey): MonthlyPostItem[] {
+  if (month === "all") {
+    return SINGLE_MONTH_KEYS.flatMap((m) => getSeededPostsForMonth(m));
+  }
+  return getSeededPostsForMonth(month);
+}
+
+function getSeededPostsForMonth(month: Exclude<MonthlyReportKey, "all">): MonthlyPostItem[] {
   return (SEEDED_POSTS[month] || []).map((post, index) => {
     const classification = classifyTopic(post.title);
     return {
@@ -651,6 +807,38 @@ function getSeededPosts(month: MonthlyReportKey): MonthlyPostItem[] {
       category: classification.category,
       icp: classification.icp,
       slidesBucket: getSlidesBucket(post.slidesCount),
+    };
+  });
+}
+
+function buildMonthlyTrend(): MonthlyTrendRow[] {
+  const labels: Record<string, string> = {
+    "2026-01": "Jan",
+    "2026-02": "Fev",
+    "2026-03": "Mar",
+  };
+  return SINGLE_MONTH_KEYS.map((m) => {
+    const posts = getSeededPostsForMonth(m);
+    const impressions = posts.reduce((s, p) => s + p.impressions, 0);
+    const clicks = posts.reduce((s, p) => s + p.clicks, 0);
+    const reactions = posts.reduce((s, p) => s + p.reactions, 0);
+    const comments = posts.reduce((s, p) => s + p.comments, 0);
+    const reposts = posts.reduce((s, p) => s + p.reposts, 0);
+    return {
+      month: m,
+      label: labels[m] || m,
+      posts: posts.length,
+      impressions,
+      clicks,
+      reactions,
+      comments,
+      reposts,
+      weightedCtrPct: weightedCtr(clicks, impressions),
+      avgEngagementRatePct:
+        posts.length > 0
+          ? posts.reduce((s, p) => s + p.engagementRatePct, 0) / posts.length
+          : 0,
+      avgReactionsPerPost: posts.length > 0 ? reactions / posts.length : 0,
     };
   });
 }
@@ -690,9 +878,9 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
       }
       if (pageRes.error) throw pageRes.error;
 
-      const latestSnapshotDate: string | null = FALLBACK_FOLLOWER_SNAPSHOT_DATE;
-      const followerRows: FollowerIndustryRow[] = [...FALLBACK_FOLLOWER_INDUSTRIES];
-      const followerJobFunctions: FollowerIndustryRow[] = [...FALLBACK_FOLLOWER_JOB_FUNCTIONS];
+      const latestSnapshotDate: string | null = FOLLOWER_SNAPSHOT_DATE;
+      const followerRows: FollowerIndustryRow[] = [...FOLLOWER_INDUSTRIES];
+      const followerJobFunctions: FollowerIndustryRow[] = [...FOLLOWER_JOB_FUNCTIONS];
 
       const rawPosts = postRes.data || [];
       let posts: MonthlyPostItem[] = rawPosts.map((row: any) => {
@@ -880,11 +1068,26 @@ export function useMonthlyMarketingReport(month: MonthlyReportKey) {
           posts,
           categories,
           icps,
+          monthlyTrend: month === "all" ? buildMonthlyTrend() : undefined,
         },
         followers: {
           snapshotDate: latestSnapshotDate,
+          totalFollowers: FOLLOWER_TOTAL,
           industries: followerRows,
           jobFunctions: followerJobFunctions,
+          seniority: FOLLOWER_SENIORITY,
+          locations: FOLLOWER_LOCATIONS,
+          companySizes: FOLLOWER_COMPANY_SIZES,
+          growth: FOLLOWER_GROWTH,
+        },
+        visitors: {
+          totalViews: VISITOR_TOTAL_VIEWS,
+          uniqueViews: VISITOR_UNIQUE_VIEWS,
+          industries: VISITOR_INDUSTRIES,
+          jobFunctions: VISITOR_JOB_FUNCTIONS,
+          seniority: VISITOR_SENIORITY,
+          locations: VISITOR_LOCATIONS,
+          companySizes: VISITOR_COMPANY_SIZES,
         },
         ga4: {
           publicPageViews: totalPublicViews,

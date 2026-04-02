@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, BarChart3, Eye, MousePointerClick, Users } from "lucide-react";
+import { AlertCircle, BarChart3, Eye, FileText, MousePointerClick, TrendingUp, Users } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -44,9 +44,16 @@ function formatMonthLabel(month: MonthlyReportKey) {
   return MONTHLY_REPORT_OPTIONS.find((option) => option.key === month)?.label ?? month;
 }
 
+function formatDate(iso: string) {
+  const d = new Date(iso + "T00:00:00Z");
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", timeZone: "UTC" });
+}
+
 export function MonthlyMarketingReport() {
-  const [month, setMonth] = useState<MonthlyReportKey>("2026-03");
-  const [followerDimension, setFollowerDimension] = useState<"industry" | "job_function">("industry");
+  const [month, setMonth] = useState<MonthlyReportKey>("all");
+  type DemoDimension = "industry" | "job_function" | "seniority" | "location" | "company_size";
+  const [followerDimension, setFollowerDimension] = useState<DemoDimension>("industry");
+  const [visitorDimension, setVisitorDimension] = useState<DemoDimension>("industry");
   const { data, loading, error } = useMonthlyMarketingReport(month);
 
   const categoryChartData = useMemo(
@@ -94,17 +101,41 @@ export function MonthlyMarketingReport() {
     );
   }
 
-  const followerRows =
-    followerDimension === "industry" ? data.followers.industries : data.followers.jobFunctions;
+  const toDemo = (rows: Array<{ label: string; followers: number; percentage: number }>) =>
+    rows.map((r) => ({ label: r.label, value: r.followers, percentage: r.percentage }));
+
+  const followerRows = (() => {
+    switch (followerDimension) {
+      case "industry": return toDemo(data.followers.industries);
+      case "job_function": return toDemo(data.followers.jobFunctions);
+      case "seniority": return data.followers.seniority;
+      case "location": return data.followers.locations;
+      case "company_size": return data.followers.companySizes;
+    }
+  })();
+
+  const visitorRows = (() => {
+    switch (visitorDimension) {
+      case "industry": return data.visitors.industries;
+      case "job_function": return data.visitors.jobFunctions;
+      case "seniority": return data.visitors.seniority;
+      case "location": return data.visitors.locations;
+      case "company_size": return data.visitors.companySizes;
+    }
+  })();
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-xl">Monthly Report: LinkedIn + Website</CardTitle>
+            <CardTitle className="text-xl">
+              {month === "all" ? "Relatório Consolidado: LinkedIn + Website" : "Monthly Report: LinkedIn + Website"}
+            </CardTitle>
             <CardDescription>
-              {formatMonthLabel(month)} • GA4 público (páginas `/admin` excluídas)
+              {formatMonthLabel(month)}
+              {month !== "all" && " • GA4 público (páginas `/admin` excluídas)"}
+              {month === "all" && ` • ${data.linkedin.summary.posts} posts • Jan–Mar 2026`}
             </CardDescription>
           </div>
           <Select value={month} onValueChange={(value) => setMonth(value as MonthlyReportKey)}>
@@ -128,7 +159,9 @@ export function MonthlyMarketingReport() {
             <CardDescription>LinkedIn Posts</CardDescription>
             <CardTitle className="text-2xl">{data.linkedin.summary.posts}</CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-muted-foreground">Posts com métricas no mês</CardContent>
+          <CardContent className="text-xs text-muted-foreground">
+            {month === "all" ? "Total de posts no período" : "Posts com métricas no mês"}
+          </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
@@ -139,10 +172,47 @@ export function MonthlyMarketingReport() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
+            <CardDescription>Total Reactions</CardDescription>
+            <CardTitle className="text-2xl">
+              {data.linkedin.posts.reduce((s, p) => s + p.reactions, 0)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">
+            Avg {(data.linkedin.posts.reduce((s, p) => s + p.reactions, 0) / Math.max(1, data.linkedin.summary.posts)).toFixed(1)} por post
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
             <CardDescription>Weighted CTR</CardDescription>
             <CardTitle className="text-2xl">{formatPct(data.linkedin.summary.weightedCtrPct)}</CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-muted-foreground">Cliques / impressões do mês</CardContent>
+          <CardContent className="text-xs text-muted-foreground">
+            {data.linkedin.summary.clicks} cliques / {data.linkedin.summary.impressions.toLocaleString()} impressões
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Avg Engagement Rate</CardDescription>
+            <CardTitle className="text-2xl">{formatPct(data.linkedin.summary.avgEngagementRatePct)}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">Média simples entre posts</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Total Comments</CardDescription>
+            <CardTitle className="text-2xl">{data.linkedin.posts.reduce((s, p) => s + p.comments, 0)}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">Interações de alto valor</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Total Reposts</CardDescription>
+            <CardTitle className="text-2xl">{data.linkedin.posts.reduce((s, p) => s + p.reposts, 0)}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs text-muted-foreground">Amplificação orgânica</CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
@@ -237,6 +307,180 @@ export function MonthlyMarketingReport() {
         </Card>
       </div>
 
+      {data.linkedin.monthlyTrend && data.linkedin.monthlyTrend.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-[#004F8F]" />
+              Evolução Mensal
+            </CardTitle>
+            <CardDescription>Comparativo mês a mês — Jan a Mar 2026</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="h-[260px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.linkedin.monthlyTrend}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="impressions" name="Impressions" fill="#004F8F" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reactions" name="Reactions" fill="#1A7A3E" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="clicks" name="Clicks" fill="#F07818" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mês</TableHead>
+                    <TableHead className="text-right">Posts</TableHead>
+                    <TableHead className="text-right">Impressions</TableHead>
+                    <TableHead className="text-right">Clicks</TableHead>
+                    <TableHead className="text-right">CTR</TableHead>
+                    <TableHead className="text-right">Reactions</TableHead>
+                    <TableHead className="text-right">Avg React/Post</TableHead>
+                    <TableHead className="text-right">Comments</TableHead>
+                    <TableHead className="text-right">Reposts</TableHead>
+                    <TableHead className="text-right">Avg Engaj.</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.linkedin.monthlyTrend.map((row) => (
+                    <TableRow key={row.month}>
+                      <TableCell className="font-medium">{row.label}</TableCell>
+                      <TableCell className="text-right">{row.posts}</TableCell>
+                      <TableCell className="text-right">{row.impressions.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{row.clicks}</TableCell>
+                      <TableCell className="text-right">{formatPct(row.weightedCtrPct)}</TableCell>
+                      <TableCell className="text-right">{row.reactions}</TableCell>
+                      <TableCell className="text-right">{row.avgReactionsPerPost.toFixed(1)}</TableCell>
+                      <TableCell className="text-right">{row.comments}</TableCell>
+                      <TableCell className="text-right">{row.reposts}</TableCell>
+                      <TableCell className="text-right">{formatPct(row.avgEngagementRatePct)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="border-t-2 font-semibold bg-muted/30">
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right">{data.linkedin.summary.posts}</TableCell>
+                    <TableCell className="text-right">{data.linkedin.summary.impressions.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{data.linkedin.summary.clicks}</TableCell>
+                    <TableCell className="text-right">{formatPct(data.linkedin.summary.weightedCtrPct)}</TableCell>
+                    <TableCell className="text-right">
+                      {data.linkedin.posts.reduce((s, p) => s + p.reactions, 0)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {(data.linkedin.posts.reduce((s, p) => s + p.reactions, 0) / data.linkedin.summary.posts).toFixed(1)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {data.linkedin.posts.reduce((s, p) => s + p.comments, 0)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {data.linkedin.posts.reduce((s, p) => s + p.reposts, 0)}
+                    </TableCell>
+                    <TableCell className="text-right">{formatPct(data.linkedin.summary.avgEngagementRatePct)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-[#004F8F]" />
+            Todos os Posts ({data.linkedin.posts.length})
+          </CardTitle>
+          <CardDescription>
+            Performance individual — ordenado por data (mais recente primeiro)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[80px]">Data</TableHead>
+                  <TableHead className="min-w-[200px]">Post</TableHead>
+                  <TableHead className="min-w-[90px]">Categoria</TableHead>
+                  <TableHead className="text-right">Impressions</TableHead>
+                  <TableHead className="text-right">Clicks</TableHead>
+                  <TableHead className="text-right">CTR</TableHead>
+                  <TableHead className="text-right">Reactions</TableHead>
+                  <TableHead className="text-right">Comments</TableHead>
+                  <TableHead className="text-right">Reposts</TableHead>
+                  <TableHead className="text-right">Engaj.</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...data.linkedin.posts]
+                  .sort((a, b) => b.date.localeCompare(a.date))
+                  .map((post) => (
+                    <TableRow key={post.id}>
+                      <TableCell className="text-xs whitespace-nowrap">{formatDate(post.date)}</TableCell>
+                      <TableCell>
+                        <span className="text-sm line-clamp-2">{post.title}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-[10px] whitespace-nowrap">
+                          {post.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-medium">{post.impressions.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{post.clicks}</TableCell>
+                      <TableCell className="text-right">{formatPct(post.ctrPct)}</TableCell>
+                      <TableCell className="text-right">{post.reactions}</TableCell>
+                      <TableCell className="text-right">{post.comments}</TableCell>
+                      <TableCell className="text-right">{post.reposts}</TableCell>
+                      <TableCell className="text-right">{formatPct(post.engagementRatePct)}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {data.followers.growth.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-[#1A7A3E]" />
+              Follower Growth
+            </CardTitle>
+            <CardDescription>
+              {data.followers.totalFollowers} seguidores totais (snapshot {data.followers.snapshotDate || "indisponível"})
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="h-[220px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.followers.growth}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="newFollowers" name="Novos Seguidores" fill="#1A7A3E" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cumulative" name="Acumulado" fill="#004F8F" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {data.followers.growth.map((row) => (
+                <div key={row.month} className="rounded border p-3 text-center">
+                  <p className="text-xs text-muted-foreground">{row.label}</p>
+                  <p className="text-xl font-semibold text-[#1A7A3E]">+{row.newFollowers}</p>
+                  <p className="text-xs text-muted-foreground">acumulado: {row.cumulative}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
@@ -245,44 +489,89 @@ export function MonthlyMarketingReport() {
               Follower Demographics
             </CardTitle>
             <CardDescription>
-              Industry snapshot {data.followers.snapshotDate || "indisponível"}
+              {data.followers.totalFollowers} seguidores — snapshot {data.followers.snapshotDate || "indisponível"}
             </CardDescription>
             <div className="pt-2">
-              <Select value={followerDimension} onValueChange={(value) => setFollowerDimension(value as "industry" | "job_function")}>
+              <Select value={followerDimension} onValueChange={(value) => setFollowerDimension(value as typeof followerDimension)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="industry">Industry</SelectItem>
                   <SelectItem value="job_function">Job Function</SelectItem>
+                  <SelectItem value="seniority">Seniority</SelectItem>
+                  <SelectItem value="location">Location</SelectItem>
+                  <SelectItem value="company_size">Company Size</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {followerRows.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Sem dados de follower demographics.</p>
-            ) : (
-              followerRows.map((row) => (
-                <div key={row.label} className="space-y-1">
-                  <div className="flex items-center justify-between gap-2 text-sm">
-                    <span className="font-medium">{row.label}</span>
-                    <span className="text-muted-foreground">
-                      {row.followers} ({row.percentage.toFixed(1)}%)
-                    </span>
-                  </div>
-                  <div className="h-2 rounded bg-muted">
-                    <div
-                      className="h-2 rounded bg-[#004F8F]"
-                      style={{ width: `${Math.min(100, row.percentage)}%` }}
-                    />
-                  </div>
+            {followerRows.map((row) => (
+              <div key={row.label} className="space-y-1">
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium">{row.label}</span>
+                  <span className="text-muted-foreground">
+                    {row.value} ({row.percentage.toFixed(1)}%)
+                  </span>
                 </div>
-              ))
-            )}
+                <div className="h-2 rounded bg-muted">
+                  <div
+                    className="h-2 rounded bg-[#004F8F]"
+                    style={{ width: `${Math.min(100, row.percentage)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-[#F07818]" />
+              Page Visitors
+            </CardTitle>
+            <CardDescription>
+              {data.visitors.totalViews} views ({data.visitors.uniqueViews} únicos) — Jan–Mar 2026
+            </CardDescription>
+            <div className="pt-2">
+              <Select value={visitorDimension} onValueChange={(value) => setVisitorDimension(value as typeof visitorDimension)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="industry">Industry</SelectItem>
+                  <SelectItem value="job_function">Job Function</SelectItem>
+                  <SelectItem value="seniority">Seniority</SelectItem>
+                  <SelectItem value="location">Location</SelectItem>
+                  <SelectItem value="company_size">Company Size</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {visitorRows.map((row) => (
+              <div key={row.label} className="space-y-1">
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium">{row.label}</span>
+                  <span className="text-muted-foreground">
+                    {row.value} ({row.percentage.toFixed(1)}%)
+                  </span>
+                </div>
+                <div className="h-2 rounded bg-muted">
+                  <div
+                    className="h-2 rounded bg-[#F07818]"
+                    style={{ width: `${Math.min(100, row.percentage)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
