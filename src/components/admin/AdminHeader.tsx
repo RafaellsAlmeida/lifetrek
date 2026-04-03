@@ -21,6 +21,7 @@ import {
     TrendingUp,
     Sparkles,
     BookOpen,
+    Ruler,
     type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -81,6 +82,7 @@ const navStructure: NavEntry[] = [
             { path: "/admin/one-pager", label: "One Pager", icon: FileText },
         ],
     },
+    { path: "/admin/desenho-tecnico", label: "Desenho Técnico", icon: Ruler },
     {
         label: "Analytics",
         icon: TrendingUp,

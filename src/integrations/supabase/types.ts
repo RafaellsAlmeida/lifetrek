@@ -1621,6 +1621,69 @@ export type Database = {
         }
         Relationships: []
       }
+      engineering_drawing_sessions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          drawing_svg: string | null
+          exports: Json
+          id: string
+          normalized_spec: Json | null
+          notes: string | null
+          raw_extraction: Json | null
+          render_metadata: Json
+          review_flags: Json
+          reviewed_by: string | null
+          source_image_name: string | null
+          source_image_path: string | null
+          status: string
+          title: string
+          unit: string
+          updated_at: string
+          validation_report: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          drawing_svg?: string | null
+          exports?: Json
+          id?: string
+          normalized_spec?: Json | null
+          notes?: string | null
+          raw_extraction?: Json | null
+          render_metadata?: Json
+          review_flags?: Json
+          reviewed_by?: string | null
+          source_image_name?: string | null
+          source_image_path?: string | null
+          status?: string
+          title?: string
+          unit?: string
+          updated_at?: string
+          validation_report?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          drawing_svg?: string | null
+          exports?: Json
+          id?: string
+          normalized_spec?: Json | null
+          notes?: string | null
+          raw_extraction?: Json | null
+          render_metadata?: Json
+          review_flags?: Json
+          reviewed_by?: string | null
+          source_image_name?: string | null
+          source_image_path?: string | null
+          status?: string
+          title?: string
+          unit?: string
+          updated_at?: string
+          validation_report?: Json | null
+        }
+        Relationships: []
+      }
       product_catalog: {
         Row: {
           category: string

@@ -53,6 +53,7 @@ const SocialMediaWorkspace = lazy(() => import("./pages/Admin/SocialMediaWorkspa
 const ChatbotInbox = lazy(() => import("./pages/Admin/ChatbotInbox"));
 const ContentPreview = lazy(() => import("./pages/Admin/ContentPreview"));
 const AdminGenerator = lazy(() => import("./pages/Admin/AdminGenerator"));
+const TechnicalDrawing = lazy(() => import("./pages/Admin/TechnicalDrawing"));
 const LinkedInCarousel = lazy(() => import("./pages/LinkedInCarousel"));
 
 // Public Pages
@@ -154,6 +155,7 @@ const App = () => (
                     <Route path="chatbot-inbox" element={<ChatbotInbox />} />
                     <Route path="content-preview/:type/:id" element={<ContentPreview />} />
                     <Route path="generator" element={<AdminGenerator />} />
+                    <Route path="desenho-tecnico" element={<TechnicalDrawing />} />
                   </Route>
                 </Route>
               </Routes>
