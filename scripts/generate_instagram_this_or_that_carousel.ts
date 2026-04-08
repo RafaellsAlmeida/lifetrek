@@ -27,9 +27,9 @@ const BRAND = {
 
 const DEFAULT_PRODUCTS = {
   pin:
-    "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/products/surgical-pins.jpg",
+    "/Users/rafaelalmeida/.cursor/projects/Users-rafaelalmeida-lifetrek/assets/lifetrek-pins-ai-cutout.png",
   screw:
-    "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/products/medical-screw.png",
+    "/Users/rafaelalmeida/.cursor/projects/Users-rafaelalmeida-lifetrek/assets/lifetrek-screw-ai-cutout.png",
 };
 
 type SatoriNode = Record<string, unknown>;
@@ -340,7 +340,7 @@ function slide01(
                           type: "img",
                           props: {
                             src: pinData,
-                            style: { width: "230px", height: "230px", objectFit: "contain" },
+                            style: { width: "460px", height: "460px", objectFit: "contain" },
                           },
                         }
                         : {
@@ -413,7 +413,7 @@ function slide01(
                           type: "img",
                           props: {
                             src: screwData,
-                            style: { width: "230px", height: "230px", objectFit: "contain" },
+                            style: { width: "460px", height: "460px", objectFit: "contain" },
                           },
                         }
                         : {
@@ -435,7 +435,7 @@ function slide01(
           },
         },
         logoCorner(logoData),
-        carouselUiOverlay(0, 5, BRAND.orange),
+        
         brandBarBottom(),
       ],
     },
@@ -467,7 +467,7 @@ function slide02(logoData: string | null): SatoriNode {
               width: "470px",
               height: "470px",
               borderRadius: "235px",
-              background: `radial-gradient(circle at 50% 90%, rgba(240,120,24,0.35) 0%, ${BRAND.primaryBlue} 52%)`,
+              background: `radial-gradient(circle at 50% 90%, rgba(26,122,62,0.35) 0%, ${BRAND.primaryBlue} 52%)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -520,7 +520,7 @@ function slide02(logoData: string | null): SatoriNode {
               width: "470px",
               height: "470px",
               borderRadius: "235px",
-              background: `radial-gradient(circle at 50% 10%, rgba(240,120,24,0.14) 0%, ${BRAND.lightSurface} 62%)`,
+              background: `radial-gradient(circle at 50% 10%, rgba(26,122,62,0.14) 0%, ${BRAND.lightSurface} 62%)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -539,7 +539,7 @@ function slide02(logoData: string | null): SatoriNode {
           props: {
             style: {
               position: "absolute",
-              top: "650px",
+              top: "680px",
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
@@ -560,7 +560,7 @@ function slide02(logoData: string | null): SatoriNode {
           props: {
             style: {
               position: "absolute",
-              top: "740px",
+              top: "770px",
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
@@ -728,84 +728,7 @@ function slide03(logoData: string | null): SatoriNode {
   };
 }
 
-function bulletSlide(
-  title: string,
-  titleColor: string,
-  bullets: string[],
-  accent: "green" | "blue",
-  productImg: string | null,
-  logoData: string | null,
-): SatoriNode {
-  const check = accent === "green" ? BRAND.green : BRAND.primaryBlue;
-  const bulletNodes: SatoriNode[] = bullets.map((b) => ({
-    type: "div",
-    props: {
-      style: {
-        display: "flex",
-        flexDirection: "row",
-        gap: "14px",
-        marginBottom: "18px",
-        maxWidth: "620px",
-      },
-      children: [
-        {
-          type: "span",
-          props: {
-            style: { color: check, fontSize: "26px", fontWeight: 700, flexShrink: 0 },
-            children: "✓",
-          },
-        },
-        {
-          type: "span",
-          props: {
-            style: { color: BRAND.text, fontSize: "24px", fontWeight: 400, lineHeight: "1.45" },
-            children: b,
-          },
-        },
-      ],
-    },
-  }));
-
-  const productBlock: SatoriNode = productImg
-    ? {
-      type: "img",
-      props: {
-        src: productImg,
-        style: {
-          position: "absolute",
-          right: "20px",
-          bottom: "80px",
-          width: "420px",
-          height: "520px",
-          objectFit: "contain" as const,
-        },
-      },
-    }
-    : {
-      type: "div",
-      props: {
-        style: {
-          position: "absolute",
-          right: "60px",
-          bottom: "120px",
-          width: "320px",
-          height: "400px",
-          borderRadius: "24px",
-          background: `linear-gradient(145deg, ${BRAND.lightSurface}, ${BRAND.white})`,
-          border: `2px solid ${BRAND.primaryBlue}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: BRAND.muted,
-          fontSize: "20px",
-          fontWeight: 600,
-          textAlign: "center",
-          padding: "24px",
-        },
-        children: "Substitua por foto do produto (--pin-img / --screw-img)",
-      },
-    };
-
+function slide03_pinos(pinData: string | null, logoData: string | null): SatoriNode {
   return {
     type: "div",
     props: {
@@ -824,38 +747,100 @@ function bulletSlide(
           type: "div",
           props: {
             style: {
+              position: "absolute",
+              top: "0",
+              left: "0",
+              width: `${W}px`,
+              height: `${H / 2}px`,
+              backgroundColor: BRAND.lightSurface,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+            },
+            children: [
+              pinData
+                ? {
+                  type: "img",
+                  props: {
+                    src: pinData,
+                    style: { width: "700px", height: "700px", objectFit: "contain" },
+                  },
+                }
+                : { type: "span", props: { children: "Pino" } },
+            ],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              bottom: "0",
+              left: "0",
+              width: `${W}px`,
+              height: `${H / 2}px`,
+              backgroundColor: BRAND.primaryBlue,
               display: "flex",
               flexDirection: "column",
+              padding: "80px",
               paddingTop: "100px",
-              paddingLeft: "72px",
-              paddingRight: "480px",
             },
             children: [
               {
                 type: "div",
                 props: {
                   style: {
-                    color: titleColor,
-                    fontSize: "56px",
+                    color: BRAND.white,
+                    fontSize: "52px",
                     fontWeight: 700,
                     lineHeight: "1.1",
-                    marginBottom: "36px",
+                    marginBottom: "40px",
                   },
-                  children: title,
+                  children: "Quando PINOS fazem mais sentido",
                 },
               },
-              ...bulletNodes,
+              ...[
+                "Menor perfil e abordagem menos invasiva em certos cenários.",
+                "Diâmetros muito pequenos exigem controle dimensional rigoroso.",
+                "Boa escolha quando a prioridade é mínimo volume de metal.",
+              ].map((b) => ({
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "18px",
+                    marginBottom: "24px",
+                  },
+                  children: [
+                    {
+                      type: "span",
+                      props: {
+                        style: { color: BRAND.green, fontSize: "34px", fontWeight: 700, flexShrink: 0 },
+                        children: "✓",
+                      },
+                    },
+                    {
+                      type: "span",
+                      props: {
+                        style: { color: BRAND.white, fontSize: "32px", fontWeight: 400, lineHeight: "1.4" },
+                        children: b,
+                      },
+                    },
+                  ],
+                },
+              })),
             ],
           },
         },
-        productBlock,
         brandBarBottom(),
       ],
     },
   };
 }
 
-function slide06(logoData: string | null): SatoriNode {
+function slide04_parafusos(screwData: string | null, logoData: string | null): SatoriNode {
   return {
     type: "div",
     props: {
@@ -874,53 +859,90 @@ function slide06(logoData: string | null): SatoriNode {
           type: "div",
           props: {
             style: {
+              position: "absolute",
+              top: "0",
+              left: "0",
+              width: `${W}px`,
+              height: `${H / 2}px`,
+              backgroundColor: BRAND.lightSurface,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              height: "100%",
+              overflow: "hidden",
+            },
+            children: [
+              screwData
+                ? {
+                  type: "img",
+                  props: {
+                    src: screwData,
+                    style: { width: "700px", height: "700px", objectFit: "contain" },
+                  },
+                }
+                : { type: "span", props: { children: "Parafuso" } },
+            ],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              bottom: "0",
+              left: "0",
+              width: `${W}px`,
+              height: `${H / 2}px`,
+              backgroundColor: BRAND.white,
+              display: "flex",
+              flexDirection: "column",
               padding: "80px",
-              gap: "32px",
+              paddingTop: "100px",
             },
             children: [
               {
                 type: "div",
                 props: {
                   style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    color: BRAND.orange,
-                    fontSize: "48px",
+                    color: BRAND.primaryBlue,
+                    fontSize: "52px",
                     fontWeight: 700,
-                    lineHeight: "1.2",
-                    maxWidth: "880px",
-                    whiteSpace: "pre-line",
+                    lineHeight: "1.1",
+                    marginBottom: "40px",
                   },
-                  children: "Qual solução entra\nno seu roadmap primeiro?",
+                  children: "Quando PARAFUSOS vencem",
                 },
               },
-              {
+              ...[
+                "Maior estabilidade inicial em determinados enxertos.",
+                "Facilidade de remoção e ajuste/reaperto no procedimento.",
+                "Podem reduzir mobilização da membrana em osso de pior qualidade.",
+              ].map((b) => ({
                 type: "div",
                 props: {
                   style: {
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: BRAND.lightSurface,
-                    padding: "22px 48px",
-                    borderRadius: "8px",
+                    flexDirection: "row",
+                    gap: "18px",
+                    marginBottom: "24px",
                   },
-                  children: [{
-                    type: "span",
-                    props: {
-                      style: { color: BRAND.text, fontSize: "28px", fontWeight: 700 },
-                      children: "Conte nos comentários.",
+                  children: [
+                    {
+                      type: "span",
+                      props: {
+                        style: { color: BRAND.orange, fontSize: "34px", fontWeight: 700, flexShrink: 0 },
+                        children: "✓",
+                      },
                     },
-                  }],
+                    {
+                      type: "span",
+                      props: {
+                        style: { color: BRAND.text, fontSize: "32px", fontWeight: 400, lineHeight: "1.4" },
+                        children: b,
+                      },
+                    },
+                  ],
                 },
-              },
+              })),
             ],
           },
         },
@@ -949,7 +971,7 @@ function finalValueSlide(logoData: string | null): SatoriNode {
           type: "div",
           props: {
             style: {
-              paddingTop: "120px",
+              justifyContent: "center", height: "100%",
               paddingLeft: "72px",
               paddingRight: "72px",
               display: "flex",
@@ -1014,7 +1036,7 @@ function finalValueSlide(logoData: string | null): SatoriNode {
                 props: {
                   style: {
                     marginTop: "34px",
-                    background: `linear-gradient(90deg, ${BRAND.orange} 0%, ${BRAND.primaryBlue} 100%)`,
+                    background: `linear-gradient(90deg, ${BRAND.primaryBlue} 0%, ${BRAND.orange} 55%, ${BRAND.green} 100%)`,
                     color: BRAND.white,
                     borderRadius: "12px",
                     padding: "18px 22px",
@@ -1027,19 +1049,7 @@ function finalValueSlide(logoData: string | null): SatoriNode {
             ],
           },
         },
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              left: "0",
-              top: "0",
-              width: `${W}px`,
-              height: "16px",
-              background: `linear-gradient(90deg, ${BRAND.orange} 0%, ${BRAND.primaryBlue} 55%, ${BRAND.green} 100%)`,
-            },
-          },
-        },
+        
         brandBarBottom(),
       ],
     },
@@ -1077,33 +1087,11 @@ async function main() {
     { name: "02-pergunta", node: slide02(logoData) },
     {
       name: "03-quando-pinos",
-      node: bulletSlide(
-        "Quando PINOS fazem mais sentido",
-        BRAND.primaryBlue,
-        [
-          "Menor perfil e abordagem menos invasiva em certos cenários.",
-          "Diâmetros muito pequenos exigem controle dimensional rigoroso.",
-          "Boa escolha quando a prioridade é mínimo volume de metal.",
-        ],
-        "green",
-        pinData,
-        logoData,
-      ),
+      node: slide03_pinos(pinData, logoData),
     },
     {
       name: "04-quando-parafusos",
-      node: bulletSlide(
-        "Quando PARAFUSOS vencem",
-        "#6B7280",
-        [
-          "Maior estabilidade inicial em determinados enxertos.",
-          "Facilidade de remoção e ajuste/reaperto no procedimento.",
-          "Podem reduzir mobilização da membrana em osso de pior qualidade.",
-        ],
-        "blue",
-        screwData,
-        logoData,
-      ),
+      node: slide04_parafusos(screwData, logoData),
     },
     { name: "05-onde-entra-lifetrek", node: finalValueSlide(logoData) },
   ];
