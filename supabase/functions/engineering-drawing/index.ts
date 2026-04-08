@@ -2,12 +2,15 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.75.0";
 import { render2D } from "../../../src/lib/engineering-drawing/render2d.ts";
+import { render3D } from "../../../src/lib/engineering-drawing/render3d.ts";
 import {
   createDefaultConfidenceSummary,
+  createEmptySemanticDocument,
   createEmptySpec,
 } from "../../../src/lib/engineering-drawing/types.ts";
 import type {
   AxisymmetricPartSpec,
+  EngineeringDrawingSemanticDocument,
   ExtractionResult,
 } from "../../../src/lib/engineering-drawing/types.ts";
 
@@ -67,6 +70,13 @@ type ExtractRequest = {
 type RenderRequest = {
   action: "render2d";
   spec: AxisymmetricPartSpec;
+  semanticDocument?: EngineeringDrawingSemanticDocument | null;
+};
+
+type Render3DRequest = {
+  action: "render3d";
+  spec: AxisymmetricPartSpec;
+  semanticDocument?: EngineeringDrawingSemanticDocument | null;
 };
 
 function isExtractRequest(payload: unknown): payload is ExtractRequest {
@@ -75,6 +85,10 @@ function isExtractRequest(payload: unknown): payload is ExtractRequest {
 
 function isRenderRequest(payload: unknown): payload is RenderRequest {
   return !!payload && typeof payload === "object" && (payload as RenderRequest).action === "render2d";
+}
+
+function isRender3DRequest(payload: unknown): payload is Render3DRequest {
+  return !!payload && typeof payload === "object" && (payload as Render3DRequest).action === "render3d";
 }
 
 function normalizeSpec(raw: any, fallbackTitle: string): AxisymmetricPartSpec {
@@ -153,7 +167,7 @@ async function extractWithAi(payload: ExtractRequest): Promise<ExtractionResult>
       messages: [
         {
           role: "system",
-          content: `Você extrai apenas drafts estruturados de peças usinadas predominantemente axisimétricas.
+      content: `Você extrai apenas drafts estruturados de peças usinadas predominantemente axisimétricas.
 
 Regras obrigatórias:
 - Nunca invente medidas.
@@ -163,7 +177,7 @@ Regras obrigatórias:
 - Todas as unidades são mm.
 - Retorne JSON puro com este formato:
 {
-  "specDraft": {
+  "geometryDraft": {
     "partName": "string",
     "drawingNumber": "string|null",
     "unit": "mm",
@@ -207,6 +221,97 @@ Regras obrigatórias:
       }
     ]
   },
+  "semanticDraft": {
+    "documentMetadata": {
+      "partName": "string",
+      "drawingNumber": "string|null",
+      "units": "mm|unknown",
+      "governingStandard": {
+        "system": "ASME|ISO|UNKNOWN",
+        "edition": "string|null",
+        "source": "title_block|inferred|unresolved"
+      },
+      "generalToleranceBlockRaw": "string|null",
+      "isAxisymmetric": "boolean|null",
+      "axisymmetricConfidence": "number|null"
+    },
+    "features": [
+      {
+        "id": "string",
+        "kind": "cylinder_od|cylinder_id|face|hole|unknown",
+        "label": "string|null",
+        "topologyRef": "string|null",
+        "isFeatureOfSize": "boolean|null",
+        "confidence": "number|null"
+      }
+    ],
+    "sizeDimensions": [
+      {
+        "id": "string",
+        "featureRefId": "string|null",
+        "kind": "diameter|radius|linear|depth|thread",
+        "nominal": "number|null",
+        "upperTol": "number|null",
+        "lowerTol": "number|null",
+        "basic": "boolean",
+        "rawText": "string",
+        "supportStatus": "supported|partial|unsupported",
+        "confidence": "number|null"
+      }
+    ],
+    "datumFeatures": [
+      {
+        "id": "string",
+        "label": "string",
+        "featureRefId": "string|null",
+        "datumType": "plane|axis|center_plane|point|common|unknown",
+        "rawTagText": "string",
+        "materialBoundary": "MMB|LMB|RMB|null",
+        "confidence": "number|null",
+        "needsHumanConfirmation": "boolean"
+      }
+    ],
+    "gdtCallouts": [
+      {
+        "id": "string",
+        "featureRefIds": ["string"],
+        "leaderTargetKind": "feature|dimension|note|unknown",
+        "frameStyle": "single|stacked|composite|combined_pattern|unknown",
+        "rawText": "string",
+        "normalizedText": "string|null",
+        "supportStatus": "supported|partial|unsupported",
+        "reviewStatus": "auto_accepted|needs_review|human_confirmed|human_corrected|rejected",
+        "unsupportedReasonCodes": ["string"],
+        "confidence": "number|null",
+        "segments": [
+          {
+            "characteristic": "flatness|perpendicularity|position|profile_surface|circular_runout|total_runout|unknown",
+            "toleranceValue": "number|null",
+            "zoneShape": "parallel_planes|cylinder|circle|profile_band|unknown",
+            "zoneDiameter": "boolean",
+            "materialCondition": "MMC|LMC|RFS|null",
+            "datumReferences": [
+              {
+                "precedence": "number",
+                "datumLabel": "string",
+                "referenceType": "single|common|derived|unknown",
+                "materialBoundary": "MMB|LMB|RMB|null"
+              }
+            ],
+            "extendedModifiers": ["string"]
+          }
+        ]
+      }
+    ],
+    "ambiguityFlags": [],
+    "reviewDecision": {
+      "approved": false,
+      "approvedWithWarnings": false,
+      "reviewerId": null,
+      "reviewedAt": null,
+      "comments": null
+    }
+  },
   "ambiguities": [
     {
       "fieldPath": "string",
@@ -247,9 +352,26 @@ Extraia um draft técnico rigoroso e não invente medidas.`,
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
   const parsed = typeof content === "string" ? JSON.parse(content) : content;
-  const normalizedSpec = normalizeSpec(parsed?.specDraft, payload.title ?? "Nova peça");
+  const normalizedSpec = normalizeSpec(parsed?.geometryDraft ?? parsed?.specDraft, payload.title ?? "Nova peça");
+  const semanticDraft = {
+    ...createEmptySemanticDocument(normalizedSpec.partName),
+    ...(typeof parsed?.semanticDraft === "object" && parsed.semanticDraft ? parsed.semanticDraft : {}),
+    documentMetadata: {
+      ...createEmptySemanticDocument(normalizedSpec.partName).documentMetadata,
+      ...(typeof parsed?.semanticDraft?.documentMetadata === "object" ? parsed.semanticDraft.documentMetadata : {}),
+      partName: normalizedSpec.partName,
+      drawingNumber: normalizedSpec.drawingNumber,
+      units: "mm",
+      isAxisymmetric:
+        typeof parsed?.semanticDraft?.documentMetadata?.isAxisymmetric === "boolean"
+          ? parsed.semanticDraft.documentMetadata.isAxisymmetric
+          : true,
+    },
+  } satisfies EngineeringDrawingSemanticDocument;
 
   return {
+    geometryDraft: normalizedSpec,
+    semanticDraft,
     specDraft: normalizedSpec,
     ambiguities: Array.isArray(parsed?.ambiguities)
       ? parsed.ambiguities.map((ambiguity: any) => ({
@@ -302,7 +424,14 @@ serve(async (req) => {
     }
 
     if (isRenderRequest(payload)) {
-      const result = render2D(payload.spec);
+      const result = render2D(payload.spec, payload.semanticDocument ?? null);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (isRender3DRequest(payload)) {
+      const result = await render3D(payload.spec, payload.semanticDocument ?? null);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

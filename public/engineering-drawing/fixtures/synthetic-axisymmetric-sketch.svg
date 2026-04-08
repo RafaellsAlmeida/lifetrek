@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="Synthetic axisymmetric sketch">
+  <rect width="1200" height="700" fill="#f8fafc" />
+  <rect x="32" y="32" width="1136" height="636" rx="24" fill="#fff" stroke="#cbd5e1" stroke-width="2" />
+  <text x="80" y="96" fill="#0f172a" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="700">Synthetic Axisymmetric Fixture</text>
+  <text x="80" y="132" fill="#475569" font-size="18" font-family="Inter, Arial, sans-serif">Ground-truth sketch paired with fixture metadata</text>
+  <line x1="120" y1="350" x2="1000" y2="350" stroke="#94a3b8" stroke-width="2" stroke-dasharray="10 8" />
+  <polygon points="180,300 260,300 320,255 600,255 600,445 320,445 260,400 180,400" fill="none" stroke="#0f172a" stroke-width="4" />
+  <polygon points="600,280 740,280 740,420 600,420" fill="none" stroke="#0f172a" stroke-width="4" />
+  <polygon points="740,300 920,300 970,350 920,400 740,400" fill="none" stroke="#0f172a" stroke-width="4" />
+  <line x1="180" y1="520" x2="970" y2="520" stroke="#2563eb" stroke-width="2" />
+  <line x1="180" y1="500" x2="180" y2="542" stroke="#2563eb" stroke-width="2" />
+  <line x1="970" y1="500" x2="970" y2="542" stroke="#2563eb" stroke-width="2" />
+  <text x="575" y="500" text-anchor="middle" fill="#1d4ed8" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">L TOTAL</text>
+  <text x="840" y="240" fill="#c2410c" font-size="24" font-family="Inter, Arial, sans-serif" font-weight="700">ØD / ROSCA</text>
+  <text x="130" y="620" fill="#334155" font-size="20" font-family="Inter, Arial, sans-serif">Use fixture metadata for normalized dimensions and expected outcomes.</text>
+</svg>

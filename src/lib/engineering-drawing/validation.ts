@@ -1,4 +1,5 @@
 import { build3DModel } from "./model3d";
+import { mergeValidationReports, validateSemanticDocument } from "./semantic-validation";
 import {
   formatMm,
   getResolvedTotalLength,
@@ -8,6 +9,7 @@ import {
 import type {
   AxisymmetricPartSpec,
   DimensionEntry,
+  EngineeringDrawingSemanticDocument,
   TechnicalDrawingRenderResult,
   ValidationIssue,
   ValidationReport,
@@ -176,15 +178,17 @@ export function validateAxisymmetricPartSpec(spec: AxisymmetricPartSpec): Valida
 
   const blockingIssueCount = issues.filter((issue) => issue.blocking).length;
   const warningCount = issues.filter((issue) => issue.severity === "warning").length;
+  const reviewRequiredCount = issues.filter((issue) => issue.severity === "review-required").length;
   const infoCount = issues.filter((issue) => issue.severity === "info").length;
 
   return {
     issues,
     blockingIssueCount,
     warningCount,
+    reviewRequiredCount,
     infoCount,
     canRender: spec.segments.length > 0,
-    canExport: blockingIssueCount === 0,
+    canExport: blockingIssueCount === 0 && reviewRequiredCount === 0,
   };
 }
 
@@ -260,8 +264,22 @@ export function buildDimensionTable(spec: AxisymmetricPartSpec): DimensionEntry[
   return rows;
 }
 
-export function buildRenderResult(spec: AxisymmetricPartSpec, drawingSvg: string): TechnicalDrawingRenderResult {
-  const validationReport = validateAxisymmetricPartSpec(spec);
+export function validateEngineeringDrawing(
+  spec: AxisymmetricPartSpec,
+  semanticDocument?: EngineeringDrawingSemanticDocument | null,
+): ValidationReport {
+  return mergeValidationReports(
+    validateAxisymmetricPartSpec(spec),
+    validateSemanticDocument(semanticDocument ?? null),
+  );
+}
+
+export function buildRenderResult(
+  spec: AxisymmetricPartSpec,
+  drawingSvg: string,
+  semanticDocument?: EngineeringDrawingSemanticDocument | null,
+): TechnicalDrawingRenderResult {
+  const validationReport = validateEngineeringDrawing(spec, semanticDocument);
   return {
     drawingSvg,
     dimensionTable: buildDimensionTable(spec),

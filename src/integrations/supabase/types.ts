@@ -1628,6 +1628,7 @@ export type Database = {
           drawing_svg: string | null
           exports: Json
           id: string
+          normalized_document: Json | null
           normalized_spec: Json | null
           notes: string | null
           raw_extraction: Json | null
@@ -1648,6 +1649,7 @@ export type Database = {
           drawing_svg?: string | null
           exports?: Json
           id?: string
+          normalized_document?: Json | null
           normalized_spec?: Json | null
           notes?: string | null
           raw_extraction?: Json | null
@@ -1668,6 +1670,7 @@ export type Database = {
           drawing_svg?: string | null
           exports?: Json
           id?: string
+          normalized_document?: Json | null
           normalized_spec?: Json | null
           notes?: string | null
           raw_extraction?: Json | null

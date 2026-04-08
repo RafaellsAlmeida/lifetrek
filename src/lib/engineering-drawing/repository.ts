@@ -2,9 +2,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { fileNameFromPath, sanitizeFilename } from "./format";
 import type {
   AxisymmetricPartSpec,
+  EngineeringDrawingSemanticDocument,
   EngineeringDrawingSessionRecord,
   ExtractionResult,
   ReviewState,
+  TechnicalDrawing3DAsset,
+  ThreeDPreviewStatus,
   ValidationReport,
 } from "./types";
 
@@ -19,9 +22,12 @@ type SessionUpdatePayload = {
   notes?: string | null;
   rawExtraction?: ExtractionResult | null;
   normalizedSpec?: AxisymmetricPartSpec | null;
+  normalizedDocument?: EngineeringDrawingSemanticDocument | null;
   reviewState?: ReviewState | null;
   validationReport?: ValidationReport | null;
   drawingSvg?: string | null;
+  threeDPreviewStatus?: ThreeDPreviewStatus | null;
+  threeDAsset?: TechnicalDrawing3DAsset | null;
   renderMetadata?: Record<string, unknown>;
   exports?: Record<string, unknown>;
   sourceImagePath?: string | null;
@@ -100,6 +106,10 @@ async function trySignedUrl(path: string | null): Promise<string | null> {
 }
 
 function normalizeSessionRow(row: any, sourceImageUrl: string | null): EngineeringDrawingSessionRecord {
+  const renderMetadata = (row.render_metadata as Record<string, unknown> | null) ?? {};
+  const exports = (row.exports as Record<string, unknown> | null) ?? {};
+  const threeDAsset = (exports.glb as TechnicalDrawing3DAsset | undefined) ?? null;
+
   return {
     id: row.id,
     title: row.title,
@@ -111,11 +121,14 @@ function normalizeSessionRow(row: any, sourceImageUrl: string | null): Engineeri
     sourceImageUrl,
     rawExtraction: (row.raw_extraction as ExtractionResult | null) ?? null,
     normalizedSpec: (row.normalized_spec as AxisymmetricPartSpec | null) ?? null,
+    normalizedDocument: (row.normalized_document as EngineeringDrawingSemanticDocument | null) ?? null,
     reviewState: (row.review_flags as ReviewState | null) ?? null,
     validationReport: (row.validation_report as ValidationReport | null) ?? null,
     drawingSvg: row.drawing_svg ?? null,
-    renderMetadata: (row.render_metadata as Record<string, unknown> | null) ?? {},
-    exports: (row.exports as Record<string, unknown> | null) ?? {},
+    threeDPreviewStatus: (renderMetadata.threeDPreviewStatus as ThreeDPreviewStatus | undefined) ?? null,
+    threeDAsset,
+    renderMetadata,
+    exports,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     createdBy: row.created_by ?? null,
@@ -242,9 +255,12 @@ export async function createEngineeringDrawingSessionFromUpload(args: {
       sourceImageUrl: await fileToDataUrl(args.file),
       rawExtraction: null,
       normalizedSpec: null,
+      normalizedDocument: null,
       reviewState: null,
       validationReport: null,
       drawingSvg: null,
+      threeDPreviewStatus: null,
+      threeDAsset: null,
       renderMetadata: {},
       exports: {},
       createdAt: new Date().toISOString(),
@@ -291,9 +307,12 @@ export async function createEngineeringDrawingSessionFromFixture(args: {
       sourceImageUrl: args.imageUrl,
       rawExtraction: null,
       normalizedSpec: null,
+      normalizedDocument: null,
       reviewState: null,
       validationReport: null,
       drawingSvg: null,
+      threeDPreviewStatus: null,
+      threeDAsset: null,
       renderMetadata: { fixtureId: args.fixtureId },
       exports: {},
       createdAt: new Date().toISOString(),
@@ -324,14 +343,27 @@ export async function updateEngineeringDrawingSession(
     notes: patch.notes ?? session.notes,
     raw_extraction: patch.rawExtraction ?? session.rawExtraction,
     normalized_spec: patch.normalizedSpec ?? session.normalizedSpec,
+    normalized_document: patch.normalizedDocument ?? session.normalizedDocument,
     review_flags: patch.reviewState ?? session.reviewState,
     validation_report: patch.validationReport ?? session.validationReport,
     drawing_svg: patch.drawingSvg ?? session.drawingSvg,
-    render_metadata: patch.renderMetadata ?? session.renderMetadata,
-    exports: patch.exports ?? session.exports,
+    render_metadata: {
+      ...(session.renderMetadata ?? {}),
+      ...(patch.renderMetadata ?? {}),
+      threeDPreviewStatus: patch.threeDPreviewStatus ?? session.threeDPreviewStatus ?? null,
+    },
+    exports: {
+      ...(session.exports ?? {}),
+      ...(patch.exports ?? {}),
+      ...(patch.threeDAsset ? { glb: patch.threeDAsset } : {}),
+    },
     source_image_path: patch.sourceImagePath ?? session.sourceImagePath,
     source_image_name: patch.sourceImageName ?? session.sourceImageName,
-    reviewed_by: patch.reviewedBy ?? (patch.status === "reviewed" || patch.status === "rendered" ? userId : session.reviewedBy),
+    reviewed_by:
+      patch.reviewedBy ??
+      (patch.status === "reviewed" || patch.status === "rendered_2d" || patch.status === "rendered_3d"
+        ? userId
+        : session.reviewedBy),
   };
 
   try {
@@ -357,6 +389,8 @@ export async function updateEngineeringDrawingSession(
         ...session,
         ...patch,
         sourceImageUrl: patch.sourceImageUrl ?? session.sourceImageUrl,
+        threeDPreviewStatus: patch.threeDPreviewStatus ?? session.threeDPreviewStatus,
+        threeDAsset: patch.threeDAsset ?? session.threeDAsset,
         backendMode: "local",
         updatedAt: new Date().toISOString(),
       };
@@ -371,7 +405,7 @@ export async function persistEngineeringDrawingExport(args: {
   session: EngineeringDrawingSessionRecord;
   fileName: string;
   blob: Blob;
-  exportType: "png" | "pdf";
+  exportType: "png" | "pdf" | "glb";
 }): Promise<EngineeringDrawingSessionRecord> {
   if (args.session.backendMode === "local") {
     return args.session;
@@ -379,7 +413,12 @@ export async function persistEngineeringDrawingExport(args: {
 
   const filePath = `sessions/${args.session.id}/exports/${Date.now()}-${sanitizeFilename(args.fileName)}`;
   const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(filePath, args.blob, {
-    contentType: args.exportType === "png" ? "image/png" : "application/pdf",
+    contentType:
+      args.exportType === "png"
+        ? "image/png"
+        : args.exportType === "pdf"
+          ? "application/pdf"
+          : "model/gltf-binary",
     upsert: true,
   });
 
@@ -398,5 +437,14 @@ export async function persistEngineeringDrawingExport(args: {
         updatedAt: new Date().toISOString(),
       },
     },
+    threeDAsset:
+      args.exportType === "glb"
+        ? {
+            format: "glb",
+            path: filePath,
+            url: signedUrl,
+            updatedAt: new Date().toISOString(),
+          }
+        : args.session.threeDAsset,
   });
 }

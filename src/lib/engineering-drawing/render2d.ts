@@ -1,6 +1,11 @@
 import { escapeXml, formatMm, getResolvedTotalLength, resolveEndDiameter } from "./format";
 import { buildRenderResult, validateAxisymmetricPartSpec } from "./validation";
-import type { AxisymmetricPartSpec, AxisymmetricSegment, TechnicalDrawingRenderResult } from "./types";
+import type {
+  AxisymmetricPartSpec,
+  AxisymmetricSegment,
+  EngineeringDrawingSemanticDocument,
+  TechnicalDrawingRenderResult,
+} from "./types";
 
 type SegmentGeometry = {
   segment: AxisymmetricSegment;
@@ -118,7 +123,10 @@ function buildDimensionLine(xStart: number, xEnd: number, y: number, label: stri
   `;
 }
 
-export function render2D(spec: AxisymmetricPartSpec): TechnicalDrawingRenderResult {
+export function render2D(
+  spec: AxisymmetricPartSpec,
+  semanticDocument?: EngineeringDrawingSemanticDocument | null,
+): TechnicalDrawingRenderResult {
   const validation = validateAxisymmetricPartSpec(spec);
   const totalLengthMm = getResolvedTotalLength(spec) ?? Math.max(spec.segments.length, 1);
   const maxDiameterMm = spec.segments.reduce((largest, segment) => {
@@ -323,5 +331,5 @@ export function render2D(spec: AxisymmetricPartSpec): TechnicalDrawingRenderResu
     </svg>
   `.trim();
 
-  return buildRenderResult(spec, svg);
+  return buildRenderResult(spec, svg, semanticDocument);
 }
