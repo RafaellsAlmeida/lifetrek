@@ -105,6 +105,54 @@ function uniqueTokens(query: string, interest: string, matchedCompany: string | 
   return [...new Set([...baseTokens, ...interestTokens, ...companyTokens])].slice(0, 8);
 }
 
+type KnowledgeContextItem = {
+  id: string;
+  source_type: string | null;
+  source_id: string | null;
+  category?: string | null;
+  question?: string | null;
+  answer?: string | null;
+  content: string;
+  similarity?: number | null;
+  source_table: "knowledge_base" | "knowledge_embeddings";
+};
+
+function dedupeKnowledgeContextItems(items: KnowledgeContextItem[]): KnowledgeContextItem[] {
+  const seen = new Map<string, KnowledgeContextItem>();
+
+  for (const item of items) {
+    const key = [item.source_table, item.source_id ?? item.id, item.content].join("|");
+    if (!seen.has(key)) {
+      seen.set(key, item);
+    }
+  }
+
+  return [...seen.values()].sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
+}
+
+function formatKnowledgeContext(items: KnowledgeContextItem[]): string {
+  return (
+    "\n\nBase de conhecimento relevante:\n" +
+    items
+      .map((item) => {
+        const label = `${item.source_table}:${item.source_type || item.category || "info"}`;
+        const snippet = trimSnippet(item.answer || item.content || item.question || "");
+        return `- [${label}] ${snippet}`;
+      })
+      .join("\n")
+  );
+}
+
+function summarizeKnowledgeContext(ragContext: string): string | null {
+  const firstBullet = ragContext
+    .split("\n")
+    .find((line) => line.trimStart().startsWith("- "));
+
+  if (!firstBullet) return null;
+
+  return firstBullet.replace(/^- \[[^\]]+\]\s*/, "").trim();
+}
+
 async function fetchEmbedding(
   openAiKey: string | undefined,
   openRouterKey: string | undefined,
@@ -309,27 +357,57 @@ async function fetchKnowledgeContext(
     textResults: 0,
     terms: [] as string[],
     embeddingProvider: null as string | null,
+    sourceMatches: [] as string[],
   };
 
   const embeddingResult = await fetchEmbedding(openAiKey, openRouterKey, query);
   retrieval.embeddingProvider = embeddingResult.provider;
 
   if (embeddingResult.embedding) {
-    const { data, error } = await (supabase as any).rpc("match_knowledge_base", {
-      query_embedding: embeddingResult.embedding,
-      match_count: 3,
-      match_threshold: 0.3,
-    }) as { data: any[] | null; error: any };
+    const [knowledgeBaseVector, knowledgeEmbeddingsVector] = await Promise.all([
+      (supabase as any).rpc("match_knowledge_base", {
+        query_embedding: embeddingResult.embedding,
+        match_count: 3,
+        match_threshold: 0.3,
+      }) as Promise<{ data: any[] | null; error: any }>,
+      (supabase as any).rpc("match_knowledge", {
+        query_embedding: embeddingResult.embedding,
+        match_count: 3,
+        match_threshold: 0.3,
+      }) as Promise<{ data: any[] | null; error: any }>,
+    ]);
 
-    if (!error && data?.length) {
+    const vectorItems: KnowledgeContextItem[] = [];
+
+    if (!knowledgeBaseVector.error && knowledgeBaseVector.data?.length) {
+      vectorItems.push(
+        ...knowledgeBaseVector.data.map((item: any) => ({
+          ...item,
+          source_table: "knowledge_base" as const,
+        })),
+      );
+    }
+
+    if (!knowledgeEmbeddingsVector.error && knowledgeEmbeddingsVector.data?.length) {
+      vectorItems.push(
+        ...knowledgeEmbeddingsVector.data.map((item: any) => ({
+          ...item,
+          category: item.source_type || item.metadata?.category || null,
+          source_table: "knowledge_embeddings" as const,
+        })),
+      );
+    }
+
+    const mergedVectorItems = dedupeKnowledgeContextItems(vectorItems).slice(0, 4);
+
+    if (mergedVectorItems.length) {
       retrieval.mode = "vector";
-      retrieval.vectorResults = data.length;
+      retrieval.vectorResults = mergedVectorItems.length;
+      retrieval.sourceMatches = mergedVectorItems.map(
+        (item) => `${item.source_table}:${item.source_type || item.category || "info"}`,
+      );
       return {
-        context:
-          "\n\nBase de conhecimento relevante:\n" +
-          data
-            .map((item: any) => `- [${item.source_type || item.category || "info"}] ${trimSnippet(item.answer || item.content || item.question || "")}`)
-            .join("\n"),
+        context: formatKnowledgeContext(mergedVectorItems),
         retrieval,
       };
     }
@@ -341,35 +419,54 @@ async function fetchKnowledgeContext(
 
   for (const term of terms) {
     const pattern = `%${term}%`;
-    const { data, error } = await supabase
-      .from("knowledge_base")
-      .select("id, source_type, category, question, answer, content")
-      .or(`content.ilike.${pattern},question.ilike.${pattern},answer.ilike.${pattern}`)
-      .limit(3);
+    const [knowledgeBaseText, knowledgeEmbeddingsText] = await Promise.all([
+      supabase
+        .from("knowledge_base")
+        .select("id, source_type, category, question, answer, content")
+        .or(`content.ilike.${pattern},question.ilike.${pattern},answer.ilike.${pattern}`)
+        .limit(3),
+      supabase
+        .from("knowledge_embeddings")
+        .select("id, source_type, source_id, content, metadata")
+        .ilike("content", pattern)
+        .limit(3),
+    ]);
 
-    if (error || !data?.length) continue;
+    if (!knowledgeBaseText.error && knowledgeBaseText.data?.length) {
+      for (const item of knowledgeBaseText.data) {
+        seen.set(`knowledge_base:${item.id}`, {
+          ...item,
+          source_table: "knowledge_base" as const,
+        });
+      }
+    }
 
-    for (const item of data) {
-      seen.set(item.id, item);
+    if (!knowledgeEmbeddingsText.error && knowledgeEmbeddingsText.data?.length) {
+      for (const item of knowledgeEmbeddingsText.data) {
+        seen.set(`knowledge_embeddings:${item.id}`, {
+          ...item,
+          category: item.source_type || item.metadata?.category || null,
+          source_table: "knowledge_embeddings" as const,
+        });
+      }
     }
 
     if (seen.size >= 3) break;
   }
 
-  const results = [...seen.values()].slice(0, 3);
+  const results = dedupeKnowledgeContextItems([...seen.values()]).slice(0, 3);
   if (!results.length) {
     return { context: "", retrieval };
   }
 
   retrieval.mode = "text";
   retrieval.textResults = results.length;
+  retrieval.sourceMatches = results.map(
+    (item) => `${item.source_table}:${item.source_type || item.category || "info"}`,
+  );
 
   return {
-    context:
-      "\n\nBase de conhecimento relevante:\n" +
-      results
-        .map((item: any) => `- [${item.source_type || item.category || "info"}] ${trimSnippet(item.answer || item.content || item.question || "")}`)
-        .join("\n"),
+    context: formatKnowledgeContext(results),
     retrieval,
   };
 }
@@ -410,6 +507,7 @@ Fatos base da Lifetrek:
 - ISO 13485 e ANVISA.
 - Materiais frequentes: titanio, PEEK e inox.
 - A frente veterinaria inclui implantes ortopedicos adaptados, placas e parafusos.
+- Se o contexto recuperado trouxer um fato especifico, responda com ele de forma direta antes de qualquer fechamento comercial.
 
 Indicacao de interesse detectado: ${interest}.
 ${groupedHint}
@@ -420,6 +518,18 @@ ${ragContext}`;
 
 function baseCapabilityReply(interest: string, text: string): string {
   const normalized = text.toLowerCase();
+
+  if (normalized.includes("citizen") && normalized.includes("l20")) {
+    return "Sim, temos Citizen L20 no parque fabril da Lifetrek.";
+  }
+
+  if (normalized.includes("citizen") && normalized.includes("m32")) {
+    return "Sim, temos Citizen M32 no parque fabril da Lifetrek.";
+  }
+
+  if (normalized.includes("zeiss") && normalized.includes("contura")) {
+    return "Sim, temos ZEISS Contura para metrologia dimensional.";
+  }
 
   if (normalized.includes("marca") && normalized.includes("trabalh")) {
     return "Trabalhamos com fabricação sob a marca da empresa parceira, conforme o projeto e a estratégia comercial de cada cliente.";
@@ -478,18 +588,23 @@ function buildFallbackReply(options: {
   leadQualification: LeadQualificationState;
 }) {
   const { allUserText, interest, companyLookup, ragContext, leadQualification } = options;
-  const parts = [
-    baseCapabilityReply(interest, allUserText),
-    buildRelationshipReply(companyLookup),
-  ].filter((value): value is string => Boolean(value));
+  const parts: string[] = [];
+  const ragSummary = summarizeKnowledgeContext(ragContext);
+
+  if (ragSummary) {
+    parts.push(`Encontrei na base da Lifetrek: ${ragSummary}`);
+  }
+
+  parts.push(baseCapabilityReply(interest, allUserText));
+
+  const relationshipReply = buildRelationshipReply(companyLookup);
+  if (relationshipReply) {
+    parts.push(relationshipReply);
+  }
 
   if (leadQualification.readyForCommercialFollowUp) {
     const leadName = leadQualification.knownContact.name ? `, ${leadQualification.knownContact.name}` : "";
     parts.unshift(`Perfeito${leadName}. Ja anotei seus dados de contato.`);
-  }
-
-  if (!parts.length && ragContext) {
-    parts.push("Tenho contexto suficiente para te orientar sobre essa frente da Lifetrek.");
   }
 
   const followUpMessage = leadQualification.readyForCommercialFollowUp

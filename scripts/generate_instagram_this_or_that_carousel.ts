@@ -25,6 +25,13 @@ const BRAND = {
   logoUrl: "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/assets/logo.png",
 };
 
+const DEFAULT_PRODUCTS = {
+  pin:
+    "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/products/surgical-pins.jpg",
+  screw:
+    "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/products/medical-screw.png",
+};
+
 type SatoriNode = Record<string, unknown>;
 
 function parseArgs() {
@@ -64,13 +71,20 @@ async function loadLogoDataUrl(): Promise<string | null> {
 async function optionalImageDataUrl(path: string | undefined): Promise<string | null> {
   if (!path) return null;
   try {
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      const res = await fetch(path);
+      if (!res.ok) return null;
+      const buf = new Uint8Array(await res.arrayBuffer());
+      const mime = res.headers.get("content-type") || "image/png";
+      return `data:${mime};base64,${encodeBase64(buf)}`;
+    }
     const bytes = await Deno.readFile(path);
     const ext = path.split(".").pop()?.toLowerCase();
     const mime =
       ext === "png" ? "image/png"
-      : ext === "jpg" || ext === "jpeg" ? "image/jpeg"
-      : ext === "webp" ? "image/webp"
-      : "image/png";
+        : ext === "jpg" || ext === "jpeg" ? "image/jpeg"
+        : ext === "webp" ? "image/webp"
+        : "image/png";
     return `data:${mime};base64,${encodeBase64(bytes)}`;
   } catch (e) {
     console.warn(`⚠️ Não leu imagem ${path}:`, e);
@@ -81,7 +95,7 @@ async function optionalImageDataUrl(path: string | undefined): Promise<string | 
 function logoCorner(logoData: string | null, opts: { inverted?: boolean } = {}): SatoriNode {
   const { inverted } = opts;
   const children = logoData
-    ? [{ type: "img", props: { src: logoData, style: { height: "32px", objectFit: "contain" as const } } }]
+    ? [{ type: "img", props: { src: logoData, style: { height: "52px", objectFit: "contain" as const } } }]
     : [{
       type: "span",
       props: {
@@ -122,7 +136,7 @@ function brandBarBottom(): SatoriNode {
         left: "0",
         width: `${W}px`,
         height: "6px",
-        background: `linear-gradient(90deg, ${BRAND.primaryBlue} 0%, ${BRAND.green} 100%)`,
+        background: `linear-gradient(90deg, ${BRAND.primaryBlue} 0%, ${BRAND.orange} 55%, ${BRAND.green} 100%)`,
       },
     },
   };
@@ -152,30 +166,106 @@ function circle(
   };
 }
 
+function carouselUiOverlay(
+  activeDot: number,
+  total = 5,
+  arrowColor: string = BRAND.orange,
+): SatoriNode {
+  const dots = Array.from({ length: total }).map((_, i) => ({
+    type: "div",
+    props: {
+      style: {
+        width: "10px",
+        height: "10px",
+        borderRadius: "5px",
+        backgroundColor: i === activeDot ? BRAND.white : "rgba(255,255,255,0.55)",
+      },
+    },
+  }));
+
+  return {
+    type: "div",
+    props: {
+      style: {
+        position: "absolute",
+        left: "0",
+        top: "0",
+        width: `${W}px`,
+        height: `${H}px`,
+        display: "flex",
+        flexDirection: "column",
+        pointerEvents: "none",
+      },
+      children: [
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              left: "20px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "52px",
+              height: "52px",
+              borderRadius: "26px",
+              backgroundColor: "rgba(255,255,255,0.65)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#BDBDBD",
+              fontSize: "30px",
+              fontWeight: 700,
+            },
+            children: "‹",
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              right: "20px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "52px",
+              height: "52px",
+              borderRadius: "26px",
+              backgroundColor: "rgba(255,255,255,0.65)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: arrowColor,
+              fontSize: "32px",
+              fontWeight: 700,
+            },
+            children: "›",
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              bottom: "60px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: "8px",
+            },
+            children: dots,
+          },
+        },
+      ],
+    },
+  };
+}
+
 function slide01(
   pinData: string | null,
   screwData: string | null,
   logoData: string | null,
 ): SatoriNode {
   const half = H / 2;
-  const imgBox = (data: string | null, fallbackLabel: string): SatoriNode[] => {
-    if (data) {
-      return [{
-        type: "img",
-        props: {
-          src: data,
-          style: { width: "220px", height: "220px", objectFit: "contain" as const },
-        },
-      }];
-    }
-    return [{
-      type: "span",
-      props: {
-        style: { fontSize: "22px", fontWeight: 700, opacity: 0.85 },
-        children: fallbackLabel,
-      },
-    }];
-  };
 
   return {
     type: "div",
@@ -190,7 +280,6 @@ function slide01(
         backgroundColor: BRAND.white,
       },
       children: [
-        logoCorner(logoData),
         {
           type: "div",
           props: {
@@ -200,7 +289,7 @@ function slide01(
               left: "0",
               width: `${W}px`,
               height: `${half}px`,
-              backgroundColor: BRAND.lightSurface,
+              background: `radial-gradient(circle at 50% 90%, rgba(240,120,24,0.25) 0%, ${BRAND.lightSurface} 55%)`,
             },
           },
         },
@@ -213,7 +302,7 @@ function slide01(
               left: "0",
               width: `${W}px`,
               height: `${half}px`,
-              backgroundColor: BRAND.primaryBlue,
+              background: `linear-gradient(180deg, ${BRAND.primaryBlue} 0%, #003B6B 100%)`,
             },
           },
         },
@@ -222,133 +311,131 @@ function slide01(
           props: {
             style: {
               position: "absolute",
-              top: "120px",
-              left: "0",
-              width: `${W}px`,
-              height: `${H - 240}px`,
+              top: "54px",
+              left: "50%",
+              transform: "translateX(-50%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
+              justifyContent: "flex-start",
+              gap: "24px",
             },
             children: [
+              circle(470, BRAND.primaryBlue, [
+                {
+                  type: "div",
+                  props: {
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: "100%",
+                      gap: "14px",
+                    },
+                    children: [
+                      pinData
+                        ? {
+                          type: "img",
+                          props: {
+                            src: pinData,
+                            style: { width: "230px", height: "230px", objectFit: "contain" },
+                          },
+                        }
+                        : {
+                          type: "span",
+                          props: {
+                            style: { color: BRAND.white, fontSize: "30px", fontWeight: 700 },
+                            children: "Produto A",
+                          },
+                        },
+                      {
+                        type: "span",
+                        props: {
+                          style: { color: BRAND.white, fontSize: "52px", fontWeight: 700 },
+                          children: "ESTE",
+                        },
+                      },
+                      {
+                        type: "span",
+                        props: { style: { color: BRAND.white, fontSize: "40px", fontWeight: 700 }, children: "Pinos" },
+                      },
+                    ],
+                  },
+                },
+              ]),
               {
                 type: "div",
                 props: {
                   style: {
+                    marginTop: "-42px",
+                    marginBottom: "-42px",
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "60px",
+                    backgroundColor: BRAND.white,
                     display: "flex",
-                    flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "28px",
                   },
                   children: [
-                    circle(340, BRAND.primaryBlue, [
-                      {
-                        type: "div",
-                        props: {
-                          style: {
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "8px",
-                          },
-                          children: [
-                            {
-                              type: "span",
-                              props: {
-                                style: {
-                                  color: BRAND.white,
-                                  fontSize: "56px",
-                                  fontWeight: 700,
-                                  lineHeight: "1",
-                                },
-                                children: "ESTE",
-                              },
-                            },
-                            ...imgBox(pinData, "Pinos"),
-                          ],
-                        },
-                      },
-                    ]),
                     {
                       type: "span",
                       props: {
-                        style: {
-                          fontSize: "26px",
-                          fontWeight: 700,
-                          color: BRAND.primaryBlue,
-                          backgroundColor: BRAND.white,
-                          padding: "10px 18px",
-                          borderRadius: "999px",
-                        },
+                        style: { fontSize: "44px", fontWeight: 700, color: BRAND.primaryBlue, lineHeight: "1" },
                         children: "ou",
                       },
                     },
-                    circle(340, BRAND.lightSurface, [
+                  ],
+                },
+              },
+              circle(470, BRAND.lightSurface, [
+                {
+                  type: "div",
+                  props: {
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: "100%",
+                      gap: "14px",
+                    },
+                    children: [
                       {
-                        type: "div",
-                        props: {
-                          style: {
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "8px",
+                        type: "span",
+                        props: { style: { color: BRAND.primaryBlue, fontSize: "52px", fontWeight: 700 }, children: "AQUELE?" },
+                      },
+                      screwData
+                        ? {
+                          type: "img",
+                          props: {
+                            src: screwData,
+                            style: { width: "230px", height: "230px", objectFit: "contain" },
                           },
-                          children: [
-                            {
-                              type: "span",
-                              props: {
-                                style: {
-                                  color: BRAND.primaryBlue,
-                                  fontSize: "44px",
-                                  fontWeight: 700,
-                                  lineHeight: "1.05",
-                                  textAlign: "center",
-                                },
-                                children: "AQUELE?",
-                              },
-                            },
-                            ...imgBox(screwData, "Parafusos"),
-                          ],
+                        }
+                        : {
+                          type: "span",
+                          props: {
+                            style: { color: BRAND.primaryBlue, fontSize: "30px", fontWeight: 700 },
+                            children: "Produto B",
+                          },
                         },
+                      {
+                        type: "span",
+                        props: { style: { color: BRAND.primaryBlue, fontSize: "40px", fontWeight: 700 }, children: "Parafusos" },
                       },
-                    ]),
-                  ],
-                },
-              },
-              {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "120px",
-                    marginTop: "16px",
-                    justifyContent: "center",
+                    ],
                   },
-                  children: [
-                    {
-                      type: "span",
-                      props: {
-                        style: { fontSize: "24px", fontWeight: 700, color: BRAND.primaryBlue },
-                        children: "Pinos",
-                      },
-                    },
-                    {
-                      type: "span",
-                      props: {
-                        style: { fontSize: "24px", fontWeight: 700, color: BRAND.white },
-                        children: "Parafusos",
-                      },
-                    },
-                  ],
                 },
-              },
+              ]),
             ],
           },
         },
+        logoCorner(logoData),
+        carouselUiOverlay(0, 5, BRAND.orange),
         brandBarBottom(),
       ],
     },
@@ -369,52 +456,131 @@ function slide02(logoData: string | null): SatoriNode {
         backgroundColor: BRAND.white,
       },
       children: [
-        logoCorner(logoData),
         {
           type: "div",
           props: {
             style: {
+              position: "absolute",
+              top: "90px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "470px",
+              height: "470px",
+              borderRadius: "235px",
+              background: `radial-gradient(circle at 50% 90%, rgba(240,120,24,0.35) 0%, ${BRAND.primaryBlue} 52%)`,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              height: "100%",
-              padding: "80px",
-              gap: "36px",
             },
             children: [
-              circle(300, BRAND.primaryBlue, [{
+              {
                 type: "span",
                 props: {
-                  style: { color: BRAND.white, fontSize: "36px", fontWeight: 700 },
+                  style: { color: BRAND.white, fontSize: "42px", fontWeight: 700 },
                   children: "Pinos",
                 },
-              }]),
-              {
-                type: "div",
-                props: {
-                  style: {
-                    textAlign: "center",
-                    color: BRAND.text,
-                    fontSize: "38px",
-                    fontWeight: 700,
-                    lineHeight: "1.25",
-                    maxWidth: "900px",
-                  },
-                  children:
-                    "O seu projeto pede pino de precisão ou parafuso com rosca complexa?",
-                },
               },
-              circle(300, BRAND.lightSurface, [{
-                type: "span",
-                props: {
-                  style: { color: BRAND.primaryBlue, fontSize: "36px", fontWeight: 700 },
-                  children: "Parafusos",
-                },
-              }]),
             ],
           },
         },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              top: "500px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "120px",
+              height: "120px",
+              borderRadius: "60px",
+              backgroundColor: BRAND.white,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 40px rgba(0,79,143,0.20)",
+            },
+            children: [{
+              type: "span",
+              props: {
+                style: { color: BRAND.primaryBlue, fontSize: "32px", fontWeight: 700 },
+                children: " ",
+              },
+            }],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              top: "505px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              color: BRAND.text,
+              fontSize: "66px",
+              fontWeight: 700,
+              lineHeight: "1.03",
+            },
+            children: [
+              { type: "div", props: { children: "ESTE" } },
+              { type: "div", props: { style: { color: BRAND.primaryBlue, fontSize: "42px" }, children: "ou" } },
+              { type: "div", props: { children: "AQUELE?" } },
+            ],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              bottom: "120px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "470px",
+              height: "470px",
+              borderRadius: "235px",
+              background: `radial-gradient(circle at 50% 10%, rgba(240,120,24,0.14) 0%, ${BRAND.lightSurface} 62%)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+            children: [{
+              type: "span",
+              props: {
+                style: { color: BRAND.primaryBlue, fontSize: "42px", fontWeight: 700 },
+                children: "Parafusos",
+              },
+            }],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              top: "700px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              textAlign: "center",
+              color: BRAND.text,
+              fontSize: "26px",
+              fontWeight: 700,
+              lineHeight: "1.2",
+              width: "760px",
+              backgroundColor: "rgba(255,255,255,0.9)",
+              borderRadius: "14px",
+              padding: "10px 16px",
+            },
+            children: "Você prefere fixar membranas com pinos ou parafusos?",
+          },
+        },
+        logoCorner(logoData),
+        carouselUiOverlay(1, 5, BRAND.orange),
         brandBarBottom(),
       ],
     },
@@ -466,7 +632,7 @@ function slide03(logoData: string | null): SatoriNode {
                       props: {
                         style: {
                           flex: 1,
-                          backgroundColor: BRAND.primaryBlue,
+                          background: `linear-gradient(180deg, ${BRAND.primaryBlue} 0%, ${BRAND.orange} 100%)`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -552,6 +718,7 @@ function slide03(logoData: string | null): SatoriNode {
                 props: {
                   style: {
                     color: BRAND.green,
+                    color: BRAND.orange,
                     fontSize: "34px",
                     fontWeight: 700,
                   },
@@ -730,7 +897,7 @@ function slide06(logoData: string | null): SatoriNode {
                     flexDirection: "column",
                     alignItems: "center",
                     textAlign: "center",
-                    color: BRAND.green,
+                    color: BRAND.orange,
                     fontSize: "48px",
                     fontWeight: 700,
                     lineHeight: "1.2",
@@ -790,8 +957,8 @@ async function main() {
   console.log("Carregando fontes Inter…");
   const fonts = await loadFonts();
   const logoData = await loadLogoDataUrl();
-  const pinData = await optionalImageDataUrl(pinImg);
-  const screwData = await optionalImageDataUrl(screwImg);
+  const pinData = await optionalImageDataUrl(pinImg ?? DEFAULT_PRODUCTS.pin);
+  const screwData = await optionalImageDataUrl(screwImg ?? DEFAULT_PRODUCTS.screw);
 
   await Deno.mkdir(outDir, { recursive: true });
 
