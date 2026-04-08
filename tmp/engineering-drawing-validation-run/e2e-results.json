@@ -1,0 +1,299 @@
+Auth configuration saved to /Users/rafaelalmeida/lifetrek/.auth/local/default/storage-state.json
+[01:26:33] ℹ [1m[37mInitializing auth tokens with per-user isolation[0m
+[01:26:33] ℹ [1m[37mToken loaded from storage[0m
+[01:26:33] ℹ [1m[37mAuth session manager initialized with storage at: /Users/rafaelalmeida/lifetrek/.auth/local/admin/storage-state.json[0m
+[01:26:33] ✓ [1m[32m✓ Default auth token initialized successfully at: /Users/rafaelalmeida/lifetrek/.auth/local/admin/storage-state.json[0m
+{
+  "config": {
+    "configFile": "/Users/rafaelalmeida/lifetrek/playwright.config.ts",
+    "rootDir": "/Users/rafaelalmeida/lifetrek/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/rafaelalmeida/lifetrek/playwright/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/rafaelalmeida/lifetrek/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/rafaelalmeida/lifetrek/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev:web -- --host",
+      "url": "http://localhost:8080",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "e2e/technical-drawing.e2e.spec.ts",
+      "file": "e2e/technical-drawing.e2e.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Desenho técnico admin",
+          "file": "e2e/technical-drawing.e2e.spec.ts",
+          "line": 58,
+          "column": 6,
+          "specs": [
+            {
+              "title": "gera 2D e 3D, persiste GLB e restaura a sessão ao recarregar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skipNetworkMonitoring",
+                      "location": {
+                        "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                        "line": 61,
+                        "column": 3
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7756,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-08T01:26:34.676Z",
+                      "annotations": [
+                        {
+                          "type": "skipNetworkMonitoring",
+                          "location": {
+                            "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                            "line": 61,
+                            "column": 3
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "639a342edffe6113fde3-6ac38fbdee5be6e89091",
+              "file": "e2e/technical-drawing.e2e.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "bloqueia exportações com conflito dimensional até a correção",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skipNetworkMonitoring",
+                      "location": {
+                        "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                        "line": 103,
+                        "column": 3
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6547,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-08T01:26:42.995Z",
+                      "annotations": [
+                        {
+                          "type": "skipNetworkMonitoring",
+                          "location": {
+                            "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                            "line": 103,
+                            "column": 3
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "639a342edffe6113fde3-e7ae13475fa3d9daf6cf",
+              "file": "e2e/technical-drawing.e2e.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "exige revisão semântica de GD&T antes de liberar export",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skipNetworkMonitoring",
+                      "location": {
+                        "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                        "line": 147,
+                        "column": 3
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6478,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-08T01:26:49.552Z",
+                      "annotations": [
+                        {
+                          "type": "skipNetworkMonitoring",
+                          "location": {
+                            "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                            "line": 147,
+                            "column": 3
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "639a342edffe6113fde3-b34f997847488c038ff7",
+              "file": "e2e/technical-drawing.e2e.spec.ts",
+              "line": 147,
+              "column": 3
+            },
+            {
+              "title": "sinaliza feature fora do escopo e mantém 3D bloqueado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skipNetworkMonitoring",
+                      "location": {
+                        "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                        "line": 187,
+                        "column": 3
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3805,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-08T01:26:56.038Z",
+                      "annotations": [
+                        {
+                          "type": "skipNetworkMonitoring",
+                          "location": {
+                            "file": "/Users/rafaelalmeida/lifetrek/playwright/tests/e2e/technical-drawing.e2e.spec.ts",
+                            "line": 187,
+                            "column": 3
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "639a342edffe6113fde3-72bc83631da24c61be66",
+              "file": "e2e/technical-drawing.e2e.spec.ts",
+              "line": 187,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-04-08T01:26:33.771Z",
+    "duration": 26112.185,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

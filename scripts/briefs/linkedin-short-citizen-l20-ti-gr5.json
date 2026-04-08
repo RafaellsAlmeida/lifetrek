@@ -1,0 +1,22 @@
+{
+  "topic": "Citizen L20 Swiss turning em Ti Gr5: estabilizar geometrias críticas",
+  "accentColor": "#1A7A3E",
+  "durationInFrames": 420,
+  "slides": [
+    {
+      "text": "Swiss turning em Ti Gr5",
+      "subtext": "Geometrias críticas pedem processo estável antes de escalar volume.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295892539_production-floor.jpg"
+    },
+    {
+      "text": "Repetibilidade lote a lote",
+      "subtext": "Setup e controle por feature crítica — não só tolerância no papel.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295900668_production-overview.jpg"
+    },
+    {
+      "text": "Validação com ZEISS CMM",
+      "subtext": "Plano dimensional desde o primeiro lote, com rastreabilidade.",
+      "backgroundImage": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/content_assets/ingested/1770295801183_cleanroom-hero.webp"
+    }
+  ]
+}

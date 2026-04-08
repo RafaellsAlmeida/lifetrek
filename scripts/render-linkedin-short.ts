@@ -15,8 +15,9 @@ type LinkedInShortBrief = {
   slides: LinkedInShortSlide[];
 };
 
-const MIN_DURATION = 900;
-const MAX_DURATION = 1350;
+/** 30fps: 12s–15s (alinhado a LinkedInShort no Remotion) */
+const MIN_DURATION = 360;
+const MAX_DURATION = 450;
 
 function parseArgs(argv: string[]) {
   const args = new Map<string, string>();
@@ -49,7 +50,7 @@ function assertBriefShape(value: unknown): asserts value is LinkedInShortBrief {
 }
 
 function clampDuration(value?: number) {
-  const raw = typeof value === "number" ? value : 1050;
+  const raw = typeof value === "number" ? value : 420;
   return Math.max(MIN_DURATION, Math.min(MAX_DURATION, raw));
 }
 

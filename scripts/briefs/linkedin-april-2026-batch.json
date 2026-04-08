@@ -1,0 +1,75 @@
+[
+  {
+    "topic": "Citizen L20 Swiss turning em Ti Gr5: como estabilizar geometrias criticas",
+    "targetAudience": "Diretores e lideres de Engenharia de Produto em fabricantes de implantes e instrumentais",
+    "painPoint": "Variacao dimensional em features criticas aumenta risco de retrabalho e nao conformidade",
+    "desiredOutcome": "Repetibilidade lote a lote com plano de controle dimensional desde o primeiro lote",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Citizen L20", "Swiss-type CNC", "Implantes de titanio", "ZEISS Contura"]
+  },
+  {
+    "topic": "ISO 13485 na pratica: 5 nao conformidades que aparecem antes da auditoria",
+    "targetAudience": "Gestores de Qualidade e Regulatorio em OEMs de dispositivos medicos",
+    "painPoint": "NCs recorrentes no handoff entre engenharia, qualidade e producao",
+    "desiredOutcome": "Auditoria mais previsivel com criterios claros por feature critica e rastreabilidade por lote",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Sala Limpa ISO 7", "ZEISS Contura", "Inspecao dimensional", "Documentacao tecnica"]
+  },
+  {
+    "topic": "Scorecard de risco supply chain 2026: importado vs local alem do preco unitario",
+    "targetAudience": "Diretores de Supply Chain, Operacoes e Compras estrategicas em empresas de dispositivos medicos",
+    "painPoint": "Decisoes por preco unitario ignoram risco de lead time, cambio e requalificacao",
+    "desiredOutcome": "Comparacao objetiva de risco operacional e financeiro para decisao de sourcing",
+    "ctaAction": "Baixe o scorecard completo no link da bio",
+    "postType": "commercial",
+    "format": "carousel",
+    "selectedEquipment": ["Production floor", "Citizen M32", "Fluxo de producao local", "ZEISS Contura"]
+  },
+  {
+    "topic": "Importado vs local: os 3 custos ocultos que distorcem o TCO em dispositivos medicos",
+    "targetAudience": "C-level, Supply Chain e Compras estrategicas",
+    "painPoint": "TCO subestimado por falta de visibilidade de risco operacional",
+    "desiredOutcome": "Decisao de sourcing baseada em custo total e risco real de continuidade",
+    "postType": "value",
+    "format": "single-image",
+    "selectedEquipment": ["Production overview", "Supply chain visual", "Componentes medicos", "Cadeia local"]
+  },
+  {
+    "topic": "Sala limpa ISO 7: monitoramento de particulas e controle de processo sem lacunas",
+    "targetAudience": "Lideres de Qualidade e Operacoes industriais em saude",
+    "painPoint": "Classificacao de sala limpa sem rotina robusta de monitoramento gera risco silencioso",
+    "desiredOutcome": "Ambiente controlado com criterios operacionais que sustentam conformidade",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["clean-room-1", "clean-room-4", "cleanroom-hero", "particle monitoring system"]
+  },
+  {
+    "topic": "ZEISS CMM e tolerancias sub-10um: validacao dimensional orientada por risco funcional",
+    "targetAudience": "Engenheiros de Produto e Qualidade em implantes e equipamentos odontologicos",
+    "painPoint": "Inspecao inconsistente para tolerancias criticas gera variacao entre lotes",
+    "desiredOutcome": "Plano metrologico rastreavel com decisao de processo baseada em dados",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["ZEISS Contura", "Metrology lab", "Implantes de titanio", "Inspecao 3D"]
+  },
+  {
+    "topic": "Da barra de titanio ao kit esteril: menos handoffs, menos risco na cadeia tecnica",
+    "targetAudience": "Lideres de Operacoes e Supply Chain em kits cirurgicos",
+    "painPoint": "Multiplos fornecedores aumentam variabilidade, atraso e perda de contexto tecnico",
+    "desiredOutcome": "Fluxo integrado com rastreabilidade fim a fim e previsibilidade de entrega",
+    "postType": "value",
+    "format": "carousel",
+    "selectedEquipment": ["Production floor", "Sala Limpa ISO 7", "Embalagem esteril", "Titanium components"]
+  },
+  {
+    "topic": "Marcacao UDI apos esterilizacao: por que a legibilidade falha e como prevenir",
+    "targetAudience": "Qualidade, Regulatorio e Engenharia de Processo",
+    "painPoint": "Marcacao valida na usinagem perde legibilidade apos limpeza e esterilizacao",
+    "desiredOutcome": "Validacao UDI no ciclo completo com criterio objetivo de legibilidade",
+    "postType": "value",
+    "format": "single-image",
+    "selectedEquipment": ["laser-marking", "Implantes de titanio", "Rastreabilidade UDI", "Sala Limpa ISO 7"]
+  }
+]

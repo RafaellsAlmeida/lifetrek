@@ -5,19 +5,24 @@ import {
   Sequence,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { LifetrekVignette, VIGNETTE_HEIGHT, VIGNETTE_WIDTH } from "../LifetrekVignette";
 
+/** 30fps: 360f = 12s, 450f = 15s (feed LinkedIn curto) */
 export const LINKEDIN_SHORT_FPS = 30;
 export const LINKEDIN_SHORT_WIDTH = VIGNETTE_WIDTH;
 export const LINKEDIN_SHORT_HEIGHT = VIGNETTE_HEIGHT;
-export const LINKEDIN_SHORT_MIN_DURATION = 900;
-export const LINKEDIN_SHORT_MAX_DURATION = 1350;
-export const LINKEDIN_SHORT_DEFAULT_DURATION = 1050;
-export const LINKEDIN_SHORT_INTRO_DURATION = 90;
-export const LINKEDIN_SHORT_OUTRO_DURATION = 90;
+export const LINKEDIN_SHORT_MIN_DURATION = 360;
+export const LINKEDIN_SHORT_MAX_DURATION = 450;
+export const LINKEDIN_SHORT_DEFAULT_DURATION = 420;
+/** Primeiros frames da vignette completa (logo + pilares entrando) */
+export const LINKEDIN_SHORT_INTRO_DURATION = 45;
+export const LINKEDIN_SHORT_OUTRO_DURATION = 36;
+/** Mínimo por cena de slide para caber em 12–15s com 3 imagens */
+const MIN_FRAMES_PER_SLIDE = 72;
 
 export type LinkedInShortSlide = {
   text: string;
@@ -44,6 +49,42 @@ const clampDuration = (value?: number) => {
   return Math.max(LINKEDIN_SHORT_MIN_DURATION, Math.min(LINKEDIN_SHORT_MAX_DURATION, raw));
 };
 
+const BrandStripBottom: React.FC = () => (
+  <div
+    style={{
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 6,
+      display: "flex",
+      zIndex: 4,
+    }}
+  >
+    <div style={{ flex: 1, background: BRAND.blue }} />
+    <div style={{ flex: 1, background: BRAND.green }} />
+    <div style={{ flex: 1, background: BRAND.orange }} />
+  </div>
+);
+
+const BrandStripTop: React.FC = () => (
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 6,
+      display: "flex",
+      zIndex: 4,
+    }}
+  >
+    <div style={{ flex: 1, background: BRAND.blue }} />
+    <div style={{ flex: 1, background: BRAND.green }} />
+    <div style={{ flex: 1, background: BRAND.orange }} />
+  </div>
+);
+
 const splitHeadline = (value: string) =>
   value
     .split("\n")
@@ -53,16 +94,21 @@ const splitHeadline = (value: string) =>
 const SlideScene: React.FC<{
   slide: LinkedInShortSlide;
   accentColor: string;
-}> = ({ slide, accentColor }) => {
+  durationInFrames: number;
+}> = ({ slide, accentColor, durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const zoom = interpolate(frame, [0, 120], [1.04, 1.12], {
+  const d = Math.max(24, durationInFrames);
+  const fade = Math.min(10, Math.floor(d * 0.12));
+  const zoomEnd = Math.max(fade + 8, d - fade);
+
+  const zoom = interpolate(frame, [0, zoomEnd], [1.04, 1.1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const opacity = interpolate(frame, [0, 10, 110, 120], [0, 1, 1, 0], {
+  const opacity = interpolate(frame, [0, fade, d - fade, d], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -105,28 +151,30 @@ const SlideScene: React.FC<{
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(0deg, rgba(0,20,48,0.76) 0%, rgba(0,20,48,0.58) 55%, rgba(0,20,48,0.72) 100%)",
+            "linear-gradient(0deg, rgba(0,30,70,0.72) 0%, rgba(0,30,70,0.52) 50%, rgba(0,30,70,0.68) 100%)",
         }}
       />
+
+      <BrandStripTop />
+      <BrandStripBottom />
 
       <div
         style={{
           position: "absolute",
-          top: 64,
-          right: 64,
-          fontFamily: "Inter, system-ui, sans-serif",
-          fontWeight: 700,
-          fontSize: 30,
-          letterSpacing: "0.04em",
-          color: BRAND.white,
-          textTransform: "uppercase",
-          border: "1px solid rgba(255,255,255,0.4)",
-          padding: "8px 14px",
-          borderRadius: 8,
-          backgroundColor: "rgba(0,0,0,0.24)",
+          top: 44,
+          right: 44,
+          zIndex: 3,
+          padding: "10px 12px",
+          borderRadius: 10,
+          backgroundColor: "rgba(255,255,255,0.96)",
+          border: `1px solid rgba(0,79,143,0.25)`,
+          boxShadow: "0 10px 28px rgba(0,0,0,0.2)",
         }}
       >
-        Lifetrek Medical
+        <Img
+          src={staticFile("images/lifetrek-logo-full.png")}
+          style={{ width: 200, height: "auto", objectFit: "contain", display: "block" }}
+        />
       </div>
 
       <div
@@ -149,7 +197,7 @@ const SlideScene: React.FC<{
             height: 4,
             borderRadius: 4,
             backgroundColor: accentColor,
-            marginBottom: 14,
+            marginBottom: 12,
           }}
         />
         <div
@@ -160,7 +208,7 @@ const SlideScene: React.FC<{
             fontFamily: "Inter, system-ui, sans-serif",
             color: BRAND.white,
             fontWeight: 800,
-            fontSize: 52,
+            fontSize: 46,
             lineHeight: 1.06,
             letterSpacing: "-0.02em",
           }}
@@ -177,8 +225,8 @@ const SlideScene: React.FC<{
               color: "rgba(255,255,255,0.9)",
               fontFamily: "Inter, system-ui, sans-serif",
               fontWeight: 500,
-              fontSize: 30,
-              lineHeight: 1.25,
+              fontSize: 26,
+              lineHeight: 1.28,
             }}
           >
             {slide.subtext}
@@ -205,30 +253,35 @@ const OutroCard: React.FC<{ topic: string; accentColor: string }> = ({ topic, ac
   return (
     <AbsoluteFill
       style={{
-        background: "linear-gradient(145deg, #00152f 0%, #003568 52%, #00224a 100%)",
+        background: "linear-gradient(145deg, #00152f 0%, #004F8F 42%, #00224a 100%)",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
+      <BrandStripBottom />
       <div
         style={{
-          width: 850,
-          borderRadius: 24,
-          border: "1px solid rgba(255,255,255,0.2)",
-          backgroundColor: "rgba(6,14,30,0.78)",
-          padding: "44px 52px",
+          width: 880,
+          borderRadius: 22,
+          border: "1px solid rgba(255,255,255,0.22)",
+          backgroundColor: "rgba(6,14,30,0.82)",
+          padding: "36px 44px 40px",
           opacity,
           transform: `translateY(${y}px)`,
           boxShadow: "0 30px 70px rgba(0, 0, 0, 0.4)",
         }}
       >
+        <Img
+          src={staticFile("images/lifetrek-logo-full.png")}
+          style={{ width: 220, marginBottom: 18, objectFit: "contain" }}
+        />
         <div
           style={{
             width: 110,
             height: 4,
             borderRadius: 4,
             backgroundColor: accentColor,
-            marginBottom: 20,
+            marginBottom: 16,
           }}
         />
         <p
@@ -237,7 +290,7 @@ const OutroCard: React.FC<{ topic: string; accentColor: string }> = ({ topic, ac
             color: BRAND.white,
             fontFamily: "Inter, system-ui, sans-serif",
             fontWeight: 700,
-            fontSize: 44,
+            fontSize: 38,
             lineHeight: 1.15,
           }}
         >
@@ -245,16 +298,18 @@ const OutroCard: React.FC<{ topic: string; accentColor: string }> = ({ topic, ac
         </p>
         <p
           style={{
-            marginTop: 16,
+            marginTop: 12,
             marginBottom: 0,
-            color: "rgba(255,255,255,0.88)",
+            color: "rgba(255,255,255,0.9)",
             fontFamily: "Inter, system-ui, sans-serif",
             fontWeight: 500,
-            fontSize: 30,
-            lineHeight: 1.25,
+            fontSize: 24,
+            lineHeight: 1.3,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
           }}
         >
-          Engenharia de precisão com foco em qualidade, rastreabilidade e escala.
+          Engenharia de precisão a serviço da vida
         </p>
       </div>
     </AbsoluteFill>
@@ -285,7 +340,7 @@ export const LinkedInShort: React.FC<LinkedInShortProps> = ({
   const safeSlides = slides?.length ? slides : FALLBACK_SLIDES;
   const totalDuration = clampDuration(durationInFrames);
   const contentFrames = totalDuration - LINKEDIN_SHORT_INTRO_DURATION - LINKEDIN_SHORT_OUTRO_DURATION;
-  const perSlide = Math.max(120, Math.floor(contentFrames / safeSlides.length));
+  const perSlide = Math.max(MIN_FRAMES_PER_SLIDE, Math.floor(contentFrames / safeSlides.length));
 
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.blue }}>
@@ -299,7 +354,7 @@ export const LinkedInShort: React.FC<LinkedInShortProps> = ({
           from={LINKEDIN_SHORT_INTRO_DURATION + index * perSlide}
           durationInFrames={perSlide}
         >
-          <SlideScene slide={slide} accentColor={accentColor} />
+          <SlideScene slide={slide} accentColor={accentColor} durationInFrames={perSlide} />
         </Sequence>
       ))}
 

@@ -1,0 +1,159 @@
+{
+  "runId": "validation-run-2026-04-07",
+  "generatedAt": "2026-04-08T01:27:52.428Z",
+  "overallStatus": "passed",
+  "suites": [
+    {
+      "label": "API validation suite",
+      "command": "npx playwright test playwright/tests/api/engineering-drawing.api.spec.ts --reporter=json",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 6495.193
+    },
+    {
+      "label": "E2E validation suite",
+      "command": "TEST_ADMIN_EMAIL='rafacrvg@icloud.com' TEST_ADMIN_PASSWORD='Lifetrek2026' npx playwright test playwright/tests/e2e/technical-drawing.e2e.spec.ts --reporter=json",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 26112.185
+    }
+  ],
+  "manualChecks": [
+    {
+      "name": "Supported sketch -> review -> 2D -> 3D -> GLB",
+      "status": "passed",
+      "steps": [
+        "Uploaded the supported threaded shaft sketch in the admin UI.",
+        "Resolved the remaining ambiguity and confirmed geometry plus semantic review.",
+        "Generated 2D output, then 3D preview, then verified GLB export was enabled."
+      ]
+    },
+    {
+      "name": "GD&T semantic blocking before reviewer approval",
+      "status": "passed",
+      "steps": [
+        "Opened the fixture with an unknown governing standard and a pending perpendicularity callout.",
+        "Confirmed the app blocked 2D generation with the expected governing-standard validation message.",
+        "Selected ASME, marked the callout as confirmed, saved review, and verified the same fixture then rendered successfully."
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "title": "Axisymmetric happy path is stable",
+      "detail": "The supported shaft fixture now survives extraction, review, 2D rendering, 3D preview, and GLB export without bypassing validation."
+    },
+    {
+      "title": "Semantic GD&T gating is working as intended",
+      "detail": "Unknown governing standards and review-pending callouts block rendering until a reviewer resolves them, which is the correct safety posture for internal use."
+    },
+    {
+      "title": "3D scope is intentionally narrow and honest",
+      "detail": "Unsupported side flats and complex non-round segments still block GLB, rather than producing misleading geometry."
+    },
+    {
+      "title": "Remaining weakness is reviewer-correction reuse",
+      "detail": "The system stores reviewed outcomes, but it does not yet turn recurring reviewer corrections into stronger first-pass suggestions."
+    }
+  ],
+  "improvementPlan": [
+    {
+      "phase": "Phase 1: Capture correction signals",
+      "timeframe": "1 sprint",
+      "goal": "Persist the exact reviewer corrections that changed extraction output.",
+      "actions": [
+        "Store field-level deltas for standard selection, datum type changes, callout review-status changes, ambiguity resolutions, and feature-target overrides.",
+        "Record the raw trigger that caused the draft suggestion: OCR text, title-block text, fixture ID, and confidence bucket.",
+        "Tag each correction with a simple reason code such as standard, symbol_parse, leader_target, datum_type, tolerance_value, or unsupported_scope."
+      ],
+      "expectedImpact": "This creates a labeled correction history without introducing a new model or changing the current validation gates."
+    },
+    {
+      "phase": "Phase 2: Example-backed suggestion memory",
+      "timeframe": "1 sprint",
+      "goal": "Use accepted past corrections to improve the next draft suggestion.",
+      "actions": [
+        "Build a small reviewed-example store keyed by normalized raw text plus context such as standard family, feature kind, and axisymmetric flag.",
+        "Before falling back to generic heuristics, check for exact or near-exact reviewed examples and reuse the accepted normalization when confidence is high.",
+        "Expose the match source in the review UI as 'based on reviewed example' so reviewers can trust or reject it explicitly."
+      ],
+      "expectedImpact": "Recurring title-block formats, datum tags, and common FCF patterns should converge faster with less manual cleanup."
+    },
+    {
+      "phase": "Phase 3: Acceptance-rate rule tuning",
+      "timeframe": "1 sprint",
+      "goal": "Promote only the suggestions that repeatedly survive review.",
+      "actions": [
+        "Track acceptance rate per heuristic and per reviewed-example pattern.",
+        "Auto-accept only patterns that stay above a strict threshold and have no conflicting reviewer history.",
+        "Force low-agreement patterns back into review-required mode instead of letting them look authoritative."
+      ],
+      "expectedImpact": "Confidence becomes calibrated by observed reviewer agreement instead of only by initial OCR heuristics."
+    },
+    {
+      "phase": "Phase 4: Corpus replay and regression gating",
+      "timeframe": "ongoing",
+      "goal": "Turn accepted drawings into a growing validation corpus.",
+      "actions": [
+        "Export reviewed session snapshots into a gold fixture library with source image, normalized geometry, normalized semantic document, and expected render/export outcome.",
+        "Replay the corpus on every extraction or validation change and compare field-level drift for standard detection, datum typing, callout parsing, and 3D readiness.",
+        "Fail CI when a previously accepted reviewed fixture regresses from pass to review-required or blocked without an explicit rule change."
+      ],
+      "expectedImpact": "The system improves from its own reviewed history while staying deterministic and auditable."
+    }
+  ],
+  "uploads": [
+    {
+      "label": "Manual in-app validation: supported axisymmetric 3D flow",
+      "type": "manual",
+      "fileName": "manual-technical-drawing-supported-3d.png",
+      "size": "0.97 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/manual-technical-drawing-supported-3d.png",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/manual-technical-drawing-supported-3d.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L21hbnVhbC10ZWNobmljYWwtZHJhd2luZy1zdXBwb3J0ZWQtM2QucG5nIiwiaWF0IjoxNzc1NjExNjc3LCJleHAiOjE3NzYyMTY0Nzd9.SRiXdj9-4JJLk-VG8xhJLdaT-ZzwSd_JZDtaU_1QncA"
+    },
+    {
+      "label": "Manual in-app validation: GD&T gate cleared after reviewer confirmation",
+      "type": "manual",
+      "fileName": "manual-technical-drawing-gdt-cleared.png",
+      "size": "0.84 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/manual-technical-drawing-gdt-cleared.png",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/manual-technical-drawing-gdt-cleared.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L21hbnVhbC10ZWNobmljYWwtZHJhd2luZy1nZHQtY2xlYXJlZC5wbmciLCJpYXQiOjE3NzU2MTE2NzgsImV4cCI6MTc3NjIxNjQ3OH0.rDqYdtZu65W6T5S6ZFrOdsSuKyPrB15VOXd-3D2ycFQ"
+    },
+    {
+      "label": "Automated E2E: 3D happy path",
+      "type": "automated",
+      "fileName": "technical-drawing-3d-happy-path.png",
+      "size": "0.97 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/technical-drawing-3d-happy-path.png",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/technical-drawing-3d-happy-path.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L3RlY2huaWNhbC1kcmF3aW5nLTNkLWhhcHB5LXBhdGgucG5nIiwiaWF0IjoxNzc1NjExNjc5LCJleHAiOjE3NzYyMTY0Nzl9.IODisdpR-yYdMlKd3yc5WC2noV0ZMRXgH1wRtTmtKEY"
+    },
+    {
+      "label": "Automated E2E: GD&T review path",
+      "type": "automated",
+      "fileName": "technical-drawing-gdt-review.png",
+      "size": "0.82 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/technical-drawing-gdt-review.png",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/technical-drawing-gdt-review.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L3RlY2huaWNhbC1kcmF3aW5nLWdkdC1yZXZpZXcucG5nIiwiaWF0IjoxNzc1NjExNjgwLCJleHAiOjE3NzYyMTY0ODB9.ZpwhCc4FinyNxtYsZER5fDD9_NAKWST6I5QeCrhf-DM"
+    },
+    {
+      "label": "Automated E2E: final reviewed drawing state",
+      "type": "automated",
+      "fileName": "technical-drawing-final.png",
+      "size": "0.60 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/technical-drawing-final.png",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/technical-drawing-final.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L3RlY2huaWNhbC1kcmF3aW5nLWZpbmFsLnBuZyIsImlhdCI6MTc3NTYxMTY4MSwiZXhwIjoxNzc2MjE2NDgxfQ.u1Uc2bUbrCemjOXI2ZKv5ZuG6Zsi1rGNXvg4NUZ_xw8"
+    },
+    {
+      "label": "Validation report PDF",
+      "type": "report",
+      "fileName": "engineering-drawing-validation-report.pdf",
+      "size": "4.52 MB",
+      "path": "reports/validation-runs/validation-run-2026-04-07/engineering-drawing-validation-report.pdf",
+      "signedUrl": "https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/sign/engineering-drawings/reports/validation-runs/validation-run-2026-04-07/engineering-drawing-validation-report.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85MjlmYjZmYi1mNmI5LTQ3MjAtOWJmMi0zMzlhMzRlNWU1NzYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbmdpbmVlcmluZy1kcmF3aW5ncy9yZXBvcnRzL3ZhbGlkYXRpb24tcnVucy92YWxpZGF0aW9uLXJ1bi0yMDI2LTA0LTA3L2VuZ2luZWVyaW5nLWRyYXdpbmctdmFsaWRhdGlvbi1yZXBvcnQucGRmIiwiaWF0IjoxNzc1NjExNjgzLCJleHAiOjE3NzYyMTY0ODN9.YCVo8GNhsUUJpMUlAELNrjasz3mNknah3lsdNhNOY5U"
+    }
+  ]
+}

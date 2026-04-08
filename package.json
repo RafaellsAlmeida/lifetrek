@@ -18,6 +18,7 @@
     "remotion:studio": "remotion studio",
     "remotion:render": "remotion render",
     "remotion:linkedin-short": "tsx scripts/render-linkedin-short.ts --brief scripts/briefs/linkedin-short-citizen-l20.json --out tmp/linkedin-short-citizen-l20.mp4",
+    "generate:instagram-this-or-that": "deno run --allow-all scripts/generate_instagram_this_or_that_carousel.ts --out tmp/instagram-this-or-that",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
