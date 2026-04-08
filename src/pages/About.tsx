@@ -1,5 +1,4 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Award, Users, Zap } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { BlobBackground } from "@/components/BlobBackground";
 import { MagneticButton } from "@/components/MagneticButton";
@@ -13,6 +12,11 @@ export default function About() {
   const missionAnimation = useScrollAnimation();
   const valuesAnimation = useScrollAnimation();
   const ctaAnimation = useScrollAnimation();
+  const visionPoints = [
+    t("about.vision.quality"),
+    t("about.vision.innovation"),
+    t("about.vision.partnerships")
+  ];
   const values = [{
     title: t("about.values.excellence"),
     description: t("about.values.excellence.text"),
@@ -93,25 +97,10 @@ export default function About() {
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 {t("about.vision.text")}
               </p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Award className="h-4 w-4 text-accent" />
-                  </div>
-                  <span className="text-muted-foreground">{t("about.vision.quality")}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Zap className="h-4 w-4 text-accent" />
-                  </div>
-                  <span className="text-muted-foreground">{t("about.vision.innovation")}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Users className="h-4 w-4 text-accent" />
-                  </div>
-                  <span className="text-muted-foreground">{t("about.vision.partnerships")}</span>
-                </li>
+              <ul className="list-none space-y-3">
+                {visionPoints.map((point, index) => <li key={index} className="text-muted-foreground leading-relaxed">
+                    {point}
+                  </li>)}
               </ul>
             </div>
           </div>

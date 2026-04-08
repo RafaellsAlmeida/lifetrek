@@ -73,6 +73,10 @@ function trimSnippet(content: string): string {
   return content.replace(/\s+/g, " ").trim().slice(0, 420);
 }
 
+function logWebsiteBot(event: string, payload: Record<string, unknown>) {
+  console.info(`[website-bot] ${event}`, JSON.stringify(payload));
+}
+
 function uniqueTokens(query: string, interest: string, matchedCompany: string | null): string[] {
   const baseTokens = query
     .toLowerCase()
@@ -80,7 +84,7 @@ function uniqueTokens(query: string, interest: string, matchedCompany: string | 
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((token) => token.length >= 4 && !/\d/.test(token));
+    .filter((token) => token.length >= 4 || /\d/.test(token));
 
   const interestTokens =
     interest === "Veterinario"
@@ -114,8 +118,56 @@ type KnowledgeContextItem = {
   answer?: string | null;
   content: string;
   similarity?: number | null;
-  source_table: "knowledge_base" | "knowledge_embeddings";
+  source_table: "knowledge_base";
 };
+
+function normalizeSearchTokens(value: string): string[] {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function scoreKnowledgeContextItem(item: KnowledgeContextItem, query: string): number {
+  const searchable = normalizeSearchTokens(
+    [item.source_type, item.category, item.question, item.answer, item.content]
+      .filter((value): value is string => typeof value === "string" && value.length > 0)
+      .join(" "),
+  ).join(" ");
+  const queryTokens = normalizeSearchTokens(query);
+
+  let score = 0;
+  for (const token of queryTokens) {
+    if (!token || token.length < 2) continue;
+    if (searchable.includes(token)) {
+      score += /\d/.test(token) ? 6 : 2;
+    }
+  }
+
+  if (queryTokens.some((token) => /\d/.test(token)) && /l20|m32|zeiss|citizen/i.test(searchable)) {
+    score += 3;
+  }
+
+  const sourceId = (item.source_id || "").toLowerCase();
+  const isTechnicalQuery = queryTokens.some((token) =>
+    ["citizen", "zeiss", "contura", "cmm", "l20", "m32", "cnc", "metrolog", "machin"].some((needle) => token.includes(needle))
+  );
+  const isProductQuery = queryTokens.some((token) =>
+    ["implante", "pino", "parafuso", "veterin", "dental", "ortoped", "instrumental", "produto"].some((needle) => token.includes(needle))
+  );
+  const isCommercialQuery = queryTokens.some((token) =>
+    ["lead", "time", "importacao", "custo", "tco", "mercado", "compet"].some((needle) => token.includes(needle))
+  );
+
+  if (isTechnicalQuery && sourceId.includes("infrastructure")) score += 4;
+  if (isProductQuery && sourceId.includes("products")) score += 4;
+  if (isCommercialQuery && sourceId.includes("competitive")) score += 4;
+
+  return score;
+}
 
 function dedupeKnowledgeContextItems(items: KnowledgeContextItem[]): KnowledgeContextItem[] {
   const seen = new Map<string, KnowledgeContextItem>();
@@ -130,10 +182,16 @@ function dedupeKnowledgeContextItems(items: KnowledgeContextItem[]): KnowledgeCo
   return [...seen.values()].sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
 }
 
-function formatKnowledgeContext(items: KnowledgeContextItem[]): string {
+function formatKnowledgeContext(items: KnowledgeContextItem[], query: string): string {
+  const rankedItems = [...items].sort((a, b) => {
+    const scoreDelta = scoreKnowledgeContextItem(b, query) - scoreKnowledgeContextItem(a, query);
+    if (scoreDelta !== 0) return scoreDelta;
+    return (b.similarity ?? 0) - (a.similarity ?? 0);
+  });
+
   return (
     "\n\nBase de conhecimento relevante:\n" +
-    items
+    rankedItems
       .map((item) => {
         const label = `${item.source_table}:${item.source_type || item.category || "info"}`;
         const snippet = trimSnippet(item.answer || item.content || item.question || "");
@@ -141,16 +199,6 @@ function formatKnowledgeContext(items: KnowledgeContextItem[]): string {
       })
       .join("\n")
   );
-}
-
-function summarizeKnowledgeContext(ragContext: string): string | null {
-  const firstBullet = ragContext
-    .split("\n")
-    .find((line) => line.trimStart().startsWith("- "));
-
-  if (!firstBullet) return null;
-
-  return firstBullet.replace(/^- \[[^\]]+\]\s*/, "").trim();
 }
 
 async function fetchEmbedding(
@@ -362,55 +410,48 @@ async function fetchKnowledgeContext(
 
   const embeddingResult = await fetchEmbedding(openAiKey, openRouterKey, query);
   retrieval.embeddingProvider = embeddingResult.provider;
+  logWebsiteBot("knowledge.retrieval.start", {
+    query: trimSnippet(query),
+    interest,
+    matchedCompany,
+    embeddingProvider: retrieval.embeddingProvider,
+    tokenCount: uniqueTokens(query, interest, matchedCompany).length,
+  });
 
   if (embeddingResult.embedding) {
-    const [knowledgeBaseVector, knowledgeEmbeddingsVector] = await Promise.all([
-      (supabase as any).rpc("match_knowledge_base", {
-        query_embedding: embeddingResult.embedding,
-        match_count: 3,
-        match_threshold: 0.3,
-      }) as Promise<{ data: any[] | null; error: any }>,
-      (supabase as any).rpc("match_knowledge", {
-        query_embedding: embeddingResult.embedding,
-        match_count: 3,
-        match_threshold: 0.3,
-      }) as Promise<{ data: any[] | null; error: any }>,
-    ]);
+    const { data, error } = await (supabase as any).rpc("match_company_knowledge", {
+      query_embedding: embeddingResult.embedding,
+      match_count: 4,
+      match_threshold: 0.3,
+    }) as { data: any[] | null; error: any };
 
-    const vectorItems: KnowledgeContextItem[] = [];
+    if (!error && data?.length) {
+      const vectorItems: KnowledgeContextItem[] = data.map((item: any) => ({
+        ...item,
+        source_table: "knowledge_base" as const,
+      }));
 
-    if (!knowledgeBaseVector.error && knowledgeBaseVector.data?.length) {
-      vectorItems.push(
-        ...knowledgeBaseVector.data.map((item: any) => ({
-          ...item,
-          source_table: "knowledge_base" as const,
-        })),
-      );
-    }
+      const mergedVectorItems = dedupeKnowledgeContextItems(vectorItems).slice(0, 4);
 
-    if (!knowledgeEmbeddingsVector.error && knowledgeEmbeddingsVector.data?.length) {
-      vectorItems.push(
-        ...knowledgeEmbeddingsVector.data.map((item: any) => ({
-          ...item,
-          category: item.source_type || item.metadata?.category || null,
-          source_table: "knowledge_embeddings" as const,
-        })),
-      );
-    }
-
-    const mergedVectorItems = dedupeKnowledgeContextItems(vectorItems).slice(0, 4);
-
-    if (mergedVectorItems.length) {
       retrieval.mode = "vector";
       retrieval.vectorResults = mergedVectorItems.length;
       retrieval.sourceMatches = mergedVectorItems.map(
         (item) => `${item.source_table}:${item.source_type || item.category || "info"}`,
       );
+      logWebsiteBot("knowledge.retrieval.vector_hit", {
+        resultCount: mergedVectorItems.length,
+        sources: retrieval.sourceMatches,
+      });
       return {
-        context: formatKnowledgeContext(mergedVectorItems),
+        context: formatKnowledgeContext(mergedVectorItems, query),
         retrieval,
       };
     }
+
+    logWebsiteBot("knowledge.retrieval.vector_miss", {
+      hasEmbedding: true,
+      rpcError: error ? String(error.message ?? error) : null,
+    });
   }
 
   const terms = uniqueTokens(query, interest, matchedCompany);
@@ -419,34 +460,17 @@ async function fetchKnowledgeContext(
 
   for (const term of terms) {
     const pattern = `%${term}%`;
-    const [knowledgeBaseText, knowledgeEmbeddingsText] = await Promise.all([
-      supabase
-        .from("knowledge_base")
-        .select("id, source_type, category, question, answer, content")
-        .or(`content.ilike.${pattern},question.ilike.${pattern},answer.ilike.${pattern}`)
-        .limit(3),
-      supabase
-        .from("knowledge_embeddings")
-        .select("id, source_type, source_id, content, metadata")
-        .ilike("content", pattern)
-        .limit(3),
-    ]);
+    const { data, error } = await supabase
+      .from("knowledge_base")
+      .select("id, source_id, source_type, category, question, answer, content")
+      .or(`content.ilike.${pattern},question.ilike.${pattern},answer.ilike.${pattern}`)
+      .limit(3);
 
-    if (!knowledgeBaseText.error && knowledgeBaseText.data?.length) {
-      for (const item of knowledgeBaseText.data) {
+    if (!error && data?.length) {
+      for (const item of data) {
         seen.set(`knowledge_base:${item.id}`, {
           ...item,
           source_table: "knowledge_base" as const,
-        });
-      }
-    }
-
-    if (!knowledgeEmbeddingsText.error && knowledgeEmbeddingsText.data?.length) {
-      for (const item of knowledgeEmbeddingsText.data) {
-        seen.set(`knowledge_embeddings:${item.id}`, {
-          ...item,
-          category: item.source_type || item.metadata?.category || null,
-          source_table: "knowledge_embeddings" as const,
         });
       }
     }
@@ -456,6 +480,10 @@ async function fetchKnowledgeContext(
 
   const results = dedupeKnowledgeContextItems([...seen.values()]).slice(0, 3);
   if (!results.length) {
+    logWebsiteBot("knowledge.retrieval.text_miss", {
+      terms,
+      mode: retrieval.mode,
+    });
     return { context: "", retrieval };
   }
 
@@ -464,9 +492,14 @@ async function fetchKnowledgeContext(
   retrieval.sourceMatches = results.map(
     (item) => `${item.source_table}:${item.source_type || item.category || "info"}`,
   );
+  logWebsiteBot("knowledge.retrieval.text_hit", {
+    resultCount: results.length,
+    sources: retrieval.sourceMatches,
+    terms,
+  });
 
   return {
-    context: formatKnowledgeContext(results),
+    context: formatKnowledgeContext(results, query),
     retrieval,
   };
 }
@@ -589,10 +622,14 @@ function buildFallbackReply(options: {
 }) {
   const { allUserText, interest, companyLookup, ragContext, leadQualification } = options;
   const parts: string[] = [];
-  const ragSummary = summarizeKnowledgeContext(ragContext);
 
-  if (ragSummary) {
-    parts.push(`Encontrei na base da Lifetrek: ${ragSummary}`);
+  if (ragContext) {
+    const ragLine = ragContext
+      .split("\n")
+      .find((line) => line.trimStart().startsWith("- "));
+    if (ragLine) {
+      parts.push(`Encontrei na base da Lifetrek: ${ragLine.replace(/^- \[[^\]]+\]\s*/, "").trim()}`);
+    }
   }
 
   parts.push(baseCapabilityReply(interest, allUserText));
@@ -690,6 +727,21 @@ serve(async (req) => {
       companyLookup.matchedCompany,
     );
 
+    logWebsiteBot("request.received", {
+      sessionId: sessionId || null,
+      ip: ip === "anon" ? "anon" : "present",
+      messageCount: typedMessages.length,
+      userMessageCount: userMessages.length,
+      lastUserMessage: trimSnippet(lastUserMessage),
+      interest,
+      detectedCompany,
+      companyMatchSource: companyLookup.matchSource,
+      leadQualification: {
+        shouldRequestContact: leadQualification.shouldRequestContact,
+        readyForCommercialFollowUp: leadQualification.readyForCommercialFollowUp,
+      },
+    });
+
     const systemPrompt = buildSystemPrompt({
       ragContext,
       companyHint: buildCompanyPromptHint(companyLookup),
@@ -714,6 +766,10 @@ serve(async (req) => {
         detectedCompany: qualifiedCompanyReference,
       });
       modelLabel = "deterministic-lead-capture";
+      logWebsiteBot("reply.mode", {
+        mode: "deterministic-lead-capture",
+        interest,
+      });
     } else {
       const postCaptureReply = buildPostCaptureReply({
         state: leadQualification,
@@ -723,6 +779,10 @@ serve(async (req) => {
       if (postCaptureReply) {
         reply = postCaptureReply;
         modelLabel = "deterministic-post-capture";
+        logWebsiteBot("reply.mode", {
+          mode: "deterministic-post-capture",
+          interest,
+        });
       }
     }
 
@@ -739,6 +799,13 @@ serve(async (req) => {
         modelLabel = completion.modelLabel;
       }
       providerError = completion.providerError;
+      logWebsiteBot("reply.mode", {
+        mode: "model",
+        modelLabel,
+        providerError: providerError || null,
+        ragUsed: Boolean(ragContext),
+        ragMode: retrieval.mode,
+      });
     }
 
     if (!reply) {
@@ -751,7 +818,23 @@ serve(async (req) => {
       });
       modelLabel = "deterministic-fallback";
       aiFallbackUsed = true;
+      logWebsiteBot("reply.mode", {
+        mode: "deterministic-fallback",
+        ragUsed: Boolean(ragContext),
+        ragMode: retrieval.mode,
+      });
     }
+
+    logWebsiteBot("request.completed", {
+      modelLabel,
+      aiFallbackUsed,
+      ragMode: retrieval.mode,
+      ragSources: retrieval.sourceMatches,
+      ragTextResults: retrieval.textResults,
+      ragVectorResults: retrieval.vectorResults,
+      providerError,
+      replyPreview: trimSnippet(reply),
+    });
 
     const sid = sessionId || `anon-${Date.now()}`;
     const lastMessage = typedMessages[typedMessages.length - 1];

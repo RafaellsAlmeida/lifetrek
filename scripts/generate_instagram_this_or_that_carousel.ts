@@ -488,7 +488,7 @@ function slide02(logoData: string | null): SatoriNode {
           props: {
             style: {
               position: "absolute",
-              top: "500px",
+              top: "525px",
               left: "50%",
               transform: "translateX(-50%)",
               width: "120px",
@@ -503,34 +503,10 @@ function slide02(logoData: string | null): SatoriNode {
             children: [{
               type: "span",
               props: {
-                style: { color: BRAND.primaryBlue, fontSize: "32px", fontWeight: 700 },
-                children: " ",
+                style: { color: BRAND.primaryBlue, fontSize: "38px", fontWeight: 700 },
+                children: "ou",
               },
             }],
-          },
-        },
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              top: "505px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              color: BRAND.text,
-              fontSize: "66px",
-              fontWeight: 700,
-              lineHeight: "1.03",
-            },
-            children: [
-              { type: "div", props: { children: "ESTE" } },
-              { type: "div", props: { style: { color: BRAND.primaryBlue, fontSize: "42px" }, children: "ou" } },
-              { type: "div", props: { children: "AQUELE?" } },
-            ],
           },
         },
         {
@@ -563,20 +539,38 @@ function slide02(logoData: string | null): SatoriNode {
           props: {
             style: {
               position: "absolute",
-              top: "700px",
+              top: "650px",
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
               color: BRAND.text,
-              fontSize: "26px",
+              fontSize: "38px",
               fontWeight: 700,
               lineHeight: "1.2",
-              width: "760px",
+              width: "820px",
               backgroundColor: "rgba(255,255,255,0.9)",
               borderRadius: "14px",
-              padding: "10px 16px",
+              padding: "14px 20px",
             },
-            children: "Você prefere fixar membranas com pinos ou parafusos?",
+            children: "Fixar membranas com PINOS ou PARAFUSOS?",
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              top: "740px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              textAlign: "center",
+              color: BRAND.muted,
+              fontSize: "24px",
+              fontWeight: 700,
+              lineHeight: "1.25",
+              width: "860px",
+            },
+            children: "3 decisões de engenharia influenciam desempenho clínico e custo do kit.",
           },
         },
         logoCorner(logoData),
@@ -936,6 +930,122 @@ function slide06(logoData: string | null): SatoriNode {
   };
 }
 
+function finalValueSlide(logoData: string | null): SatoriNode {
+  return {
+    type: "div",
+    props: {
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        width: `${W}px`,
+        height: `${H}px`,
+        position: "relative",
+        fontFamily: "Inter",
+        backgroundColor: BRAND.white,
+      },
+      children: [
+        logoCorner(logoData),
+        {
+          type: "div",
+          props: {
+            style: {
+              paddingTop: "120px",
+              paddingLeft: "72px",
+              paddingRight: "72px",
+              display: "flex",
+              flexDirection: "column",
+            },
+            children: [
+              {
+                type: "div",
+                props: {
+                  style: {
+                    color: BRAND.primaryBlue,
+                    fontSize: "48px",
+                    fontWeight: 700,
+                    lineHeight: "1.1",
+                    marginBottom: "18px",
+                  },
+                  children: "Onde entra a Lifetrek",
+                },
+              },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    color: BRAND.text,
+                    fontSize: "29px",
+                    fontWeight: 600,
+                    lineHeight: "1.3",
+                    marginBottom: "26px",
+                  },
+                  children:
+                    "Pinos e parafusos de precisão para kits de regeneração óssea com foco em desempenho e consistência de lote.",
+                },
+              },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "14px",
+                  },
+                  children: [
+                    "• Torneamento suíço para diâmetros finos e geometrias complexas.",
+                    "• Controle de rugosidade e dimensões para contato com tecido.",
+                    "• Rastreabilidade e documentação alinhadas à ISO 13485 e ANVISA.",
+                  ].map((line) => ({
+                    type: "div",
+                    props: {
+                      style: {
+                        color: BRAND.text,
+                        fontSize: "30px",
+                        fontWeight: 500,
+                        lineHeight: "1.25",
+                      },
+                      children: line,
+                    },
+                  })),
+                },
+              },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    marginTop: "34px",
+                    background: `linear-gradient(90deg, ${BRAND.orange} 0%, ${BRAND.primaryBlue} 100%)`,
+                    color: BRAND.white,
+                    borderRadius: "12px",
+                    padding: "18px 22px",
+                    fontSize: "30px",
+                    fontWeight: 700,
+                  },
+                  children: "Seu time de P&D escolhe o melhor conceito clínico. A manufatura acompanha.",
+                },
+              },
+            ],
+          },
+        },
+        {
+          type: "div",
+          props: {
+            style: {
+              position: "absolute",
+              left: "0",
+              top: "0",
+              width: `${W}px`,
+              height: "16px",
+              background: `linear-gradient(90deg, ${BRAND.orange} 0%, ${BRAND.primaryBlue} 55%, ${BRAND.green} 100%)`,
+            },
+          },
+        },
+        brandBarBottom(),
+      ],
+    },
+  };
+}
+
 async function renderPng(
   node: SatoriNode,
   fonts: { fontBold: ArrayBuffer; fontRegular: ArrayBuffer },
@@ -965,16 +1075,15 @@ async function main() {
   const slides: { name: string; node: SatoriNode }[] = [
     { name: "01-este-ou-aquele", node: slide01(pinData, screwData, logoData) },
     { name: "02-pergunta", node: slide02(logoData) },
-    { name: "03-isso-e-aquilo", node: slide03(logoData) },
     {
-      name: "04-pinos",
+      name: "03-quando-pinos",
       node: bulletSlide(
-        "Pinos de precisão",
+        "Quando PINOS fazem mais sentido",
         BRAND.primaryBlue,
         [
-          "Geometrias exigentes em diâmetros pequenos, com controle dimensional rigoroso.",
-          "Processos alinhados a rastreabilidade e consistência de lote.",
-          "Ideal quando o desenho exige encaixe crítico e acabamento controlado.",
+          "Menor perfil e abordagem menos invasiva em certos cenários.",
+          "Diâmetros muito pequenos exigem controle dimensional rigoroso.",
+          "Boa escolha quando a prioridade é mínimo volume de metal.",
         ],
         "green",
         pinData,
@@ -982,21 +1091,21 @@ async function main() {
       ),
     },
     {
-      name: "05-parafusos",
+      name: "04-quando-parafusos",
       node: bulletSlide(
-        "Parafusos de fixação",
+        "Quando PARAFUSOS vencem",
         "#6B7280",
         [
-          "Roscas e perfis desafiadores em torno suíço de alta rigidez.",
-          "Inspeção com CMM integrada ao seu controle de qualidade.",
-          "Da prototipagem à escala, com documentação para dispositivo médico.",
+          "Maior estabilidade inicial em determinados enxertos.",
+          "Facilidade de remoção e ajuste/reaperto no procedimento.",
+          "Podem reduzir mobilização da membrana em osso de pior qualidade.",
         ],
         "blue",
         screwData,
         logoData,
       ),
     },
-    { name: "06-comentarios", node: slide06(logoData) },
+    { name: "05-onde-entra-lifetrek", node: finalValueSlide(logoData) },
   ];
 
   for (const { name, node } of slides) {
@@ -1006,6 +1115,19 @@ async function main() {
     await Deno.writeFile(path, png);
     console.log(`  OK (${Math.round(png.length / 1024)} KB)`);
   }
+
+  const caption = `Em regeneração óssea guiada, a escolha entre pinos ou parafusos para fixar membranas não é detalhe de catálogo; é decisão de engenharia que impacta tempo cirúrgico, estabilidade do enxerto e aceitação do kit pelo cirurgião.
+
+Pinos oferecem perfil baixo e mínima quantidade de metal, mas exigem controle rigoroso em diâmetros muito pequenos.
+Parafusos trazem maior estabilidade inicial e podem facilitar remoção/ajuste, ao custo de geometrias mais complexas e roscas críticas.
+
+Na Lifetrek Medical, produzimos ambos em torneamento suíço, com foco em:
+• controle dimensional em diâmetros finos,
+• roscas e superfícies adequadas a contato com tecido,
+• rastreabilidade e documentação alinhadas à ISO 13485 e ANVISA.
+
+Assim, seu time de P&D ganha liberdade para escolher o melhor conceito clínico, sem abrir mão de precisão e consistência na manufatura.`;
+  await Deno.writeTextFile(`${outDir}/caption-linkedin-ptbr.txt`, caption);
 
   console.log(`\n✅ ${slides.length} slides em: ${outDir}/`);
 }

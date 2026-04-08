@@ -104,12 +104,11 @@ export default function Capabilities() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-primary">{t("capabilities.certifications")}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-primary via-accent to-accent-orange mx-auto mb-6"></div>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Qualidade certificada internacionalmente e capacidade de exportação para mercados globais
+              ISO 13485 renovado em 2026.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* ISO Certification Card */}
+          <div className="max-w-3xl mx-auto">
             <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-card to-accent/5 p-8 border border-border/50 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-premium)] transition-all duration-500">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
@@ -117,8 +116,8 @@ export default function Capabilities() {
               <div className="relative z-10">
                 <div className="mb-6">
                   <div>
-                    <h3 className="text-xl font-bold text-foreground">Qualidade Certificada</h3>
-                    <p className="text-sm text-muted-foreground">Padrão internacional</p>
+                    <h3 className="text-xl font-bold text-foreground">ISO 13485</h3>
+                    <p className="text-sm text-muted-foreground">Renovado em 2026</p>
                   </div>
                 </div>
 
@@ -131,38 +130,9 @@ export default function Capabilities() {
                   />
                 </div>
 
-                <h4 className="font-bold text-lg mb-2">{t("capabilities.iso")}</h4>
+                <h4 className="font-bold text-lg mb-2">Certificação ativa</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Sistema de gestão de qualidade para dispositivos médicos, garantindo conformidade regulatória e rastreabilidade completa.
-                </p>
-              </div>
-            </div>
-
-            {/* Export Capability Card */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent/5 via-card to-accent-orange/5 p-8 border border-border/50 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-premium)] transition-all duration-500">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent-orange/10 to-transparent rounded-tr-full" />
-
-              <div className="relative z-10">
-                <div className="mb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">Capacidade de Exportação</h3>
-                    <p className="text-sm text-muted-foreground">Mercados globais</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center p-6 bg-gradient-to-br from-accent/5 to-accent-orange/5 rounded-xl mb-6">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-accent to-accent-orange bg-clip-text text-transparent mb-1">
-                      Global
-                    </div>
-                    <p className="text-sm text-muted-foreground">Alcance Internacional</p>
-                  </div>
-                </div>
-
-                <h4 className="font-bold text-lg mb-2">Exportação Internacional</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Experiência comprovada em exportação para América Latina, Europa e América do Norte, atendendo às normas regulatórias de cada mercado.
+                  Sistema de gestão de qualidade para dispositivos médicos, renovado em 2026.
                 </p>
               </div>
             </div>
