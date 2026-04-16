@@ -16,11 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-const STAKEHOLDER_EMAILS = [
-  "rbianchini@lifetrek-medical.com",
-  "njesus@lifetrek-medical.com",
-];
-
 type ReviewableContentItem = {
   id: string;
   type: "linkedin" | "instagram" | "blog";
@@ -95,12 +90,20 @@ export function SendReviewModal({
 }: SendReviewModalProps) {
   const [notes, setNotes] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewRecipients, setPreviewRecipients] = useState<string[]>([]);
+  const [previewSubject, setPreviewSubject] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setErrorMessage(null);
       setNotes("");
+    } else {
+      setPreviewError(null);
+      setPreviewRecipients([]);
+      setPreviewSubject(null);
     }
   }, [open]);
 
@@ -112,6 +115,57 @@ export function SendReviewModal({
       })),
     [posts],
   );
+  const postRefsKey = useMemo(() => JSON.stringify(postRefs), [postRefs]);
+
+  useEffect(() => {
+    if (!open || posts.length === 0) {
+      setIsPreviewLoading(false);
+      setPreviewError(null);
+      setPreviewRecipients([]);
+      setPreviewSubject(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadEmailPreview() {
+      setIsPreviewLoading(true);
+      setPreviewError(null);
+      const previewPostRefs = JSON.parse(postRefsKey);
+
+      const { data, error } = await supabase.functions.invoke("send-stakeholder-review", {
+        body: {
+          post_refs: previewPostRefs,
+          dry_run: true,
+        },
+      });
+
+      if (cancelled) return;
+
+      setIsPreviewLoading(false);
+
+      if (error) {
+        setPreviewRecipients([]);
+        setPreviewSubject(null);
+        setPreviewError(error.message || "Não foi possível validar o email antes do envio.");
+        return;
+      }
+
+      const previewData = data?.data ?? {};
+      const recipients = Array.isArray(previewData.sent_to)
+        ? previewData.sent_to.filter((email: unknown): email is string => typeof email === "string" && email.trim().length > 0)
+        : [];
+
+      setPreviewRecipients(recipients);
+      setPreviewSubject(typeof previewData.subject === "string" ? previewData.subject : null);
+    }
+
+    void loadEmailPreview();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, posts.length, postRefsKey]);
 
   const handleConfirm = async () => {
     if (posts.length === 0) {
@@ -145,7 +199,11 @@ export function SendReviewModal({
       return;
     }
 
-    toast.success(`Email enviado com sucesso para ${STAKEHOLDER_EMAILS.length} revisores.`);
+    const sentTo = Array.isArray(data?.data?.sent_to)
+      ? data.data.sent_to.filter((email: unknown): email is string => typeof email === "string")
+      : previewRecipients;
+    const reviewerCount = sentTo.length || sendResults.length || previewRecipients.length;
+    toast.success(`Email enviado com sucesso para ${reviewerCount} ${reviewerCount === 1 ? "revisor" : "revisores"}.`);
     onOpenChange(false);
     await onSent?.();
   };
@@ -167,12 +225,29 @@ export function SendReviewModal({
               Enviar {posts.length} {posts.length === 1 ? "post" : "posts"} para:
             </div>
             <div className="mt-3 space-y-2">
-              {STAKEHOLDER_EMAILS.map((email) => (
-                <div key={email} className="flex items-center gap-2 text-sm text-slate-700">
-                  <Mail className="h-4 w-4 text-primary" />
-                  <span>{email}</span>
+              {isPreviewLoading ? (
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span>Validando revisores configurados...</span>
                 </div>
-              ))}
+              ) : previewRecipients.length > 0 ? (
+                previewRecipients.map((email) => (
+                  <div key={email} className="flex items-center gap-2 text-sm text-slate-700">
+                    <Mail className="h-4 w-4 text-primary" />
+                    <span>{email}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span>Revisores configurados no servidor</span>
+                </div>
+              )}
+              {previewSubject ? (
+                <div className="rounded-lg border border-primary/10 bg-white/70 px-3 py-2 text-xs leading-5 text-slate-600">
+                  <span className="font-semibold text-slate-800">Assunto:</span> {previewSubject}
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -234,6 +309,11 @@ export function SendReviewModal({
               {errorMessage}
             </div>
           ) : null}
+          {previewError ? (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {previewError}
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter>
@@ -243,7 +323,7 @@ export function SendReviewModal({
           <Button
             onClick={handleConfirm}
             className="gap-2 bg-[#004F8F] hover:bg-[#003c6d]"
-            disabled={isSending || posts.length === 0}
+            disabled={isSending || isPreviewLoading || !!previewError || posts.length === 0}
           >
             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Confirmar envio

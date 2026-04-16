@@ -1,0 +1,48 @@
+Assunto: Aprovação rápida: 4 conteúdos Lifetrek para revisar até 23/03/2026
+
+Olá.
+
+Separei 4 conteúdos já revisados tecnicamente para aprovação final. A ideia é validar se a mensagem está adequada para publicação e se existe algum ajuste comercial, técnico ou regulatório antes de avançarmos.
+
+O que preciso de você:
+1. Aprovar o lote, se estiver de acordo.
+2. Marcar ajustes específicos, se algo precisar mudar.
+3. Rejeitar apenas se houver risco técnico/comercial relevante.
+
+Resumo do lote:
+- 2 recursos e 2 blogs.
+- Claims de economia, prazo e regulação foram suavizados.
+- As decisões foram reorientadas para evidência por SKU, CTQ, fornecedor e governança.
+- A auditoria completa está no arquivo stakeholder-approval-appendix.md.
+
+CTA: Revisar lote agora
+Abrir os 4 HTMLs anexos nesta pasta e responder este email com "aprovado", "ajustes" ou "rejeitado".
+
+Itens:
+
+Recurso — Checklist: Quando Faz Sentido Produzir Local
+Por que vale para prospects: Ajuda o prospect a decidir quando avaliar um piloto local com base em risco de abastecimento, capital empatado e prontidão técnica, sem prometer economia universal.
+Riscos já corrigidos:
+- Removidos atalhos que sugeriam economia ou lead time local como regra geral.
+- Incluída orientação para comparar cenários por SKU com NCM, origem, INCOTERM, câmbio e preço local de referência.
+
+Recurso — Checklist de Transferência NPI para Produção
+Por que vale para prospects: Entrega um gate técnico útil para times de engenharia, qualidade e supply antes do ramp-up, com foco em CTQ, metrologia, fornecedores críticos e contenção.
+Riscos já corrigidos:
+- Removido o tom implícito de que a transferência pode seguir sem critérios formais de liberação.
+- Incluídos bloqueios explícitos para CTQ sem método confiável, fornecedor crítico não qualificado e documentação incompleta.
+
+Blog — Modelo de qualificação técnica para parceiro local em manufatura médica
+Por que vale para prospects: Ajuda o prospect a qualificar parceiro local com perguntas objetivas sobre processo, medição, rastreabilidade e governança, reduzindo risco de seleção por promessa vaga.
+Riscos já corrigidos:
+- Claims regulatórios e de capacidade foram suavizados para evitar inferências não comprovadas.
+- Removida falsa precisão em custo, prazo e readiness.
+
+Blog — Quais SKUs migrar primeiro: método prático para reduzir risco de abastecimento
+Por que vale para prospects: Dá um método de priorização por risco de abastecimento, maturidade técnica e capacidade de contenção, mais útil para o comprador técnico do que um argumento genérico de custo.
+Riscos já corrigidos:
+- Removidas promessas implícitas de economia padrão e lead time universal.
+- Priorização reescrita para depender de premissas por item e risco real.
+
+Obrigado,
+Rafael

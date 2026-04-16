@@ -2,6 +2,10 @@ Stakeholder approval package generated on 2026-03-16.
 Recipients: rbianchini@lifetrek-medical.com, njesus@lifetrek-medical.com
 Items: 2 resources, 2 blogs.
 
+Use `stakeholder-approval-batch.email.txt` as the single stakeholder email.
+Attach or link the 4 HTML files plus `stakeholder-approval-appendix.md`.
+The previous per-item email drafts were replaced to avoid repeated source lists and unclear CTAs.
+
 # Content Verification Audit - 2026-03-16
 
 ## Primary sources checked
