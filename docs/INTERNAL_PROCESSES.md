@@ -52,6 +52,13 @@ Existe um processo de limpeza que remove itens duplicados (mesmo título/tipo) t
 *   **`npm run dev`**: Inicia o ambiente de desenvolvimento local (Vite).
 *   **`npm run dev:web`**: Atalho para subir o frontend.
 *   **RAG Ingestion**: Scripts em `scripts/ingest_docs.js` e `ingest_assets.js` para atualizar o conhecimento da IA.
+*   **`npx tsx scripts/validate_website_bot_rag.ts`**: Smoke check do roteamento híbrido da Julia (fato exato vs RAG vs fallback).
+
+### 4.1 Website Bot (roteamento híbrido)
+
+- Perguntas de inventário/fato exato devem ser atendidas via `company_facts`.
+- Perguntas de capacidade/processo devem usar recuperação em `knowledge_base` + geração do modelo.
+- Os logs do `website-bot` devem registrar `route_intent`, `route_branch` e `retrieval_mode` para auditoria rápida.
 
 ## 5. Configuração de Variáveis de Ambiente
 

@@ -1,0 +1,1424 @@
+{
+  "generated_at": "2026-04-16",
+  "existing_reports": [
+    "analysis/linkedin_analytics/linkedin_analytics_report.md",
+    "analysis/linkedin_analytics/linkedin_post_analytics_scored.csv",
+    "docs/content/linkedin_april_2026_posts_data_analytics_strategy.md",
+    "execution/LINKEDIN_WEEKLY_REPORT.md"
+  ],
+  "linkedin_content_daily_totals": {
+    "impressions": 7010,
+    "unique_impressions": 2999,
+    "clicks": 514,
+    "reactions": 194,
+    "comments": 6,
+    "reposts": 4,
+    "engagements": 718,
+    "ctr_pct": 7.33,
+    "engagement_rate_pct": 10.24
+  },
+  "linkedin_content_monthly": {
+    "2026-01": {
+      "days": 31,
+      "impressions": 2604,
+      "unique_impressions": 1047,
+      "clicks": 203,
+      "reactions": 51,
+      "comments": 3,
+      "reposts": 1
+    },
+    "2026-02": {
+      "days": 25,
+      "impressions": 1842,
+      "unique_impressions": 819,
+      "clicks": 142,
+      "reactions": 57,
+      "comments": 1,
+      "reposts": 2
+    },
+    "2026-03": {
+      "days": 31,
+      "impressions": 2564,
+      "unique_impressions": 1133,
+      "clicks": 169,
+      "reactions": 86,
+      "comments": 2,
+      "reposts": 1
+    }
+  },
+  "linkedin_posts": [
+    {
+      "date": "01/09/2026",
+      "author": "Vanessa  Martin",
+      "title": "Nosso site está no ar https://lnkd.in/dVeHqN6m Serviços de alta precisão e qualidade de r…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7415391034399977473",
+      "impressions": 832,
+      "clicks": 66,
+      "ctr_pct": 7.93,
+      "likes": 13,
+      "comments": 2,
+      "reposts": 1,
+      "follows": 0,
+      "engagement_rate_pct": 9.86,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/09/2026",
+      "author": "Vanessa  Martin",
+      "title": "VAGA DE EMPREGO NA LIFETREK MEDICAL Descrição da Empresa: A Lifetrek Medical é uma empres…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7415359676285882368",
+      "impressions": 569,
+      "clicks": 37,
+      "ctr_pct": 6.5,
+      "likes": 9,
+      "comments": 0,
+      "reposts": 3,
+      "follows": 0,
+      "engagement_rate_pct": 8.61,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/18/2026",
+      "author": "Rafael Almeida",
+      "title": "Medicina personalizada não é mais slide de congresso – é o desafio real batendo na porta …",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7420133190004191233",
+      "impressions": 224,
+      "clicks": 59,
+      "ctr_pct": 26.34,
+      "likes": 9,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 30.36,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/21/2026",
+      "author": "Rafael Almeida",
+      "title": "O CAD aceita tudo. A máquina, não. Muitos projetos de dispositivos médicos morrem antes d…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7419816088403783680",
+      "impressions": 281,
+      "clicks": 8,
+      "ctr_pct": 2.85,
+      "likes": 6,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 4.98,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/23/2026",
+      "author": "Rafael Almeida",
+      "title": "Em 2020/21 a cadeia global tremeu. Em 2026, quem ainda estiver apostando tudo em importaç…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7420562949184040962",
+      "impressions": 187,
+      "clicks": 18,
+      "ctr_pct": 9.63,
+      "likes": 6,
+      "comments": 1,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 13.37,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/27/2026",
+      "author": "Rafael Almeida",
+      "title": "A Física por Trás da Validação de Implantes: Por que 3D + CNC? A falha por fadiga em impl…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7421878224869036032",
+      "impressions": 346,
+      "clicks": 11,
+      "ctr_pct": 3.18,
+      "likes": 10,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 6.07,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "01/28/2026",
+      "author": "Rafael Almeida",
+      "title": "A transição do protótipo para a produção em escala é um dos momentos mais críticos no des…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7422335648432521216",
+      "impressions": 299,
+      "clicks": 6,
+      "ctr_pct": 2.01,
+      "likes": 7,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 4.35,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/05/2026",
+      "author": "Rafael Almeida",
+      "title": "Você pode ter o melhor design e o material mais nobre. Mas se o ar da sua linha de produç…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7425274535676997632",
+      "impressions": 309,
+      "clicks": 80,
+      "ctr_pct": 25.89,
+      "likes": 9,
+      "comments": 1,
+      "reposts": 1,
+      "follows": 0,
+      "engagement_rate_pct": 29.45,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/09/2026",
+      "author": "Rafael Almeida",
+      "title": "Em dispositivos médicos, “parece certo” não é suficiente. Para implantes, instrumentais e…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7429185305934512128",
+      "impressions": 537,
+      "clicks": 7,
+      "ctr_pct": 1.3,
+      "likes": 17,
+      "comments": 0,
+      "reposts": 2,
+      "follows": 0,
+      "engagement_rate_pct": 4.84,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/09/2026",
+      "author": "Rafael Almeida",
+      "title": "Pureza não é um diferencial, é um requisito regulatório crítico. Muitos fabricantes opera…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7427365874749181952",
+      "impressions": 184,
+      "clicks": 7,
+      "ctr_pct": 3.8,
+      "likes": 8,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 8.15,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/10/2026",
+      "author": "Rafael Almeida",
+      "title": "No seu P&L, sustentabilidade é custo extra ou vantagem competitiva? Quando falamos de imp…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7427441322145542144",
+      "impressions": 89,
+      "clicks": 3,
+      "ctr_pct": 3.37,
+      "likes": 5,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 8.99,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/11/2026",
+      "author": "Rafael Almeida",
+      "title": "\"Tamanho único\" funciona bem… até deixar de funcionar. Em ortopedia, coluna e recon, todo…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7430234731553857537",
+      "impressions": 134,
+      "clicks": 9,
+      "ctr_pct": 6.72,
+      "likes": 4,
+      "comments": 0,
+      "reposts": 1,
+      "follows": 0,
+      "engagement_rate_pct": 10.45,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/24/2026",
+      "author": "Rafael Almeida",
+      "title": "Por trás de todo dispositivo médico que chega com segurança ao paciente, existe uma cadei…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7432420371867373568",
+      "impressions": 61,
+      "clicks": 5,
+      "ctr_pct": 8.2,
+      "likes": 2,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 11.48,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "02/24/2026",
+      "author": "Rafael Almeida",
+      "title": "ANVISA, FDA, ISO 13485, dossiês, validação, rastreabilidade. Para quem fabrica dispositiv…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7432152343695011840",
+      "impressions": 77,
+      "clicks": 5,
+      "ctr_pct": 6.49,
+      "likes": 3,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 10.39,
+      "source": "Downloaded_Lifetrek_Files/lifetrek-medical_content_1772219521830.xls"
+    },
+    {
+      "date": "03/04/2026",
+      "author": "Rafael Almeida",
+      "title": "Em dispositivos médicos, o maior desafio não é produzir o primeiro protótipo. É manter o …",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435047681699459073",
+      "impressions": 180,
+      "clicks": 33,
+      "ctr_pct": 18.33,
+      "likes": 7,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 22.22,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/05/2026",
+      "author": "Rafael Almeida",
+      "title": "Em dispositivos médicos, cada novo fornecedor adiciona um novo ponto de falha. Mais hando…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435420466879721472",
+      "impressions": 176,
+      "clicks": 15,
+      "ctr_pct": 8.52,
+      "likes": 5,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 11.36,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/10/2026",
+      "author": "Rafael Almeida",
+      "title": "Você já questionou se uma sala limpa ISO 7 no Brasil consegue realmente competir com o pa…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7437145982582022145",
+      "impressions": 267,
+      "clicks": 16,
+      "ctr_pct": 5.99,
+      "likes": 10,
+      "comments": 0,
+      "reposts": 1,
+      "follows": 0,
+      "engagement_rate_pct": 10.11,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/12/2026",
+      "author": "Rafael Almeida",
+      "title": "Em implantes com geometria complexa, o problema muitas vezes não está no CAD, mas na quan…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7437949989055660032",
+      "impressions": 470,
+      "clicks": 18,
+      "ctr_pct": 3.83,
+      "likes": 15,
+      "comments": 1,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 7.23,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/13/2026",
+      "author": "Rafael Almeida",
+      "title": "Em dispositivos médicos, UDI não é só um código. É o que conecta um evento adverso de vol…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7438213392160628736",
+      "impressions": 241,
+      "clicks": 13,
+      "ctr_pct": 5.39,
+      "likes": 9,
+      "comments": 1,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 9.54,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/17/2026",
+      "author": "Rafael Almeida",
+      "title": "As decisões de sourcing que você toma hoje definirão sua competitividade em 2026. Para CF…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7439740296390729728",
+      "impressions": 107,
+      "clicks": 5,
+      "ctr_pct": 4.67,
+      "likes": 6,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 10.28,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/18/2026",
+      "author": "Rafael Almeida",
+      "title": "Onde a engenharia encontra a perfeição. Cada mícron inspecionado é um risco eliminado. Pa…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7440743955689947136",
+      "impressions": 106,
+      "clicks": 1,
+      "ctr_pct": 0.94,
+      "likes": 4,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 4.72,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/18/2026",
+      "author": "Vanessa  Martin",
+      "title": "Port-a-cath: Engenharia Nacional Atendendo a uma Demanda Crítica. O mercado de dispositiv…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7440079651361935360",
+      "impressions": 233,
+      "clicks": 11,
+      "ctr_pct": 4.72,
+      "likes": 7,
+      "comments": 0,
+      "reposts": 2,
+      "follows": 0,
+      "engagement_rate_pct": 8.58,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    },
+    {
+      "date": "03/24/2026",
+      "author": "Rafael Almeida",
+      "title": "Em um parafuso pedicular, frações de milímetro não são detalhe. Um desvio na rosca que pa…",
+      "url": "https://www.linkedin.com/feed/update/urn:li:activity:7442236522218684416",
+      "impressions": 140,
+      "clicks": 12,
+      "ctr_pct": 8.57,
+      "likes": 7,
+      "comments": 0,
+      "reposts": 0,
+      "follows": 0,
+      "engagement_rate_pct": 13.57,
+      "source": "lifetrek-medical_content_1775127633404.xls"
+    }
+  ],
+  "scored_csv": {
+    "rows": 15,
+    "date_range": [
+      "2026-01-09",
+      "2026-02-26"
+    ],
+    "groups": {
+      "topic_category": [
+        {
+          "name": "Supply Chain & Risco",
+          "posts": 1,
+          "avg_score": 71.7,
+          "impressions": 185,
+          "weighted_ctr_pct": 9.73,
+          "interactions_per_1k": 37.8
+        },
+        {
+          "name": "Medicina Personalizada",
+          "posts": 2,
+          "avg_score": 68.8,
+          "impressions": 348,
+          "weighted_ctr_pct": 19.54,
+          "interactions_per_1k": 40.2
+        },
+        {
+          "name": "Qualidade/Zero Defeito",
+          "posts": 1,
+          "avg_score": 67.7,
+          "impressions": 47,
+          "weighted_ctr_pct": 4.26,
+          "interactions_per_1k": 85.1
+        },
+        {
+          "name": "Sala Limpa & Contaminacao",
+          "posts": 2,
+          "avg_score": 65.2,
+          "impressions": 479,
+          "weighted_ctr_pct": 18.16,
+          "interactions_per_1k": 39.7
+        },
+        {
+          "name": "Eficiencia & Sustentabilidade",
+          "posts": 1,
+          "avg_score": 59.7,
+          "impressions": 85,
+          "weighted_ctr_pct": 3.53,
+          "interactions_per_1k": 58.8
+        },
+        {
+          "name": "Regulatorio & Compliance",
+          "posts": 1,
+          "avg_score": 52.0,
+          "impressions": 71,
+          "weighted_ctr_pct": 7.04,
+          "interactions_per_1k": 42.3
+        },
+        {
+          "name": "Talentos/RH",
+          "posts": 1,
+          "avg_score": 51.3,
+          "impressions": 568,
+          "weighted_ctr_pct": 6.51,
+          "interactions_per_1k": 21.1
+        },
+        {
+          "name": "Institucional/Marca",
+          "posts": 1,
+          "avg_score": 49.0,
+          "impressions": 828,
+          "weighted_ctr_pct": 7.97,
+          "interactions_per_1k": 19.3
+        },
+        {
+          "name": "Escala & Capacidade",
+          "posts": 1,
+          "avg_score": 48.3,
+          "impressions": 55,
+          "weighted_ctr_pct": 9.09,
+          "interactions_per_1k": 36.4
+        },
+        {
+          "name": "Metrologia & Validacao",
+          "posts": 2,
+          "avg_score": 42.3,
+          "impressions": 866,
+          "weighted_ctr_pct": 1.85,
+          "interactions_per_1k": 33.5
+        },
+        {
+          "name": "Industrializacao & Ramp-up",
+          "posts": 1,
+          "avg_score": 24.7,
+          "impressions": 291,
+          "weighted_ctr_pct": 2.06,
+          "interactions_per_1k": 24.1
+        },
+        {
+          "name": "DFM & Engenharia de Manufatura",
+          "posts": 1,
+          "avg_score": 23.0,
+          "impressions": 278,
+          "weighted_ctr_pct": 2.88,
+          "interactions_per_1k": 21.6
+        }
+      ],
+      "icp_primary": [
+        {
+          "name": "Supply Chain/Diretoria (OEM)",
+          "posts": 1,
+          "avg_score": 71.7,
+          "impressions": 185,
+          "weighted_ctr_pct": 9.73,
+          "interactions_per_1k": 37.8
+        },
+        {
+          "name": "P&D/Engenharia Clinica (OEM)",
+          "posts": 2,
+          "avg_score": 68.8,
+          "impressions": 348,
+          "weighted_ctr_pct": 19.54,
+          "interactions_per_1k": 40.2
+        },
+        {
+          "name": "Qualidade/Regulatorio (OEM)",
+          "posts": 4,
+          "avg_score": 62.5,
+          "impressions": 597,
+          "weighted_ctr_pct": 15.75,
+          "interactions_per_1k": 43.6
+        },
+        {
+          "name": "Financeiro/Operacoes (OEM)",
+          "posts": 1,
+          "avg_score": 59.7,
+          "impressions": 85,
+          "weighted_ctr_pct": 3.53,
+          "interactions_per_1k": 58.8
+        },
+        {
+          "name": "Candidatos/Operadores CNC",
+          "posts": 1,
+          "avg_score": 51.3,
+          "impressions": 568,
+          "weighted_ctr_pct": 6.51,
+          "interactions_per_1k": 21.1
+        },
+        {
+          "name": "Audiencia ampla (TOFU)",
+          "posts": 1,
+          "avg_score": 49.0,
+          "impressions": 828,
+          "weighted_ctr_pct": 7.97,
+          "interactions_per_1k": 19.3
+        },
+        {
+          "name": "Qualidade/Engenharia de Produto (OEM)",
+          "posts": 1,
+          "avg_score": 48.7,
+          "impressions": 525,
+          "weighted_ctr_pct": 0.95,
+          "interactions_per_1k": 36.2
+        },
+        {
+          "name": "Operacoes/Supply Chain (OEM)",
+          "posts": 1,
+          "avg_score": 48.3,
+          "impressions": 55,
+          "weighted_ctr_pct": 9.09,
+          "interactions_per_1k": 36.4
+        },
+        {
+          "name": "P&D/Engenharia de Produto (OEM)",
+          "posts": 2,
+          "avg_score": 29.5,
+          "impressions": 619,
+          "weighted_ctr_pct": 3.07,
+          "interactions_per_1k": 25.8
+        },
+        {
+          "name": "P&D + Operacoes (OEM)",
+          "posts": 1,
+          "avg_score": 24.7,
+          "impressions": 291,
+          "weighted_ctr_pct": 2.06,
+          "interactions_per_1k": 24.1
+        }
+      ],
+      "slides_bucket": [
+        {
+          "name": "5+",
+          "posts": 2,
+          "avg_score": 71.8,
+          "impressions": 527,
+          "weighted_ctr_pct": 26.38,
+          "interactions_per_1k": 38.0
+        },
+        {
+          "name": "2-4",
+          "posts": 2,
+          "avg_score": 58.0,
+          "impressions": 102,
+          "weighted_ctr_pct": 6.86,
+          "interactions_per_1k": 58.8
+        },
+        {
+          "name": "0 (text-only)",
+          "posts": 1,
+          "avg_score": 51.3,
+          "impressions": 568,
+          "weighted_ctr_pct": 6.51,
+          "interactions_per_1k": 21.1
+        },
+        {
+          "name": "1",
+          "posts": 10,
+          "avg_score": 48.9,
+          "impressions": 2904,
+          "weighted_ctr_pct": 4.75,
+          "interactions_per_1k": 29.6
+        }
+      ],
+      "visual_style": [
+        {
+          "name": "facility_carousel",
+          "posts": 1,
+          "avg_score": 79.3,
+          "impressions": 305,
+          "weighted_ctr_pct": 26.23,
+          "interactions_per_1k": 36.1
+        },
+        {
+          "name": "product_medical_context",
+          "posts": 1,
+          "avg_score": 73.3,
+          "impressions": 126,
+          "weighted_ctr_pct": 7.14,
+          "interactions_per_1k": 39.7
+        },
+        {
+          "name": "facility_headline",
+          "posts": 1,
+          "avg_score": 71.7,
+          "impressions": 185,
+          "weighted_ctr_pct": 9.73,
+          "interactions_per_1k": 37.8
+        },
+        {
+          "name": "facility_people_overlay",
+          "posts": 1,
+          "avg_score": 67.7,
+          "impressions": 47,
+          "weighted_ctr_pct": 4.26,
+          "interactions_per_1k": 85.1
+        },
+        {
+          "name": "concept_carousel",
+          "posts": 1,
+          "avg_score": 64.3,
+          "impressions": 222,
+          "weighted_ctr_pct": 26.58,
+          "interactions_per_1k": 40.5
+        },
+        {
+          "name": "concept_split",
+          "posts": 1,
+          "avg_score": 59.7,
+          "impressions": 85,
+          "weighted_ctr_pct": 3.53,
+          "interactions_per_1k": 58.8
+        },
+        {
+          "name": "compliance_visual",
+          "posts": 1,
+          "avg_score": 52.0,
+          "impressions": 71,
+          "weighted_ctr_pct": 7.04,
+          "interactions_per_1k": 42.3
+        },
+        {
+          "name": "text_only",
+          "posts": 1,
+          "avg_score": 51.3,
+          "impressions": 568,
+          "weighted_ctr_pct": 6.51,
+          "interactions_per_1k": 21.1
+        },
+        {
+          "name": "people_lab_comparison",
+          "posts": 1,
+          "avg_score": 51.0,
+          "impressions": 174,
+          "weighted_ctr_pct": 4.02,
+          "interactions_per_1k": 46.0
+        },
+        {
+          "name": "brand_announcement",
+          "posts": 1,
+          "avg_score": 49.0,
+          "impressions": 828,
+          "weighted_ctr_pct": 7.97,
+          "interactions_per_1k": 19.3
+        },
+        {
+          "name": "machine_closeup",
+          "posts": 1,
+          "avg_score": 48.7,
+          "impressions": 525,
+          "weighted_ctr_pct": 0.95,
+          "interactions_per_1k": 36.2
+        },
+        {
+          "name": "facility_cards",
+          "posts": 1,
+          "avg_score": 48.3,
+          "impressions": 55,
+          "weighted_ctr_pct": 9.09,
+          "interactions_per_1k": 36.4
+        },
+        {
+          "name": "machine_render",
+          "posts": 1,
+          "avg_score": 36.0,
+          "impressions": 341,
+          "weighted_ctr_pct": 3.23,
+          "interactions_per_1k": 29.3
+        },
+        {
+          "name": "machine_banner",
+          "posts": 1,
+          "avg_score": 24.7,
+          "impressions": 291,
+          "weighted_ctr_pct": 2.06,
+          "interactions_per_1k": 24.1
+        },
+        {
+          "name": "machine_product_hybrid",
+          "posts": 1,
+          "avg_score": 23.0,
+          "impressions": 278,
+          "weighted_ctr_pct": 2.88,
+          "interactions_per_1k": 21.6
+        }
+      ]
+    }
+  },
+  "followers": {
+    "new_by_month": {
+      "2026-01": 65,
+      "2026-02": 24,
+      "2026-03": 16
+    },
+    "top": {
+      "industries": [
+        [
+          "Medical Equipment Manufacturing",
+          47
+        ],
+        [
+          "Hospitals and Health Care",
+          10
+        ],
+        [
+          "Machinery Manufacturing",
+          10
+        ],
+        [
+          "Motor Vehicle Manufacturing",
+          6
+        ],
+        [
+          "Manufacturing",
+          5
+        ],
+        [
+          "Wellness and Fitness Services",
+          5
+        ],
+        [
+          "Industrial Machinery Manufacturing",
+          5
+        ],
+        [
+          "Software Development",
+          4
+        ]
+      ],
+      "job_functions": [
+        [
+          "Engineering",
+          21
+        ],
+        [
+          "Operations",
+          21
+        ],
+        [
+          "Business Development",
+          18
+        ],
+        [
+          "Sales",
+          15
+        ],
+        [
+          "Arts and Design",
+          12
+        ],
+        [
+          "Information Technology",
+          7
+        ],
+        [
+          "Research",
+          6
+        ],
+        [
+          "Media and Communication",
+          4
+        ]
+      ],
+      "locations": [
+        [
+          "Greater Campinas, Brazil",
+          44
+        ],
+        [
+          "Greater São Paulo Area, Brazil",
+          28
+        ],
+        [
+          "Rio Claro, Brazil",
+          12
+        ],
+        [
+          "Joinville, Brazil",
+          7
+        ],
+        [
+          "Greater Curitiba, Brazil",
+          7
+        ],
+        [
+          "Sorocaba, Brazil",
+          6
+        ],
+        [
+          "Greater Orlando",
+          4
+        ],
+        [
+          "Santo André, Brazil",
+          3
+        ]
+      ],
+      "company_sizes": [
+        [
+          "11-50",
+          29
+        ],
+        [
+          "51-200",
+          25
+        ],
+        [
+          "201-500",
+          19
+        ],
+        [
+          "501-1000",
+          15
+        ],
+        [
+          "1001-5000",
+          11
+        ],
+        [
+          "2-10",
+          10
+        ],
+        [
+          "10001+",
+          7
+        ],
+        [
+          "1",
+          3
+        ]
+      ]
+    }
+  },
+  "linkedin_profile_visitors": {
+    "by_month": {
+      "2026-01": {
+        "views": 221,
+        "unique": 87
+      },
+      "2026-02": {
+        "views": 99,
+        "unique": 48
+      },
+      "2026-03": {
+        "views": 101,
+        "unique": 47
+      }
+    },
+    "top": {
+      "industries": [
+        [
+          "Medical Equipment Manufacturing",
+          119
+        ],
+        [
+          "IT Services and IT Consulting",
+          90
+        ],
+        [
+          "Industrial Machinery Manufacturing",
+          35
+        ],
+        [
+          "Hospitals and Health Care",
+          31
+        ],
+        [
+          "Telecommunications",
+          23
+        ],
+        [
+          "Freight and Package Transportation",
+          19
+        ],
+        [
+          "Manufacturing",
+          18
+        ],
+        [
+          "Machinery Manufacturing",
+          11
+        ]
+      ],
+      "job_functions": [
+        [
+          "Sales",
+          88
+        ],
+        [
+          "Operations",
+          78
+        ],
+        [
+          "Arts and Design",
+          42
+        ],
+        [
+          "Business Development",
+          22
+        ],
+        [
+          "Engineering",
+          13
+        ]
+      ],
+      "locations": [
+        [
+          "Greater Campinas, Brazil",
+          150
+        ],
+        [
+          "Sorocaba, Brazil",
+          90
+        ],
+        [
+          "Greater São Paulo Area, Brazil",
+          66
+        ],
+        [
+          "Rio Claro, Brazil",
+          17
+        ],
+        [
+          "Itanhaem, Brazil",
+          16
+        ],
+        [
+          "Greater Belo Horizonte, Brazil",
+          13
+        ],
+        [
+          "Greater Ribeirão Preto, Brazil",
+          12
+        ],
+        [
+          "Porto Metropolitan Area, Portugal",
+          10
+        ]
+      ],
+      "company_sizes": [
+        [
+          "11-50",
+          98
+        ],
+        [
+          "51-200",
+          41
+        ],
+        [
+          "2-10",
+          19
+        ],
+        [
+          "201-500",
+          18
+        ],
+        [
+          "501-1000",
+          10
+        ]
+      ]
+    }
+  },
+  "ga4": {
+    "totals": {
+      "users": 946,
+      "new_users": 788,
+      "sessions": 1156,
+      "engaged_sessions": 592,
+      "page_views": 3077,
+      "events": 8097,
+      "avg_engagement_rate_pct": 51.91,
+      "avg_bounce_rate_pct": 38.24,
+      "min_date": "2026-02-04",
+      "max_date": "2026-04-15"
+    },
+    "by_month": {
+      "2026-02": {
+        "days": 25,
+        "users": 529,
+        "new_users": 470,
+        "sessions": 639,
+        "engaged_sessions": 301,
+        "page_views": 1896,
+        "events": 5082
+      },
+      "2026-03": {
+        "days": 31,
+        "users": 281,
+        "new_users": 212,
+        "sessions": 361,
+        "engaged_sessions": 206,
+        "page_views": 891,
+        "events": 2237
+      },
+      "2026-04": {
+        "days": 15,
+        "users": 136,
+        "new_users": 106,
+        "sessions": 156,
+        "engaged_sessions": 85,
+        "page_views": 290,
+        "events": 778
+      }
+    },
+    "top_pages": [
+      {
+        "path": "/",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 245,
+        "unique": 0,
+        "avg_time_sec": 98.9,
+        "bounce_rate_pct": 47.5
+      },
+      {
+        "path": "/capabilities",
+        "title": "Recursos Técnicos | Lifetrek Medical",
+        "views": 57,
+        "unique": 0,
+        "avg_time_sec": 68.8,
+        "bounce_rate_pct": 19.6
+      },
+      {
+        "path": "/what-we-do",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 50,
+        "unique": 0,
+        "avg_time_sec": 48.7,
+        "bounce_rate_pct": 28.7
+      },
+      {
+        "path": "/products",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 39,
+        "unique": 0,
+        "avg_time_sec": 144.2,
+        "bounce_rate_pct": 16.6
+      },
+      {
+        "path": "/resources",
+        "title": "Recursos Técnicos | Lifetrek Medical",
+        "views": 30,
+        "unique": 0,
+        "avg_time_sec": 370.6,
+        "bounce_rate_pct": 8.3
+      },
+      {
+        "path": "/clients",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 30,
+        "unique": 0,
+        "avg_time_sec": 104.9,
+        "bounce_rate_pct": 26.1
+      },
+      {
+        "path": "/about",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 22,
+        "unique": 0,
+        "avg_time_sec": 94.3,
+        "bounce_rate_pct": 4.5
+      },
+      {
+        "path": "/contact",
+        "title": "Lifetrek Medical - Fabricação de Dispositivos Médicos de Alta Precisão | Certificação ISO 13485",
+        "views": 17,
+        "unique": 0,
+        "avg_time_sec": 220.7,
+        "bounce_rate_pct": 5.9
+      },
+      {
+        "path": "/resources/checklist-dfm-implantes",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 4,
+        "unique": 0,
+        "avg_time_sec": 594.5,
+        "bounce_rate_pct": 0.0
+      },
+      {
+        "path": "/blog",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 4,
+        "unique": 0,
+        "avg_time_sec": 1.3,
+        "bounce_rate_pct": 0.0
+      },
+      {
+        "path": "/review/dedadf09-b79e-4465-bc7b-b98ce8c6a109",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 4,
+        "unique": 0,
+        "avg_time_sec": 1883.8,
+        "bounce_rate_pct": 0.0
+      },
+      {
+        "path": "/version-b",
+        "title": "Lifetrek Medical - High-Precision Medical Manufacturing | ISO 13485 Certified",
+        "views": 3,
+        "unique": 0,
+        "avg_time_sec": 385.2,
+        "bounce_rate_pct": 0.0
+      }
+    ],
+    "top_sources": [
+      {
+        "source_medium": "(direct) / (none)",
+        "sessions": 743,
+        "users": 651,
+        "new_users": 598,
+        "engaged_sessions": 338
+      },
+      {
+        "source_medium": "google / organic",
+        "sessions": 267,
+        "users": 213,
+        "new_users": 150,
+        "engaged_sessions": 171
+      },
+      {
+        "source_medium": "vetmaker.com.br / referral",
+        "sessions": 67,
+        "users": 34,
+        "new_users": 4,
+        "engaged_sessions": 39
+      },
+      {
+        "source_medium": "linkedin.com / referral",
+        "sessions": 16,
+        "users": 8,
+        "new_users": 3,
+        "engaged_sessions": 11
+      },
+      {
+        "source_medium": "ig / social",
+        "sessions": 10,
+        "users": 10,
+        "new_users": 10,
+        "engaged_sessions": 5
+      },
+      {
+        "source_medium": "lnkd.in / referral",
+        "sessions": 10,
+        "users": 7,
+        "new_users": 0,
+        "engaged_sessions": 5
+      },
+      {
+        "source_medium": "bing / organic",
+        "sessions": 10,
+        "users": 8,
+        "new_users": 7,
+        "engaged_sessions": 7
+      },
+      {
+        "source_medium": "vercel.com / referral",
+        "sessions": 6,
+        "users": 5,
+        "new_users": 1,
+        "engaged_sessions": 4
+      },
+      {
+        "source_medium": "facebook.com / referral",
+        "sessions": 5,
+        "users": 5,
+        "new_users": 5,
+        "engaged_sessions": 3
+      },
+      {
+        "source_medium": "linkedin / organic",
+        "sessions": 5,
+        "users": 2,
+        "new_users": 0,
+        "engaged_sessions": 2
+      },
+      {
+        "source_medium": "m.facebook.com / referral",
+        "sessions": 4,
+        "users": 4,
+        "new_users": 4,
+        "engaged_sessions": 0
+      },
+      {
+        "source_medium": "chatgpt.com / referral",
+        "sessions": 4,
+        "users": 3,
+        "new_users": 1,
+        "engaged_sessions": 2
+      }
+    ],
+    "linkedin_sessions": 31,
+    "instagram_sessions": 10
+  },
+  "internal_events": {
+    "count": 231,
+    "event_types": [
+      [
+        "chatbot_opened",
+        120
+      ],
+      [
+        "resource_view",
+        44
+      ],
+      [
+        "chatbot_message_sent",
+        44
+      ],
+      [
+        "chatbot_lead_captured",
+        9
+      ],
+      [
+        "chatbot_interaction",
+        5
+      ],
+      [
+        "resource_download",
+        5
+      ],
+      [
+        "calculator_started",
+        2
+      ],
+      [
+        "lead_magnet_usage",
+        2
+      ]
+    ],
+    "by_month": {
+      "2026-02": {
+        "chatbot_interaction": 5,
+        "resource_view": 15
+      },
+      "2026-03": {
+        "chatbot_opened": 108,
+        "resource_view": 19,
+        "chatbot_message_sent": 38,
+        "chatbot_lead_captured": 9,
+        "calculator_started": 2,
+        "resource_download": 3,
+        "lead_magnet_usage": 1
+      },
+      "2026-04": {
+        "chatbot_opened": 12,
+        "resource_view": 10,
+        "lead_magnet_usage": 1,
+        "resource_download": 2,
+        "chatbot_message_sent": 6
+      }
+    }
+  },
+  "leads": {
+    "count": 7,
+    "sources": [
+      [
+        "website",
+        7
+      ]
+    ],
+    "statuses": [
+      [
+        "new",
+        7
+      ]
+    ],
+    "project_types": [
+      [
+        "other_medical",
+        4
+      ],
+      [
+        "diagnostic_assessment",
+        2
+      ],
+      [
+        "Orcamento",
+        1
+      ]
+    ]
+  },
+  "content_inventory": {
+    "generated_carousels": 48,
+    "carousel_statuses": [
+      [
+        "pending_approval",
+        16
+      ],
+      [
+        "archived",
+        14
+      ],
+      [
+        "approved",
+        11
+      ],
+      [
+        "draft",
+        6
+      ],
+      [
+        "rejected",
+        1
+      ]
+    ],
+    "carousel_formats": [
+      [
+        "carousel",
+        45
+      ],
+      [
+        "single-image",
+        3
+      ]
+    ],
+    "content_ideas": 24,
+    "content_idea_icps": [
+      [
+        "Gerentes de Operações, Líderes de Engenharia de P&D em MedTech",
+        5
+      ],
+      [
+        "Fabricantes de dispositivos médicos, engenheiros de P&D, gestores de qualidade",
+        2
+      ],
+      [
+        "Gestores de qualidade, engenheiros de materiais, fabricantes de implantes ortopédicos e dentais",
+        2
+      ],
+      [
+        "Fabricantes de dispositivos médicos, gestores regulatórios, responsáveis por qualidade de produto",
+        2
+      ],
+      [
+        "Gestores regulatórios, engenheiros de qualidade, fabricantes buscando conformidade ANVISA RDC 591 e FDA 21 CFR 830",
+        2
+      ],
+      [
+        "Fabricantes de dispositivos médicos, gestores de supply chain, diretores de qualidade",
+        2
+      ],
+      [
+        "QA",
+        1
+      ],
+      [
+        "Diretores e lideres de Engenharia de Produto em fabricantes de implantes e instrumentais",
+        1
+      ],
+      [
+        "Gestores de Qualidade e Regulatorio em OEMs de dispositivos medicos",
+        1
+      ],
+      [
+        "Diretores de Supply Chain, Operacoes e Compras estrategicas em empresas de dispositivos medicos",
+        1
+      ]
+    ],
+    "resources": 17
+  },
+  "db_table_counts": {
+    "linkedin_analytics": 0,
+    "ga4_analytics_daily": 71,
+    "ga4_page_analytics": 215,
+    "ga4_traffic_sources": 199,
+    "analytics_events": 231,
+    "contact_leads": 7,
+    "linkedin_analytics_daily": 2,
+    "linkedin_carousels": 48,
+    "resources": 17,
+    "content_ideas": 24
+  }
+}

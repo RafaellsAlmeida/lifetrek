@@ -20,7 +20,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RESPONSE_STYLE_VERSION = "website-bot-v3-lead-qualification";
+const RESPONSE_STYLE_VERSION = "website-bot-v4-hybrid-rag-routing";
 const OPENAI_CHAT_MODEL = "gpt-4o-mini";
 const OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
 const OPENROUTER_CHAT_MODEL = "google/gemini-2.0-flash-001";
@@ -37,6 +37,23 @@ type ClientBufferMetadata = {
   count?: number;
   windowMs?: number;
   rawMessages?: string[];
+};
+
+type RouteIntent = "exact_fact" | "capability" | "general_chat";
+
+type RouteIntentDecision = {
+  primaryIntent: RouteIntent;
+  hasCommercialSignal: boolean;
+  reasons: string[];
+};
+
+type CompanyFactRow = {
+  fact_key: string;
+  entity_type: string;
+  entity_name: string;
+  fact_type: string;
+  fact_value: Record<string, unknown> | null;
+  source_doc: string | null;
 };
 
 function checkRateLimit(id: string): boolean {
@@ -129,6 +146,213 @@ function normalizeSearchTokens(value: string): string[] {
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
+}
+
+function normalizeIntentText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function includesAny(value: string, needles: string[]): boolean {
+  return needles.some((needle) => value.includes(needle));
+}
+
+function classifyRouteIntent(inputText: string): RouteIntentDecision {
+  const normalized = normalizeIntentText(inputText);
+
+  const hasEquipmentSignal = includesAny(normalized, [
+    "citizen",
+    "l20",
+    "l32",
+    "m32",
+    "zeiss",
+    "contura",
+    "cmm",
+    "torno",
+    "maquina",
+    "equipamento",
+  ]);
+  const hasCertificationSignal = includesAny(normalized, ["iso 13485", "iso13485", "anvisa", "certific"]);
+  const asksAvailability = includesAny(normalized, [
+    "tem ",
+    "voces tem",
+    "vocês tem",
+    "possui",
+    "dispon",
+    "trabalham com",
+  ]);
+  const asksCount = includesAny(normalized, ["quantos", "quantas", "qtd", "quantidade", "numero", "número"]);
+  const hasCapabilitySignal = includesAny(normalized, [
+    "capacidad",
+    "process",
+    "usinag",
+    "toler",
+    "material",
+    "como voces",
+    "como vocês",
+    "como funciona",
+    "quais sao",
+    "quais são",
+    "fazem",
+  ]);
+
+  const commercial = wantsCommercialHelp(inputText);
+  const reasons: string[] = [];
+
+  if ((hasEquipmentSignal && (asksAvailability || asksCount)) || (hasCertificationSignal && (asksAvailability || asksCount || hasCapabilitySignal))) {
+    reasons.push("inventory_or_exact_fact_signal");
+    return { primaryIntent: "exact_fact", hasCommercialSignal: commercial, reasons };
+  }
+
+  if (hasCapabilitySignal || (hasEquipmentSignal && !asksAvailability && !asksCount)) {
+    reasons.push("capability_signal");
+    return { primaryIntent: "capability", hasCommercialSignal: commercial, reasons };
+  }
+
+  reasons.push("general_chat_default");
+  return { primaryIntent: "general_chat", hasCommercialSignal: commercial, reasons };
+}
+
+function factAliases(fact: CompanyFactRow): string[] {
+  const aliases = fact.fact_value && Array.isArray(fact.fact_value.aliases)
+    ? fact.fact_value.aliases.filter((alias): alias is string => typeof alias === "string")
+    : [];
+  return aliases;
+}
+
+function factBooleanValue(fact: CompanyFactRow): boolean | null {
+  const value = fact.fact_value?.value;
+  return typeof value === "boolean" ? value : null;
+}
+
+function factNumberValue(fact: CompanyFactRow): number | null {
+  const value = fact.fact_value?.value;
+  return typeof value === "number" ? value : null;
+}
+
+async function lookupExactFacts(
+  supabase: any,
+  inputText: string,
+): Promise<{ matchedFacts: CompanyFactRow[]; usedRows: number; reason: string }> {
+  const normalized = normalizeIntentText(inputText);
+  const asksCount = includesAny(normalized, ["quantos", "quantas", "qtd", "quantidade", "numero", "número"]);
+  const mentionsCitizen = includesAny(normalized, ["citizen", "l20", "l32", "m32"]);
+  const mentionsCertification = includesAny(normalized, ["iso 13485", "iso13485", "anvisa", "certific"]);
+
+  const { data, error } = await supabase
+    .from("company_facts")
+    .select("fact_key, entity_type, entity_name, fact_type, fact_value, source_doc");
+
+  if (error || !data?.length) {
+    return {
+      matchedFacts: [],
+      usedRows: 0,
+      reason: error ? `lookup_error:${String(error.message ?? error)}` : "no_rows",
+    };
+  }
+
+  const allFacts = data as CompanyFactRow[];
+  const matched = allFacts.filter((fact) => {
+    const normalizedEntity = normalizeIntentText(fact.entity_name);
+    if (normalized.includes(normalizedEntity)) return true;
+
+    const aliases = factAliases(fact);
+    return aliases.some((alias) => normalized.includes(normalizeIntentText(alias)));
+  });
+
+  if (asksCount && mentionsCitizen) {
+    const selected = matched.filter((fact) => fact.fact_key.startsWith("equipment.citizen."));
+    if (selected.length) {
+      return { matchedFacts: selected, usedRows: allFacts.length, reason: "citizen_count_match" };
+    }
+  }
+
+  if (mentionsCertification) {
+    const selected = matched.filter((fact) => fact.entity_type === "certification");
+    if (selected.length) {
+      return { matchedFacts: selected, usedRows: allFacts.length, reason: "certification_match" };
+    }
+  }
+
+  if (matched.length) {
+    return { matchedFacts: matched, usedRows: allFacts.length, reason: "entity_or_alias_match" };
+  }
+
+  return { matchedFacts: [], usedRows: allFacts.length, reason: "no_fact_match" };
+}
+
+function buildExactFactReply(inputText: string, matchedFacts: CompanyFactRow[]): string | null {
+  const normalized = normalizeIntentText(inputText);
+  const asksCount = includesAny(normalized, ["quantos", "quantas", "qtd", "quantidade", "numero", "número"]);
+  const mentionsCitizen = includesAny(normalized, ["citizen", "l20", "l32", "m32"]);
+
+  const citizenTotal = matchedFacts.find((fact) => fact.fact_key === "equipment.citizen.total_count");
+  const citizenBreakdown = matchedFacts.find((fact) => fact.fact_key === "equipment.citizen.model_breakdown");
+  if (asksCount && mentionsCitizen && citizenTotal) {
+    const total = factNumberValue(citizenTotal);
+    const breakdown = citizenBreakdown?.fact_value?.value;
+    const breakdownText = breakdown && typeof breakdown === "object"
+      ? Object.entries(breakdown as Record<string, unknown>)
+        .filter(([, value]) => typeof value === "number")
+        .map(([model, count]) => `${count} ${model}`)
+        .join(" e ")
+      : "";
+
+    if (typeof total === "number") {
+      return breakdownText
+        ? `Temos ${total} tornos Citizen no parque fabril da Lifetrek (${breakdownText}).`
+        : `Temos ${total} tornos Citizen no parque fabril da Lifetrek.`;
+    }
+  }
+
+  const exactAvailability = matchedFacts.find((fact) =>
+    fact.fact_type === "availability" &&
+    (normalizeIntentText(inputText).includes(normalizeIntentText(fact.entity_name)) ||
+      factAliases(fact).some((alias) => normalized.includes(normalizeIntentText(alias))))
+  );
+
+  if (exactAvailability) {
+    const available = factBooleanValue(exactAvailability);
+    if (available === true) {
+      return `Sim, temos ${exactAvailability.entity_name} na infraestrutura da Lifetrek.`;
+    }
+    if (available === false) {
+      return `No momento, não temos ${exactAvailability.entity_name} no parque fabril da Lifetrek.`;
+    }
+  }
+
+  return null;
+}
+
+function buildLeadOverlayReply(options: {
+  leadQualification: LeadQualificationState;
+  interest: string;
+  detectedCompany: string | null;
+  allUserText: string;
+}): string | null {
+  const { leadQualification, interest, detectedCompany, allUserText } = options;
+
+  if (leadQualification.shouldRequestContact) {
+    return buildLeadCaptureReply({
+      state: leadQualification,
+      interest,
+      detectedCompany,
+    });
+  }
+
+  if (leadQualification.readyForCommercialFollowUp) {
+    return "Se você quiser, já encaminho com o time comercial; basta me dizer qual produto, componente ou projeto quer cotar.";
+  }
+
+  if (wantsCommercialHelp(allUserText)) {
+    return "Se quiser, eu já deixo esse assunto encaminhado para o nosso time comercial.";
+  }
+
+  return null;
 }
 
 function scoreKnowledgeContextItem(item: KnowledgeContextItem, query: string): number {
@@ -504,14 +728,41 @@ async function fetchKnowledgeContext(
   };
 }
 
+function buildRoutingHint(options: {
+  primaryIntent: RouteIntent;
+  branch: "exact_lookup" | "rag_retrieval" | "model_only";
+  exactFactReply: string | null;
+  retrievalMode: string;
+}): string {
+  const { primaryIntent, branch, exactFactReply, retrievalMode } = options;
+
+  const examples = `
+
+Exemplos curtos de resposta:
+- Pergunta exata (inventario): "Vocês têm Citizen L20?" -> "Sim, temos Citizen L20 na infraestrutura da Lifetrek."
+- Pergunta de contagem: "Quantos Citizen vocês têm?" -> responda com numero exato cadastrado.
+- Pergunta de capacidade: "Quais são as capacidades de usinagem?" -> use contexto recuperado e responda em tom consultivo.
+- Dúvida sem confirmação: quando não houver fato exato, diga que vai verificar internamente e evite afirmar certeza.`;
+
+  return `
+
+Roteamento selecionado:
+- intent: ${primaryIntent}
+- branch: ${branch}
+- retrieval_mode: ${retrievalMode}
+${exactFactReply ? `- fato_exato_confirmado: ${exactFactReply}` : "- fato_exato_confirmado: nenhum"}
+${examples}`;
+}
+
 function buildSystemPrompt(options: {
   ragContext: string;
   companyHint: string;
   interest: string;
   clientBuffer: ClientBufferMetadata | null;
   leadQualificationHint: string;
+  routingHint: string;
 }) {
-  const { ragContext, companyHint, interest, clientBuffer, leadQualificationHint } = options;
+  const { ragContext, companyHint, interest, clientBuffer, leadQualificationHint, routingHint } = options;
   const groupedHint =
     clientBuffer?.grouped && (clientBuffer.count ?? 0) > 1
       ? "O usuario enviou varias mensagens em sequencia. Responda os pontos principais no mesmo retorno, sem ignorar a mensagem mais recente."
@@ -533,6 +784,8 @@ Regras obrigatorias:
 - Se nao conseguir confirmar algo, diga isso de forma educada e ofereca verificacao.
 - Se ja tivermos nome, email e telefone para atendimento comercial, agradeca brevemente e nao peca esses dados novamente.
 - Se o usuario perguntar varias coisas no mesmo pacote, responda os pontos principais no mesmo retorno.
+- Quando houver fato exato confirmado pelo roteador, priorize esse fato e nao contradiga.
+- Quando houver contexto de base recuperado, use esse contexto como evidencia.
 
 Fatos base da Lifetrek:
 - Fabricante brasileira em Indaiatuba/SP.
@@ -546,6 +799,7 @@ Indicacao de interesse detectado: ${interest}.
 ${groupedHint}
 ${companyHint}
 ${leadQualificationHint}
+${routingHint}
 ${ragContext}`;
 }
 
@@ -709,23 +963,61 @@ serve(async (req) => {
     });
     const contact = collectKnownContact(userInputs);
     const interest = detectInterest(allUserText || conversationText);
+    const routingInput = conversationText || allUserText || lastUserMessage;
+    const routeIntent = classifyRouteIntent(routingInput);
     const companyLookup = await lookupCompany(
       supabase,
-      conversationText || allUserText || lastUserMessage,
+      routingInput,
     );
     const detectedCompany = companyLookup.matchedCompany || companyLookup.detectedCompany;
     const qualifiedCompanyReference = companyLookup.matchSource
       ? (companyLookup.matchedCompany || companyLookup.detectedCompany)
       : null;
 
-    const { context: ragContext, retrieval } = await fetchKnowledgeContext(
-      supabase,
-      openAiKey,
-      openRouterKey,
-      conversationText || allUserText || lastUserMessage,
-      interest,
-      companyLookup.matchedCompany,
-    );
+    const retrieval = {
+      mode: "none",
+      vectorResults: 0,
+      textResults: 0,
+      terms: [] as string[],
+      embeddingProvider: null as string | null,
+      sourceMatches: [] as string[],
+    };
+    let ragContext = "";
+    let routeBranch: "exact_lookup" | "rag_retrieval" | "model_only" = "model_only";
+    let exactFactReply: string | null = null;
+    let exactFactReason: string | null = null;
+
+    if (routeIntent.primaryIntent === "exact_fact") {
+      routeBranch = "exact_lookup";
+      const exactFacts = await lookupExactFacts(supabase, routingInput);
+      exactFactReason = exactFacts.reason;
+      exactFactReply = buildExactFactReply(routingInput, exactFacts.matchedFacts);
+      retrieval.mode = exactFactReply ? "exact_lookup" : "exact_lookup_miss";
+      retrieval.sourceMatches = exactFacts.matchedFacts.map((fact) => `company_facts:${fact.fact_key}`);
+      logWebsiteBot("routing.exact_fact.lookup", {
+        reason: exactFacts.reason,
+        matchedFacts: retrieval.sourceMatches,
+        usedRows: exactFacts.usedRows,
+        hasExactReply: Boolean(exactFactReply),
+      });
+    } else if (routeIntent.primaryIntent === "capability") {
+      routeBranch = "rag_retrieval";
+      const rag = await fetchKnowledgeContext(
+        supabase,
+        openAiKey,
+        openRouterKey,
+        routingInput,
+        interest,
+        companyLookup.matchedCompany,
+      );
+      ragContext = rag.context;
+      retrieval.mode = rag.retrieval.mode;
+      retrieval.vectorResults = rag.retrieval.vectorResults;
+      retrieval.textResults = rag.retrieval.textResults;
+      retrieval.terms = rag.retrieval.terms;
+      retrieval.embeddingProvider = rag.retrieval.embeddingProvider;
+      retrieval.sourceMatches = rag.retrieval.sourceMatches;
+    }
 
     logWebsiteBot("request.received", {
       sessionId: sessionId || null,
@@ -740,6 +1032,13 @@ serve(async (req) => {
         shouldRequestContact: leadQualification.shouldRequestContact,
         readyForCommercialFollowUp: leadQualification.readyForCommercialFollowUp,
       },
+      routeIntent: routeIntent.primaryIntent,
+      routeHasCommercialSignal: routeIntent.hasCommercialSignal,
+      routeReasons: routeIntent.reasons,
+      routeBranch,
+      retrievalMode: retrieval.mode,
+      exactFactReason,
+      exactFactReplyPreview: exactFactReply ? trimSnippet(exactFactReply) : null,
     });
 
     const systemPrompt = buildSystemPrompt({
@@ -752,23 +1051,40 @@ serve(async (req) => {
         interest,
         detectedCompany: qualifiedCompanyReference,
       }),
+      routingHint: buildRoutingHint({
+        primaryIntent: routeIntent.primaryIntent,
+        branch: routeBranch,
+        exactFactReply,
+        retrievalMode: retrieval.mode,
+      }),
     });
 
     let reply = "";
     let modelLabel = "gemini-flash";
     let aiFallbackUsed = false;
     let providerError: string | null = null;
+    let finalMode = "model";
 
-    if (leadQualification.shouldRequestContact) {
-      reply = buildLeadCaptureReply({
-        state: leadQualification,
+    if (routeIntent.primaryIntent === "exact_fact") {
+      reply = exactFactReply ||
+        "Nao encontrei um fato exato confirmado para essa pergunta agora. Posso verificar internamente e te retornar a confirmacao correta.";
+      modelLabel = exactFactReply ? "deterministic-exact-fact" : "deterministic-exact-fact-miss";
+      finalMode = exactFactReply ? "deterministic-exact-fact" : "deterministic-exact-fact-miss";
+      const leadOverlay = buildLeadOverlayReply({
+        leadQualification,
         interest,
         detectedCompany: qualifiedCompanyReference,
+        allUserText: routingInput,
       });
-      modelLabel = "deterministic-lead-capture";
+      if (leadOverlay) {
+        reply = `${reply} ${leadOverlay}`;
+      }
       logWebsiteBot("reply.mode", {
-        mode: "deterministic-lead-capture",
+        mode: finalMode,
         interest,
+        routeIntent: routeIntent.primaryIntent,
+        routeBranch,
+        retrievalMode: retrieval.mode,
       });
     } else {
       const postCaptureReply = buildPostCaptureReply({
@@ -779,9 +1095,12 @@ serve(async (req) => {
       if (postCaptureReply) {
         reply = postCaptureReply;
         modelLabel = "deterministic-post-capture";
+        finalMode = "deterministic-post-capture";
         logWebsiteBot("reply.mode", {
           mode: "deterministic-post-capture",
           interest,
+          routeIntent: routeIntent.primaryIntent,
+          routeBranch,
         });
       }
     }
@@ -799,12 +1118,24 @@ serve(async (req) => {
         modelLabel = completion.modelLabel;
       }
       providerError = completion.providerError;
+      finalMode = "model";
+      const leadOverlay = buildLeadOverlayReply({
+        leadQualification,
+        interest,
+        detectedCompany: qualifiedCompanyReference,
+        allUserText: routingInput,
+      });
+      if (leadOverlay) {
+        reply = `${reply} ${leadOverlay}`.trim();
+      }
       logWebsiteBot("reply.mode", {
-        mode: "model",
+        mode: finalMode,
         modelLabel,
         providerError: providerError || null,
         ragUsed: Boolean(ragContext),
         ragMode: retrieval.mode,
+        routeIntent: routeIntent.primaryIntent,
+        routeBranch,
       });
     }
 
@@ -818,16 +1149,22 @@ serve(async (req) => {
       });
       modelLabel = "deterministic-fallback";
       aiFallbackUsed = true;
+      finalMode = "deterministic-fallback";
       logWebsiteBot("reply.mode", {
-        mode: "deterministic-fallback",
+        mode: finalMode,
         ragUsed: Boolean(ragContext),
         ragMode: retrieval.mode,
+        routeIntent: routeIntent.primaryIntent,
+        routeBranch,
       });
     }
 
     logWebsiteBot("request.completed", {
       modelLabel,
+      finalMode,
       aiFallbackUsed,
+      routeIntent: routeIntent.primaryIntent,
+      routeBranch,
       ragMode: retrieval.mode,
       ragSources: retrieval.sourceMatches,
       ragTextResults: retrieval.textResults,
@@ -851,6 +1188,9 @@ serve(async (req) => {
             client_buffer: clientBuffer ?? null,
             company_lookup: companyLookup,
             lead_qualification: leadQualification,
+            route_intent: routeIntent.primaryIntent,
+            route_branch: routeBranch,
+            retrieval_mode: retrieval.mode,
             response_style_version: RESPONSE_STYLE_VERSION,
           },
           detected_name: contact.name,
@@ -875,6 +1215,10 @@ serve(async (req) => {
           rag_context_len: ragContext.length,
           company_lookup: companyLookup,
           retrieval,
+          route_intent: routeIntent.primaryIntent,
+          route_branch: routeBranch,
+          retrieval_mode: retrieval.mode,
+          exact_fact_reason: exactFactReason,
           client_buffer: clientBuffer ?? null,
           lead_qualification: leadQualification,
           ai_fallback_used: aiFallbackUsed,

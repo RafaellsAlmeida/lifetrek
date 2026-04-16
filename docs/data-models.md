@@ -36,6 +36,7 @@ Campos relevantes por slide (`slides[n]`):
 ### AI & Knowledge
 
 - `knowledge_base`: chunks de conhecimento técnico para RAG.
+- `company_facts`: fatos estruturados canônicos para respostas exatas do chatbot (inventário, contagens, certificações).
 - `ai_response_suggestions`: respostas sugeridas.
 - `carousels_embeddings`: embeddings de conteúdo social para análises internas.
 

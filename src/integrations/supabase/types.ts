@@ -490,6 +490,42 @@ export type Database = {
         }
         Relationships: []
       }
+      company_facts: {
+        Row: {
+          created_at: string
+          entity_name: string
+          entity_type: string
+          fact_key: string
+          fact_type: string
+          fact_value: Json
+          id: string
+          source_doc: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          entity_name: string
+          entity_type: string
+          fact_key: string
+          fact_type: string
+          fact_value: Json
+          id?: string
+          source_doc?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          entity_name?: string
+          entity_type?: string
+          fact_key?: string
+          fact_type?: string
+          fact_value?: Json
+          id?: string
+          source_doc?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_leads: {
         Row: {
           admin_notes: string | null

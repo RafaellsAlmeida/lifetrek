@@ -7,6 +7,13 @@
 
 This knowledge base is designed for AI agents (Lead Scoring Agent, Email Draft Agent, Website Chatbot Agent) to reference via OpenAI Vector Store or similar RAG implementations. It contains comprehensive information about Lifetrek Medical's capabilities, processes, and communication guidelines.
 
+### Structured Facts vs Narrative RAG (Website Bot)
+
+- `company_facts` (Supabase table) is the source of truth for exact company facts, such as equipment availability, equipment counts, and certification flags.
+- `knowledge_base` remains the narrative corpus for capability/process explanations and contextual answers.
+- For exact inventory-style questions, the chatbot should prioritize `company_facts` and avoid free-form guessing.
+- For open capability questions, the chatbot should retrieve from `knowledge_base` and still let the LLM compose a natural PT-BR answer.
+
 ---
 
 ## 1. COMPANY OVERVIEW

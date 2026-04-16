@@ -1,0 +1,84 @@
+{
+  "topic": "5 erros de validacao dimensional que geram retrabalho invisivel",
+  "platform": "linkedin",
+  "format": "single_post",
+  "strategist": {
+    "hook": "5 erros de validacao dimensional que geram retrabalho invisivel",
+    "narrative_arc": "Abrir com risco operacional silencioso, listar erros recorrentes de processo e fechar com criterio pratico de prevencao.",
+    "narrative_angle": "perceived_likelihood",
+    "slide_count": 1,
+    "slides": [
+      {
+        "slide_number": 1,
+        "type": "hook",
+        "key_message": "Retrabalho pode nascer de lacunas de validacao dimensional antes de virar nao conformidade formal."
+      }
+    ],
+    "key_messages": [
+      "Validacao dimensional e parte de previsibilidade industrial, nao apenas inspeção final.",
+      "Metrologia e rastreabilidade devem conversar com processo.",
+      "Padrao operacional reduz variabilidade invisivel entre lotes."
+    ],
+    "target_emotion": "controle tecnico e confianca",
+    "has_cta": false,
+    "cta_type": "none"
+  },
+  "copywriter": {
+    "on_image_text": {
+      "label": "Qualidade e Metrologia",
+      "headline": "5 erros de validacao dimensional",
+      "subheadline": "que geram retrabalho invisivel"
+    },
+    "caption": "Retrabalho nem sempre aparece como desvio aberto. Muitas vezes ele nasce na validacao dimensional mal amarrada ao processo.\n\n5 erros recorrentes que vemos em projetos industriais:\n1) Medir so no fim do fluxo, sem checkpoints intermediarios.\n2) Tratar desenho como estatico, sem revisar pontos criticos por iteracao.\n3) Separar metrologia e processo como se fossem ilhas.\n4) Liberar lote sem criterio claro para features criticas.\n5) Corrigir sintoma de variacao sem atacar causa de processo.\n\nChecklist pratico para reduzir retrabalho invisivel:\n- Definir features criticas por etapa, nao apenas no final.\n- Padronizar criterio de aprovacao e registro.\n- Conectar medicao, ajuste de processo e rastreabilidade.\n\nNa Lifetrek, esse alinhamento combina metrologia e disciplina de processo para aumentar previsibilidade de lote a lote. ◆\n\n#ISO13485 #Metrologia #DispositivosMedicos #EngenhariaDeProcesso #ManufaturaMedica"
+  },
+  "designer": {
+    "asset_choice": "image-6959e0fa-b3c5-4133-ba77-eb77ae5df400.png",
+    "template": "B",
+    "visual_concept": "Foto real do microscópio Olympus e tela de inspeção como prova visual de ambiente de medição real.",
+    "composition": "Imagem full-bleed com overlay azul escuro, logo no canto superior direito com filete branco, bloco de texto no terço inferior esquerdo.",
+    "mood": "Tecnico, confiavel, laboratorio em operacao.",
+    "color_emphasis": [
+      "#004F8F",
+      "#1A7A3E",
+      "#F07818",
+      "#FFFFFF"
+    ],
+    "typography": {
+      "font_family": "Inter",
+      "headline_weight": 700,
+      "subheadline_weight": 400
+    }
+  },
+  "technical_claims_guardian": {
+    "overall_status": "approved_with_edits",
+    "claims": [
+      {
+        "text": "Retrabalho pode nascer na validacao dimensional mal amarrada ao processo.",
+        "classification": "B - Published but generalized",
+        "decision": "approve",
+        "reason": "Consistente com linguagem de controle dimensional e qualidade sem prometer resultado quantitativo."
+      },
+      {
+        "text": "Metrologia e disciplina de processo aumentam previsibilidade de lote a lote.",
+        "classification": "B - Published but generalized",
+        "decision": "approve_with_softening",
+        "reason": "Mantido em linguagem de tendencia ('aumentar previsibilidade') sem garantia absoluta."
+      },
+      {
+        "text": "Foto de microscopia Olympus representa ambiente real de metrologia.",
+        "classification": "A - Published and corroborated",
+        "decision": "approve",
+        "reason": "O equipamento Olympus e o contexto de laboratorio aparecem em paginas publicas e assets."
+      }
+    ],
+    "blocked_claims": [
+      "Percentuais de reducao de retrabalho sem evidencia publicada.",
+      "Promessas de 'zero defeitos' associadas a este post especifico.",
+      "Qualquer numero de tolerancia, lead time ou cobertura de inspecao CMM sem validacao de stakeholder."
+    ],
+    "recommended_assets": [
+      "Olympus microscope photo (selected)",
+      "ZEISS Contura photo (optional variant)"
+    ]
+  }
+}
