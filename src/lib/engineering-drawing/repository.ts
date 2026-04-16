@@ -405,7 +405,7 @@ export async function persistEngineeringDrawingExport(args: {
   session: EngineeringDrawingSessionRecord;
   fileName: string;
   blob: Blob;
-  exportType: "png" | "pdf" | "glb";
+  exportType: "png" | "pdf" | "glb" | "step";
 }): Promise<EngineeringDrawingSessionRecord> {
   if (args.session.backendMode === "local") {
     return args.session;
@@ -418,7 +418,9 @@ export async function persistEngineeringDrawingExport(args: {
         ? "image/png"
         : args.exportType === "pdf"
           ? "application/pdf"
-          : "model/gltf-binary",
+          : args.exportType === "glb"
+            ? "model/gltf-binary"
+            : "model/step",
     upsert: true,
   });
 
@@ -432,6 +434,7 @@ export async function persistEngineeringDrawingExport(args: {
     exports: {
       ...args.session.exports,
       [args.exportType]: {
+        format: args.exportType,
         path: filePath,
         url: signedUrl,
         updatedAt: new Date().toISOString(),

@@ -37,7 +37,9 @@ import {
 } from "@/lib/engineering-drawing/fixtures";
 import { formatMm, sanitizeFilename } from "@/lib/engineering-drawing/format";
 import { render2D } from "@/lib/engineering-drawing/render2d";
+import { renderA3 } from "@/lib/engineering-drawing/renderA3";
 import { render3D } from "@/lib/engineering-drawing/render3d";
+import { renderStep } from "@/lib/engineering-drawing/renderStep";
 import { validateEngineeringDrawing } from "@/lib/engineering-drawing/validation";
 import {
   createBore,
@@ -56,6 +58,7 @@ import type {
   GdtCallout,
   ReviewState,
   TechnicalDrawing3DResult,
+  TechnicalDrawingStepResult,
   TechnicalDrawingRenderResult,
 } from "@/lib/engineering-drawing/types";
 import {
@@ -80,6 +83,15 @@ function downloadUrl(url: string, fileName: string) {
   anchor.rel = "noreferrer";
   anchor.target = "_blank";
   anchor.click();
+}
+
+function downloadBlob(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
@@ -293,7 +305,9 @@ export function TechnicalDrawingCore() {
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
   const [semanticReviewConfirmed, setSemanticReviewConfirmed] = useState(false);
+  const [a3Svg, setA3Svg] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
+  const a3PreviewRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const latestSpecRef = useRef<AxisymmetricPartSpec>(createEmptySpec("Nova peça"));
   const latestSemanticRef = useRef<EngineeringDrawingSemanticDocument>(createEmptySemanticDocument("Nova peça"));
@@ -327,6 +341,13 @@ export function TechnicalDrawingCore() {
     const maybeResult = activeSession?.renderMetadata?.threeDResult;
     if (maybeResult && typeof maybeResult === "object") {
       return maybeResult as Omit<TechnicalDrawing3DResult, "glbBase64" | "fileName">;
+    }
+    return null;
+  }, [activeSession?.renderMetadata]);
+  const currentStepResult = useMemo(() => {
+    const maybeResult = activeSession?.renderMetadata?.stepResult;
+    if (maybeResult && typeof maybeResult === "object") {
+      return maybeResult as Omit<TechnicalDrawingStepResult, "stepText" | "fileName">;
     }
     return null;
   }, [activeSession?.renderMetadata]);
@@ -742,8 +763,56 @@ export function TechnicalDrawingCore() {
     }
   };
 
+  const handleRenderA3 = () => {
+    if (!activeSession) return;
+    if (!reviewReady) {
+      toast.error("Confirme a revisão antes de gerar o desenho técnico A3.");
+      return;
+    }
+
+    try {
+      const currentSpec = cloneSpec(latestSpecRef.current);
+      const currentSemantic = hydrateSemanticDocument(
+        currentSpec,
+        latestSemanticRef.current,
+        activeSession.reviewState?.ambiguities,
+      );
+      const result = renderA3(currentSpec, currentSemantic);
+      setA3Svg(result.drawingSvg);
+      toast.success("Desenho técnico A3 gerado com sucesso.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Falha ao gerar o desenho técnico A3.");
+    }
+  };
+
+  const handleExportA3 = async (exportType: "png" | "pdf") => {
+    if (!a3Svg) return;
+    setIsBusy(true);
+    try {
+      const pngDataUrl = await svgMarkupToPngDataUrl(a3Svg, 3);
+      if (exportType === "png") {
+        const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.png`;
+        downloadDataUrl(pngDataUrl, fileName);
+      } else {
+        const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.pdf`;
+        const { width: svgW, height: svgH } = getSvgCanvasSize(a3Svg);
+        const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [svgW, svgH] });
+        pdf.addImage(pngDataUrl, "PNG", 0, 0, svgW, svgH);
+        pdf.save(fileName);
+      }
+      toast.success(`A3 ${exportType.toUpperCase()} exportado.`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Falha ao exportar A3.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   const exportDisabled =
     !activeSession?.drawingSvg || !reviewReady || !(activeSession.validationReport?.canExport ?? false);
+  const stepExportDisabled = !activeSession || !reviewReady || !currentValidation.canExport;
 
   const handleExport = async (exportType: "png" | "pdf") => {
     if (!activeSession?.drawingSvg) return;
@@ -808,6 +877,88 @@ export function TechnicalDrawingCore() {
       activeSession.threeDAsset.url,
       `${sanitizeFilename(activeSession.title || "desenho-tecnico")}.glb`,
     );
+  };
+
+  const handleExportStep = async () => {
+    if (!activeSession) return;
+    if (!reviewReady || !currentValidation.canExport) {
+      toast.error("Confirme a revisão e corrija conflitos antes de exportar STEP.");
+      return;
+    }
+
+    setIsBusy(true);
+    try {
+      const currentSpec = cloneSpec(latestSpecRef.current);
+      const currentSemantic = hydrateSemanticDocument(
+        currentSpec,
+        latestSemanticRef.current,
+        activeSession.reviewState?.ambiguities,
+      );
+      const result = await renderStep(currentSpec, currentSemantic);
+
+      if (result.previewStatus !== "ready" || !result.stepText) {
+        toast.error(result.blockingReasons[0] ?? "A exportação STEP continua bloqueada.");
+        return;
+      }
+
+      currentSemantic.validationReport = result.validationReport;
+      const summaryResult = {
+        previewStatus: result.previewStatus,
+        shapeSummary: result.shapeSummary,
+        validationReport: result.validationReport,
+        blockingReasons: result.blockingReasons,
+      };
+      const fileName = result.fileName ?? `${sanitizeFilename(activeSession.title || "desenho-tecnico")}.step`;
+      const blob = new Blob([result.stepText], { type: "model/step;charset=utf-8" });
+
+      downloadBlob(blob, fileName);
+
+      const updatedSession = await persistActiveSession({
+        title: titleInput.trim() || activeSession.title,
+        notes: notesInput.trim() || null,
+        normalizedSpec: currentSpec,
+        normalizedDocument: currentSemantic,
+        validationReport: result.validationReport,
+        reviewState: activeSession.reviewState
+          ? { ...activeSession.reviewState, reviewConfirmed, semanticReviewConfirmed }
+          : extractionToReviewState(
+              {
+                geometryDraft: currentSpec,
+                semanticDraft: currentSemantic,
+                specDraft: currentSpec,
+                ambiguities: [],
+                confidenceSummary: { high: 0, medium: 0, low: 0 },
+                sourceSketchSummary: "",
+                extractionSource: "manual",
+              },
+              activeSession.backendMode,
+              reviewConfirmed,
+              semanticReviewConfirmed,
+            ),
+        threeDPreviewStatus: result.previewStatus,
+        renderMetadata: {
+          ...activeSession.renderMetadata,
+          planned3DModel: render2D(currentSpec, currentSemantic).planned3DModel,
+          stepResult: summaryResult,
+        },
+        status: "rendered_3d",
+      });
+
+      const persisted = await persistEngineeringDrawingExport({
+        session: updatedSession ?? activeSession,
+        fileName,
+        blob,
+        exportType: "step",
+      });
+      setActiveSession(persisted);
+      await refreshSessions(persisted.id);
+      toast.success("STEP gerado e exportado com sucesso.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Falha ao exportar STEP.");
+    } finally {
+      setIsBusy(false);
+    }
   };
 
   const dimensionTable = useMemo(() => {
@@ -1855,6 +2006,15 @@ export function TechnicalDrawingCore() {
                   <Download className="mr-2 h-4 w-4" />
                   Baixar GLB
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void handleExportStep()}
+                  disabled={stepExportDisabled || isBusy}
+                  data-testid="export-step-button"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportar STEP
+                </Button>
               </div>
             </div>
 
@@ -1973,6 +2133,11 @@ export function TechnicalDrawingCore() {
                       </p>
                     </div>
                   ) : null}
+                  {currentStepResult ? (
+                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+                      STEP: {currentStepResult.shapeSummary.segmentShapeCount} sólido(s), {currentStepResult.shapeSummary.boreCutCount} furo(s) subtraído(s).
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1991,6 +2156,62 @@ export function TechnicalDrawingCore() {
                   </div>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PencilRuler className="h-5 w-5 text-purple-600" />
+              Desenho Técnico A3
+            </CardTitle>
+            <CardDescription>
+              Desenho técnico completo com quadro de títulos, múltiplas vistas, GD&T e notas — formato A3 (ISO 7200).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                onClick={handleRenderA3}
+                disabled={!reviewReady || isBusy}
+                data-testid="generate-a3-button"
+              >
+                {isBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PencilRuler className="mr-2 h-4 w-4" />}
+                Gerar Desenho Técnico A3
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void handleExportA3("png")}
+                disabled={!a3Svg || isBusy}
+                data-testid="export-a3-png-button"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar A3 PNG
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void handleExportA3("pdf")}
+                disabled={!a3Svg || isBusy}
+                data-testid="export-a3-pdf-button"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar A3 PDF
+              </Button>
+            </div>
+
+            <div
+              ref={a3PreviewRef}
+              className="overflow-auto rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 shadow-inner"
+              data-testid="engineering-drawing-a3-preview"
+            >
+              {a3Svg ? (
+                <div className="w-full" style={{ aspectRatio: "1260 / 891" }} dangerouslySetInnerHTML={{ __html: a3Svg.replace('width="1260" height="891"', 'width="100%" height="100%" preserveAspectRatio="xMidYMid meet"') }} />
+              ) : (
+                <div className="flex min-h-[400px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-sm text-slate-500">
+                  Gere o desenho técnico A3 após concluir a revisão e o 2D.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

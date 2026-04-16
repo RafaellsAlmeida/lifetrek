@@ -9,9 +9,7 @@ export function build3DModel(spec: AxisymmetricPartSpec): Planned3DModel {
     blockingReasons.push("Há features explicitamente fora do escopo axisimétrico.");
   }
 
-  if (nonRoundSegments.length > 1) {
-    blockingReasons.push("O preview 3D v1 suporta no máximo um segmento prismático (hex/quadrado).");
-  }
+  // v1 supports multiple prisms — each is extruded and boolean-intersected individually
 
   nonRoundSegments.forEach((segment) => {
     if (!segment.acrossFlatsMm || segment.lengthMm === null || segment.lengthMm <= 0) {
@@ -35,7 +33,7 @@ export function build3DModel(spec: AxisymmetricPartSpec): Planned3DModel {
   return {
     status: "ready",
     readyForImplementation: true,
-    message: "A peça revisada está pronta para preview 3D paramétrico e export GLB.",
+    message: "A peça revisada está pronta para preview 3D paramétrico e exports GLB/STEP.",
     unsupportedFeatures: [],
     blockingReasons: [],
   };

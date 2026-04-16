@@ -285,6 +285,25 @@ export interface TechnicalDrawing3DResult {
   blockingReasons: string[];
 }
 
+export interface TechnicalDrawingStepAsset {
+  format: "step";
+  path: string | null;
+  url: string | null;
+  updatedAt: string | null;
+}
+
+export interface TechnicalDrawingStepResult {
+  previewStatus: ThreeDPreviewStatus;
+  stepText: string | null;
+  fileName: string | null;
+  shapeSummary: {
+    segmentShapeCount: number;
+    boreCutCount: number;
+  };
+  validationReport: ValidationReport;
+  blockingReasons: string[];
+}
+
 export interface ReviewState {
   reviewConfirmed: boolean;
   semanticReviewConfirmed: boolean;
