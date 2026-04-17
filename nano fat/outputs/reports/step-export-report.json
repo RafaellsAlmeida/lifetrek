@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-04-17T15:33:19.246Z",
+  "opencascade": {
+    "dependency": "^1.1.1",
+    "packageLockVersion": "1.1.1",
+    "runtimePath": "opencascade.js/dist/opencascade.wasm.js via Vite browser dynamic import"
+  },
+  "sourceInputs": [
+    "nano fat/inputs/NANO TRANSFER DESENHO 1.pdf",
+    "nano fat/inputs/TAMPA NANO TRANSFER.pdf",
+    "nano fat/inputs/Kit Nanofat Tulip foto.png",
+    "nano fat/inputs/kit toyo recebido.jpeg"
+  ],
+  "exports": [
+    {
+      "id": "nano-transfer-outer",
+      "title": "Nano Transfer Corpo",
+      "stepFile": "nano fat/outputs/step/nano-transfer-outer.step",
+      "svgFile": "nano fat/outputs/svg/nano-transfer-outer.svg",
+      "a3SvgFile": "nano fat/outputs/svg/nano-transfer-outer-a3.svg",
+      "previewStatus": "ready",
+      "shapeSummary": {
+        "segmentShapeCount": 6,
+        "boreCutCount": 11
+      },
+      "blockingReasons": [],
+      "validationReport": {
+        "issues": [],
+        "blockingIssueCount": 0,
+        "warningCount": 0,
+        "reviewRequiredCount": 0,
+        "infoCount": 0,
+        "canRender": true,
+        "canExport": true
+      },
+      "stepVerification": {
+        "validHeader": true,
+        "validFooter": true,
+        "byteLength": 66902,
+        "entityCount": 1430
+      },
+      "dimensionRows": 26
+    },
+    {
+      "id": "nano-transfer-cap",
+      "title": "Nano Transfer Tampa",
+      "stepFile": "nano fat/outputs/step/nano-transfer-cap.step",
+      "svgFile": "nano fat/outputs/svg/nano-transfer-cap.svg",
+      "a3SvgFile": "nano fat/outputs/svg/nano-transfer-cap-a3.svg",
+      "previewStatus": "ready",
+      "shapeSummary": {
+        "segmentShapeCount": 3,
+        "boreCutCount": 6
+      },
+      "blockingReasons": [],
+      "validationReport": {
+        "issues": [],
+        "blockingIssueCount": 0,
+        "warningCount": 0,
+        "reviewRequiredCount": 0,
+        "infoCount": 0,
+        "canRender": true,
+        "canExport": true
+      },
+      "stepVerification": {
+        "validHeader": true,
+        "validFooter": true,
+        "byteLength": 37644,
+        "entityCount": 815
+      },
+      "dimensionRows": 17
+    },
+    {
+      "id": "regression-hexagono-m12",
+      "title": "Hexágono M12",
+      "stepFile": "nano fat/outputs/step/regression-hexagono-m12.step",
+      "svgFile": "nano fat/outputs/svg/regression-hexagono-m12.svg",
+      "a3SvgFile": null,
+      "previewStatus": "ready",
+      "shapeSummary": {
+        "segmentShapeCount": 5,
+        "boreCutCount": 1
+      },
+      "blockingReasons": [],
+      "validationReport": {
+        "issues": [],
+        "blockingIssueCount": 0,
+        "warningCount": 0,
+        "reviewRequiredCount": 0,
+        "infoCount": 0,
+        "canRender": true,
+        "canExport": true
+      },
+      "stepVerification": {
+        "validHeader": true,
+        "validFooter": true,
+        "byteLength": 62630,
+        "entityCount": 1335
+      },
+      "dimensionRows": 21
+    }
+  ],
+  "allStepFilesValidByHeaderFooter": true
+}

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Desenho técnico preliminar">
+      <defs>
+
+    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2563eb" />
+    </marker>
+
+
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c" />
+    </marker>
+
+      </defs>
+      <rect x="0" y="0" width="1200" height="760" fill="#ffffff" />
+      <rect x="24" y="24" width="1152" height="712" rx="20" fill="none" stroke="#cbd5e1" stroke-width="1.4" />
+      <text x="40" y="60" font-size="28" fill="#0f172a" font-weight="700">Hexágono M12</text>
+      <text x="40" y="88" font-size="13" fill="#475569">Unidade: MM • Status: preliminar • Renderer determinístico 2D</text>
+      <line x1="96" y1="320" x2="289.6" y2="320" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6 6" />
+      <line x1="120" y1="180" x2="120" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="146" y1="180" x2="146" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="146" y1="180" x2="146" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="173.73333333333335" y1="180" x2="173.73333333333335" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="173.73333333333335" y1="180" x2="173.73333333333335" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="208.4" y1="180" x2="208.4" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="208.4" y1="180" x2="208.4" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="223.13333333333333" y1="180" x2="223.13333333333333" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="223.13333333333333" y1="180" x2="223.13333333333333" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="265.6" y1="180" x2="265.6" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <polygon points="120,268 146,268 146,372 120,372" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="146,268 173.73333333333335,190 173.73333333333335,450 146,372" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="173.73333333333335,190 208.4,190 208.4,450 173.73333333333335,450" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="208.4,216 223.13333333333333,216 223.13333333333333,424 208.4,424" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="223.13333333333333,216 265.6,216 265.6,424 223.13333333333333,424" fill="none" stroke="#0f172a" stroke-width="2.4" />
+    <polyline points="223.13333333333333,224 226.13333333333333,218 229.13333333333333,224 229.13333333333333,224 232.13333333333333,218 235.13333333333333,224 235.13333333333333,224 238.13333333333333,218 241.13333333333333,224 241.13333333333333,224 244.13333333333333,218 247.13333333333333,224 247.13333333333333,224 250.13333333333333,218 253.13333333333333,224 253.13333333333333,224 256.1333333333333,218 259.1333333333333,224 259.1333333333333,224 262.1333333333333,218 265.1333333333333,224 265.1333333333333,224 265.3666666666667,218 265.6,224" fill="none" stroke="#0f172a" stroke-width="1.2" />
+    <polyline points="223.13333333333333,416 226.13333333333333,422 229.13333333333333,416 229.13333333333333,416 232.13333333333333,422 235.13333333333333,416 235.13333333333333,416 238.13333333333333,422 241.13333333333333,416 241.13333333333333,416 244.13333333333333,422 247.13333333333333,416 247.13333333333333,416 250.13333333333333,422 253.13333333333333,416 253.13333333333333,416 256.1333333333333,422 259.1333333333333,416 259.1333333333333,416 262.1333333333333,422 265.1333333333333,416 265.1333333333333,416 265.3666666666667,422 265.6,416" fill="none" stroke="#0f172a" stroke-width="1.2" />
+
+
+    <line x1="120" y1="504" x2="120" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="146" y1="504" x2="146" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="520" x2="146" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="133" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">1,50 mm</text>
+
+
+    <line x1="146" y1="538" x2="146" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="173.73333333333335" y1="538" x2="173.73333333333335" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="146" y1="554" x2="173.73333333333335" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="159.86666666666667" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">1,60 mm</text>
+
+
+    <line x1="173.73333333333335" y1="504" x2="173.73333333333335" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="208.4" y1="504" x2="208.4" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="173.73333333333335" y1="520" x2="208.4" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="191.06666666666666" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">2 mm</text>
+
+
+    <line x1="208.4" y1="538" x2="208.4" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="223.13333333333333" y1="538" x2="223.13333333333333" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="208.4" y1="554" x2="223.13333333333333" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="215.76666666666665" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">0,85 mm</text>
+
+
+    <line x1="223.13333333333333" y1="504" x2="223.13333333333333" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="265.6" y1="504" x2="265.6" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="223.13333333333333" y1="520" x2="265.6" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="244.36666666666667" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">2,45 mm</text>
+
+
+    <line x1="120" y1="604" x2="120" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="265.6" y1="604" x2="265.6" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="620" x2="265.6" y2="620" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="192.8" y="610" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">8,40 mm</text>
+
+
+        <line x1="133" y1="268" x2="133" y2="118" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="133" y="110" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø6</text>
+
+
+        <line x1="159.86666666666667" y1="190" x2="159.86666666666667" y2="156" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="159.86666666666667" y="148" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø6 → Ø15</text>
+
+
+        <line x1="191.0666666666667" y1="190" x2="191.0666666666667" y2="194" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="191.0666666666667" y="186" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø15</text>
+
+
+        <line x1="215.76666666666668" y1="216" x2="215.76666666666668" y2="118" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="215.76666666666668" y="110" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø12</text>
+
+
+        <line x1="244.36666666666667" y1="216" x2="244.36666666666667" y2="156" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="244.36666666666667" y="148" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">M12 x 1,75</text>
+
+
+        <g transform="translate(900 160)">
+          <text x="0" y="-20" text-anchor="middle" font-size="16" fill="#0f172a" font-weight="700">Vista superior</text>
+          <polygon
+            points="-52,-52 52,-52 52,52 -52,52"
+            fill="none"
+            stroke="#0f172a"
+            stroke-width="2"
+          />
+          <circle cx="0" cy="0" r="52" fill="none" stroke="#94a3b8" stroke-width="1.4" />
+
+    <line x1="-52" y1="94" x2="-52" y2="126" stroke="#2563eb" stroke-width="1" />
+    <line x1="52" y1="94" x2="52" y2="126" stroke="#2563eb" stroke-width="1" />
+    <line x1="-52" y1="110" x2="52" y2="110" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="0" y="98" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">SQ 6 mm</text>
+
+        </g>
+
+
+      <g transform="translate(820 360)">
+        <rect x="0" y="0" width="320" height="92" rx="16" fill="#ecfdf5" stroke="#86efac" />
+        <text x="20" y="32" font-size="18" fill="#166534" font-weight="700">Validação</text>
+        <text x="20" y="62" font-size="13" fill="#166534">Sem conflitos bloqueantes. Desenho pronto para revisão.</text>
+      </g>
+
+
+
+      <g transform="translate(120 680)">
+        <text x="0" y="0" font-size="16" fill="#0f172a" font-weight="700">Notas</text>
+        <text x="0" y="24" font-size="13" fill="#334155">• Fixture de teste baseada no croqui inicial do hexágono M12.</text><text x="0" y="42" font-size="13" fill="#334155">• 1. Furo esquerdo: Ø4 mm x 1 mm (esquerda)</text><text x="0" y="60" font-size="13" fill="#334155">• Trecho 1: quadrado 6 mm entre faces</text><text x="0" y="78" font-size="13" fill="#334155">• Trecho 3: sextavado 11,50 mm entre faces</text><text x="0" y="96" font-size="13" fill="#334155">• Trecho 4: raio inicial R0,50</text><text x="0" y="114" font-size="13" fill="#334155">• Trecho 5: chanfro final 0,20 x 45°</text>
+      </g>
+
+      <g transform="translate(820 120)">
+        <rect x="0" y="0" width="320" height="160" rx="16" fill="#f8fafc" stroke="#cbd5e1" />
+        <text x="20" y="34" font-size="18" fill="#0f172a" font-weight="700">Legenda rápida</text>
+        <text x="20" y="64" font-size="13" fill="#334155">Linha azul: cotas</text>
+        <text x="20" y="84" font-size="13" fill="#334155">Líder laranja: diâmetros e rosca</text>
+        <text x="20" y="104" font-size="13" fill="#334155">Linhas cinza tracejadas: limites de trecho</text>
+        <text x="20" y="124" font-size="13" fill="#334155">Perfis não suportados são sinalizados, nunca inventados.</text>
+      </g>
+    </svg>

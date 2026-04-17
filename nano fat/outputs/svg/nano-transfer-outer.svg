@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Desenho técnico preliminar">
+      <defs>
+
+    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2563eb" />
+    </marker>
+
+
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c" />
+    </marker>
+
+      </defs>
+      <rect x="0" y="0" width="1200" height="760" fill="#ffffff" />
+      <rect x="24" y="24" width="1152" height="712" rx="20" fill="none" stroke="#cbd5e1" stroke-width="1.4" />
+      <text x="40" y="60" font-size="28" fill="#0f172a" font-weight="700">Nano Transfer Corpo</text>
+      <text x="40" y="88" font-size="13" fill="#475569">Unidade: MM • Status: preliminar • Renderer determinístico 2D</text>
+      <line x1="96" y1="320" x2="414.26315789473676" y2="320" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6 6" />
+      <line x1="120" y1="180" x2="120" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="196.6315789473684" y1="180" x2="196.6315789473684" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="196.6315789473684" y1="180" x2="196.6315789473684" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="217.15789473684208" y1="180" x2="217.15789473684208" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="217.15789473684208" y1="180" x2="217.15789473684208" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="261.6315789473684" y1="180" x2="261.6315789473684" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="261.6315789473684" y1="180" x2="261.6315789473684" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="353.31578947368416" y1="180" x2="353.31578947368416" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="353.31578947368416" y1="180" x2="353.31578947368416" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="380.6842105263157" y1="180" x2="380.6842105263157" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="380.6842105263157" y1="180" x2="380.6842105263157" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="390.26315789473676" y1="180" x2="390.26315789473676" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <polygon points="120,190 196.6315789473684,190 196.6315789473684,450 120,450" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="196.6315789473684,192.39473684210526 217.15789473684208,192.39473684210526 217.15789473684208,447.60526315789474 196.6315789473684,447.60526315789474" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="217.15789473684208,192.39473684210526 261.6315789473684,220.78947368421052 261.6315789473684,419.2105263157895 217.15789473684208,447.60526315789474" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="261.6315789473684,220.78947368421052 353.31578947368416,220.78947368421052 353.31578947368416,419.2105263157895 261.6315789473684,419.2105263157895" fill="none" stroke="#0f172a" stroke-width="2.4" />
+    <polyline points="261.6315789473684,228.78947368421052 266.21578947368414,222.78947368421052 270.79999999999995,228.78947368421052 270.79999999999995,228.78947368421052 275.38421052631577,222.78947368421052 279.9684210526315,228.78947368421052 279.9684210526315,228.78947368421052 284.5526315789473,222.78947368421052 289.1368421052631,228.78947368421052 289.1368421052631,228.78947368421052 293.7210526315789,222.78947368421052 298.3052631578947,228.78947368421052 298.3052631578947,228.78947368421052 302.88947368421043,222.78947368421052 307.47368421052624,228.78947368421052 307.47368421052624,228.78947368421052 312.05789473684206,222.78947368421052 316.6421052631578,228.78947368421052 316.6421052631578,228.78947368421052 321.2263157894736,222.78947368421052 325.8105263157894,228.78947368421052 325.8105263157894,228.78947368421052 330.3947368421052,222.78947368421052 334.97894736842096,228.78947368421052 334.97894736842096,228.78947368421052 339.5631578947367,222.78947368421052 344.14736842105253,228.78947368421052 344.14736842105253,228.78947368421052 348.73157894736835,222.78947368421052 353.3157894736841,228.78947368421052 353.3157894736841,228.78947368421052 353.31578947368416,222.78947368421052 353.31578947368416,228.78947368421052" fill="none" stroke="#0f172a" stroke-width="1.2" />
+    <polyline points="261.6315789473684,411.2105263157895 266.21578947368414,417.2105263157895 270.79999999999995,411.2105263157895 270.79999999999995,411.2105263157895 275.38421052631577,417.2105263157895 279.9684210526315,411.2105263157895 279.9684210526315,411.2105263157895 284.5526315789473,417.2105263157895 289.1368421052631,411.2105263157895 289.1368421052631,411.2105263157895 293.7210526315789,417.2105263157895 298.3052631578947,411.2105263157895 298.3052631578947,411.2105263157895 302.88947368421043,417.2105263157895 307.47368421052624,411.2105263157895 307.47368421052624,411.2105263157895 312.05789473684206,417.2105263157895 316.6421052631578,411.2105263157895 316.6421052631578,411.2105263157895 321.2263157894736,417.2105263157895 325.8105263157894,411.2105263157895 325.8105263157894,411.2105263157895 330.3947368421052,417.2105263157895 334.97894736842096,411.2105263157895 334.97894736842096,411.2105263157895 339.5631578947367,417.2105263157895 344.14736842105253,411.2105263157895 344.14736842105253,411.2105263157895 348.73157894736835,417.2105263157895 353.3157894736841,411.2105263157895 353.3157894736841,411.2105263157895 353.31578947368416,417.2105263157895 353.31578947368416,411.2105263157895" fill="none" stroke="#0f172a" stroke-width="1.2" />
+
+<polygon points="353.31578947368416,225.92105263157896 380.6842105263157,225.92105263157896 380.6842105263157,414.07894736842104 353.31578947368416,414.07894736842104" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="380.6842105263157,225.92105263157896 390.26315789473676,225.92105263157896 390.26315789473676,414.07894736842104 380.6842105263157,414.07894736842104" fill="none" stroke="#0f172a" stroke-width="2.4" />
+
+    <line x1="120" y1="504" x2="120" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="196.6315789473684" y1="504" x2="196.6315789473684" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="520" x2="196.6315789473684" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="158.31578947368422" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">11,20 mm</text>
+
+
+    <line x1="196.6315789473684" y1="538" x2="196.6315789473684" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="217.15789473684208" y1="538" x2="217.15789473684208" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="196.6315789473684" y1="554" x2="217.15789473684208" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="206.89473684210526" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">3 mm</text>
+
+
+    <line x1="217.15789473684208" y1="504" x2="217.15789473684208" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="261.6315789473684" y1="504" x2="261.6315789473684" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="217.15789473684208" y1="520" x2="261.6315789473684" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="239.39473684210523" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">6,50 mm</text>
+
+
+    <line x1="261.6315789473684" y1="538" x2="261.6315789473684" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="353.31578947368416" y1="538" x2="353.31578947368416" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="261.6315789473684" y1="554" x2="353.31578947368416" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="307.47368421052624" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">13,40 mm</text>
+
+
+    <line x1="353.31578947368416" y1="504" x2="353.31578947368416" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="380.6842105263157" y1="504" x2="380.6842105263157" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="353.31578947368416" y1="520" x2="380.6842105263157" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="366.99999999999994" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">4 mm</text>
+
+
+    <line x1="380.6842105263157" y1="538" x2="380.6842105263157" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="390.26315789473676" y1="538" x2="390.26315789473676" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="380.6842105263157" y1="554" x2="390.26315789473676" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="385.47368421052624" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">1,40 mm</text>
+
+
+    <line x1="120" y1="604" x2="120" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="390.26315789473676" y1="604" x2="390.26315789473676" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="620" x2="390.26315789473676" y2="620" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="255.13157894736838" y="610" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">39,50 mm</text>
+
+
+        <line x1="158.31578947368422" y1="190" x2="158.31578947368422" y2="118" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="158.31578947368422" y="110" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø38</text>
+
+
+        <line x1="206.89473684210526" y1="192.39473684210526" x2="206.89473684210526" y2="156" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="206.89473684210526" y="148" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø37,30</text>
+
+
+        <line x1="239.39473684210523" y1="192.39473684210526" x2="239.39473684210523" y2="194" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="239.39473684210523" y="186" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø37,30 → Ø29</text>
+
+
+        <line x1="307.4736842105263" y1="220.78947368421052" x2="307.4736842105263" y2="118" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="307.4736842105263" y="110" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">M29 x 0,80</text>
+
+
+        <line x1="366.99999999999994" y1="225.92105263157896" x2="366.99999999999994" y2="156" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="366.99999999999994" y="148" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø27,50</text>
+
+
+        <line x1="385.47368421052624" y1="225.92105263157896" x2="385.47368421052624" y2="194" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="385.47368421052624" y="186" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø27,50</text>
+
+
+
+      <g transform="translate(820 360)">
+        <rect x="0" y="0" width="320" height="92" rx="16" fill="#ecfdf5" stroke="#86efac" />
+        <text x="20" y="32" font-size="18" fill="#166534" font-weight="700">Validação</text>
+        <text x="20" y="62" font-size="13" fill="#166534">Sem conflitos bloqueantes. Desenho pronto para revisão.</text>
+      </g>
+
+
+
+      <g transform="translate(120 680)">
+        <text x="0" y="0" font-size="16" fill="#0f172a" font-weight="700">Notas</text>
+        <text x="0" y="24" font-size="13" fill="#334155">• Axisymmetric STEP approximation.</text><text x="0" y="42" font-size="13" fill="#334155">• Texture/thread/luer details simplified; see report.</text><text x="0" y="60" font-size="13" fill="#334155">• 1. Central through passage from section B/B: Ø2,40 mm x 39,50 mm (esquerda) • 2. Approximate luer lock envelope: Ø7,80 mm x 13,70 mm (esquerda) • 3. Right outlet counterbore: Ø4 mm x 13,90 mm (direita)</text><text x="0" y="78" font-size="13" fill="#334155">• Trecho 1: Recartilha reta passo 0.8 mm; exported as smooth cylinder.</text><text x="0" y="96" font-size="13" fill="#334155">• Trecho 4: Thread exported as nominal cylindrical/thread zone.</text><text x="0" y="114" font-size="13" fill="#334155">• Trecho 6: Drawing callout appears as 1.00 mm; modeled as 1.40 mm to reconcile the 39.50 mm total length.</text>
+      </g>
+
+      <g transform="translate(820 120)">
+        <rect x="0" y="0" width="320" height="160" rx="16" fill="#f8fafc" stroke="#cbd5e1" />
+        <text x="20" y="34" font-size="18" fill="#0f172a" font-weight="700">Legenda rápida</text>
+        <text x="20" y="64" font-size="13" fill="#334155">Linha azul: cotas</text>
+        <text x="20" y="84" font-size="13" fill="#334155">Líder laranja: diâmetros e rosca</text>
+        <text x="20" y="104" font-size="13" fill="#334155">Linhas cinza tracejadas: limites de trecho</text>
+        <text x="20" y="124" font-size="13" fill="#334155">Perfis não suportados são sinalizados, nunca inventados.</text>
+      </g>
+    </svg>

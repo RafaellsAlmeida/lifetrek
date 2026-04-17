@@ -1,0 +1,99 @@
+{
+  "partName": "Nano Transfer Tampa",
+  "drawingNumber": "TAMPA-NANO-TRANSFER",
+  "unit": "mm",
+  "totalLengthMm": 17.5,
+  "segments": [
+    {
+      "id": "cap-knurl",
+      "label": "Knurled cap rim",
+      "kind": "cylinder",
+      "lengthMm": 9.5,
+      "startDiameterMm": 33.2,
+      "endDiameterMm": 33.2,
+      "externalShape": "round",
+      "acrossFlatsMm": null,
+      "threadDesignation": null,
+      "threadPitchMm": null,
+      "chamferStartMm": null,
+      "chamferStartAngleDeg": null,
+      "chamferEndMm": null,
+      "chamferEndAngleDeg": null,
+      "filletStartRadiusMm": null,
+      "filletEndRadiusMm": null,
+      "note": "Recartilha paralela passo 0.8 mm; exported as smooth cylinder.",
+      "confidence": 0.72
+    },
+    {
+      "id": "cap-radius-transition",
+      "label": "Rounded transition envelope",
+      "kind": "taper",
+      "lengthMm": 3,
+      "startDiameterMm": 33.2,
+      "endDiameterMm": 28,
+      "externalShape": "round",
+      "acrossFlatsMm": null,
+      "threadDesignation": null,
+      "threadPitchMm": null,
+      "chamferStartMm": null,
+      "chamferStartAngleDeg": null,
+      "chamferEndMm": null,
+      "chamferEndAngleDeg": null,
+      "filletStartRadiusMm": 2.5,
+      "filletEndRadiusMm": null,
+      "note": "R2.5/20 degree detail approximated as a taper envelope.",
+      "confidence": 0.72
+    },
+    {
+      "id": "cap-thread-zone",
+      "label": "Internal M29 thread zone envelope",
+      "kind": "thread",
+      "lengthMm": 5,
+      "startDiameterMm": 28,
+      "endDiameterMm": 28,
+      "externalShape": "round",
+      "acrossFlatsMm": null,
+      "threadDesignation": "M29",
+      "threadPitchMm": 0.8,
+      "chamferStartMm": null,
+      "chamferStartAngleDeg": null,
+      "chamferEndMm": null,
+      "chamferEndAngleDeg": null,
+      "filletStartRadiusMm": null,
+      "filletEndRadiusMm": null,
+      "note": "Internal thread callout exported as nominal thread zone with stepped bores.",
+      "confidence": 0.72
+    }
+  ],
+  "axialBores": [
+    {
+      "id": "cap-through-4p0",
+      "label": "Central through passage",
+      "diameterMm": 4,
+      "depthMm": 17.5,
+      "startFrom": "left",
+      "confidence": 0.64
+    },
+    {
+      "id": "cap-inner-cavity-21p6",
+      "label": "Inner cavity diameter from section",
+      "diameterMm": 21.6,
+      "depthMm": 7.2,
+      "startFrom": "right",
+      "confidence": 0.55
+    },
+    {
+      "id": "cap-thread-relief-25p1",
+      "label": "Thread relief envelope",
+      "diameterMm": 25.1,
+      "depthMm": 4.2,
+      "startFrom": "right",
+      "confidence": 0.5
+    }
+  ],
+  "notes": [
+    "Axisymmetric STEP approximation.",
+    "Knurl/internal thread details simplified; see report."
+  ],
+  "unsupportedFeatures": []
+}
