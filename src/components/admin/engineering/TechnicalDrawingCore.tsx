@@ -69,6 +69,26 @@ import {
   updateEngineeringDrawingSession,
 } from "@/lib/engineering-drawing/repository";
 
+type StoredDrawingExport = {
+  key: string;
+  label: string;
+  fileName: string;
+  url: string | null;
+  path: string | null;
+  updatedAt: string | null;
+};
+
+const SAVED_EXPORT_LABELS: Record<string, string> = {
+  svg: "2D SVG",
+  png: "2D PNG",
+  pdf: "2D PDF",
+  step: "STEP",
+  glb: "GLB",
+  a3_svg: "A3 SVG",
+  a3_png: "A3 PNG",
+  a3_pdf: "A3 PDF",
+};
+
 function downloadDataUrl(dataUrl: string, fileName: string) {
   const anchor = document.createElement("a");
   anchor.href = dataUrl;
@@ -97,6 +117,38 @@ function downloadBlob(blob: Blob, fileName: string) {
 async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
   const response = await fetch(dataUrl);
   return response.blob();
+}
+
+function svgMarkupToBlob(svgMarkup: string) {
+  return new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" });
+}
+
+function buildSavedExports(exports: Record<string, unknown> | null | undefined): StoredDrawingExport[] {
+  const order = ["svg", "png", "pdf", "a3_svg", "a3_png", "a3_pdf", "step", "glb"];
+
+  return Object.entries(exports ?? {})
+    .map(([key, value]) => {
+      if (!value || typeof value !== "object") return null;
+      const asset = value as Record<string, unknown>;
+      const url = typeof asset.url === "string" ? asset.url : null;
+      const path = typeof asset.path === "string" ? asset.path : null;
+      if (!url && !path) return null;
+
+      return {
+        key,
+        label: SAVED_EXPORT_LABELS[key] ?? key.toUpperCase(),
+        fileName: typeof asset.fileName === "string" ? asset.fileName : `${key}.download`,
+        url,
+        path,
+        updatedAt: typeof asset.updatedAt === "string" ? asset.updatedAt : null,
+      };
+    })
+    .filter((asset): asset is StoredDrawingExport => Boolean(asset))
+    .sort((a, b) => {
+      const left = order.indexOf(a.key);
+      const right = order.indexOf(b.key);
+      return (left === -1 ? order.length : left) - (right === -1 ? order.length : right);
+    });
 }
 
 function base64ToBlob(base64: string, mimeType: string) {
@@ -351,6 +403,7 @@ export function TechnicalDrawingCore() {
     }
     return null;
   }, [activeSession?.renderMetadata]);
+  const savedExports = useMemo(() => buildSavedExports(activeSession?.exports), [activeSession?.exports]);
 
   const currentValidation = useMemo(() => {
     if (renderResult?.validationReport) return renderResult.validationReport;
@@ -412,6 +465,39 @@ export function TechnicalDrawingCore() {
     setActiveSession(updated);
     await refreshSessions(updated.id);
     return updated;
+  };
+
+  const persistDrawingSnapshots = async (
+    session: EngineeringDrawingSessionRecord,
+    svgMarkup: string,
+    options: {
+      baseFileName: string;
+      svgExportType: "svg" | "a3_svg";
+      pngExportType: "png" | "a3_png";
+      svgStorageKey: string;
+      pngStorageKey: string;
+    },
+  ) => {
+    let persisted = await persistEngineeringDrawingExport({
+      session,
+      fileName: `${options.baseFileName}.svg`,
+      blob: svgMarkupToBlob(svgMarkup),
+      exportType: options.svgExportType,
+      storageKey: options.svgStorageKey,
+    });
+
+    const pngDataUrl = await svgMarkupToPngDataUrl(svgMarkup, 3);
+    persisted = await persistEngineeringDrawingExport({
+      session: persisted,
+      fileName: `${options.baseFileName}.png`,
+      blob: await dataUrlToBlob(pngDataUrl),
+      exportType: options.pngExportType,
+      storageKey: options.pngStorageKey,
+    });
+
+    setActiveSession(persisted);
+    await refreshSessions(persisted.id);
+    return persisted;
   };
 
   const updateDraftSpec = (nextSpec: AxisymmetricPartSpec) => {
@@ -645,11 +731,26 @@ export function TechnicalDrawingCore() {
         status: "rendered_2d",
       });
 
+      if (updated && result.validationReport.canExport) {
+        try {
+          await persistDrawingSnapshots(updated, result.drawingSvg, {
+            baseFileName: sanitizeFilename(titleInput.trim() || activeSession.title || "desenho-tecnico"),
+            svgExportType: "svg",
+            pngExportType: "png",
+            svgStorageKey: "latest/desenho-2d.svg",
+            pngStorageKey: "latest/desenho-2d.png",
+          });
+        } catch (error) {
+          console.warn("[engineering-drawing] Drawing snapshot persistence failed:", error);
+          toast.warning("2D gerado, mas o arquivamento no Storage falhou.");
+        }
+      }
+
       if (updated) {
         toast.success(
           result.validationReport.blockingIssueCount > 0 || result.validationReport.reviewRequiredCount > 0
             ? "2D gerado, mas ainda há pendências que bloqueiam a exportação."
-            : "Desenho 2D gerado com sucesso.",
+            : "Desenho 2D gerado e salvo no Storage.",
         );
       }
     } catch (error) {
@@ -763,13 +864,14 @@ export function TechnicalDrawingCore() {
     }
   };
 
-  const handleRenderA3 = () => {
+  const handleRenderA3 = async () => {
     if (!activeSession) return;
     if (!reviewReady) {
       toast.error("Confirme a revisão antes de gerar o desenho técnico A3.");
       return;
     }
 
+    setIsBusy(true);
     try {
       const currentSpec = cloneSpec(latestSpecRef.current);
       const currentSemantic = hydrateSemanticDocument(
@@ -779,10 +881,21 @@ export function TechnicalDrawingCore() {
       );
       const result = renderA3(currentSpec, currentSemantic);
       setA3Svg(result.drawingSvg);
-      toast.success("Desenho técnico A3 gerado com sucesso.");
+      if (result.validationReport.canExport) {
+        await persistDrawingSnapshots(activeSession, result.drawingSvg, {
+          baseFileName: `${sanitizeFilename(activeSession.title || "desenho-tecnico")}-A3`,
+          svgExportType: "a3_svg",
+          pngExportType: "a3_png",
+          svgStorageKey: "latest/desenho-a3.svg",
+          pngStorageKey: "latest/desenho-a3.png",
+        });
+      }
+      toast.success("Desenho técnico A3 gerado e salvo no Storage.");
     } catch (error) {
       console.error(error);
       toast.error(error instanceof Error ? error.message : "Falha ao gerar o desenho técnico A3.");
+    } finally {
+      setIsBusy(false);
     }
   };
 
@@ -794,12 +907,34 @@ export function TechnicalDrawingCore() {
       if (exportType === "png") {
         const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.png`;
         downloadDataUrl(pngDataUrl, fileName);
+        if (activeSession) {
+          const persisted = await persistEngineeringDrawingExport({
+            session: activeSession,
+            fileName,
+            blob: await dataUrlToBlob(pngDataUrl),
+            exportType: "a3_png",
+            storageKey: "latest/desenho-a3.png",
+          });
+          setActiveSession(persisted);
+          await refreshSessions(persisted.id);
+        }
       } else {
         const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.pdf`;
         const { width: svgW, height: svgH } = getSvgCanvasSize(a3Svg);
         const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [svgW, svgH] });
         pdf.addImage(pngDataUrl, "PNG", 0, 0, svgW, svgH);
         pdf.save(fileName);
+        if (activeSession) {
+          const persisted = await persistEngineeringDrawingExport({
+            session: activeSession,
+            fileName,
+            blob: pdf.output("blob"),
+            exportType: "a3_pdf",
+            storageKey: "latest/desenho-a3.pdf",
+          });
+          setActiveSession(persisted);
+          await refreshSessions(persisted.id);
+        }
       }
       toast.success(`A3 ${exportType.toUpperCase()} exportado.`);
     } catch (error) {
@@ -2092,6 +2227,40 @@ export function TechnicalDrawingCore() {
                   </div>
                 </div>
 
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4" data-testid="stored-drawing-assets">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-slate-900">Arquivos salvos</h3>
+                    <Badge variant={savedExports.length > 0 ? "secondary" : "outline"}>{savedExports.length}</Badge>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {savedExports.length === 0 ? (
+                      <p className="text-sm text-slate-600">
+                        Gere um 2D validado para salvar SVG e PNG no Storage.
+                      </p>
+                    ) : (
+                      savedExports.map((asset) => (
+                        <button
+                          key={asset.key}
+                          type="button"
+                          onClick={() => asset.url && downloadUrl(asset.url, asset.fileName)}
+                          disabled={!asset.url || isBusy}
+                          className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm transition hover:border-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <span>
+                            <span className="font-medium text-slate-900">{asset.label}</span>
+                            {asset.updatedAt ? (
+                              <span className="block text-xs text-slate-500">
+                                {new Date(asset.updatedAt).toLocaleString("pt-BR")}
+                              </span>
+                            ) : null}
+                          </span>
+                          <Download className="h-4 w-4 text-slate-500" />
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-slate-900">Prontidão 3D</h3>
@@ -2173,7 +2342,7 @@ export function TechnicalDrawingCore() {
           <CardContent className="space-y-6">
             <div className="flex flex-wrap items-center gap-2">
               <Button
-                onClick={handleRenderA3}
+                onClick={() => void handleRenderA3()}
                 disabled={!reviewReady || isBusy}
                 data-testid="generate-a3-button"
               >

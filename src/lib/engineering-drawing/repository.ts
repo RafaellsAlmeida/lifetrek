@@ -13,6 +13,7 @@ import type {
 
 const LOCAL_STORAGE_KEY = "engineering-drawing-sessions-v1";
 const STORAGE_BUCKET = "engineering-drawings";
+type EngineeringDrawingExportType = "svg" | "png" | "pdf" | "glb" | "step" | "a3_svg" | "a3_png" | "a3_pdf";
 
 type PersistedLocalSession = EngineeringDrawingSessionRecord;
 
@@ -405,22 +406,28 @@ export async function persistEngineeringDrawingExport(args: {
   session: EngineeringDrawingSessionRecord;
   fileName: string;
   blob: Blob;
-  exportType: "png" | "pdf" | "glb" | "step";
+  exportType: EngineeringDrawingExportType;
+  storageKey?: string;
 }): Promise<EngineeringDrawingSessionRecord> {
   if (args.session.backendMode === "local") {
     return args.session;
   }
 
-  const filePath = `sessions/${args.session.id}/exports/${Date.now()}-${sanitizeFilename(args.fileName)}`;
+  const filePath = args.storageKey
+    ? `sessions/${args.session.id}/exports/${args.storageKey}`
+    : `sessions/${args.session.id}/exports/${Date.now()}-${sanitizeFilename(args.fileName)}`;
+  const contentTypeByExport: Record<EngineeringDrawingExportType, string> = {
+    svg: "image/svg+xml;charset=utf-8",
+    png: "image/png",
+    pdf: "application/pdf",
+    glb: "model/gltf-binary",
+    step: "model/step",
+    a3_svg: "image/svg+xml;charset=utf-8",
+    a3_png: "image/png",
+    a3_pdf: "application/pdf",
+  };
   const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(filePath, args.blob, {
-    contentType:
-      args.exportType === "png"
-        ? "image/png"
-        : args.exportType === "pdf"
-          ? "application/pdf"
-          : args.exportType === "glb"
-            ? "model/gltf-binary"
-            : "model/step",
+    contentType: contentTypeByExport[args.exportType],
     upsert: true,
   });
 
@@ -435,6 +442,7 @@ export async function persistEngineeringDrawingExport(args: {
       ...args.session.exports,
       [args.exportType]: {
         format: args.exportType,
+        fileName: args.fileName,
         path: filePath,
         url: signedUrl,
         updatedAt: new Date().toISOString(),
