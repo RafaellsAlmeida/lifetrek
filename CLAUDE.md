@@ -147,6 +147,34 @@ See `skills/social_agent/SKILL.md` for details.
 3. Select "Value Post" or "Commercial Post"
 4. Enable image generation (optional, slower)
 
+### Engineering Drawing (Desenho Técnico) System
+Technical drawing generation for axisymmetric mechanical parts (shafts, fasteners, connectors). Full 6-stage pipeline from sketch → 2D drawing → 3D model → STEP export.
+
+**Status**: STEP export end-to-end working on `main` (render + persistence + download verified).
+
+**Documentation**: See `_bmad-output/engineering-drawing-route.md` for comprehensive BMAD-format documentation covering:
+- System overview (6-stage pipeline)
+- Architecture & data flow
+- 10 functional requirement (FR) categories
+- Completion status (8 FRs done, 2 pending, 1 not started)
+- Known issues (4 identified, all documented with fixes)
+- Remaining work (10 tasks, prioritized P0–P2)
+- Technical debt
+
+**Quick Links**:
+- Route: `/admin/engineering-drawing`
+- Main component: `src/components/admin/engineering/TechnicalDrawingCore.tsx`
+- STEP engine: `src/lib/engineering-drawing/renderStep.ts` (OpenCascade.js WASM)
+- Fixtures: `src/lib/engineering-drawing/fixtures.ts` (6 pre-built test parts)
+- Persistence: `src/lib/engineering-drawing/repository.ts`
+
+**Current Status (Apr 22, 2026)**:
+- ✅ STEP generation works (ISO-10303-21 verified, commit `c777aa4`)
+- ✅ 3D preview works (B-Rep with multi-shape segments)
+- ✅ 2D & A3 drawings work (SVG/PNG)
+- ✅ STEP persistence table live (migration `20260402161000_create_engineering_drawing_sessions.sql`, commit `5215c37`)
+- 🧹 Open UX polish: stepper, developer-surface demotion, 2D text overlaps — see design critique in the BMAD doc
+
 ### Blog Post Generation
 Uses `generate-blog-post` Edge Function. Triggered from `/admin/blog`.
 
@@ -196,6 +224,7 @@ This project uses **BMAD v6** for structured AI-assisted development.
 | Architecture *(pending)* | `_bmad-output/planning-artifacts/architecture.md` |
 | Epics & Stories *(pending)* | `_bmad-output/planning-artifacts/epics.md` |
 | Sprint Status *(pending)* | `_bmad-output/implementation-artifacts/sprint-status.yaml` |
+| Engineering Drawing Route (BMAD) | `_bmad-output/engineering-drawing-route.md` |
 
 ### BMAD Commands (run in fresh context windows)
 ```

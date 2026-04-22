@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   Boxes,
   CheckCircle2,
+  ChevronDown,
   Cuboid,
   Download,
   FileImage,
@@ -355,6 +356,7 @@ export function TechnicalDrawingCore() {
   const [notesInput, setNotesInput] = useState("");
   const [isBusy, setIsBusy] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [fixturesOpen, setFixturesOpen] = useState(false);
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
   const [semanticReviewConfirmed, setSemanticReviewConfirmed] = useState(false);
   const [a3Svg, setA3Svg] = useState<string | null>(null);
@@ -1232,10 +1234,21 @@ export function TechnicalDrawingCore() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Corpus oficial de teste</Label>
+                  <button
+                    type="button"
+                    onClick={() => setFixturesOpen((open) => !open)}
+                    aria-expanded={fixturesOpen}
+                    className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ChevronDown
+                        className={`h-4 w-4 text-slate-500 transition-transform ${fixturesOpen ? "" : "-rotate-90"}`}
+                      />
+                      <Label className="cursor-pointer">Corpus oficial de teste</Label>
+                    </div>
                     <Badge variant="secondary">{engineeringDrawingFixtures.length} sketches</Badge>
-                  </div>
+                  </button>
+                  {fixturesOpen ? (
                   <div className="grid gap-3 lg:grid-cols-2">
                     {engineeringDrawingFixtures.map((fixture) => (
                       <button
@@ -1265,6 +1278,7 @@ export function TechnicalDrawingCore() {
                       </button>
                     ))}
                   </div>
+                  ) : null}
                 </div>
               </div>
 
