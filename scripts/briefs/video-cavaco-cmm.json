@@ -1,0 +1,75 @@
+{
+  "id": "do-cavaco-ao-cmm",
+  "title": "Do Cavaco à CMM",
+  "format": {
+    "width": 1080,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 30
+  },
+  "audience": "Engenharia de Manufatura / QA",
+  "hook": "Da usinagem à medição: onde a variação entra e como a gente trava",
+  "cta": "Baixe o plano de medição",
+  "metric": "tempo de visualização",
+  "scenes": [
+    {
+      "id": "00-vignette",
+      "duration_s": 2,
+      "kind": "vignette",
+      "overlay": "Lifetrek"
+    },
+    {
+      "id": "01-cavaco",
+      "duration_s": 3,
+      "kind": "footage",
+      "reuse": "public/remotion/assets/runway/4a-cnc-internal.mp4",
+      "overlay": "Onde a variação entra?"
+    },
+    {
+      "id": "02-citizen-cut",
+      "duration_s": 4,
+      "kind": "footage",
+      "reuse": "public/remotion/broll/broll-04-cnc.mp4",
+      "overlay": "Usinagem Swiss"
+    },
+    {
+      "id": "03-variation-lock",
+      "duration_s": 4,
+      "kind": "generated-footage",
+      "reuse": "public/remotion/assets/cavaco-cmm/openrouter-cmm-macro-wan27-clean.mp4",
+      "provider": "openrouter",
+      "model": "alibaba/wan-2.7",
+      "cost_usd": 0.5,
+      "overlay": "Variação invisível"
+    },
+    {
+      "id": "04-zeiss-probe",
+      "duration_s": 5,
+      "kind": "footage",
+      "reuse": "public/remotion/broll/broll-05-metrology.mp4",
+      "overlay": "Medição ZEISS"
+    },
+    {
+      "id": "05-data-lock",
+      "duration_s": 6,
+      "kind": "kinetic-text",
+      "overlay": "A peça não é aprovada porque foi medida. Ela é aprovada porque foi medida contra um plano."
+    },
+    {
+      "id": "06-cta",
+      "duration_s": 6,
+      "kind": "cta",
+      "overlay": "Baixe o plano de medição"
+    }
+  ],
+  "assets": {
+    "qr": "public/remotion/assets/cavaco-cmm/qr-plano-medicao.png",
+    "cta_url": "https://lifetrek-medical.com/resources?utm_source=linkedin&utm_medium=organic&utm_campaign=cavaco_cmm_video"
+  },
+  "notes": [
+    "OpenRouter video generation used alibaba/wan-2.7 via /api/v1/videos with first_frame reference.",
+    "The hook uses 4a-cnc-internal.mp4 because it contains the stronger visible chip/spark moment in this checkout.",
+    "Specific dimensional values are intentionally avoided until Lifetrek stakeholders validate the measurement claims.",
+    "Scene 03 now uses a generated single-part macro CMM inspection clip to avoid the multi-part target ambiguity from the still image."
+  ]
+}

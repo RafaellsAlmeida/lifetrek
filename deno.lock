@@ -41,6 +41,11 @@
     "npm:@react-three/drei@^9.122.0": "9.122.0_@react-three+fiber@8.18.0__react@18.3.1__react-dom@18.3.1___react@18.3.1__three@0.170.0__@types+react@18.3.27_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.170.0_@types+react@18.3.27",
     "npm:@react-three/fiber@^8.18.0": "8.18.0_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.170.0_@types+react@18.3.27",
     "npm:@remotion/cli@4.0.407": "4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:@remotion/motion-blur@4.0.407": "4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:@remotion/noise@4.0.407": "4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:@remotion/paths@4.0.407": "4.0.407",
+    "npm:@remotion/shapes@4.0.407": "4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:@remotion/transitions@4.0.407": "4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:@resvg/resvg-js@2.6.2": "2.6.2",
     "npm:@runwayml/sdk@^3.11.0": "3.11.0",
     "npm:@seontechnologies/playwright-utils@^3.13.1": "3.13.1_@playwright+test@1.57.0_zod@3.25.76_typescript@5.9.3",
@@ -2114,6 +2119,24 @@
         "remotion"
       ]
     },
+    "@remotion/motion-blur@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-MKrGwlMX+xGFUV6DmNSk3TdrMZgBhII68TkE548J3IqEX7burgPU2CtMQcTUZ7r6IjV8KznK8gUzGU2ilZ4Yaw==",
+      "dependencies": [
+        "react@18.3.1",
+        "react-dom@18.3.1_react@18.3.1",
+        "remotion"
+      ]
+    },
+    "@remotion/noise@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-NiLAQ9cm9+iqFOaddI/WAwmsnEv9w42S4nWQ4gw8qoB8Mj48Q7h/PDM1B63xsc+rGYxpZfBjHisMEiB9HILW8w==",
+      "dependencies": [
+        "remotion",
+        "simplex-noise"
+      ]
+    },
+    "@remotion/paths@4.0.407": {
+      "integrity": "sha512-P1+N56Dj+XUjtCgIEax3joHlSKGGf8sUZx8qp/H7wNbhfhFnuhc0LIddCHJWMKnB4njx6+h92SxQpjNm9zmiyQ=="
+    },
     "@remotion/player@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
       "integrity": "sha512-R40bQz5h5z//5oVmjUZep4uILM9Fck2zxDQiWZLEXNNiBSnRWvy537TE9JBH7t8YuV9yzueBx6sxxX0IcY1U5w==",
       "dependencies": [
@@ -2143,6 +2166,14 @@
         "@remotion/compositor-linux-x64-gnu",
         "@remotion/compositor-linux-x64-musl",
         "@remotion/compositor-win32-x64-msvc"
+      ]
+    },
+    "@remotion/shapes@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-uAY8TZIcZUaoZOze6d3NSqDRIViJUbWuPENS739OezavCQhO47D7IW7A08+ZexJdUdfa0Xszq8las9VXnlTfAw==",
+      "dependencies": [
+        "@remotion/paths",
+        "react@18.3.1",
+        "react-dom@18.3.1_react@18.3.1"
       ]
     },
     "@remotion/streaming@4.0.407": {
@@ -2187,6 +2218,16 @@
         "semver@7.5.3",
         "source-map@0.7.3",
         "zod@3.22.3"
+      ]
+    },
+    "@remotion/transitions@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-XnRoBM/IEjQ3BHjTlJS/b3o8uxq9CH/s8qAC9n1PWkhoWx4I1/JaUqFbkunc6LQIAPC7286up2Edtx2zAOP1rA==",
+      "dependencies": [
+        "@remotion/paths",
+        "@remotion/shapes",
+        "react@18.3.1",
+        "react-dom@18.3.1_react@18.3.1",
+        "remotion"
       ]
     },
     "@remotion/web-renderer@4.0.407_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
@@ -7282,6 +7323,9 @@
         "is-arrayish"
       ]
     },
+    "simplex-noise@4.0.1": {
+      "integrity": "sha512-zl/+bdSqW7HJOQ0oDbxrNYaF4F5ik0i7M6YOYmEoIJNtg16NpvWaTTM1Y7oV/7T0jFljawLgYPS81Uu2rsfo1A=="
+    },
     "sisteransi@1.0.5": {
       "integrity": "sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg=="
     },
@@ -8609,6 +8653,11 @@
         "npm:@react-three/drei@^9.122.0",
         "npm:@react-three/fiber@^8.18.0",
         "npm:@remotion/cli@4.0.407",
+        "npm:@remotion/motion-blur@4.0.407",
+        "npm:@remotion/noise@4.0.407",
+        "npm:@remotion/paths@4.0.407",
+        "npm:@remotion/shapes@4.0.407",
+        "npm:@remotion/transitions@4.0.407",
         "npm:@runwayml/sdk@^3.11.0",
         "npm:@seontechnologies/playwright-utils@^3.13.1",
         "npm:@supabase/supabase-js@^2.94.1",

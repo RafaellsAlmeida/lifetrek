@@ -30,6 +30,13 @@ import {
   LINKEDIN_SHORT_MIN_DURATION,
   LINKEDIN_SHORT_WIDTH,
 } from "./compositions/LinkedInShort";
+import {
+  DoCavacoAoCMM,
+  DO_CAVACO_AO_CMM_DURATION_IN_FRAMES,
+  DO_CAVACO_AO_CMM_FPS,
+  DO_CAVACO_AO_CMM_HEIGHT,
+  DO_CAVACO_AO_CMM_WIDTH,
+} from "./compositions/DoCavacoAoCMM";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -97,6 +104,24 @@ export const RemotionRoot: React.FC = () => {
             durationInFrames,
           };
         }}
+      />
+      <Composition
+        id="DoCavacoAoCMM"
+        component={DoCavacoAoCMM}
+        durationInFrames={DO_CAVACO_AO_CMM_DURATION_IN_FRAMES}
+        fps={DO_CAVACO_AO_CMM_FPS}
+        width={DO_CAVACO_AO_CMM_WIDTH}
+        height={DO_CAVACO_AO_CMM_HEIGHT}
+        defaultProps={{ platform: "linkedin" }}
+      />
+      <Composition
+        id="DoCavacoAoCMMInstagramSquare"
+        component={DoCavacoAoCMM}
+        durationInFrames={DO_CAVACO_AO_CMM_DURATION_IN_FRAMES}
+        fps={DO_CAVACO_AO_CMM_FPS}
+        width={DO_CAVACO_AO_CMM_WIDTH}
+        height={DO_CAVACO_AO_CMM_HEIGHT}
+        defaultProps={{ platform: "instagram" }}
       />
       {/* Silent version - no audio */}
       <Composition
