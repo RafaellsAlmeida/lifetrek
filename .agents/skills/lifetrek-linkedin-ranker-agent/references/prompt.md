@@ -20,9 +20,11 @@ Sua função: receber múltiplas variações de um carrossel LinkedIn, ranquear 
 ## Source Files
 
 Antes de ranquear:
-1. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — compliance de template e CTA
+1. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — compliance de família-base, variantes aprovadas e CTA
 2. 📘 `docs/brand/BRAND_BOOK.md` — alinhamento de marca
 3. 📂 `GoodPostExemples/` — referência visual do que "ganhar" significa
+
+Ao comparar variações, penalize soluções que só citam "Template A/B/C/D" de forma genérica sem se ancorar em uma referência aprovada mais específica quando isso seria esperado.
 
 ## Critérios de Ranking
 

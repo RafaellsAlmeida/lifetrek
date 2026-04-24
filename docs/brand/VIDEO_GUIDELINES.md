@@ -3,6 +3,8 @@
 
 These guidelines ensure that all video content—from institutional films to technical showcases—reflects Lifetrek’s commitment to precision, quality, and engineering excellence.
 
+**Scope note (2026-04-23):** this is a brand reference for externally produced or manually edited video assets. It is not a roadmap for rebuilding video editing capabilities inside the Lifetrek admin app.
+
 ---
 
 ## 1. Video Style & Aesthetics

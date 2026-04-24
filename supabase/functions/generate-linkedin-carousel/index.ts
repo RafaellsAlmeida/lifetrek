@@ -285,7 +285,7 @@ async function generateCarouselOnce(
 
     const platform = params.platform || "linkedin";
     const imageUrls = images.map((img: any) => img.image_url).filter(Boolean);
-    const status = review.overall_score >= 70 ? "pending_approval" : "draft";
+    const status = review.overall_score >= 70 ? "approved" : "draft";
 
     const tableName = platform === "instagram" ? "instagram_posts" : "linkedin_carousels";
     const basePayload = {

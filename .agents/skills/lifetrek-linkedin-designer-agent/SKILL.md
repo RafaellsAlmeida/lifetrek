@@ -10,7 +10,7 @@ Receives copy from the Copywriter and produces per-slide visual direction that t
 ## Source Files (Load Before Executing)
 
 ### Tier 1 — Visual Rules (REQUIRED)
-- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — Templates A/B/C/D definitions, visual rules, accents
+- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — base families A/B/C/D, approved variants, visual rules, accents
 - [BRAND_BOOK.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/BRAND_BOOK.md) — colors, gradients, glassmorphism specs, photography style
 
 ### Tier 2 — Photo Assets (REQUIRED)
@@ -37,13 +37,15 @@ Receives copy from the Copywriter and produces per-slide visual direction that t
 ## Procedure
 
 1. Load Tier 1 + Tier 2 source files.
-2. For each slide, determine the **visual template** (A/B/C/D).
+2. For each slide, determine the **base visual family** (A/B/C/D) and the strongest approved variant from `GoodPostExemples/`.
 3. Select a **background photo** using the photo selection logic.
 4. Define visual concept, composition, mood, and color emphasis.
 5. Specify **typography weight direction** based on copywriter's `**bold**` markers.
 6. Return strict JSON.
 
 ## Template Decision Tree (CRITICAL)
+
+Use A/B/C/D as base families. Do NOT stop there if `GoodPostExemples/` contains a stronger approved variant for the same family.
 
 ```
 IF slide.type == "hook":
@@ -73,6 +75,34 @@ IF topic is equipment showcase or facility highlight:
   → Minimal text, high-quality real photo
   → Use equipment images as AI reference images
 ```
+
+## Approved Variant Mapping
+
+Use these as approved composition references:
+
+- Template A variants:
+  - `RiscoDeRecall.jpeg`
+  - `1772644433414.jpeg`
+  - `CalculeSeuCustoReal.jpeg`
+  - `ProgrammaticCarrousel.jpeg`
+- Template B variants:
+  - `GreatVisualAndBolding.jpeg`
+  - `PrototipagemRapida.jpeg`
+  - `ZeissPost.jpeg` when the headline remains dominant
+- Template C variants:
+  - `ISO8vsISO7.jpeg`
+  - `90v30dias.jpeg`
+  - `MesmaMaquinaMesmaQualidade.jpeg`
+- Template D variants:
+  - `ZeissPost.jpeg` when the image itself carries the message
+  - `master-showcase-v4.mp4`
+  - `swissturning_premium.mp4`
+- AI-assisted references:
+  - `AICarrousel.jpeg`
+  - `A:FullyAIPost.jpeg`
+  - Use only when real-asset matching is insufficient
+
+When a reference feels hybrid, map it to the nearest family and reuse the approved layout logic instead of inventing a new one.
 
 ## Photo Selection Logic
 
@@ -134,6 +164,7 @@ IF word is regular in copy:
 
 - ❌ Use AI-generated backgrounds when a real Lifetrek photo matches
 - ❌ Same visual concept for multiple slides — each must be DISTINCT
+- ❌ Reduce the library to only 4 rigid layouts and ignore stronger approved variants
 - ❌ Conflict with Satori overlay rules (don't specify text rendering that Satori can't do)
 - ❌ Generic stock-photo descriptions ("businessman shaking hands", "abstract blue waves")
 - ❌ Colors outside the brand palette (#004F8F, #1A7A3E, #F07818, white)
@@ -144,6 +175,7 @@ IF word is regular in copy:
 ## Guardrails
 
 - Every slide must reference a real facility/product photo OR explicitly flag `ai_generated: true`.
+- Every brief should be traceable to both a base family and a concrete approved reference from `GoodPostExemples/` whenever possible.
 - Distinct visual concept per slide — no repetition.
 - Follow Lifetrek palette: Corporate Blue `#004F8F`, Innovation Green `#1A7A3E`, Energy Orange `#F07818`.
 - Typography direction must mirror the copywriter's emphasis markers.

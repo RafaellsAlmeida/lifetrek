@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedIn Carousel - Integracao Vertical OEM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --brand-blue: #004f8f;
+        --brand-blue-deep: #001f46;
+        --brand-green: #1a7a3e;
+        --brand-orange: #f07818;
+        --card-bg: rgba(8, 18, 35, 0.8);
+        --card-border: rgba(255, 255, 255, 0.12);
+        --page-bg: #08111f;
+        --text: #ffffff;
+        --muted: rgba(255, 255, 255, 0.88);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(26, 122, 62, 0.14), transparent 28%),
+          linear-gradient(180deg, #07111f 0%, #0b1627 100%);
+        color: var(--text);
+      }
+
+      .page {
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px 0 60px;
+      }
+
+      .deck {
+        width: 1024px;
+        margin: 0 auto;
+      }
+
+      .slide {
+        position: relative;
+        width: 1024px;
+        height: 768px;
+        border-radius: 34px;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+      }
+
+      .slide.square {
+        height: 1024px;
+      }
+
+      .slide + .slide {
+        margin-top: 32px;
+      }
+
+      .slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(140deg, rgba(0, 31, 70, 0.92) 0%, rgba(0, 79, 143, 0.74) 48%, rgba(0, 31, 70, 0.84) 100%);
+      }
+
+      .slide::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 10px;
+        background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-green) 76%, var(--brand-orange) 100%);
+      }
+
+      .logo-pill {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        z-index: 4;
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 999px;
+        padding: 12px 22px;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+      }
+
+      .logo-pill img {
+        display: block;
+        width: 154px;
+        height: auto;
+      }
+
+      .slide-rule {
+        position: absolute;
+        top: 98px;
+        left: 44px;
+        right: 228px;
+        z-index: 3;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.28);
+      }
+
+      .hero-copy {
+        position: absolute;
+        left: 56px;
+        right: 268px;
+        top: 154px;
+        z-index: 3;
+      }
+
+      .eyebrow {
+        margin: 0 0 20px;
+        color: #d8e7f7;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .hero-copy h1 {
+        margin: 0 0 24px;
+        max-width: 580px;
+        font-size: 82px;
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+        font-weight: 800;
+      }
+
+      .hero-copy p {
+        margin: 0;
+        max-width: 470px;
+        font-size: 27px;
+        line-height: 1.26;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .hero-copy strong {
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .counter-bar {
+        position: absolute;
+        left: 48px;
+        right: 48px;
+        bottom: 30px;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .counter-bar .counter {
+        color: rgba(255, 255, 255, 0.84);
+      }
+
+      .counter-bar .diamond {
+        color: var(--brand-green);
+        font-size: 28px;
+      }
+
+      .card {
+        position: absolute;
+        left: 44px;
+        top: 164px;
+        width: 560px;
+        min-height: 360px;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 38px 36px;
+        border-radius: 28px;
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 26px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      .card .label {
+        margin: 0 0 18px;
+        color: var(--brand-green);
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .card h2 {
+        margin: 0 0 20px;
+        font-size: 52px;
+        line-height: 0.98;
+        letter-spacing: -0.045em;
+        font-weight: 800;
+      }
+
+      .card p {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.24;
+        color: var(--muted);
+      }
+
+      .card strong {
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .card .accent {
+        position: absolute;
+        left: 36px;
+        right: 36px;
+        bottom: 22px;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(26, 122, 62, 0.98), rgba(240, 120, 24, 0.88));
+      }
+
+      .card.orange .label {
+        color: var(--brand-orange);
+      }
+
+      .card.orange .accent {
+        background: linear-gradient(90deg, rgba(240, 120, 24, 0.98), rgba(26, 122, 62, 0.88));
+      }
+
+      .meta {
+        position: absolute;
+        left: 46px;
+        right: 46px;
+        bottom: 28px;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 20px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .meta .diamond {
+        color: var(--brand-green);
+        font-size: 28px;
+      }
+
+      .slide-1 {
+        background-image: url("../src/assets/products/surgical-instruments-set-2.png");
+        background-position: 64% center;
+      }
+
+      .slide-1::before {
+        background:
+          linear-gradient(110deg, rgba(0, 25, 56, 0.96) 0%, rgba(0, 79, 143, 0.78) 42%, rgba(0, 31, 70, 0.9) 100%),
+          radial-gradient(circle at 18% 18%, rgba(26, 122, 62, 0.18), transparent 22%);
+      }
+
+      .slide-2 {
+        background-image: url("../src/assets/facility/production-overview.jpg");
+        background-position: center;
+      }
+
+      .slide-3 {
+        background-image: url("../src/assets/facility/production-floor.jpg");
+        background-position: center;
+      }
+
+      .slide-4 {
+        background-image: url("../src/assets/metrology/zeiss-contura.png");
+        background-position: 72% center;
+      }
+
+      .slide-5 {
+        background-image: url("../src/assets/facility/clean-room-5.png");
+        background-position: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="deck">
+        <section class="slide square slide-1">
+          <div class="logo-pill">
+            <img src="../src/assets/logo.png" alt="Lifetrek Medical" />
+          </div>
+          <div class="slide-rule"></div>
+          <div class="hero-copy">
+            <p class="eyebrow">KITS OEM</p>
+            <h1>Quantos fornecedores passam pela sua bandeja cirurgica?</h1>
+            <p>
+              Cada <strong>transferencia</strong> adiciona prazo, ruido e risco de
+              <strong>rastreabilidade</strong> no kit OEM.
+            </p>
+          </div>
+          <div class="counter-bar">
+            <span class="counter">1 de 5</span>
+            <span class="diamond">◆</span>
+          </div>
+        </section>
+
+        <section class="slide slide-2">
+          <div class="logo-pill">
+            <img src="../src/assets/logo.png" alt="Lifetrek Medical" />
+          </div>
+          <div class="card">
+            <p class="label">INTEGRACAO VERTICAL</p>
+            <h2>
+              Da usinagem a
+              <strong>embalagem final</strong>
+            </h2>
+            <p>
+              <strong>Acabamento</strong>, <strong>metrologia</strong>, montagem e sala
+              limpa ISO 7 no mesmo fluxo operacional.
+            </p>
+            <div class="accent"></div>
+          </div>
+          <div class="meta">
+            <span>2 de 5</span>
+            <span class="diamond">◆</span>
+          </div>
+        </section>
+
+        <section class="slide slide-3">
+          <div class="logo-pill">
+            <img src="../src/assets/logo.png" alt="Lifetrek Medical" />
+          </div>
+          <div class="card">
+            <p class="label">EFICIENCIA</p>
+            <h2>
+              Menos <strong>transferencias</strong>,
+              menos atrito
+            </h2>
+            <p>
+              Menos repasses ajudam a reduzir
+              <strong>espera</strong>, <strong>retrabalho</strong> e custo oculto de
+              coordenacao.
+            </p>
+            <div class="accent"></div>
+          </div>
+          <div class="meta">
+            <span>3 de 5</span>
+            <span class="diamond">◆</span>
+          </div>
+        </section>
+
+        <section class="slide slide-4">
+          <div class="logo-pill">
+            <img src="../src/assets/logo.png" alt="Lifetrek Medical" />
+          </div>
+          <div class="card">
+            <p class="label">QUALIDADE</p>
+            <h2>
+              <strong>Rastreabilidade</strong>
+              com menos pontos cegos
+            </h2>
+            <p>
+              <strong>ISO 13485</strong>, ZEISS Contura e marcacao a laser apoiam um
+              fluxo de lote mais previsivel.
+            </p>
+            <div class="accent"></div>
+          </div>
+          <div class="meta">
+            <span>4 de 5</span>
+            <span class="diamond">◆</span>
+          </div>
+        </section>
+
+        <section class="slide slide-5">
+          <div class="logo-pill">
+            <img src="../src/assets/logo.png" alt="Lifetrek Medical" />
+          </div>
+          <div class="card orange">
+            <p class="label">CONCLUSAO</p>
+            <h2>
+              Um parceiro tecnico.
+              <strong>Mais previsibilidade</strong>
+            </h2>
+            <p>
+              Integrar etapas criticas ajuda
+              <strong>compras</strong>, <strong>qualidade</strong> e engenharia a operar
+              com menos ruido.
+            </p>
+            <div class="accent"></div>
+          </div>
+          <div class="meta">
+            <span>5 de 5</span>
+            <span class="diamond">◆</span>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

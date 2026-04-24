@@ -1,79 +1,159 @@
 ---
 project_name: 'lifetrek'
 user_name: 'Rafaelalmeida'
-date: '2026-03-04'
-sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'quality_rules', 'workflow_rules', 'anti_patterns']
+date: '2026-04-23'
+sections_completed:
+  [
+    'technology_stack',
+    'product_priorities',
+    'route_map',
+    'documentation_rules',
+    'testing_rules',
+    'quality_rules',
+    'anti_patterns',
+  ]
 status: 'complete'
-rule_count: 18
+rule_count: 24
 optimized_for_llm: true
 ---
 
 # Project Context for AI Agents
 
-_This file contains critical rules and patterns that AI agents must follow when implementing code in this project. Focus on unobvious details that agents might otherwise miss._
+This file contains the current implementation and documentation context for Lifetrek. It replaces the older visual-first framing and should be treated as the canonical AI working context until superseded.
 
----
+## 1. Product Priorities
 
-## Technology Stack & Versions
+The current product is an internal operations platform for Lifetrek Medical. Work should be framed in this order:
+
+1. Stakeholder email approval and publishing workflow.
+2. Blog generator/editor with SEO and editorial controls.
+3. CRM and lead pipeline operations.
+4. Analytics and reporting.
+5. Technical drawing.
+6. Social content generation and visual support.
+
+Image editing and video editing are not strategic product pillars. Visual generation remains useful as support for content, branding, and approved templates, but should not be treated as the center of the platform.
+
+## 2. Technology Stack & Versions
 
 - **Core:** React 18.3.1, TypeScript 5.8.3, Vite 5.4.19 (ESM).
-- **Styling:** Tailwind CSS 3.4.17, PostCSS, Autosuffixer.
-- **UI Components:** Radix UI primitives, Shadcn UI (installed in `src/components/ui`), Framer Motion 12. Follow @brandbook.md for more information.
-- **Backend/Integrations:**
-  - **Supabase:** `@supabase/supabase-js` 2.94.1 (Auth, Database, Storage).
-  - **Edge Functions:** Deno-based Supabase Edge Functions.
-- **Video/Graphics:** Remotion 4.0.407, Three.js 0.170.0, Konva, Mermaid.
-- **Data Fetching:** TanStack React Query 5.83.0.
-- **Form Handling:** React Hook Form 7.61.1, Zod 3.24.1.
-- **Testing:** Playwright 1.57.0 (API and E2E), Seon Playwright Utils.
-- **Utilities:** `date-fns`, `lucide-react`, `sonner`, `recharts`.
+- **Styling:** Tailwind CSS 3.4.17, PostCSS, Autoprefixer.
+- **UI Components:** Radix UI primitives, Shadcn UI, Framer Motion.
+- **Backend:** Supabase (`@supabase/supabase-js` 2.94.1) for Auth, Database, Storage, Realtime.
+- **Edge Functions:** Deno-based Supabase Edge Functions.
+- **State/Data Fetching:** TanStack React Query 5.83.0.
+- **Forms/Validation:** React Hook Form 7.61.1, Zod 3.24.1.
+- **Graphics/Visualization:** Three.js, Recharts, Konva, Mermaid.
+- **Technical Drawing/CAD:** OpenCascade.js/WebAssembly.
+- **Testing:** Playwright 1.57.0 (E2E and API), Seon Playwright Utils.
+- **Utilities:** `date-fns`, `lucide-react`, `sonner`.
 
-## Critical Implementation Rules
+Remotion and older video-related assets may still exist in the repository. Treat them as legacy or supporting assets unless the user explicitly asks to work on them.
 
-### 1. Code Style & Naming
+## 3. Route Map
 
-- **Components:** Create components in `src/components/` using **kebab-case** (e.g., `content-card.tsx`).
-- **Pages:** Create pages in `src/pages/` using **PascalCase** (e.g., `BlogPost.tsx`).
-- **Path Aliases:** Always use the `@/` alias to refer to the `src/` directory.
-- **Classes:** Use the `cn()` utility from `@/lib/utils` for conditional tailwind classes.
+### Public
 
-### 2. UI/UX & Strategic Constraints
+- `/blog`
+- `/blog/:slug`
+- `/review/:token`
 
-- **Strategic Constraints**: Never create architectures in the future that will require cloud credits, different servers, or paid services. No frontend changes without permission. We use FREE supabase, FREE Vercel, and spend just a little for image generation with Nano Banana Pro when needed. Text LLM models should be cheap/free. Don't mess with our website.
-- **Content Orchestration**: Social content generation MUST follow the Strategist -> Copywriter -> Designer -> Compositor pipeline. Output text in Portuguese (PT-BR), clean text format.
-- **Visual Branding (Satori-Locked)**: AI models should generate CLEAN backgrounds (no text/logos). All brand elements (Logo, ISO badges, headlines) must be added programmatically via Satori to ensure brand fidelity.
-- **Asset Retrieval (RAG)**: Prioritize real assets from `product_catalog` (metrology, cleanrooms, equipment) using semantic search before falling back to AI generation. We have our assets both locally and in supabase storage.
-- **Data Models**: Refer to `src/integrations/supabase/types.ts` for truth. AI logic resides in Supabase Edge Functions.
-- **Brownfield Development**: Maintain consistency with existing architecture. If a feature exists in `src/hooks`, reuse or wrap it.
-- **Backend Locality:** All server-side logic resides in **Supabase Edge Functions** (Deno). Do not introduce other backend frameworks.
-- **Default Language:** Content Orchestrator and user-facing text must be in **Portuguese (PT-BR)**. Output must be clean text (no markdown) unless specified.
+### Admin
 
-### 3. Brownfield Development
+- `/admin/orchestrator`
+- `/admin/content-approval`
+- `/admin/blog`
+- `/admin/leads`
+- `/admin/analytics`
+- `/admin/social`
+- `/admin/image-editor` (legacy/support)
+- `/admin/desenho-tecnico`
 
-- **Consistency First:** This is a **brownfield** project. AI agents must prioritize matching existing patterns and architecture over introducing "cleaner" or different alternatives unless explicitly asked.
-- **Pattern Retrieval:** Before implementing, search `docs/source-tree-analysis.md` and `docs/index.md` to find similar existing implementations.
-- **Impact Analysis:** Changes to core hooks or shared utilities must consider the 33+ existing pages and 170+ components.
+## 4. Critical Implementation Rules
 
-### 4. Search & Discovery
+### 4.1 Brownfield First
 
-- **Knowledge Base:** Use the `product_catalog` or `knowledge_base` tables for vector searches via Supabase.
-- **Match Functions:** Utilize RPCs like `match_product_assets` for similarity search.
+- This is a brownfield project. Match existing patterns before inventing new ones.
+- Reuse hooks in `src/hooks/` whenever possible.
+- Prefer extending current Supabase functions and typed data models over introducing parallel abstractions.
 
----
+### 4.2 Backend Locality
 
-## Usage Guidelines
+- All server-side logic resides in Supabase Edge Functions.
+- Do not introduce new backend frameworks, workers, or servers.
+- Stay compatible with free-tier Supabase + Vercel constraints.
 
-**For AI Agents:**
+### 4.3 Content and Language
 
-- Read this file before implementing any code.
-- Follow ALL rules exactly as documented.
-- When in doubt, prefer the more restrictive option.
-- Update this file if new patterns emerge.
+- Default user-facing admin text should be PT-BR unless the feature explicitly targets another language.
+- Blog and content generation should keep a technical, engineer-to-engineer tone.
+- Avoid marketing clichés and avoid exposing internal system language in user-facing content.
 
-**For Humans:**
+### 4.4 Visual Scope
 
-- Keep this file lean and focused on agent needs.
-- Update when technology stack changes.
-- Review quarterly for outdated rules.
+- Social visuals must follow approved Lifetrek templates.
+- Prioritize real Lifetrek assets before AI fallback.
+- Never treat image/video editing as the product’s primary promise.
+- Always preserve image history through append-only variants.
 
-Last Updated: 2026-03-04
+### 4.5 Approval and Publication
+
+- Approval is a first-class system, not an afterthought.
+- Stakeholder review links must remain token-scoped and expiring.
+- Sensitive write operations must stay behind authenticated admin access.
+- Status transitions must stay traceable and auditable.
+
+### 4.6 Technical Drawing
+
+- Technical drawing is an operational system, not just a visual demo.
+- Do not bypass human review gates when ambiguity exists.
+- STEP, 2D, A3, and validation outputs are technical artifacts and must be described and handled as such.
+
+## 5. Data and Security Rules
+
+- Use `src/integrations/supabase/types.ts` as the application-level schema truth.
+- Prefer RLS-protected tables and Edge Functions for privileged actions.
+- Never expose or commit service-role or third-party automation secrets.
+- Use append-only image versioning; never overwrite historical carousel images.
+
+## 6. Documentation Rules
+
+### Canonical Layers
+
+1. `_bmad-output/project-context.md`
+2. `_bmad-output/planning-artifacts/*.md`
+3. `docs/bmad-standard-documentation-pt.md`
+4. `docs/sectors/*.md`
+5. specialized operational docs under `docs/`
+
+### Documentation Shape
+
+- Keep one master standard document for the whole product.
+- Keep separate sector docs for Approval, Blog, CRM, Analytics, Technical Drawing, and Social Support.
+- Old visual-first or video-first docs should be explicitly marked as support, legacy, or archived.
+
+## 7. Testing Rules
+
+- Verify changed behavior before considering work done.
+- For documentation-only changes, run structural verification such as link/file checks, diff validation, and consistency checks.
+- For feature changes, prefer the actual admin routes and flows over isolated mock validation.
+- When testing UI flows, prioritize:
+  - `/admin/content-approval`
+  - `/review/:token`
+  - `/admin/blog`
+  - `/admin/leads`
+  - `/admin/analytics`
+  - `/admin/desenho-tecnico`
+  - `/admin/social`
+
+## 8. Anti-Patterns
+
+Avoid these unless explicitly requested:
+
+- Reframing Lifetrek as an image editor or video editor.
+- Introducing new paid infrastructure for routine workflows.
+- Replacing established Supabase patterns with unrelated server approaches.
+- Documenting outdated routes or credentials in shareable team docs.
+- Treating old March 2026 planning artifacts as current without checking current code and docs.
+
+Last Updated: 2026-04-23

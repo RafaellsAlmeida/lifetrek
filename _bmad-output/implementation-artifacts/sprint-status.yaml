@@ -1,84 +1,59 @@
-# generated: 2026-03-13
+# generated: 2026-04-23
 # project: lifetrek
 # project_key: NOKEY
 # tracking_system: file-system
 # story_location: _bmad-output/implementation-artifacts/stories
+#
+# NOTE:
+# This file reflects the April 23, 2026 planning realignment.
+# Older story files in _bmad-output/implementation-artifacts/stories were created
+# under the earlier content-engine / visual-first framing and should be treated as
+# historical until regenerated against the current epics.
 
-# STATUS DEFINITIONS:
-# ==================
-# Epic Status:
-#   - backlog: Epic not yet started
-#   - in-progress: Epic actively being worked on
-#   - done: All stories in epic completed
-#
-# Epic Status Transitions:
-#   - backlog → in-progress: Automatically when first story is created (via create-story)
-#   - in-progress → done: Manually when all stories reach 'done' status
-#
-# Story Status:
-#   - backlog: Story only exists in epic file
-#   - ready-for-dev: Story file created in stories folder
-#   - in-progress: Developer actively working on implementation
-#   - review: Ready for code review (via Dev's code-review workflow)
-#   - done: Story completed
-#
-# Retrospective Status:
-#   - optional: Can be completed but not required
-#   - done: Retrospective has been completed
-#
-# WORKFLOW NOTES:
-# ===============
-# - Epic transitions to 'in-progress' automatically when first story is created
-# - Stories can be worked in parallel if team capacity allows
-# - SM typically creates next story after previous one is 'done' to incorporate learnings
-# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
-
-generated: 2026-03-13
+generated: 2026-04-23
 project: lifetrek
 project_key: NOKEY
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts/stories
 
+planning_note: >
+  Current epics were realigned on 2026-04-23 around approval, blog, CRM,
+  analytics, technical drawing, and social support. Existing story files are
+  historical until refreshed.
+
 development_status:
-  epic-1: in-progress
-  1-1-content-ideas-schema: in-progress
-  1-2-linkedin-analytics-schema: in-progress
-  1-3-blog-posts-hero-status-alignment: in-progress
-  1-4-image-variant-guardrails: in-progress
+  epic-1-approval-and-publishing: backlog
+  1-1-stakeholder-batch-send: backlog
+  1-2-public-token-review: backlog
+  1-3-approval-queue-coherence: backlog
   epic-1-retrospective: optional
 
-  epic-2: in-progress
-  2-1-platform-param-carousel-generation: in-progress
-  2-2-blog-hero-generation-at-create: in-progress
-  2-3-chat-intent-to-carousel-params: in-progress
-  2-4-cost-tracking-enforcement: done
+  epic-2-blog-and-editorial-system: backlog
+  2-1-technical-draft-quality: backlog
+  2-2-editorial-metadata-controls: backlog
+  2-3-blog-editorial-feedback-loop: backlog
   epic-2-retrospective: optional
 
-  epic-3: in-progress
-  3-1-linkedin-csv-ingestion-function: in-progress
-  3-2-analytics-upload-contract-ui: in-progress
-  3-3-imported-analytics-visibility: in-progress
+  epic-3-crm-and-lead-operations: backlog
+  3-1-crm-board-reliability: backlog
+  3-2-lead-import-and-export: backlog
+  3-3-lead-detail-hygiene: backlog
   epic-3-retrospective: optional
 
-  epic-4: in-progress
-  4-1-orchestrator-mode-parity-ux: review
-  4-2-unified-approval-queue-behavior: review
-  4-3-operator-failure-recovery-ux: review
-  4-4-human-editing-surfaces-blogs-resources: in-progress
+  epic-4-analytics-and-reporting: backlog
+  4-1-linkedin-ingestion-flow: backlog
+  4-2-reporting-visibility: backlog
+  4-3-decision-oriented-analytics: backlog
   epic-4-retrospective: optional
 
-  epic-5: in-progress
-  5-1-real-asset-first-enforcement: ready-for-dev
-  5-2-access-and-audit-guardrails: ready-for-dev
-  5-3-cross-domain-no-regression-verification: ready-for-dev
+  epic-5-technical-drawing-workflow: backlog
+  5-1-session-and-document-reliability: backlog
+  5-2-review-and-validation-gates: backlog
+  5-3-technical-output-confidence: backlog
   epic-5-retrospective: optional
 
-  epic-6: in-progress
-  6-1-stakeholder-review-db-schema: done
-  6-2-send-stakeholder-review-function: done
-  6-3-stakeholder-review-action-function: done
-  6-4-public-review-page: review
-  6-5-admin-stakeholder-status-ui: ready-for-dev
-  6-6-admin-manual-send-trigger: ready-for-dev
-  6-7-weekly-auto-send-cron: ready-for-dev
+  epic-6-social-content-support-and-visual-governance: backlog
+  6-1-social-generation-support: backlog
+  6-2-asset-first-visual-governance: backlog
+  6-3-legacy-visual-scope-containment: backlog
   epic-6-retrospective: optional

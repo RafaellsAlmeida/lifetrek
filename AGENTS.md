@@ -76,7 +76,7 @@ Rationale: We are always experimenting with content styles and need flexibility 
 
 ## Visual Template System (CRITICAL — All Content Must Use These)
 
-Approved visual templates are in `GoodPostExemples/`. All content generation MUST match one of these 4 templates. Never invent a new visual style.
+Approved visual references are in `GoodPostExemples/`. Treat Templates A-D below as the 4 core families, not as the entire library. Content generation MUST match one of these base families or an approved variant already present in `GoodPostExemples/`. Never invent a new visual style that is not anchored to an existing approved example.
 
 ### Template A — "Glassmorphism Card" *(default for body & CTA slides)*
 Use for: insight slides, data/stat slides, CTA slides, most carousel body slides.
@@ -87,7 +87,7 @@ Use for: insight slides, data/stat slides, CTA slides, most carousel body slides
 - **Body**: Inter Regular ~18–22px, white, 2–4 lines max
 - **Logo**: Lifetrek Medical logo top-right (white boxed version)
 - **Optional**: Fine print bar at bottom (compliance/legal notes)
-- Reference: `GoodPostExemples/1771881074667.jpeg`, `1771881075010.jpeg`, `1772644433414.jpeg`
+- Reference family examples: `GoodPostExemples/RiscoDeRecall.jpeg`, `GoodPostExemples/1772644433414.jpeg`, `GoodPostExemples/CalculeSeuCustoReal.jpeg`, `GoodPostExemples/ProgrammaticCarrousel.jpeg`
 
 ### Template B — "Full-Bleed Dark Text" *(hook & cover slides)*
 Use for: first slide of carousel, strong statement slides, listicle hooks ("5 Riscos que…").
@@ -95,19 +95,32 @@ Use for: first slide of carousel, strong statement slides, listicle hooks ("5 Ri
 - **Logo**: Top-right + thin horizontal white rule line below it
 - **Headline**: Very large, bold white, left-aligned, ALL CAPS or mixed — no text card
 - **Bottom**: Thin accent line (green `#1A7A3E` or orange `#F07818`) + slide counter bottom-left ("1 de 7") + diamond sparkle `◆` bottom-right
-- Reference: `GoodPostExemples/1768767104608.jpeg`, `1768848410684.jpeg`, `1770322428468.jpeg`
+- Reference family examples: `GoodPostExemples/GreatVisualAndBolding.jpeg`, `GoodPostExemples/PrototipagemRapida.jpeg`, `GoodPostExemples/ZeissPost.jpeg`
 
 ### Template C — "Split Comparison" *(educational / X vs Y)*
 Use for: comparison posts, before/after, import vs local, ISO levels, metric contrasts.
 - **Layout**: Vertical 50/50 split, each half has different color tint + full-bleed photo
 - **Labels**: Bold text at top of each half, very large
 - No text card — split + labels carry the message
-- Reference: `GoodPostExemples/1770647235934.jpeg`
+- Reference family examples: `GoodPostExemples/ISO8vsISO7.jpeg`, `GoodPostExemples/90v30dias.jpeg`, `GoodPostExemples/MesmaMaquinaMesmaQualidade.jpeg`
 
 ### Template D — "Pure Photo / Equipment Showcase"
 Use for: equipment showcases, facility highlights, product photography.
 - High-quality real photo, minimal or no text, brand association through quality imagery
-- Reference: `GoodPostExemples/1770649911069.jpeg`
+- Reference family examples: `GoodPostExemples/ZeissPost.jpeg`, `GoodPostExemples/master-showcase-v4.mp4`, `GoodPostExemples/swissturning_premium.mp4`
+
+### Approved Variants In `GoodPostExemples/`
+- `RiscoDeRecall.jpeg`, `CalculeSeuCustoReal.jpeg`, `ProgrammaticCarrousel.jpeg`: card-led educational/commercial variants inside the Template A family
+- `GreatVisualAndBolding.jpeg`, `PrototipagemRapida.jpeg`: typography-first hook/cover variants inside the Template B family
+- `ISO8vsISO7.jpeg`, `90v30dias.jpeg`, `MesmaMaquinaMesmaQualidade.jpeg`: comparison variants inside the Template C family
+- `ZeissPost.jpeg`: metrology/equipment-led variant that can map to Template B or D depending on copy density
+- `AICarrousel.jpeg`, `A:FullyAIPost.jpeg`: approved AI-assisted references for composition and mood, not the default choice when a real Lifetrek asset fits
+
+### How To Choose
+1. Pick the nearest base family (A/B/C/D)
+2. Then pick the strongest approved variant from `GoodPostExemples/` for that topic
+3. Reuse its composition logic, hierarchy, and pacing
+4. Do not create a fifth family from scratch
 
 ### Universal Rules Across ALL Templates
 - **ALWAYS use real Lifetrek photos** as backgrounds — never pure AI-generated backgrounds for final output

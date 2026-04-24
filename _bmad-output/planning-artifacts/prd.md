@@ -1,259 +1,298 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-lastStep: 12
+stepsCompleted: [1, 2, 3, 4, 5, 6]
+lastStep: 6
 status: 'complete'
-completedAt: '2026-03-05'
+completedAt: '2026-04-23'
 inputDocuments:
   - _bmad-output/project-context.md
-  - docs/product/LIFETREK_PRD.md
-  - _bmad-output/planning-artifacts/architecture.md
-  - docs/content-engine-guide.md
+  - docs/bmad-standard-documentation-pt.md
+  - docs/project-overview.md
   - docs/api-contracts.md
   - docs/data-models.md
   - AGENTS.md
 workflowType: 'prd'
 project_name: 'lifetrek'
 user_name: 'Rafaelalmeida'
-date: '2026-03-05'
+date: '2026-04-23'
 ---
 
-# Product Requirements Document - Lifetrek (Content Engine 2026)
+# Product Requirements Document - Lifetrek Operations Platform 2026
 
-**Author:** Rafaelalmeida  
-**Date:** 2026-03-05  
-**Primary Scope:** Content Engine (LinkedIn, Instagram, Blog, Ideation, Analytics)  
-**Planning Horizon:** 2026 only
+**Author:** Rafaelalmeida
+**Date:** 2026-04-23
+**Primary Scope:** Approval, Blog, CRM, Analytics, Technical Drawing, Social Support
+**Planning Horizon:** 2026
 
 ## 1. Executive Summary
 
-Lifetrek will prioritize a production-grade Content Engine in 2026 while preserving existing CRM, website, and operational admin workflows. The immediate objective is to unify content ideation, generation, approval, and performance feedback loops for technical sales operations.
+Lifetrek is an internal operations platform for Lifetrek Medical. The product must support technical sales, content review, editorial production, analytics, and engineering workflows from a single administrative environment.
 
-This PRD defines product behavior and business outcomes. It avoids implementation details except where needed to declare external constraints and compatibility rules.
+The older documentation framed the product primarily as a content-engine plus visual-editing environment. That is no longer the correct product story. Image and video editing are not strategic pillars. The platform’s real value is in:
+
+1. stakeholder approval by email;
+2. blog generation and editorial review;
+3. CRM visibility and lead operations;
+4. analytics and reporting;
+5. technical drawing;
+6. controlled social content support.
 
 ## 2. Product Goals
 
-1. Increase usable, on-brand content output for technical sales.
-2. Reduce operator effort to move from idea to approved publication.
-3. Improve content relevance through structured ideation and analytics feedback.
-4. Preserve stability in existing domains not in build scope.
+1. Reduce friction from draft creation to approved, shareable content.
+2. Improve the quality and control of technical blog output.
+3. Give commercial teams a reliable CRM and pipeline view.
+4. Make analytics actionable for editorial and commercial planning.
+5. Support technical drawing workflows with validation and export confidence.
+6. Preserve brand consistency while reducing dependence on manual content coordination.
 
 ## 3. Scope Definition
 
-### 3.1 In Scope (2026)
+### 3.1 In Scope
 
-1. Ideation with optional deep research mode.
-2. LinkedIn carousel generation pipeline.
-3. Instagram post generation through shared pipeline with platform-specific copy behavior.
-4. Blog draft generation with hero image generation and approval publishing flow.
-5. LinkedIn CSV analytics ingestion and analytics feedback surface.
-6. Orchestrator dual entry model: structured form + natural-language chat.
-7. Content approval flow hardening.
-8. Guardrails for image versioning and real-asset-first background selection.
-9. Human editing surfaces for blog posts and resources inside admin workflows.
+1. Stakeholder email approval batches and public review links.
+2. Blog draft generation, editing, approval, and publication controls.
+3. CRM lead management, import/export, and stage visibility.
+4. Analytics ingestion and visibility for website, LinkedIn, and leads.
+5. Technical drawing sessions, validation, 2D/3D outputs, and STEP export.
+6. Social content generation and asset-governed visual support.
 
-### 3.2 Explicit Out of Scope (2026)
+### 3.2 Explicit Out of Scope
 
-1. New CRM feature expansion (lead scoring model redesign, new enrichment pipelines).
-2. Public website redesign or information architecture changes.
-3. Infrastructure changes requiring new paid services or non-approved hosting.
-4. LinkedIn analytics ML optimization layer beyond ingestion/normalized reporting.
+1. Rebuilding the product around advanced image editing.
+2. Rebuilding the product around video editing.
+3. Public website redesign as part of this planning cycle.
+4. New infrastructure that requires extra paid servers, queues, or workers.
+5. Bulk outreach automation without explicit approval.
 
-### 3.3 No-Regression Constraints (Cross-Domain)
+### 3.3 No-Regression Constraints
 
-1. CRM behavior remains functionally equivalent for existing users.
-2. Public website behavior and SEO-critical paths remain intact.
-3. Existing admin tools outside Content Engine remain available.
-4. Existing generated content records remain accessible and editable.
+1. Existing admin routes must remain operational.
+2. Existing blog, CRM, analytics, and technical drawing data must remain accessible.
+3. Existing content records and image histories must remain non-destructive.
+4. Security posture for admin-only actions must not weaken.
 
-## 4. Target Users
+## 4. Primary Users
 
-1. Technical Sales Representative (primary daily user).
-2. Content Reviewer/Approver (quality and publication gatekeeper).
-3. Admin Operator (maintenance and troubleshooting).
+1. **Technical Sales Representatives**: need CRM, content, and analytics visibility.
+2. **Content/Marketing Operators**: need generation, editing, approval, and publishing flows.
+3. **Stakeholders/Reviewers**: need low-friction review without admin login.
+4. **Engineering/Technical Operators**: need drawing review, validation, and export tools.
+5. **Admins**: need visibility, auditability, and operational safety.
 
 ## 5. Functional Requirements
 
-### FR Catalog
+### Approval and Publishing
 
-**FR-001 Ideation Deep Research Mode**  
-The system shall support ideation with an optional deep research mode that generates ICP pain-point-driven content ideas.
+**FR-001 Stakeholder Batch Creation**
+The system shall allow an admin to select approved content and create a stakeholder review batch.
 
-**FR-002 Ideation Persistence**  
-The system shall persist generated ideas with topic, ICP context, and traceable source references.
+**FR-002 Branded Email Delivery**
+The system shall send branded review emails to stakeholders with content summaries and secure links.
 
-**FR-003 Orchestrator Form Entry**  
-The system shall keep structured form-based content generation as a fully supported entry path.
+**FR-003 Token-Based Public Review**
+The system shall allow stakeholders to review items via expiring token links without admin login.
 
-**FR-004 Orchestrator Chat Entry**  
-The system shall support natural-language chat entry that can resolve intent into valid generation parameters.
+**FR-004 Stakeholder Actions**
+The public review flow shall support approve, reject, and edit-suggestion actions per item.
 
-**FR-005 LinkedIn Generation Pipeline**  
-The system shall generate LinkedIn carousels through the approved multi-agent pipeline and save complete content artifacts.
+**FR-005 Approval Visibility in Admin**
+The admin UI shall display stakeholder review statuses and outcomes in a traceable way.
 
-**FR-006 Instagram Generation via Shared Pipeline**  
-The system shall generate Instagram content using the same core pipeline with platform-specific copy and output settings.
+### Blog and Editorial
 
-**FR-007 Blog Draft Generation**  
-The system shall generate blog drafts in PT-BR suitable for internal review.
+**FR-006 PT-BR Blog Draft Generation**
+The system shall generate PT-BR technical blog drafts suitable for internal editorial review.
 
-**FR-008 Blog Hero Image at Creation**  
-The system shall generate a hero image during blog post creation and attach it to the draft record.
+**FR-007 Editorial Metadata Control**
+The blog editor shall support ICP, pillar keyword, entity keywords, CTA mode, SEO title, SEO description, tags, and status controls.
 
-**FR-009 Blog Approval Publishing Flow**  
-The system shall support approval-based publication where approved posts become published immediately with publication timestamps.
+**FR-008 Human Approval Before Publication**
+The system shall require human approval before a blog post is published.
 
-**FR-010 Blog Hero Backfill Batch**  
-The system shall support batch generation of hero images for existing blog posts missing hero images.
+**FR-009 Publication Traceability**
+Approved/published blog posts shall preserve publication timestamps and approval metadata.
 
-**FR-011 LinkedIn Analytics CSV Upload**  
-The system shall allow upload of LinkedIn analytics CSV files from the admin analytics workflow.
+### CRM
 
-**FR-012 LinkedIn Analytics Normalized Persistence**  
-The system shall parse and persist analytics rows into a normalized analytics dataset for future reporting.
+**FR-010 Lead Pipeline Visibility**
+The system shall provide a stage-based CRM view for leads.
 
-**FR-013 Analytics Feedback Visibility**  
-The system shall provide visibility of imported analytics data for operational decision-making.
+**FR-011 Lead Detail Editing**
+The system shall support operational editing of lead priority, status, company, and supporting notes/fields.
 
-**FR-014 Approval Queue Integration**  
-The system shall include content items requiring review in a consistent approval workflow.
+**FR-012 Lead Import/Export**
+The system shall support CSV-based import/export for operational lead workflows.
 
-**FR-015 Image Versioning Guardrail**  
-The system shall preserve existing carousel slide images and add new image variants as append-only versions.
+### Analytics
 
-**FR-016 Real Asset First Background Selection**  
-The system shall prioritize real Lifetrek/facility assets before AI fallback for slide backgrounds.
+**FR-013 LinkedIn Analytics Ingestion**
+The system shall allow validation and ingestion of LinkedIn analytics files.
 
-**FR-017 Cost Tracking Coverage**  
-The system shall register cost tracking for AI calls relevant to content workflows.
+**FR-014 Analytics Visibility**
+The system shall expose imported and internal analytics in a way that supports editorial and commercial decisions.
 
-**FR-018 Access Control and Auditability**  
-The system shall enforce authenticated admin-only write operations for sensitive content and analytics actions.
+**FR-015 Cross-Domain Reporting**
+The analytics area shall connect content, website, and lead signals where data is available.
 
-**FR-019 Human Editing for Blogs and Resources**  
-The system shall provide human-editable admin surfaces for blog posts and resources, including edit entry from approval workflows.
+### Technical Drawing
+
+**FR-016 Drawing Session Persistence**
+The system shall persist technical drawing sessions and their normalized document state.
+
+**FR-017 Drawing Validation Flow**
+The system shall support review and validation gates before technical export actions.
+
+**FR-018 Technical Exports**
+The system shall support 2D, A3, 3D preview, and STEP-related outputs where the current module supports them.
+
+### Social Support
+
+**FR-019 Social Content Support**
+The system shall continue supporting social content generation and editing workflows for LinkedIn and Instagram.
+
+**FR-020 Approved Template Enforcement**
+The system shall constrain social visuals to approved Lifetrek templates and asset rules.
+
+**FR-021 Append-Only Image Versioning**
+The system shall preserve historical image variants and avoid destructive overwrites.
 
 ## 6. Non-Functional Requirements
 
-**NFR-001 Cost Ceiling Compatibility**  
-The solution shall remain compatible with free-tier hosting constraints and approved low-cost model usage.
+**NFR-001 Cost Ceiling Compatibility**
+The solution shall remain compatible with free-tier hosting and approved low-cost model usage.
 
-**NFR-002 Event-Driven Behavior**  
-The solution shall avoid polling-based architecture for new content workflows.
+**NFR-002 Brownfield Compatibility**
+New work shall extend existing architecture rather than replacing it.
 
-**NFR-003 Language Fidelity**  
-Generated content shall enforce PT-BR output where user-facing content is produced.
+**NFR-003 Language Fidelity**
+PT-BR shall remain the default language for relevant user-facing content.
 
-**NFR-004 Brand Fidelity**  
-Visual output shall remain constrained to approved templates, color palette, and Satori-locked composition rules.
+**NFR-004 Security**
+Sensitive operations shall require authenticated and authorized admin context or tightly scoped public tokens.
 
-**NFR-005 Data Integrity**  
-Content history (especially image variants) shall be append-safe and non-destructive.
+**NFR-005 Traceability**
+Approval, publication, import, and export actions shall remain traceable.
 
-**NFR-006 Security**  
-Sensitive operations shall require authenticated and authorized admin context.
+**NFR-006 Non-Destructive History**
+Image variants and major approval decisions shall remain historically inspectable.
 
-**NFR-007 Operability**  
-Error states shall be actionable for non-technical operators with clear recovery paths.
+**NFR-007 Operability**
+Non-technical operators shall be able to recover from common failures without developer intervention.
 
-**NFR-008 Performance**  
-Common admin operations (open workspace tabs, load generated records, start generation jobs) shall remain responsive under typical team usage.
+**NFR-008 Documentation Clarity**
+The product shall be documented with one master standard plus sector-specific references.
 
-**NFR-009 Traceability**  
-Generated artifacts and workflow decisions shall be traceable to source actions and timestamps.
+## 7. Core User Journeys
 
-**NFR-010 Compatibility**  
-New changes shall not break existing content records, current routes, or operational dashboards.
+### Journey A: Internal Review to Stakeholder Approval
 
-## 7. User Journeys
-
-### Journey A: Idea to LinkedIn Carousel
-
-1. User opens orchestrator (form or chat).
-2. User defines topic or requests ideation support.
-3. System generates strategy, copy, design guidance, and composed slides.
-4. User reviews and sends for approval.
-5. Approved content remains available for iteration and analytics linkage.
+1. Admin selects approved content.
+2. Admin sends a stakeholder batch.
+3. Stakeholders receive branded emails.
+4. Stakeholders approve, reject, or suggest copy edits from a public page.
+5. Admin sees the result in the approval queue.
 
 ### Journey B: Blog Draft to Publication
 
-1. User initiates blog generation.
-2. System creates PT-BR draft and hero image.
-3. Draft appears in approval queue.
-4. Reviewer approves item.
-5. Post is immediately published with proper status and timestamp fields.
+1. Operator generates a technical draft.
+2. Operator edits the draft and metadata in Admin Blog.
+3. Reviewer validates technical quality and SEO.
+4. Content moves through approval.
+5. Approved content is published with traceability.
 
-### Journey C: Analytics Feedback Loop
+### Journey C: Lead Pipeline Management
 
-1. User uploads monthly LinkedIn CSV.
-2. System validates and ingests rows.
-3. System stores normalized analytics data.
-4. User views imported performance and uses insights for future planning.
+1. Lead arrives or is imported.
+2. Sales/operator reviews lead in CRM board or spreadsheet.
+3. Team updates stage, priority, and notes.
+4. Pipeline view remains current and visible.
+
+### Journey D: Analytics-Informed Iteration
+
+1. Operator uploads or syncs analytics.
+2. System validates and stores metrics.
+3. Team reviews top-performing content and lead signals.
+4. Editorial/commercial decisions are adjusted.
+
+### Journey E: Technical Drawing Delivery
+
+1. User creates a drawing session from a croqui or reference.
+2. System structures the normalized document.
+3. Human review resolves ambiguity.
+4. User generates technical outputs and exports.
 
 ## 8. Data and Contract Requirements
 
-### 8.1 Data Contracts (Product-Level)
+### 8.1 Data Contracts
 
-1. `content_ideas`: persisted ideation records for operator reuse.
-2. `linkedin_analytics`: normalized analytics dataset from CSV ingestion.
-3. `blog_posts`: status + hero image behavior aligned with approval publishing flow.
-4. `image_variants` behavior: append-only versions for regenerated carousel images.
+1. `stakeholder_review_batches`
+2. `stakeholder_review_tokens`
+3. `stakeholder_review_items`
+4. `blog_posts`
+5. `blog_categories`
+6. `contact_leads`
+7. `linkedin_analytics`
+8. `engineering_drawing_sessions`
+9. social content tables and append-only image variants
 
-### 8.2 Function/API Contracts (Product-Level)
+### 8.2 Function/API Contracts
 
-1. `generate-linkedin-carousel` must accept platform context and preserve current LinkedIn behavior.
-2. `generate-blog-post` must support hero generation during post creation.
-3. `generate-blog-images` must support controlled backfill use cases.
-4. `ingest-linkedin-analytics` must accept CSV-uploaded analytics payloads and persist normalized rows.
-5. `chat` must support intent routing to content generation parameters.
+1. `send-stakeholder-review`
+2. `stakeholder-review-action`
+3. `generate-blog-post`
+4. `generate-blog-images`
+5. `import-leads`
+6. `ingest-linkedin-analytics`
+7. `sync-ga4-analytics`
+8. `sync-linkedin-analytics`
+9. `engineering-drawing`
+10. visual-support contracts such as `regenerate-carousel-images` and `set-slide-background`
 
 ### 8.3 UI Contract Requirements
 
-1. `/admin/orchestrator`: form and chat entry consistency.
-2. `/admin/social`: platform toggle behavior and generation continuity.
-3. `/admin/content-approval`: approval queue supports blog and social content items.
-4. `/admin/analytics`: upload contract and ingestion result visibility.
-5. `/admin/blog` and `/admin/resources`: human editing of core fields and publication status.
+1. `/admin/content-approval`
+2. `/review/:token`
+3. `/admin/blog`
+4. `/admin/leads`
+5. `/admin/analytics`
+6. `/admin/desenho-tecnico`
+7. `/admin/social`
 
-## 9. Success Metrics (2026)
+## 9. Success Metrics
 
-1. Higher rate of content pieces moving from draft to approved status.
-2. Reduction in operator time from topic input to review-ready output.
-3. Increase in analytics-informed content iterations.
-4. Zero critical regressions in CRM and website baseline workflows.
+1. Higher share of content reaching stakeholder-approved or published states.
+2. Lower friction between blog draft creation and approved publication.
+3. Better visibility of active leads and pipeline stages.
+4. Consistent use of analytics in content and sales planning.
+5. Higher confidence in technical drawing output readiness.
 
 ## 10. Risks and Mitigations
 
-1. **Risk:** New content flows break existing admin pages.  
-   **Mitigation:** explicit guardrail stories + regression checks.
-2. **Risk:** Analytics CSV variability causes ingestion failures.  
-   **Mitigation:** schema validation and clear operator errors.
-3. **Risk:** Brand drift in generated visuals.  
-   **Mitigation:** strict template and Satori composition constraints.
-4. **Risk:** Cost increase from uncontrolled AI calls.  
-   **Mitigation:** mandatory cost tracking and constrained model policy.
+1. **Risk:** old visual-first assumptions keep leaking into product direction.
+   **Mitigation:** canonical docs now position visual generation as support only.
 
-## 11. 2026 Roadmap Phases
+2. **Risk:** approval and publication state drift across content types.
+   **Mitigation:** status handling and admin visibility remain first-class requirements.
 
-### Phase 1 (Q1 2026): Data and Pipeline Foundation
+3. **Risk:** analytics remain informational but not actionable.
+   **Mitigation:** planning docs and UX must tie metrics to decisions and next actions.
 
-1. Introduce core data contracts for ideas, analytics, and blog hero/status alignment.
-2. Harden generation function contracts and guardrails.
+4. **Risk:** technical drawing is treated as a demo rather than an operational workflow.
+   **Mitigation:** preserve review gates, validation, persistence, and export requirements.
 
-### Phase 2 (Q2 2026): Analytics Loop and Approval Robustness
+## 11. Documentation Strategy
 
-1. Productionize CSV ingestion workflow.
-2. Strengthen approval and feedback visibility.
+The documentation model for this product shall have two layers:
 
-### Phase 3 (Q3-Q4 2026): UX Hardening and Operational Scale
+1. **Master standard:** one shared product/technical standard for the whole team.
+2. **Sector docs:** separate docs for Approval, Blog, CRM, Analytics, Technical Drawing, and Social Support.
 
-1. Refine orchestrator chat/form parity.
-2. Improve operator-safe recovery states and cross-domain regression confidence.
-
-## 12. Requirement Traceability Anchor
+## 12. Traceability
 
 This PRD is the source document for:
 
-1. Architecture alignment updates in `_bmad-output/planning-artifacts/architecture.md`.
-2. UX design details in `_bmad-output/planning-artifacts/ux-design-specification.md`.
-3. Epic/story decomposition in `_bmad-output/planning-artifacts/epics.md`.
-4. Sprint tracking and story execution artifacts in `_bmad-output/implementation-artifacts/`.
+1. `_bmad-output/planning-artifacts/architecture.md`
+2. `_bmad-output/planning-artifacts/ux-design-specification.md`
+3. `_bmad-output/planning-artifacts/epics.md`
+4. `docs/bmad-standard-documentation-pt.md`
+5. `docs/sectors/*.md`

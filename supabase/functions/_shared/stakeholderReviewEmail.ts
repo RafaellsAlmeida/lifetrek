@@ -68,6 +68,21 @@ export function escapeHtml(value: unknown): string {
     .replaceAll("'", "&#39;");
 }
 
+function renderTextWithLinks(value: string): string {
+  const parts = String(value ?? "").split(/(https?:\/\/[^\s]+)/g);
+
+  return parts
+    .map((part) => {
+      if (!part) return "";
+      if (/^https?:\/\/[^\s]+$/.test(part)) {
+        const href = escapeHtml(part);
+        return `<a href="${href}" style="color:#9a3412;text-decoration:underline;">${href}</a>`;
+      }
+      return escapeHtml(part).replaceAll("\n", "<br />");
+    })
+    .join("");
+}
+
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -280,7 +295,7 @@ export function buildStakeholderReviewEmail(
                   Nota de Rafael
                 </div>
                 <div style="font-size:13px;line-height:1.5;color:#7c2d12;">
-                  ${escapeHtml(notes)}
+                  ${renderTextWithLinks(notes)}
                 </div>
               </td>
             </tr>

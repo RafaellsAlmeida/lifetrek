@@ -2,6 +2,10 @@
 
 Welcome to the Lifetrek project documentation. This index serves as the primary navigation for both developers and AI agents.
 
+**Current standard reference:** [BMAD Standard Documentation - Lifetrek PT-BR](./bmad-standard-documentation-pt.md)
+
+The Portuguese BMAD standard is the recommended shareable reference for the Lifetrek team. It updates the old image/video-editing positioning and refocuses the product around stakeholder email approval, blog generation/editing, CRM, analytics, technical drawing, and controlled content workflows.
+
 ## Quick Reference
 
 - **Tech Stack:** React 18, Vite, Tailwind, Supabase.
@@ -12,13 +16,24 @@ Welcome to the Lifetrek project documentation. This index serves as the primary 
 
 - [Data Models](./data-models.md)
 - [API Contracts](./api-contracts.md)
+- [BMAD Standard Documentation - PT-BR](./bmad-standard-documentation-pt.md)
 - [Content Engine Guide](./content-engine-guide.md)
+- [Sector Documentation](./sectors/README.md)
 - [Smart Regen Architecture](./architecture/SMART_REGEN_ARCHITECTURE.md)
 - [LinkedIn SGLang Prefill Playbook](./content/LINKEDIN_SGLANG_PREFILL_PLAYBOOK.md)
 - [Source Tree Analysis](./source-tree-analysis.md) - Annotated directory structure.
 - [**Project Context (AI Rules)**](../_bmad-output/project-context.md) - Critical implementation rules for AI.
 
-## Canonical BMAD Artifacts (2026 Content Engine Track)
+## Sector Documentation
+
+- [Approval and Publishing](./sectors/approval-and-publishing.md)
+- [Blog and Editorial](./sectors/blog-and-editorial.md)
+- [CRM and Leads](./sectors/crm-and-leads.md)
+- [Analytics and Reporting](./sectors/analytics-and-reporting.md)
+- [Technical Drawing](./sectors/technical-drawing.md)
+- [Social Content Support](./sectors/social-content-support.md)
+
+## Canonical BMAD Artifacts (2026 Operations Platform Track)
 
 _bmad-output is the canonical planning/implementation source for the current cycle._
 
@@ -33,9 +48,17 @@ _bmad-output is the canonical planning/implementation source for the current cyc
 - [Implementation Delta Report](../_bmad-output/planning-artifacts/implementation-delta-report-2026-03-05.md)
 - [Orchestrator Architecture Research](../_bmad-output/planning-artifacts/orchestrator-architecture-research-2026-03-06.md)
 
-## Recent Updates (2026-03-05)
+March 2026 validation/readiness reports remain available as historical snapshots and may not reflect the current April 23, 2026 product framing.
 
-- Rebuilt BMAD PRD for 2026 content-engine scope in [planning artifacts](../_bmad-output/planning-artifacts/prd.md).
+## Recent Updates (2026-04-23)
+
+- Added Portuguese BMAD Standard Documentation for team sharing in [BMAD Standard Documentation - PT-BR](./bmad-standard-documentation-pt.md).
+- Repositioned image/video editing as legacy/support capability instead of strategic product focus.
+- Expanded current documentation focus around stakeholder email approval, blog generator/editor, CRM, analytics, and technical drawing.
+
+## Historical Updates (2026-03-05)
+
+- Historical: March planning rebuilt the BMAD PRD around the then-current scope in [planning artifacts](../_bmad-output/planning-artifacts/prd.md).
 - Added BMAD UX specification and epics/stories decomposition for implementation planning.
 - Generated sprint tracking and Sprint 1 ready-for-dev story files under `_bmad-output/implementation-artifacts/`.
 - Smart background selection (`real asset` vs `AI fallback`) documented in [Content Engine Guide](./content-engine-guide.md).
@@ -51,6 +74,7 @@ _bmad-output is the canonical planning/implementation source for the current cyc
 - [**Data Models**](./data-models.md) - Database schema and relationships.
 - [**API Contracts**](./api-contracts.md) - Edge Function endpoints and payloads.
 - [**Testing Guide**](../TESTING_GUIDE.md) - Playwright and unit testing instructions.
+- [**Admin Operations Testing Plan**](./testing/ADMIN_OPERATIONS_TESTING_PLAN.md) - Sector-based operational verification.
 
 ## Guides and Processes
 
@@ -64,4 +88,4 @@ _bmad-output is the canonical planning/implementation source for the current cyc
 - [**Product Catalog**](../src/pages/ProductCatalog.tsx)
 
 ---
-_Last Updated: 2026-03-05_
+_Last Updated: 2026-04-23_

@@ -2,7 +2,7 @@
 
 **Lifetrek Medical | Technical Content Visual System**
 
-These guidelines define the approved visual frameworks for all social media content. All posts must adhere to one of the following four templates to maintain brand authority and professional recognition.
+These guidelines define the approved visual frameworks for all social media content. Treat the four templates below as the core visual families. The full approved library is broader and includes multiple variants already present in `GoodPostExemples/`. Every post must anchor to one of these four families or to a documented variant that clearly belongs to one of them.
 
 ---
 
@@ -18,6 +18,29 @@ These guidelines define the approved visual frameworks for all social media cont
   - Energy Orange (`#F07818`) for CTAs.
 - **CTA Rule**: **CTAs are prohibited** on all posts except for those specifically announcing **lead magnets** (e.g., whitepapers, webinars, tools). Standard awareness or educational posts should end with a thought-provoking conclusion or "diamond sparkle" instead of a CTA.
 - **Typography Variation**: Use a mix of **Bold** and **Regular** (unbold) weights within headlines and body text to provide hierarchy. Emphasize **strategic keywords** with bolding to guide the reader's eye.
+
+## Approved Variant Library
+
+Use these references as approved variants, not as exceptions:
+
+- `RiscoDeRecall.jpeg` — Template A variant for risk/problem-led educational slides
+- `1772644433414.jpeg` — Template A variant for premium product + glass-card compositions
+- `CalculeSeuCustoReal.jpeg` — Template A variant for commercial/value-led slides
+- `ProgrammaticCarrousel.jpeg` — Template A variant for systematized body-slide layouts
+- `GreatVisualAndBolding.jpeg` — Template B variant for oversized headline hierarchy
+- `PrototipagemRapida.jpeg` — Template B variant for fast-response / speed narratives
+- `ZeissPost.jpeg` — metrology-heavy reference; can operate as Template B or D depending on text density
+- `ISO8vsISO7.jpeg` — Template C comparison reference
+- `90v30dias.jpeg` — Template C comparison reference for speed/lead-time topics
+- `MesmaMaquinaMesmaQualidade.jpeg` — Template C comparison reference for equivalence/contrast narratives
+- `AICarrousel.jpeg`, `A:FullyAIPost.jpeg` — approved AI-assisted composition references when real-photo matching is not enough
+
+## Selection Rule
+
+1. Select the **base family** (A/B/C/D).
+2. Select the **specific approved variant** from `GoodPostExemples/` that best matches the topic.
+3. Reuse composition logic from that reference.
+4. Do not invent a new family or unrelated visual language.
 
 ---
 
@@ -65,6 +88,14 @@ These guidelines define the approved visual frameworks for all social media cont
 - **Subject**: Showcase the equipment (e.g., Zeiss CMM) or facility (Clean Room).
 - **Branding**: Brand association is achieved through the quality of the imagery and context. No logo required if the context is clearly branded.
 - **Careful**: Use our equipment image as reference images in the AI-generation. Select the equipment that most closely align with the post.
+
+## Working Rule For Agents
+
+- Do not reduce the system to "only four rigid layouts."
+- In briefs and prompts, identify both:
+  - the base family (`A`, `B`, `C`, or `D`)
+  - the closest approved variant in `GoodPostExemples/`
+- If a reference appears hybrid, map it to the nearest family and explain that choice in the brief.
 
 ---
 

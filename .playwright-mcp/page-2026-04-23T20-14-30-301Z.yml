@@ -1,0 +1,77 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img "Lifetrek Medical" [ref=e6]
+      - generic [ref=e8]:
+        - paragraph [ref=e9]: KITS OEM
+        - heading "Quantos fornecedores passam pela sua bandeja cirurgica?" [level=1] [ref=e10]
+        - paragraph [ref=e11]:
+          - text: Cada
+          - strong [ref=e12]: transferencia
+          - text: adiciona prazo, ruido e risco de
+          - strong [ref=e13]: rastreabilidade
+          - text: no kit OEM.
+      - generic [ref=e14]:
+        - generic [ref=e15]: 1 de 5
+        - generic [ref=e16]: ◆
+    - generic [ref=e17]:
+      - img "Lifetrek Medical" [ref=e19]
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: INTEGRACAO VERTICAL
+        - heading "Da usinagem a embalagem final" [level=2] [ref=e22]:
+          - text: Da usinagem a
+          - strong [ref=e23]: embalagem final
+        - paragraph [ref=e24]:
+          - strong [ref=e25]: Acabamento
+          - text: ","
+          - strong [ref=e26]: metrologia
+          - text: ", montagem e sala limpa ISO 7 no mesmo fluxo operacional."
+      - generic [ref=e28]:
+        - generic [ref=e29]: 2 de 5
+        - generic [ref=e30]: ◆
+    - generic [ref=e31]:
+      - img "Lifetrek Medical" [ref=e33]
+      - generic [ref=e34]:
+        - paragraph [ref=e35]: EFICIENCIA
+        - heading "Menos transferencias, menos atrito" [level=2] [ref=e36]:
+          - text: Menos
+          - strong [ref=e37]: transferencias
+          - text: ", menos atrito"
+        - paragraph [ref=e38]:
+          - text: Menos repasses ajudam a reduzir
+          - strong [ref=e39]: espera
+          - text: ","
+          - strong [ref=e40]: retrabalho
+          - text: e custo oculto de coordenacao.
+      - generic [ref=e42]:
+        - generic [ref=e43]: 3 de 5
+        - generic [ref=e44]: ◆
+    - generic [ref=e45]:
+      - img "Lifetrek Medical" [ref=e47]
+      - generic [ref=e48]:
+        - paragraph [ref=e49]: QUALIDADE
+        - heading "Rastreabilidade com menos pontos cegos" [level=2] [ref=e50]:
+          - strong [ref=e51]: Rastreabilidade
+          - text: com menos pontos cegos
+        - paragraph [ref=e52]:
+          - strong [ref=e53]: ISO 13485
+          - text: ", ZEISS Contura e marcacao a laser apoiam um fluxo de lote mais previsivel."
+      - generic [ref=e55]:
+        - generic [ref=e56]: 4 de 5
+        - generic [ref=e57]: ◆
+    - generic [ref=e58]:
+      - img "Lifetrek Medical" [ref=e60]
+      - generic [ref=e61]:
+        - paragraph [ref=e62]: CONCLUSAO
+        - heading "Um parceiro tecnico. Mais previsibilidade" [level=2] [ref=e63]:
+          - text: Um parceiro tecnico.
+          - strong [ref=e64]: Mais previsibilidade
+        - paragraph [ref=e65]:
+          - text: Integrar etapas criticas ajuda
+          - strong [ref=e66]: compras
+          - text: ","
+          - strong [ref=e67]: qualidade
+          - text: e engenharia a operar com menos ruido.
+      - generic [ref=e69]:
+        - generic [ref=e70]: 5 de 5
+        - generic [ref=e71]: ◆

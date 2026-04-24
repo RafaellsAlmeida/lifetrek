@@ -10,7 +10,7 @@ Compares multiple generated carousel variations and selects the winner based on 
 ## Source Files (Load Before Ranking)
 
 ### Tier 1 — Evaluation Standards (REQUIRED)
-- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — template compliance, CTA rules
+- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — base-family compliance, approved-variant use, CTA rules
 - [BRAND_BOOK.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/BRAND_BOOK.md) — voice, tone, brand alignment standards
 
 ### Tier 2 — Winning Patterns (RECOMMENDED)
@@ -25,9 +25,10 @@ Compares multiple generated carousel variations and selects the winner based on 
 
 1. Load Tier 1 source files.
 2. Score each variation on 4 criteria (see matrix below).
-3. Apply tie-breaking rules if scores are within 3 points.
-4. Select the winner with concrete justification.
-5. Return strict JSON.
+3. Check whether each variation is anchored to a strong approved reference from `GoodPostExemples/`, not just a generic A/B/C/D label.
+4. Apply tie-breaking rules if scores are within 3 points.
+5. Select the winner with concrete justification.
+6. Return strict JSON.
 
 ## Evaluation Matrix
 

@@ -1,151 +1,123 @@
-# Blog Generation System Manual
+# Sistema de Blog Generation
 
-**Purpose**: Generate SEO-optimized blog posts for Lifetrek Medical following brand guidelines and commercial proposal requirements (24 posts over 6 months, 4 posts/month).
+## Visão Geral
 
-**Target Audience**: Sales Engineer / Marketing Team
+O blog é um canal estratégico para conteúdo técnico da Lifetrek. O sistema combina geração assistida, edição humana, SEO técnico e aprovação antes da publicação. A meta não é publicar automaticamente, mas acelerar a produção de artigos com qualidade suficiente para venda consultiva e educação técnica.
 
-**Tools Used**:
-- **Execution**: `supabase/functions/generate-blog-post` (Edge Function)
-- **Execution**: `execution/generate_blog_content.py` (Python script)
-- **Orchestration**: n8n workflow `blog_content_pipeline.json`
+## Fluxo Principal
 
----
+1. Definir tema, ICP e palavra-chave pilar.
+2. Gerar estratégia e rascunho técnico.
+3. Editar título, resumo, conteúdo, SEO e CTA no Admin Blog.
+4. Validar metadados obrigatórios.
+5. Aprovar internamente.
+6. Publicar.
 
-## Content Strategy
-
-### Target Audience
-- Medical device manufacturers (OEMs)
-- Dental implant companies
-- Orthopedic device companies
-- Surgical instrument manufacturers
-- Quality/regulatory professionals
-
-### Content Categories
-1. **Educacional** (Educational) - 40%
-   - Technical guides (DFM, tolerances, materials)
-   - Regulatory explanations (ISO 13485, ANVISA, FDA)
-   - Manufacturing processes (CNC, Swiss turning, CMM inspection)
-
-2. **Produto** (Product) - 30%
-   - Equipment capabilities (Citizen L32, ZEISS CMM)
-   - Cleanroom standards (ISO 7)
-   - Manufacturing services (dental, orthopedic, instruments)
-
-3. **Mercado** (Market) - 20%
-   - Industry trends (Trump tariffs, supply chain)
-   - Market analysis (Brazil medical device market)
-   - Regulatory updates (ANVISA changes)
-
-4. **Prova Social** (Social Proof) - 10%
-   - Case studies (anonymized client projects)
-   - Success stories (time/cost savings)
-   - Client testimonials
-
----
-
-## Topic Library (Sample Plan)
-
-### Month 1: Foundation
-1. **ISO 13485 explicado: O que é e por que importa**
-   - Keywords: `iso 13485, certificação médica, dispositivos médicos`
-   - Category: Educacional
-   
-2. **Como escolher fornecedor de implantes ortopédicos no Brasil**
-   - Keywords: `fornecedor implantes, ortopedia brasil, escolher fabricante`
-   - Category: Educacional
-
-3. **ZEISS CMM: Precisão micrométrica em metrologia médica**
-   - Keywords: `zeiss cmm, metrologia médica, precisão micrométrica`
-   - Category: Produto
-
-4. **Comparativo: Importação vs Fabricação Local de Dispositivos Médicos**
-   - Keywords: `fabricação local, importação dispositivos, made in brazil`
-   - Category: Mercado
-
-*(See full topic library in internal planning documents if available)*
-
----
-
-## Content Generation Workflow
-
-### Input Requirements
-1. **Topic**: From topic library above OR custom topic from Sales Engineer
-2. **Keywords**: 3-5 target SEO keywords
-3. **Category**: Educational, Product, Market, or Social Proof
-4. **Research Context** (optional): Perplexity API results, news mentions
-
-### Generation Process
-
-#### Step 1: Research (Optional)
-Use Perplexity to gather recent market data if needed.
-
-#### Step 2: Load Context
-The system automatically loads:
-- Company context: `docs/brand/COMPANY_CONTEXT.md`
-- Brand guidelines: `docs/brand/BRAND_BOOK.md`
-- SEO directive: `docs/systems/seo-strategy.md`
-
-#### Step 3: Generate Content via AI
-You can trigger the generation using the Edge Function or the Python script.
-
-**Using Python Script:**
-```bash
-python execution/generate_blog_content.py --topic "Your Topic Here"
+```mermaid
+flowchart TD
+  Topic["Tema / ICP / keyword"] --> Generate["generate-blog-post"]
+  Generate --> Editor["Admin Blog"]
+  Editor --> SEO["SEO e metadados"]
+  SEO --> Approval["Aprovação"]
+  Approval --> Publish["Publicação"]
 ```
 
-#### Step 4: Quality Validation
-Check generated content for:
-- [ ] Title length: 50-70 characters
-- [ ] SEO title: <60 characters
-- [ ] SEO description: 150-160 characters
-- [ ] Content length: 800-1500 words
-- [ ] H2 headers: 3-5 sections
-- [ ] Internal links: 2-3 to Products/Contact/Other posts
-- [ ] CTA: Ends with contact form link
+## Componentes
 
-#### Step 5: Save as Draft
-The system saves the post to the database with status `pending_review`.
+### Edge Function
 
-#### Step 6: Human Review
-- Review content for accuracy.
-- Adjust tone/technical details if needed.
-- Change status to `published` when ready.
+`supabase/functions/generate-blog-post`
 
----
+Responsabilidades:
 
-## Content Structure Template
+- gerar estratégia de artigo;
+- executar pesquisa/contexto quando disponível;
+- produzir rascunho em português do Brasil;
+- criar título, slug, resumo, SEO title e SEO description;
+- retornar keywords, tags e referências;
+- salvar como rascunho ou `pending_review` quando usado em modo assíncrono.
 
-### Standard Article Format
+### Admin Interface
 
-```html
-<h2>Introdução</h2>
-<p>Breve introdução ao tópico (150-200 palavras). Mencione por que é importante para fabricantes de dispositivos médicos.</p>
+`src/pages/Admin/AdminBlog.tsx`
 
-<h2>Contexto e Definições</h2>
-<p>Explique termos técnicos, contexto histórico, ou fundamentos necessários.</p>
+Responsabilidades:
 
-<h2>Aplicação Prática</h2>
-<p>Como isso se aplica à fabricação de dispositivos médicos? Exemplos concretos.</p>
+- listar e editar posts;
+- criar e atualizar artigos;
+- gerenciar status;
+- editar conteúdo;
+- configurar ICP, palavra-chave pilar, entity keywords, tags e CTA;
+- acessar post diretamente por query `?edit=`.
 
-<h2>A Abordagem da Lifetrek Medical</h2>
-<p>Como a Lifetrek aplica esses conceitos? Mencione certificações (ISO 13485), equipamentos (Citizen L32, ZEISS CMM), processos (sala limpa ISO 7).</p>
+### Hooks e tipos
 
-<h2>Conclusão</h2>
-<p>Resumo dos pontos principais. Reforçar valor para o leitor.</p>
-```
+- `src/hooks/useBlogPosts.ts`
+- `src/types/blog.ts`
 
----
+Esses arquivos concentram validações de aprovação/publicação, tipos de metadata e operações CRUD.
 
-## Troubleshooting
+## Modelo de Dados
 
-### Issue: AI generates generic content
-**Solution**: Add more specific research context. Include Lifetrek-specific details in prompt (equipment models, certifications, client examples).
+### `blog_posts`
 
-### Issue: Content too technical
-**Solution**: Request "Explain for a non-technical audience". Include analogies and simplified explanations.
+Campos importantes:
 
-### Issue: Content too sales-y
-**Solution**: Emphasize educational value. Limit CTAs to conclusion only. Focus on teaching, not selling.
+- `title`
+- `slug`
+- `excerpt`
+- `content`
+- `featured_image`
+- `hero_image_url`
+- `status`
+- `seo_title`
+- `seo_description`
+- `keywords`
+- `tags`
+- `published_at`
+- `metadata.icp_primary`
+- `metadata.pillar_keyword`
+- `metadata.entity_keywords`
+- `metadata.cta_mode`
 
-### Issue: Low SEO score
-**Solution**: Run `execution/calculate_seo_score.py` to identify specific issues.
+### `blog_categories`
+
+Usado para organizar temas editoriais e navegação.
+
+## Regras de Aprovação
+
+Antes de aprovar ou publicar, o artigo deve ter:
+
+- conteúdo não vazio;
+- ICP primário;
+- palavra-chave pilar;
+- metadados mínimos de SEO;
+- revisão técnica humana.
+
+## Diretrizes Editoriais
+
+- Português do Brasil.
+- Tom técnico e direto.
+- Linguagem engenheiro-para-engenheiro.
+- Evitar promessas comerciais vagas.
+- Evitar claims médicos não comprovados.
+- Usar exemplos de manufatura, qualidade e rastreabilidade quando fizer sentido.
+- Não mencionar automações internas, CRM, IA ou clientes sem necessidade explícita.
+
+## Imagens
+
+Imagens de blog são suporte editorial. Elas podem usar assets existentes, fotos reais da Lifetrek ou geração assistida quando apropriado. A imagem não deve ser tratada como o diferencial principal do sistema.
+
+## Legado
+
+Fluxos antigos com scripts externos, automações e geração visual pesada devem ser considerados legados ou auxiliares. O caminho preferido é:
+
+`generate-blog-post` + revisão/edição no Admin Blog + aprovação + publicação.
+
+## Próximas Melhorias Recomendadas
+
+1. Melhorar qualidade do prompt editorial por tipo de ICP.
+2. Adicionar checklist de revisão técnica dentro do editor.
+3. Conectar performance de analytics ao planejamento de novos artigos.
+4. Melhorar auditoria de fontes e referências.
+5. Criar visão editorial por cluster/pilar de SEO.

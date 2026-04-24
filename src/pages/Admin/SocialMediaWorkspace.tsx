@@ -119,7 +119,7 @@ export default function SocialMediaWorkspace() {
 
       if (error) throw error;
 
-      toast.success(`Conteúdo ${platform === "instagram" ? "Instagram" : "LinkedIn"} gerado e salvo. Revise em Aprovar.`);
+      toast.success(`Conteúdo ${platform === "instagram" ? "Instagram" : "LinkedIn"} gerado e salvo como aprovado.`);
       setActiveTab("approve");
       setSearchParams((prev) => {
         prev.set("tab", "approve");

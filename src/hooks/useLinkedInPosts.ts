@@ -266,7 +266,7 @@ export function useDeleteLinkedInPost() {
     });
 }
 
-// Get content approval items (combines blogs, LinkedIn carousels, and resources)
+// Get content approval items (pending review is limited to blogs and resources)
 export function useContentApprovalItems() {
     return useQuery({
         queryKey: ["content_approval_items"],
@@ -274,47 +274,26 @@ export function useContentApprovalItems() {
             console.log("[ContentApproval] Starting fetch...");
 
             try {
-                // Fetch pending blogs
-                // Fetch pending blogs - Limit to 24 as requested
-                const { data: blogs, error: blogsError } = await supabase
-                    .from("blog_posts")
-                    .select("*")
-                    .eq("status", "pending_review")
-                    .order("created_at", { ascending: false })
-                    .limit(24);
+                const [blogsResult, resourcesResult] = await Promise.all([
+                    supabase
+                        .from("blog_posts")
+                        .select("*")
+                        .eq("status", "pending_review")
+                        .order("created_at", { ascending: false })
+                        .limit(24),
+                    (supabase
+                        .from("resources" as any)
+                        .select("*")
+                        .eq("status", "pending_approval")
+                        .order("created_at", { ascending: false }) as any),
+                ]);
+
+                const { data: blogs, error: blogsError } = blogsResult;
+                const { data: resources, error: resourcesError } = resourcesResult;
 
                 if (blogsError) throw blogsError;
-
-                // Fetch draft/pending LinkedIn carousels
-                const { data: linkedInCarousels, error: linkedInError } = await supabase
-                    .from("linkedin_carousels")
-                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, slides, generation_metadata")
-                    .in("status", ["draft", "pending_approval"])
-                    .order("created_at", { ascending: false });
-
-                if (linkedInError) throw linkedInError;
-
-                // Fetch pending/draft Instagram posts
-                const { data: instagramPosts, error: instagramError } = await (supabase
-                    .from("instagram_posts" as any)
-                    .select("id, topic, status, created_at, target_audience, pain_point, caption, desired_outcome, hashtags, post_type, image_urls, generation_metadata")
-                    .in("status", ["draft", "pending_approval"])
-                    .order("created_at", { ascending: false }) as any);
-
-                if (instagramError) {
-                    console.error("[ContentApproval] Error fetching Instagram posts:", instagramError);
-                }
-
-                // Fetch pending resources
-                const { data: resources, error: resourcesError } = await (supabase
-                    .from("resources" as any)
-                    .select("*")
-                    .eq("status", "pending_approval")
-                    .order("created_at", { ascending: false }) as any);
-
                 if (resourcesError) {
                     console.error("[ContentApproval] Error fetching resources:", resourcesError);
-                    // Don't throw here to avoid blocking other content if resources table issues persist
                 }
 
                 // Combine and format
@@ -328,26 +307,6 @@ export function useContentApprovalItems() {
                         created_at: blog.created_at,
                         ai_generated: blog.ai_generated || false,
                         full_data: blog,
-                    })),
-                    ...(linkedInCarousels || []).map((carousel: any) => ({
-                        id: carousel.id,
-                        type: 'linkedin' as const,
-                        title: carousel.topic,
-                        content_preview: carousel.slides?.[0]?.headline || carousel.caption?.substring(0, 100) || '',
-                        status: carousel.status,
-                        created_at: carousel.created_at,
-                        ai_generated: true,
-                        full_data: carousel,
-                    })),
-                    ...(instagramPosts || []).map((post: any) => ({
-                        id: post.id,
-                        type: 'instagram' as const,
-                        title: post.topic,
-                        content_preview: post.caption?.substring(0, 100) || '',
-                        status: post.status,
-                        created_at: post.created_at,
-                        ai_generated: true,
-                        full_data: post,
                     })),
                     ...(resources || []).map((resource: any) => ({
                         id: resource.id,

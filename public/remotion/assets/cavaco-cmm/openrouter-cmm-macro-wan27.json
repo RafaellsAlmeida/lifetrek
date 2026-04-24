@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-04-23T11:12:03.232Z",
+  "refPath": "/Users/rafaelalmeida/lifetrek/public/remotion/assets/cavaco-cmm/ref-single-part-inspection.png",
+  "outPath": "/Users/rafaelalmeida/lifetrek/public/remotion/assets/cavaco-cmm/openrouter-cmm-macro-wan27.mp4",
+  "bytes": 2299508,
+  "usage": {
+    "cost": 0.5,
+    "is_byok": false
+  },
+  "job": {
+    "id": "zARdVXMN5R6PshN7SSaK",
+    "generation_id": "gen-vid-1776942638-hJQd9Ro9LDN5EEMmm58M",
+    "polling_url": "https://openrouter.ai/api/v1/videos/zARdVXMN5R6PshN7SSaK",
+    "status": "completed",
+    "unsigned_urls": "[omitted]",
+    "usage": {
+      "cost": 0.5,
+      "is_byok": false
+    }
+  },
+  "payload": {
+    "model": "alibaba/wan-2.7",
+    "prompt": "Ultra-realistic macro industrial metrology b-roll. A single blue anodized titanium medical implant component is isolated on a clean white CMM inspection table. A ZEISS-style ruby tipped CMM probe slowly approaches from the upper right and gently touches the circular bore of the part, then holds contact for dimensional inspection. Shallow depth of field, crisp machined edges, subtle cool blue highlights, premium medical manufacturing look, realistic optics, slow controlled dolly-in, stable camera, no dramatic shake. Only one part in frame. No hands. No humans. No text. No logos. No extra parts. No gauges with numbers. No captions.",
+    "duration": 5,
+    "resolution": "1080p",
+    "aspect_ratio": "1:1",
+    "size": "1080x1080",
+    "seed": 42019,
+    "generate_audio": false,
+    "frame_images": "[data-uri omitted]",
+    "provider": {
+      "options": {
+        "alibaba": {
+          "parameters": {
+            "negative_prompt": "text, watermark, logo, multiple parts, hands, people, blurry, low quality, cartoon, animation, deformed object, extra holes, extra probes, measuring numbers, captions",
+            "prompt_extend": true
+          }
+        }
+      }
+    }
+  }
+}

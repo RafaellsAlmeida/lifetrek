@@ -1,6 +1,8 @@
 # Guia do Content Engine (LinkedIn & Instagram)
 
-Este documento descreve o estado atual do pipeline de conteúdo e a nova lógica de seleção inteligente de fundo (asset real vs IA), além do fluxo de override manual no UI.
+Este documento descreve o pipeline de conteúdo e a lógica de seleção inteligente de fundo (asset real vs IA), além do fluxo de override manual no UI.
+
+**Nota de escopo (2026-04-23):** este guia cobre suporte visual para conteúdo social. Ele não deve ser usado para posicionar o Lifetrek como editor avançado de imagem ou vídeo dentro do app. A prioridade atual do produto é aprovação por email, blog técnico, CRM, analytics e desenho técnico; imagem continua como apoio de marca e conteúdo.
 
 ## Arquitetura do Pipeline
 
@@ -82,7 +84,7 @@ Observação operacional:
 - `sala limpa/ISO 7/ANVISA/FDA` -> prioriza clean-room assets.
 - `vet/odonto` sem candidato forte -> product assets; sem product forte -> IA.
 
-## Edição Manual no UI (Design Tab)
+## Ajuste Visual de Apoio no UI (Design Tab)
 
 Tela:
 - `/admin/social?tab=design`
@@ -91,7 +93,7 @@ Fluxo:
 1. clicar `Trocar Fundo`.
 2. usar aba `Sugestões` (rank por score/motivo) ou `Biblioteca` (filtros por categoria).
 3. clicar `Aplicar`.
-4. opcional: `Gerar com IA`.
+4. opcional: `Gerar com IA` somente quando não houver asset real adequado.
 5. consultar `Ver versões`.
 
 Persistência:

@@ -17,7 +17,7 @@ interface DashboardLead {
 interface ApprovalItem {
   id: string;
   title: string;
-  type: "blog" | "linkedin" | "resource";
+  type: "blog" | "resource";
   created_at: string;
 }
 
@@ -32,7 +32,6 @@ interface DashboardStats {
 
 const TYPE_META: Record<ApprovalItem["type"], { label: string; className: string }> = {
   blog: { label: "Blog", className: "bg-blue-100 text-blue-800" },
-  linkedin: { label: "LinkedIn", className: "bg-sky-100 text-sky-800" },
   resource: { label: "Recurso", className: "bg-amber-100 text-amber-800" },
 };
 
@@ -60,7 +59,6 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
           newLeadsRes,
           ga4Res,
           blogsRes,
-          linkedinRes,
           resourcesRes,
         ] = await Promise.all([
           supabase
@@ -83,12 +81,6 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
             .eq("status", "pending_review")
             .order("created_at", { ascending: false })
             .limit(6),
-          supabase
-            .from("linkedin_carousels")
-            .select("id, topic, created_at", { count: "exact" })
-            .in("status", ["draft", "pending_approval"])
-            .order("created_at", { ascending: false })
-            .limit(6),
           (supabase
             .from("resources" as any)
             .select("id, title, created_at", { count: "exact" })
@@ -101,7 +93,6 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
         if (newLeadsRes.error) throw newLeadsRes.error;
         if (ga4Res.error) throw ga4Res.error;
         if (blogsRes.error) throw blogsRes.error;
-        if (linkedinRes.error) throw linkedinRes.error;
         if (resourcesRes.error) throw resourcesRes.error;
 
         const approvalItems: ApprovalItem[] = [
@@ -109,12 +100,6 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
             id: item.id,
             title: item.title,
             type: "blog" as const,
-            created_at: item.created_at,
-          }))),
-          ...((linkedinRes.data || []).map((item) => ({
-            id: item.id,
-            title: item.topic,
-            type: "linkedin" as const,
             created_at: item.created_at,
           }))),
           ...((resourcesRes.data || []).map((item) => ({
@@ -131,10 +116,7 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
 
         setStats({
           newLeads: newLeadsRes.count || 0,
-          pendingApprovals:
-            (blogsRes.count || 0) +
-            (linkedinRes.count || 0) +
-            (resourcesRes.count || 0),
+          pendingApprovals: (blogsRes.count || 0) + (resourcesRes.count || 0),
           dailyVisitors: ga4Row?.total_users || 0,
           ga4SnapshotDate: ga4Row?.snapshot_date || null,
           recentLeads: (recentLeadsRes.data || []) as DashboardLead[],
@@ -160,7 +142,7 @@ export function SuperAdminDashboard({ userName }: { userName: string }) {
     {
       label: "Aguardando aprovacao",
       value: stats.pendingApprovals,
-      detail: "Blogs, LinkedIn e recursos",
+      detail: "Blogs e recursos",
       icon: FileClock,
     },
     {
