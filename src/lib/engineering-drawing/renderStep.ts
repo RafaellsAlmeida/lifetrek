@@ -44,16 +44,14 @@ type BoreInterval = {
 type DirectorySnapshot = Map<string, Set<string>>;
 
 let openCascadeRuntimePromise: Promise<OpenCascadeRuntime> | null = null;
+const OPENCASCADE_WASM_URL = "https://cdn.jsdelivr.net/npm/opencascade.js@1.1.1/dist/opencascade.wasm.wasm";
 
 async function loadOpenCascadeRuntime(): Promise<OpenCascadeRuntime> {
   if (!openCascadeRuntimePromise) {
-    openCascadeRuntimePromise = Promise.all([
-      import("opencascade.js/dist/opencascade.wasm.js"),
-      import("opencascade.js/dist/opencascade.wasm.wasm?url"),
-    ]).then(async ([{ default: createOpenCascade }, { default: wasmUrl }]) => {
+    openCascadeRuntimePromise = import("opencascade.js/dist/opencascade.wasm.js").then(async ({ default: createOpenCascade }) => {
       const runtime = (await new createOpenCascade({
         locateFile(path) {
-          return path.endsWith(".wasm") ? wasmUrl : path;
+          return path.endsWith(".wasm") ? OPENCASCADE_WASM_URL : path;
         },
       })) as OpenCascadeRuntime;
       if (!runtime.FS) {
