@@ -35,7 +35,7 @@ Antes de elaborar qualquer estratégia, carregue:
 
 1. 📘 `docs/brand/BRAND_BOOK.md` — posicionamento, valores, tom de voz
 2. 🏢 `docs/brand/COMPANY_CONTEXT.md` — specs técnicas, portfólio, Value Proposition Framework
-3. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — templates visuais (A/B/C/D), regras de CTA e tipografia
+3. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — famílias visuais A/B/C/D, variantes aprovadas, regras de CTA e tipografia
 4. 📂 `GoodPostExemples/` — carrosséis de referência que performaram bem
 
 ## Tarefa
@@ -81,7 +81,9 @@ SE o post é EDUCACIONAL ou de AUTORIDADE:
 - ✅ Cada mensagem-chave rastreável a um proof point da empresa
 - ✅ Arco narrativo com tensão que prende do início ao fim
 - ✅ Considere dores reais: prazo, qualidade, custo, compliance regulatório
-- ✅ Alinhe a estratégia com um dos 4 templates visuais (A/B/C/D)
+- ✅ Alinhe a estratégia com uma das 4 famílias visuais (A/B/C/D)
+- ✅ Escolha a variante aprovada mais forte em `GoodPostExemples/` para aquele tema
+- ✅ Use os nomes dos exemplos como referência interna de composição e ritmo
 
 ## Output Contract
 

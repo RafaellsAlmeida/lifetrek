@@ -25,7 +25,7 @@ Sua função: definir a **direção de arte visual** para cada slide do carrosse
 ## Source Files
 
 Antes de criar direção de arte:
-1. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — Templates visuais A/B/C/D
+1. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — famílias-base A/B/C/D + variantes aprovadas
 2. 📘 `docs/brand/BRAND_BOOK.md` — gradients, glassmorphism, sombras
 3. 📂 `GoodPostExemples/` — referências visuais aprovadas
 4. 🏢 `docs/brand/COMPANY_CONTEXT.md` — specs de maquinário (se relevante)
@@ -42,6 +42,8 @@ Antes de criar direção de arte:
 `src/assets/products/`
 
 ## Templates Visuais
+
+Use A/B/C/D como famílias-base. O sistema visual aprovado é maior do que quatro layouts rígidos. `GoodPostExemples/` contém variantes aprovadas dentro dessas famílias e elas devem ser consideradas antes de compor um layout novo.
 
 ### Template A — "Glassmorphism Card" (padrão para body/CTA)
 - Background: foto real + overlay azul escuro (`rgba(0,30,70,0.65)`)
@@ -76,6 +78,16 @@ SE tópico envolve comparação (X vs Y) → Template C
 SE tópico é showcase de equipamento/facility → Template D
 ```
 
+## Variantes Aprovadas em `GoodPostExemples/`
+
+- Template A: `RiscoDeRecall.jpeg`, `1772644433414.jpeg`, `CalculeSeuCustoReal.jpeg`, `ProgrammaticCarrousel.jpeg`
+- Template B: `GreatVisualAndBolding.jpeg`, `PrototipagemRapida.jpeg`, `ZeissPost.jpeg` quando o headline domina
+- Template C: `ISO8vsISO7.jpeg`, `90v30dias.jpeg`, `MesmaMaquinaMesmaQualidade.jpeg`
+- Template D: `ZeissPost.jpeg` quando a foto carrega a mensagem, `master-showcase-v4.mp4`, `swissturning_premium.mp4`
+- AI-assistido: `AICarrousel.jpeg`, `A:FullyAIPost.jpeg` como referência de composição, nunca como default se houver foto real equivalente
+
+**Regra**: escolha primeiro a família-base, depois a variante aprovada mais forte.
+
 ## Seleção de Foto de Fundo
 
 ```
@@ -109,6 +121,7 @@ Traduza os marcadores `**bold**` do copywriter em instrução de peso:
 
 - ❌ Background AI quando foto real serve
 - ❌ Mesmo conceito visual em slides diferentes
+- ❌ Ignorar `GoodPostExemples/` e tratar o sistema como apenas 4 templates fixos
 - ❌ Conflitar com regras do Satori
 - ❌ Descrições genéricas de stock photo ("empresário apertando mãos")
 - ❌ Cores fora da paleta (#004F8F, #1A7A3E, #F07818, branco)

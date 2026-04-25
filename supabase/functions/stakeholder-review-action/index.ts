@@ -102,6 +102,13 @@ function errorPage(message: string, statusCode = 400): Response {
 }
 
 function formatReviewerName(reviewerEmail: string): string {
+  const normalizedEmail = reviewerEmail.trim().toLowerCase();
+  const knownNames: Record<string, string> = {
+    "njesus@lifetrek-medical.com": "Nelson",
+    "rbianchini@lifetrek-medical.com": "Rafael",
+  };
+  if (knownNames[normalizedEmail]) return knownNames[normalizedEmail];
+
   const firstName = reviewerEmail.split("@")[0].split(".")[0] ?? reviewerEmail;
   return firstName.charAt(0).toUpperCase() + firstName.slice(1);
 }
@@ -330,14 +337,14 @@ async function handleFetch(
       } else if (contentType === "blog_post") {
         const { data } = await supabase
           .from("blog_posts")
-          .select("title, excerpt, hero_image_url, content")
+          .select("title, excerpt, hero_image_url, featured_image, content")
           .eq("id", contentId)
           .single();
 
         if (data) {
           title = data.title || "Blog Post";
           caption = data.excerpt || "";
-          thumbnailUrl = data.hero_image_url ?? null;
+          thumbnailUrl = data.featured_image ?? data.hero_image_url ?? null;
           slides = [];
           content = data.content ?? null;
         }
@@ -617,6 +624,10 @@ serve(async (req) => {
         .update({
           status: "edit_suggested",
           reviewed_by_email: tokenRow.reviewer_email,
+          reviewer_comment:
+            typeof (copyEdits as Record<string, unknown>).comment === "string"
+              ? String((copyEdits as Record<string, unknown>).comment).trim() || null
+              : null,
           copy_edits: copyEdits,
           reviewed_at: new Date().toISOString(),
         })

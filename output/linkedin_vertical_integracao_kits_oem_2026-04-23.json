@@ -1,0 +1,91 @@
+{
+  "topic": "Integracao vertical na montagem de kits OEM",
+  "platform": "LinkedIn",
+  "goal": "CTR e retencao",
+  "audience": "OEMs de kits e instrumentais cirurgicos",
+  "output_format": {
+    "thumbnail": "1:1",
+    "slides": "4:3",
+    "reason": "Thumb quadrada para destaque/listagem e corpo em 4:3 para ganhar area util sem depender de portrait longo."
+  },
+  "template_strategy": {
+    "cover": "B",
+    "body": "A",
+    "reason": "Template B maximiza o impacto do hook inicial. Template A sustenta leitura tecnica e escaneabilidade nos slides seguintes."
+  },
+  "caption": "Quantos fornecedores passam pela sua bandeja cirurgica hoje?\n\nEm muitos kits OEM, o problema nao esta em uma etapa isolada. Esta nas transferencias entre parceiros. Usinagem em um fornecedor, acabamento em outro, montagem em outro, embalagem em outro. A cada repasse, a operacao fica mais dificil de coordenar, rastrear e ajustar.\n\nNa Lifetrek Medical, a logica e integracao vertical das etapas criticas: usinagem, acabamento, metrologia, montagem e embalagem em sala limpa ISO 7 dentro da mesma estrutura.\n\nPara OEMs de kits e instrumentais, isso ajuda a reduzir atrito operacional e ganhar mais previsibilidade de prazo, qualidade e documentacao por lote.\n\nNo fim, a pergunta nao e so preco por peca. E quantos pontos cegos ainda existem entre a especificacao e a bandeja pronta.\n\n#KitsOEM #InstrumentaisCirurgicos #ManufaturaMedica #Rastreabilidade #ISO13485 ◆",
+  "slides": [
+    {
+      "slide_number": 1,
+      "type": "hook",
+      "template": "B",
+      "headline": "Quantos fornecedores passam pela sua bandeja cirurgica?",
+      "body": "Cada transferencia adiciona prazo, ruido e risco de rastreabilidade no kit OEM.",
+      "label": "KITS OEM",
+      "background_photo": "src/assets/products/surgical-instruments-set-2.png",
+      "background_source": "src/assets/products",
+      "visual_concept": "Instrumentais cirurgicos em close com overlay escuro e headline dominante.",
+      "composition": "Texto grande no lado esquerdo, logo no topo direito, contador no rodape.",
+      "mood": "Tensao operacional, clareza, urgencia tecnica."
+    },
+    {
+      "slide_number": 2,
+      "type": "content",
+      "template": "A",
+      "headline": "Da usinagem a embalagem final",
+      "body": "Acabamento, metrologia, montagem e sala limpa ISO 7 no mesmo fluxo operacional.",
+      "label": "INTEGRACAO VERTICAL",
+      "background_photo": "src/assets/facility/production-overview.jpg",
+      "background_source": "src/assets/facility",
+      "visual_concept": "Linha de producao em profundidade para comunicar cadeia integrada.",
+      "composition": "Glass card escuro alinhado a esquerda com foto industrial ao fundo.",
+      "mood": "Controle, engenharia, robustez."
+    },
+    {
+      "slide_number": 3,
+      "type": "content",
+      "template": "A",
+      "headline": "Menos transferencias, menos atrito",
+      "body": "Menos repasses ajudam a reduzir espera, retrabalho e custo oculto de coordenacao.",
+      "label": "EFICIENCIA",
+      "background_photo": "src/assets/facility/production-floor.jpg",
+      "background_source": "src/assets/facility",
+      "visual_concept": "Producao ativa com profundidade de campo e atmosfera de ritmo industrial.",
+      "composition": "Glass card com grande contraste e espacamento amplo para leitura rapida.",
+      "mood": "Agilidade, fluidez operacional, foco."
+    },
+    {
+      "slide_number": 4,
+      "type": "content",
+      "template": "A",
+      "headline": "Rastreabilidade com menos pontos cegos",
+      "body": "ISO 13485, ZEISS Contura e marcacao a laser apoiam um fluxo de lote mais previsivel.",
+      "label": "QUALIDADE",
+      "background_photo": "src/assets/metrology/zeiss-contura.png",
+      "background_source": "src/assets/metrology",
+      "visual_concept": "Metrologia como prova de controle dimensional e documentacao do lote.",
+      "composition": "Glass card a esquerda com fundo tecnico da ZEISS em destaque.",
+      "mood": "Rigor, confianca, auditabilidade."
+    },
+    {
+      "slide_number": 5,
+      "type": "conclusion",
+      "template": "A",
+      "headline": "Um parceiro tecnico. Mais previsibilidade",
+      "body": "Integrar etapas criticas ajuda compras, qualidade e engenharia a operar com menos ruido.",
+      "label": "CONCLUSAO",
+      "background_photo": "src/assets/facility/clean-room-5.png",
+      "background_source": "src/assets/facility",
+      "visual_concept": "Sala limpa como imagem de fechamento para reforcar controle de ponta a ponta.",
+      "composition": "Glass card com acento laranja discreto para conclusao e fechamento visual.",
+      "mood": "Confianca, fechamento, maturidade operacional."
+    }
+  ],
+  "notes": [
+    "Hook preservado exatamente como solicitado.",
+    "Sem CTA de comentario, link ou DM porque o post nao e lead magnet.",
+    "Claims de esterilizacao foram removidas; a copy usa montagem e embalagem em sala limpa ISO 7, que e linguagem suportada no repositorio.",
+    "A combinacao ideal para este tema e Template B no slide 1 e Template A nos slides 2 a 5.",
+    "Formato ajustado para thumb 1:1 e slides seguintes em 4:3."
+  ]
+}

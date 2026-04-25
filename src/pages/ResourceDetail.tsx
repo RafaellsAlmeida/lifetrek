@@ -40,6 +40,61 @@ const stripMarkdown = (value: string) =>
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 
+const buildPublicPreview = (content: string) => {
+    const normalized = content.replace(/\r\n/g, "\n").trim();
+    if (!normalized) return "";
+
+    const lines = normalized
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("```"));
+    const selected: string[] = [];
+    let textLength = 0;
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+            if (selected.length > 0 && selected[selected.length - 1] !== "") {
+                selected.push("");
+            }
+            continue;
+        }
+
+        selected.push(line);
+        textLength += stripMarkdown(trimmed).length;
+
+        if (textLength >= 900 && selected.some((entry) => /^#{2,3}\s/.test(entry.trim()))) {
+            break;
+        }
+    }
+
+    return selected.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+};
+
+const extractMarkdownFaqEntries = (content: string) => {
+    const faqStart = content.search(/^#{2,3}\s+.*(perguntas frequentes|faq).*/im);
+    if (faqStart === -1) return [];
+
+    const faqContent = content.slice(faqStart);
+    const entries: Array<{ question: string; answer: string }> = [];
+    const sections = faqContent.split(/\n(?=#{3,4}\s+)/g).slice(1);
+
+    for (const section of sections) {
+        const questionMatch = section.match(/^#{3,4}\s+(.+)$/m);
+        if (!questionMatch) continue;
+
+        const question = stripMarkdown(questionMatch[1] || "");
+        const answer = stripMarkdown(section.replace(/^#{3,4}\s+.+$/m, "")).slice(0, 500);
+
+        if (question.length >= 8 && answer.length >= 20) {
+            entries.push({ question, answer });
+        }
+
+        if (entries.length >= 5) break;
+    }
+
+    return entries;
+};
+
 export default function ResourceDetail() {
     const { slug } = useParams();
     const { data: resource, isLoading, error } = useResource(slug || "");
@@ -62,6 +117,9 @@ export default function ResourceDetail() {
     const resolvedSlug = resource?.slug ?? slug ?? "resource";
     const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
     const downloadUrl = typeof metadata.download_url === "string" ? metadata.download_url : undefined;
+    const publicPreviewMarkdown = buildPublicPreview(resourceContent);
+    const schemaContent = hasAccess ? resourceContent : publicPreviewMarkdown;
+    const faqEntries = extractMarkdownFaqEntries(schemaContent);
 
     const roadmapFlowchart = `
     flowchart LR
@@ -124,7 +182,7 @@ export default function ResourceDetail() {
                     url: canonicalUrl,
                 };
             case 'checklist': {
-                const headings = resourceContent
+                const headings = schemaContent
                     .split("\n")
                     .filter((line: string) => /^#{1,3}\s/.test(line))
                     .map((line: string) => line.replace(/^#{1,3}\s+/, "").trim());
@@ -373,6 +431,22 @@ export default function ResourceDetail() {
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}
                 </script>
+                {faqEntries.length > 0 && (
+                    <script type="application/ld+json">
+                        {JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            mainEntity: faqEntries.map((entry) => ({
+                                "@type": "Question",
+                                name: entry.question,
+                                acceptedAnswer: {
+                                    "@type": "Answer",
+                                    text: entry.answer,
+                                },
+                            })),
+                        })}
+                    </script>
+                )}
             </Helmet>
 
             {/* Header Section */}
@@ -426,14 +500,40 @@ export default function ResourceDetail() {
             {/* Content */}
             <div className="container mx-auto px-4 py-12">
                 {!hasAccess ? (
-                    <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-10 text-center">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-3">Desbloqueie o recurso completo</h2>
-                        <p className="text-slate-600 mb-6">
-                            Informe seu email corporativo para acessar o conteudo completo. Nome e empresa sao opcionais.
-                        </p>
-                        <Button size="lg" onClick={() => setIsModalOpen(true)}>
-                            Desbloquear agora
-                        </Button>
+                    <div className="max-w-4xl mx-auto space-y-8">
+                        {publicPreviewMarkdown && (
+                            <div className="bg-white rounded-xl shadow-sm border p-8 md:p-10">
+                                <div className="mb-6">
+                                    <Badge variant="outline" className="border-primary/30 text-primary">
+                                        Resumo publico
+                                    </Badge>
+                                </div>
+                                <div className="prose prose-slate prose-lg max-w-none">
+                                    <ReactMarkdown
+                                        components={{
+                                            h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6" {...props} />,
+                                            h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
+                                            h3: ({ node, ...props }) => <h3 className="text-xl font-semibold text-slate-800 mb-3 mt-6" {...props} />,
+                                            ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
+                                            li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
+                                            p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
+                                        }}
+                                    >
+                                        {publicPreviewMarkdown}
+                                    </ReactMarkdown>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="bg-white rounded-xl shadow-sm border p-10 text-center">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-3">Desbloqueie o recurso completo</h2>
+                            <p className="text-slate-600 mb-6">
+                                Informe seu email corporativo para acessar o conteudo completo. Nome e empresa sao opcionais.
+                            </p>
+                            <Button size="lg" onClick={() => setIsModalOpen(true)}>
+                                Desbloquear agora
+                            </Button>
+                        </div>
                     </div>
                 ) : (
                     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border p-8 md:p-12">

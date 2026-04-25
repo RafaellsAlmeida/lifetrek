@@ -20,6 +20,18 @@ function invalidateApprovalQueries(queryClient: ReturnType<typeof useQueryClient
     );
 }
 
+function getMissingSchemaColumn(error: unknown) {
+    const message = error instanceof Error ? error.message : String((error as { message?: string })?.message || "");
+    const match = message.match(/Could not find the '([^']+)' column/);
+    return match?.[1] || null;
+}
+
+function withoutColumn<T extends Record<string, unknown>>(payload: T, column: string) {
+    const next = { ...payload };
+    delete next[column];
+    return next;
+}
+
 export function useBlogPosts(publishedOnly = true) {
     return useQuery({
         queryKey: ["blog-posts", publishedOnly],
@@ -84,11 +96,24 @@ export function useCreateBlogPost() {
 
     return useMutation({
         mutationFn: async (post: BlogPostInsert) => {
-            const { data, error } = await supabase
+            let payload = post as Record<string, unknown>;
+            let { data, error } = await supabase
                 .from("blog_posts")
-                .insert(post)
+                .insert(payload as any)
                 .select()
                 .single();
+
+            const missingColumn = error ? getMissingSchemaColumn(error) : null;
+            if (missingColumn && missingColumn in payload) {
+                payload = withoutColumn(payload, missingColumn);
+                const retry = await supabase
+                    .from("blog_posts")
+                    .insert(payload as any)
+                    .select()
+                    .single();
+                data = retry.data;
+                error = retry.error;
+            }
 
             if (error) throw error;
             return data;
@@ -109,12 +134,26 @@ export function useUpdateBlogPost() {
 
     return useMutation({
         mutationFn: async ({ id, ...updates }: BlogPostUpdate) => {
-            const { data, error } = await supabase
+            let payload = updates as Record<string, unknown>;
+            let { data, error } = await supabase
                 .from("blog_posts")
-                .update(updates)
+                .update(payload as any)
                 .eq("id", id)
                 .select()
                 .single();
+
+            const missingColumn = error ? getMissingSchemaColumn(error) : null;
+            if (missingColumn && missingColumn in payload) {
+                payload = withoutColumn(payload, missingColumn);
+                const retry = await supabase
+                    .from("blog_posts")
+                    .update(payload as any)
+                    .eq("id", id)
+                    .select()
+                    .single();
+                data = retry.data;
+                error = retry.error;
+            }
 
             if (error) throw error;
             return data;

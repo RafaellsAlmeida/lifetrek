@@ -682,11 +682,11 @@ export default function LinkedInCarousel() {
         
         const result = data.carousel || data.carousels?.[0];
         if (result) {
-          // Force pending_approval status for campaign items
+          // Campaign items no longer wait in the approval queue.
           await autoSaveCarousel(
             result,
             0,
-            'pending_approval',
+            'approved',
             campaignTopic.scheduledDate,
             campaignTopic.id,
             campaignTopic.id
@@ -704,7 +704,7 @@ export default function LinkedInCarousel() {
 
     setIsBatchGenerating(false);
     setBatchProgress(null);
-    toast.success(`Batch concluído! ${successCount}/${missingTopics.length} carrosséis enviados para aprovação.`);
+    toast.success(`Batch concluído! ${successCount}/${missingTopics.length} carrosséis salvos como aprovados.`);
   };
 
   const handleUpdateSlideImage = (url: string) => {

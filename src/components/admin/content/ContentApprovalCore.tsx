@@ -191,7 +191,11 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
         };
     }, [embedded, searchParams]);
 
-    const [activeTab, setActiveTab] = useState(initialState.tab || "all");
+    const [activeTab, setActiveTab] = useState(
+        initialState.tab === "linkedin" || initialState.tab === "instagram"
+            ? "all"
+            : (initialState.tab || "all"),
+    );
     const [searchTerm, setSearchTerm] = useState(initialState.query || "");
     const [sortBy, setSortBy] = useState<ContentApprovalSort>(initialState.sort || "newest");
     const [isBatchProcessing, setIsBatchProcessing] = useState(false);
@@ -1286,7 +1290,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
     }));
 
     const draftItems = filterItems(allPending.filter(item => {
-        if (item.type === 'blog') return false;
+        if (item.type !== 'linkedin' && item.type !== 'instagram') return false;
 
         const hasImages = item.type === 'linkedin'
             ? (Array.isArray(item.full_data?.slides) && item.full_data.slides.some((s: any) => s.image_url || s.imageUrl))
@@ -1463,8 +1467,6 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                     {!embedded && (
                         <>
                             <TabsTrigger value="blogs" className="py-2 text-blue-600">Blogs ({blogItems.length})</TabsTrigger>
-                            <TabsTrigger value="linkedin" className="py-2 text-blue-700">LinkedIn ({linkedInItems.length})</TabsTrigger>
-                            <TabsTrigger value="instagram" className="py-2 text-pink-600">Instagram ({instagramItems.length})</TabsTrigger>
                             <TabsTrigger value="resources" className="py-2 text-amber-600">Recursos ({resourceItems.length})</TabsTrigger>
                         </>
                     )}
@@ -1514,7 +1516,7 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
                             <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-2xl border border-dashed border-slate-300">
                                 <Sparkles className="h-12 w-12 text-slate-300 mb-4" />
                                 <p className="text-slate-500 font-medium">Tudo em dia! Nenhum item pendente.</p>
-                                <p className="text-slate-400 text-sm">Gere mais conteúdo no Workspace Social.</p>
+                                <p className="text-slate-400 text-sm">Gere mais blogs ou atualize a biblioteca de recursos.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

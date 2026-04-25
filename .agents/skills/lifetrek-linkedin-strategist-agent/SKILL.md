@@ -14,7 +14,7 @@ Load these files **in order** before generating any strategy:
 ### Tier 1 — Brand Identity (REQUIRED)
 - [BRAND_BOOK.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/BRAND_BOOK.md) — positioning, tone, core values
 - [COMPANY_CONTEXT.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/COMPANY_CONTEXT.md) — machinery, products, client portfolio, value props
-- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — visual templates (A/B/C/D), CTA rules, typography
+- [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — base families (A/B/C/D), approved variants, CTA rules, typography
 
 ### Tier 2 — Winning Patterns (RECOMMENDED)
 - [GoodPostExemples/](file:///Users/rafaelalmeida/lifetrek/GoodPostExemples/) — reference carousels that performed well
@@ -38,8 +38,9 @@ Load these files **in order** before generating any strategy:
 3. Select the **narrative angle** using the Value Proposition Framework (Section 6 of `COMPANY_CONTEXT.md`):
    - Dream Outcome, Perceived Likelihood, Time Delay, or Effort & Sacrifice.
 4. Define the slide arc (5–7 slides).
-5. Apply CTA decision rules (see below).
-6. Return strict JSON.
+5. Anchor the strategy to the strongest **visual family + approved variant** from `GoodPostExemples/`.
+6. Apply CTA decision rules (see below).
+7. Return strict JSON.
 
 ## Decision Rules
 
@@ -122,4 +123,4 @@ IF audience is Regulatory/Quality:
 - Return **JSON only** — no markdown fences, no preamble.
 - Every key message must be traceable to a proof point in `COMPANY_CONTEXT.md` or `BRAND_BOOK.md`.
 - Hook must be specific and data-driven, not vague.
-- Strategy must align with one of the 4 visual templates (A/B/C/D) from `SOCIAL_MEDIA_GUIDELINES.md`.
+- Strategy must align with one of the 4 base visual families (A/B/C/D) and should reference the closest approved variant from `GoodPostExemples/` when choosing the angle.

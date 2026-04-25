@@ -1,0 +1,205 @@
+{
+  "sourceReport": "docs/strategy/medical-device-cm-deep-research-report-2026-04-24.md",
+  "ideas": [
+    {
+      "title": "Como qualificar um fornecedor de manufatura medica sob ISO 13485",
+      "platform": "blog",
+      "angle": "Transformar a pergunta de qualificacao de fornecedor em um checklist tecnico para compras, qualidade e engenharia.",
+      "targetAudience": "Qualidade, engenharia e compras tecnicas em OEMs de dispositivos medicos",
+      "painPoint": "Medo de aprovar um fornecedor que parece certificado, mas falha em controle de mudancas, rastreabilidade ou disciplina documental.",
+      "desiredOutcome": "Dar ao comprador uma lista clara de evidencias para pedir antes de liberar producao.",
+      "proofPoints": [
+        "ISO 13485",
+        "acordo de qualidade",
+        "controle de revisao de desenho",
+        "rastreabilidade de lote",
+        "auditoria compartilhada"
+      ],
+      "ctaAction": "Baixar checklist de auditoria de fornecedores medicos",
+      "priority": "high"
+    },
+    {
+      "title": "O que um lote piloto precisa provar antes da escala",
+      "platform": "blog",
+      "angle": "Mostrar que lote piloto nao e formalidade: ele reduz risco de capacidade, dimensional, validacao e documentacao.",
+      "targetAudience": "Engenharia de produto, qualidade e operacoes",
+      "painPoint": "Escalar uma familia de pecas antes de confirmar capacidade real, criterios de aceitacao e estabilidade do processo.",
+      "desiredOutcome": "Definir o que deve sair de um lote piloto: medicoes, desvios, disposicao, gargalos e plano de escala.",
+      "proofPoints": [
+        "FAI",
+        "desenho bubblado",
+        "relatorio dimensional",
+        "plano de contencao",
+        "revisao de capacidade"
+      ],
+      "ctaAction": "Solicitar diagnostico de transferencia NPI para producao",
+      "priority": "high"
+    },
+    {
+      "title": "O que rastreabilidade completa de lote deve incluir em componentes medicos",
+      "platform": "blog",
+      "angle": "Explicar rastreabilidade como ferramenta de recall, auditoria e contencao, nao como burocracia.",
+      "targetAudience": "Qualidade, regulatorio, supply chain e lideres de manufatura",
+      "painPoint": "Descobrir tarde demais que CoC, certificados, inspecao e identificacao nao fecham a genealogia do lote.",
+      "desiredOutcome": "Dar um mapa pratico dos campos e documentos que precisam conversar entre si.",
+      "proofPoints": [
+        "certificado de material",
+        "CoC",
+        "sumario de inspecao",
+        "serializacao",
+        "UDI",
+        "historico de lote"
+      ],
+      "ctaAction": "Baixar checklist de rastreabilidade e serializacao",
+      "priority": "high"
+    },
+    {
+      "title": "Perguntas que compras deveria fazer antes de trocar de fornecedor medico",
+      "platform": "linkedin",
+      "angle": "Post carrossel com perguntas de qualificacao que evitam custo oculto, atraso e retrabalho.",
+      "targetAudience": "Compras tecnicas, supply chain e diretores industriais",
+      "painPoint": "Tomar decisao de fornecedor olhando preco e prazo, sem enxergar risco de transferencia e auditoria.",
+      "desiredOutcome": "Reposicionar a conversa de RFQ para risco controlado e evidencia documentada.",
+      "proofPoints": [
+        "controle de mudancas",
+        "qualidade acordada antes da liberacao",
+        "lote piloto",
+        "rastreabilidade"
+      ],
+      "ctaAction": "Comentar 'checklist' para receber a lista de perguntas",
+      "priority": "high"
+    },
+    {
+      "title": "FAI, IQ, OQ e PQ: o que cada sigla prova na pratica",
+      "platform": "blog",
+      "angle": "Desmistificar siglas de validacao e inspecao para times que precisam avaliar fornecedores.",
+      "targetAudience": "Engenharia, qualidade e compradores tecnicos",
+      "painPoint": "Confundir pacote dimensional com validacao de processo e liberar escala com evidencia incompleta.",
+      "desiredOutcome": "Ajudar o leitor a pedir a evidencia certa para o risco certo.",
+      "proofPoints": [
+        "FAI",
+        "IQ/OQ/PQ",
+        "criterios de aceitacao",
+        "resumo de qualificacao sob solicitacao"
+      ],
+      "ctaAction": "Abrir conversa tecnica sobre pacote de transferencia",
+      "priority": "medium"
+    },
+    {
+      "title": "Mudanca pequena em processo validado nao e pequena",
+      "platform": "linkedin",
+      "angle": "Usar linguagem direta para explicar por que alteracoes em programa, site, subfornecedor ou processo critico precisam de aprovacao.",
+      "targetAudience": "Qualidade, engenharia de manufatura e lideres de operacao",
+      "painPoint": "Tratar ajuste de chao de fabrica como detalhe e criar risco de quarentena, revalidacao ou nao conformidade.",
+      "desiredOutcome": "Gerar consciencia sobre controle de mudancas sem prometer risco zero.",
+      "proofPoints": [
+        "controle documentado de mudancas",
+        "aprovacao antes de mudancas criticas",
+        "regras de quarentena",
+        "disposicao documentada"
+      ],
+      "ctaAction": "Ler artigo completo sobre transferencia controlada",
+      "priority": "high"
+    },
+    {
+      "title": "UDI laser marking: o que validar antes de confiar na marcacao",
+      "platform": "blog",
+      "angle": "Conectar UDI a rastreabilidade, legibilidade, esterilizacao/reprocessamento e recall.",
+      "targetAudience": "Regulatorio, qualidade e engenharia de produto",
+      "painPoint": "Descobrir problema de identificacao depois que o produto ja entrou em estoque, hospital ou campo.",
+      "desiredOutcome": "Definir criterios de verificacao para marcacao humana e maquina-legivel.",
+      "proofPoints": [
+        "marcacao a laser",
+        "UDI",
+        "verificacao humana e AIDC",
+        "rastreabilidade de lote"
+      ],
+      "ctaAction": "Baixar checklist de rastreabilidade e serializacao",
+      "priority": "high"
+    },
+    {
+      "title": "Sala limpa ISO 7: o que muda na rotina de manufatura",
+      "platform": "blog",
+      "angle": "Responder de forma pratica o que ISO 7 muda e o que ela nao resolve sozinha.",
+      "targetAudience": "Qualidade, engenharia, operacoes e compradores tecnicos",
+      "painPoint": "Assumir que sala limpa elimina risco de contaminacao sem olhar processo, embalagem, manuseio e validacao.",
+      "desiredOutcome": "Ensinar quais controles operacionais devem acompanhar a infraestrutura.",
+      "proofPoints": [
+        "ISO 7",
+        "controle ambiental",
+        "manuseio",
+        "embalagem",
+        "limpeza"
+      ],
+      "ctaAction": "Baixar guia de sala limpa ISO 7",
+      "priority": "medium"
+    },
+    {
+      "title": "Quando uma nao conformidade deveria virar contencao em 24 horas",
+      "platform": "linkedin",
+      "angle": "Post educativo sobre diferenca entre detectar problema, conter lote suspeito e investigar causa raiz.",
+      "targetAudience": "Qualidade, operacoes e lideres de supply chain",
+      "painPoint": "CAPA lenta ou superficial que deixa o mesmo problema voltar e aumenta estresse de auditoria.",
+      "desiredOutcome": "Mostrar um padrao operacional seguro: contencao, plano de causa raiz, evidencias e fechamento.",
+      "proofPoints": [
+        "regras de hold/quarentena",
+        "plano de contencao",
+        "acao corretiva com evidencia",
+        "rastreamento de responsaveis"
+      ],
+      "ctaAction": "Conversar com engenharia sobre risco de fornecedor",
+      "priority": "medium"
+    },
+    {
+      "title": "Desenho revisado, peca errada: como evitar drift documental",
+      "platform": "blog",
+      "angle": "Explicar como revisao de desenho, aceite do fornecedor e copia controlada evitam construcao errada.",
+      "targetAudience": "Engenharia, qualidade, compras tecnicas e fornecedores",
+      "painPoint": "Enviar atualizacao de desenho sem garantir que producao e subfornecedores estejam na mesma revisao.",
+      "desiredOutcome": "Criar um fluxo simples de release, aceite e verificacao documental.",
+      "proofPoints": [
+        "log de liberacao de desenho",
+        "aceite de revisao",
+        "FAI",
+        "rastreabilidade documental"
+      ],
+      "ctaAction": "Baixar checklist de transferencia NPI para producao",
+      "priority": "high"
+    },
+    {
+      "title": "Checklist: 12 evidencias para pedir antes de liberar producao medica",
+      "platform": "resource",
+      "angle": "Transformar as principais ansiedades do relatorio em um recurso de meio/fundo de funil.",
+      "targetAudience": "Compras tecnicas, qualidade e engenharia",
+      "painPoint": "Aprovar producao sem evidencias suficientes de capacidade, rastreabilidade, validacao e controle de mudancas.",
+      "desiredOutcome": "Criar um checklist simples para revisao interna antes do PO ou transferencia.",
+      "proofPoints": [
+        "acordo de qualidade",
+        "FAI",
+        "rastreabilidade",
+        "validacao",
+        "controle de mudancas",
+        "plano de contencao"
+      ],
+      "ctaAction": "Desbloquear checklist completo",
+      "priority": "high"
+    },
+    {
+      "title": "Importar ou produzir localmente: onde o risco realmente aparece",
+      "platform": "linkedin",
+      "angle": "Comparar riscos de prazo, auditoria, rastreabilidade e resposta a nao conformidade sem demonizar importacao.",
+      "targetAudience": "Diretores industriais, supply chain e qualidade",
+      "painPoint": "Comparar apenas custo unitario e ignorar custo de atraso, estoque, recall e retrabalho documental.",
+      "desiredOutcome": "Levar o leitor a avaliar custo total de risco por SKU.",
+      "proofPoints": [
+        "lead time",
+        "estoque de seguranca",
+        "rastreabilidade",
+        "contencao local",
+        "transferencia piloto"
+      ],
+      "ctaAction": "Rodar diagnostico de risco de supply chain",
+      "priority": "medium"
+    }
+  ]
+}

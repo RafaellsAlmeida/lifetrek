@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,22 +9,41 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+  const localePrefix = location.pathname.startsWith("/en")
+    ? "/en"
+    : location.pathname.startsWith("/pt")
+      ? "/pt"
+      : "";
+  const normalizedPathname = localePrefix ? location.pathname.slice(localePrefix.length) || "/" : location.pathname;
+  const withLocalePrefix = (path: string) => {
+    if (!localePrefix) {
+      return path;
+    }
+    return `${localePrefix}${path}`;
+  };
+  const switchLanguage = (targetLanguage: "en" | "pt") => {
+    setLanguage(targetLanguage);
+    const nextPrefix = `/${targetLanguage}`;
+    const nextPath = normalizedPathname === "/" ? "" : normalizedPathname;
+    navigate(`${nextPrefix}${nextPath}${location.hash}`);
+  };
 
   const navItems = [
-    { path: "/#top", label: t("nav.home") },
-    { path: "/about#top", label: t("nav.about") },
-    { path: "/what-we-do#top", label: t("nav.whatWeDo") },
-    { path: "/products#top", label: t("nav.products") },
-    { path: "/resources#top", label: t("nav.resources") },
-    { path: "/capabilities#top", label: t("nav.infrastructure") },
-    { path: "/clients#top", label: t("nav.clients") },
-    { path: "/contact#top", label: t("nav.contact") },
+    { path: "/", label: t("nav.home") },
+    { path: "/about", label: t("nav.about") },
+    { path: "/what-we-do", label: t("nav.whatWeDo") },
+    { path: "/products", label: t("nav.products") },
+    { path: "/resources", label: t("nav.resources") },
+    { path: "/capabilities", label: t("nav.infrastructure") },
+    { path: "/clients", label: t("nav.clients") },
+    { path: "/contact", label: t("nav.contact") },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#e5e7eb] bg-white">
       <nav className="container mx-auto flex h-[80px] items-center justify-between px-8">
-        <Link to="/#top" className="flex items-center flex-shrink-0">
+        <Link to={`${withLocalePrefix("/")}#top`} className="flex items-center flex-shrink-0">
           <img 
             src={logo} 
             alt="Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" 
@@ -38,9 +57,9 @@ export const Header = () => {
           {navItems.map((item) => (
             <Link
               key={item.path}
-              to={item.path}
+              to={`${withLocalePrefix(item.path)}#top`}
               className={`text-sm font-medium transition-colors hover:text-[#003366] ${
-                location.pathname === item.path
+                normalizedPathname === item.path
                   ? "text-[#003366]"
                   : "text-[#003366]/70"
               }`}
@@ -54,7 +73,7 @@ export const Header = () => {
           {/* Language Toggle */}
           <div className="flex items-center gap-2 bg-[#f5f7fa] rounded-full p-1">
             <button
-              onClick={() => setLanguage("en")}
+              onClick={() => switchLanguage("en")}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
                 language === "en"
                   ? "bg-[#003366] text-white"
@@ -64,7 +83,7 @@ export const Header = () => {
               🇺🇸 EN
             </button>
             <button
-              onClick={() => setLanguage("pt")}
+              onClick={() => switchLanguage("pt")}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
                 language === "pt"
                   ? "bg-[#003366] text-white"
@@ -94,10 +113,10 @@ export const Header = () => {
             {navItems.map((item) => (
               <Link
                 key={item.path}
-                to={item.path}
+                to={`${withLocalePrefix(item.path)}#top`}
                 onClick={() => setIsMenuOpen(false)}
                 className={`px-4 py-3 rounded-md text-sm font-medium transition-colors ${
-                  location.pathname === item.path
+                  normalizedPathname === item.path
                     ? "bg-[#003366] text-white"
                     : "text-[#003366] hover:bg-[#f5f7fa]"
                 }`}

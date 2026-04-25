@@ -1,70 +1,171 @@
 # Data Models: Lifetrek
 
-Resumo dos modelos de dados relevantes para geração de conteúdo, seleção de fundos e override manual.
+Summary of the most relevant current product data models, organized by sector.
 
-## Core Schema (Public)
+## 1. Approval and Publishing
 
-### Content & Marketing
+### Primary tables
 
-- `blog_posts`: artigos e metadados de SEO.
-- `blog_categories`: categorização de blog.
-- `content_templates`: templates base de conteúdo.
-- `linkedin_carousels`: conteúdo e slides para LinkedIn.
-- `instagram_posts`: conteúdo e slides para Instagram.
-- `content_ideas`: persistência de ideias/estratégias geradas na etapa de ideação.
+- `stakeholder_review_batches`
+- `stakeholder_review_tokens`
+- `stakeholder_review_items`
 
-Campos relevantes em `linkedin_carousels`/`instagram_posts`:
-- `slides` (jsonb): array de slides.
-- `image_urls` (text[]): URLs de imagem por slide.
+### Table purpose
 
-Campos relevantes por slide (`slides[n]`):
-- `image_url` / `imageUrl`
-- `image_variants` (string[])
-- `prev_image_urls` (string[])
-- `asset_source` (`real | ai | rule_override | manual`)
-- `selection_score` (number)
-- `selection_reason` (string)
-- `asset_id` (opcional)
+- `stakeholder_review_batches`: represents a review batch sent to stakeholders.
+- `stakeholder_review_tokens`: stores token, reviewer, expiry, and batch linkage.
+- `stakeholder_review_items`: links each content item in the batch to its review state.
 
-### Assets e Similaridade Semântica
+### Important fields
 
-- `product_catalog`: catálogo de fotos/produtos/facility.
-- `asset_embeddings`: índice semântico para matching de assets.
-  - `asset_id`, `asset_url`, `category`, `tags`, `search_text`, `embedding vector(1536)`, `quality_score`, `active`.
-- RPC `match_asset_candidates(query_embedding, categories, match_threshold, match_count)`.
+- `status`
+- `reviewer_email`
+- `expires_at`
+- `content_type`
+- `content_id`
+- `copy_edits`
+- `reviewed_at`
 
-### AI & Knowledge
+## 2. Blog and Editorial
 
-- `knowledge_base`: chunks de conhecimento técnico para RAG.
-- `company_facts`: fatos estruturados canônicos para respostas exatas do chatbot (inventário, contagens, certificações).
-- `ai_response_suggestions`: respostas sugeridas.
-- `carousels_embeddings`: embeddings de conteúdo social para análises internas.
+### Primary tables
 
-### Lead & CRM
+- `blog_posts`
+- `blog_categories`
+
+### Important fields in `blog_posts`
+
+- `title`
+- `slug`
+- `excerpt`
+- `content`
+- `status`
+- `featured_image`
+- `hero_image_url`
+- `seo_title`
+- `seo_description`
+- `keywords`
+- `tags`
+- `published_at`
+- `metadata`
+
+### Expected editorial metadata
+
+- `icp_primary`
+- `icp_secondary`
+- `pillar_keyword`
+- `entity_keywords`
+- `cta_mode`
+- approval/publication helper fields
+
+## 3. CRM and Leads
+
+### Primary table
 
 - `contact_leads`
-- `lead_analytics_detailed`
-- `admin_permissions`
-- `daily_tasks`
 
-### Analytics
+### Typical fields
 
+- `name`
+- `email`
+- `company`
+- `status`
+- `priority`
+- `source`
+- `lead_score`
+- `score_breakdown`
+- `technical_requirements`
+- `created_at`
+- `updated_at`
+
+## 4. Analytics and Reporting
+
+### Primary tables
+
+- `linkedin_analytics`
+- `linkedin_analytics_daily`
 - `analytics_events`
 - `blog_analytics`
 - `lead_behavior_logs`
-- `linkedin_analytics_daily` (snapshot operacional via Unipile)
-- `linkedin_analytics` (importação normalizada de CSV do LinkedIn)
 
-### Blog Hero Contract
+### Notes
 
-- Campo legado/canônico atual: `featured_image`
-- Campo de contrato 2026: `hero_image_url`
-- Regra de alinhamento: ambos devem permanecer sincronizados para evitar regressão de telas antigas.
+- `linkedin_analytics` represents normalized CSV/XLS/XLSX imports.
+- `linkedin_analytics_daily` covers existing daily snapshots or operational integrations.
+- `blog_analytics` and `lead_behavior_logs` help connect content and behavior.
 
-## Conventions
+## 5. Technical Drawing
 
-- PK: UUID v4.
-- Timestamps: `created_at` / `updated_at` (`timestamptz`).
-- Tipagem de app: `src/integrations/supabase/types.ts`.
+### Primary table
 
-> Nota: para o schema completo e atualizado, use migrations em `supabase/migrations/` e os tipos gerados.
+- `engineering_drawing_sessions`
+
+### Purpose
+
+Persist session state, normalized document state, and metadata required for rendering and export.
+
+### Expected fields
+
+- session identifier
+- status
+- source/reference input
+- normalized document
+- artifacts/exports
+- `created_by`
+- timestamps
+
+## 6. Social Support and Visual Governance
+
+### Primary tables
+
+- `linkedin_carousels`
+- `instagram_posts`
+- `content_ideas`
+- `product_catalog`
+- `asset_embeddings`
+
+### Relevant fields in `linkedin_carousels` / `instagram_posts`
+
+- `slides` (jsonb)
+- `image_urls` (text[])
+- `caption`
+- `status`
+
+### Relevant fields per slide (`slides[n]`)
+
+- `image_url` / `imageUrl`
+- `image_variants`
+- `prev_image_urls`
+- `asset_source`
+- `selection_score`
+- `selection_reason`
+- `asset_id`
+
+### Rules
+
+- image history is append-only;
+- real assets come before AI fallback;
+- visual templates remain controlled.
+
+## 7. Knowledge and Search
+
+### Supporting tables
+
+- `knowledge_base`
+- `company_facts`
+- `ai_response_suggestions`
+- `carousels_embeddings`
+
+### Usage
+
+- technical RAG
+- structured facts
+- semantic search for content and support
+
+## 8. General Conventions
+
+- PK: UUID v4
+- timestamps: `created_at` / `updated_at` with `timestamptz`
+- app typing source: `src/integrations/supabase/types.ts`
+
+> For the full and current schema, use the migrations under `supabase/migrations/` and the generated application types.

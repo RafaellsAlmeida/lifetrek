@@ -39,7 +39,7 @@
   - [ ] `enrich_emails_super.py` - Como executar
   - [ ] Entender processo de enrichment
 - [ ] Acesso ao sistema de geração de conteúdo LinkedIn
-  - [ ] `/docs/systems/linkedin-automation.md` revisado
+  - [ ] `/docs/sectors/social-content-support.md` revisado
   - [ ] Processo de aprovação de carousels entendido
 - [ ] **LinkedIn Sales Navigator - Funcionalidades**
   - [ ] Filtros avançados (50+ opções)

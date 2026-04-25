@@ -6,6 +6,8 @@ description: Create Lifetrek brand-compliant social media content (carousels, po
 
 Use this skill when creating any visual content for Lifetrek Medical, including LinkedIn carousels, post images, or slide decks.
 
+Before choosing a layout, review `GoodPostExemples/`. The approved library is broader than four rigid templates. Use the four base families from `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` and then pick the closest approved variant from the example library.
+
 ## 1. Brand Guidelines (ALWAYS FOLLOW)
 
 Before creating ANY content, review the brand book:
@@ -33,6 +35,7 @@ Before creating ANY content, review the brand book:
 - Medical manufacturing focus
 - Precision-first, premium quality
 - High contrast, bright lighting
+- Always anchor the composition to an approved example in `GoodPostExemples/`
 
 ## 2. Required Assets
 
@@ -109,7 +112,7 @@ Write headlines and body text following:
 - Portuguese (pt-BR) unless specified otherwise
 - Short, punchy headlines (max 60 chars)
 - Body text 2-3 sentences
-- Include relevant certifications (ISO 13485, ANVISA, FDA)
+- Include only supported certifications or regulatory references (typically ISO 13485, ANVISA) when relevant
 
 ### Step 3: Visual Design
 Use `generate_image` tool with prompts like:

@@ -36,5 +36,8 @@ verify_jwt = false
 [functions.stakeholder-review-action]
 verify_jwt = false
 
+[functions.send-stakeholder-review]
+verify_jwt = false
+
 [functions.send-monthly-linkedin-reports]
 verify_jwt = false

@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { useLanguage } from "./contexts/LanguageContext";
 import { ImpersonationProvider } from "./contexts/ImpersonationContext";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -13,6 +14,7 @@ import { MobileNav } from "./components/MobileNav";
 import { PageTransition } from "./components/PageTransition";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { LoadingSpinner } from "./components/LoadingSpinner";
+import { SeoMetadata } from "./components/SeoMetadata";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AIChatbot } from "@/components/AIChatbot";
 import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
@@ -66,9 +68,22 @@ const StakeholderReviewPage = lazy(() => import("./pages/StakeholderReview/Stake
 
 const queryClient = new QueryClient();
 
+type PublicLanguage = "en" | "pt";
+
+const LocaleLayout = ({ language }: { language: PublicLanguage }) => {
+  const { setLanguage } = useLanguage();
+
+  useEffect(() => {
+    setLanguage(language);
+  }, [language, setLanguage]);
+
+  return <MainLayout />;
+};
+
 // Main Layout Wrapper
 const MainLayout = () => (
   <div className="flex flex-col min-h-screen overflow-x-hidden">
+    <SeoMetadata />
     <Header />
     <main className="flex-1 w-full">
       <PageTransition>
@@ -83,6 +98,27 @@ const MainLayout = () => (
   </div>
 );
 
+const publicRoutes = [
+  { path: "/", element: <Home /> },
+  { path: "/about", element: <About /> },
+  { path: "/what-we-do", element: <WhatWeDo /> },
+  { path: "/products", element: <Products /> },
+  { path: "/capabilities", element: <Capabilities /> },
+  { path: "/calc", element: <TCOCalculator /> },
+  { path: "/clients", element: <Clients /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/assessment", element: <Assessment /> },
+  { path: "/calculator", element: <Calculator /> },
+  { path: "/product-catalog", element: <ProductCatalog /> },
+  { path: "/pitch-deck", element: <PitchDeck /> },
+  { path: "/blog", element: <Blog /> },
+  { path: "/resources", element: <Resources /> },
+  { path: "/resources/fatigue-validation-guide", element: <FatigueValidationGuide /> },
+  { path: "/resources/:slug", element: <ResourceDetail /> },
+  { path: "/blog/:slug", element: <BlogPostDetails /> },
+  { path: "*", element: <NotFound /> },
+];
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -94,26 +130,32 @@ const App = () => (
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Routes>
                 {/* Public Routes with Main Layout */}
-                <Route element={<MainLayout />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/what-we-do" element={<WhatWeDo />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/capabilities" element={<Capabilities />} />
-                  <Route path="/calc" element={<TCOCalculator />} />
-                  <Route path="/clients" element={<Clients />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/assessment" element={<Assessment />} />
-                  <Route path="/calculator" element={<Calculator />} />
-                  <Route path="/product-catalog" element={<ProductCatalog />} />
-                  <Route path="/pitch-deck" element={<PitchDeck />} />
-                  <Route path="/blog" element={<Blog />} />
+                <Route element={<LocaleLayout language="pt" />}>
+                  {publicRoutes.map((route) => (
+                    <Route key={`default-${route.path}`} path={route.path} element={route.element} />
+                  ))}
+                </Route>
 
-                  <Route path="/resources" element={<Resources />} />
-                  <Route path="/resources/fatigue-validation-guide" element={<FatigueValidationGuide />} />
-                  <Route path="/resources/:slug" element={<ResourceDetail />} />
-                  <Route path="/blog/:slug" element={<BlogPostDetails />} />
-                  <Route path="*" element={<NotFound />} />
+                <Route path="/en" element={<LocaleLayout language="en" />}>
+                  {publicRoutes.map((route) => (
+                    <Route
+                      key={`en-${route.path}`}
+                      index={route.path === "/"}
+                      path={route.path === "/" ? undefined : route.path.replace(/^\//, "")}
+                      element={route.element}
+                    />
+                  ))}
+                </Route>
+
+                <Route path="/pt" element={<LocaleLayout language="pt" />}>
+                  {publicRoutes.map((route) => (
+                    <Route
+                      key={`pt-${route.path}`}
+                      index={route.path === "/"}
+                      path={route.path === "/" ? undefined : route.path.replace(/^\//, "")}
+                      element={route.element}
+                    />
+                  ))}
                 </Route>
 
                 {/* Admin Routes */}

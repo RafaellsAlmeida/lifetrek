@@ -10,6 +10,7 @@
     "dev": "vite",
     "dev:web": "vite",
     "build": "vite build",
+    "send:approval-email": "npx --yes tsx --env-file=.env scripts/send_manual_approval_email.ts",
     "generate:sitemap": "npx tsx scripts/generate-sitemap.ts",
     "build:dev": "vite build --mode development",
     "lint": "eslint --config ./config/eslint.config.js .",
