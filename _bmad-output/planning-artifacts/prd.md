@@ -5,7 +5,7 @@ status: 'complete'
 completedAt: '2026-04-23'
 inputDocuments:
   - _bmad-output/project-context.md
-  - docs/bmad-standard-documentation-pt.md
+  - docs/bmad-standard-documentation.md
   - docs/project-overview.md
   - docs/api-contracts.md
   - docs/data-models.md
@@ -294,5 +294,6 @@ This PRD is the source document for:
 1. `_bmad-output/planning-artifacts/architecture.md`
 2. `_bmad-output/planning-artifacts/ux-design-specification.md`
 3. `_bmad-output/planning-artifacts/epics.md`
-4. `docs/bmad-standard-documentation-pt.md`
-5. `docs/sectors/*.md`
+4. `docs/bmad-standard-documentation.md`
+5. `docs/bmad-standard-documentation-pt.md`
+6. `docs/sectors/*.md`

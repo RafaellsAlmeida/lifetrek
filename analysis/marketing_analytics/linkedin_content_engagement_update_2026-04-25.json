@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-04-25",
+  "source_files": [
+    "Downloaded_Lifetrek_Files/lifetrek-medical_content_1777119153008.xls"
+  ],
+  "source_notes": [
+    "Daily export covers 2026-03-25 through 2026-04-23.",
+    "Post-level Apr 24 row was manually supplied in the user prompt because it is not present in the xls export yet.",
+    "LinkedIn export states data can be delayed by up to 2 days."
+  ],
+  "daily_windows": {
+    "2026-04-01_to_2026-04-13": {
+      "days": 13,
+      "impressions": 923,
+      "unique_impressions": 420,
+      "clicks": 57,
+      "ctr_pct": 6.18,
+      "reactions": 26,
+      "comments": 0,
+      "reposts": 0,
+      "engagement_rate_pct": 8.99,
+      "impressions_per_day": 71.0,
+      "clicks_per_day": 4.38
+    },
+    "2026-04-14_to_2026-04-23": {
+      "days": 10,
+      "impressions": 1504,
+      "unique_impressions": 697,
+      "clicks": 143,
+      "ctr_pct": 9.51,
+      "reactions": 55,
+      "comments": 0,
+      "reposts": 0,
+      "engagement_rate_pct": 13.16,
+      "impressions_per_day": 150.4,
+      "clicks_per_day": 14.3
+    },
+    "2026-04-01_to_2026-04-23": {
+      "days": 23,
+      "impressions": 2427,
+      "unique_impressions": 1117,
+      "clicks": 200,
+      "ctr_pct": 8.24,
+      "reactions": 81,
+      "comments": 0,
+      "reposts": 0,
+      "engagement_rate_pct": 11.58,
+      "impressions_per_day": 105.52,
+      "clicks_per_day": 8.7
+    }
+  },
+  "growth_after_apr_13": {
+    "impressions_per_day_pct": 111.83,
+    "clicks_per_day_pct": 226.32,
+    "ctr_percentage_point_change": 3.33,
+    "engagement_rate_percentage_point_change": 4.17
+  },
+  "current_post_totals": {
+    "posts": 5,
+    "impressions": 1366,
+    "clicks": 144,
+    "weighted_ctr_pct": 10.54,
+    "reactions": 58,
+    "comments": 0,
+    "reposts": 0,
+    "weighted_engagement_rate_pct": 14.79
+  },
+  "best_categories": [
+    {
+      "category": "Capacity / predictable manufacturing",
+      "posts": 1,
+      "impressions": 796,
+      "clicks": 91,
+      "weighted_ctr_pct": 11.43,
+      "reactions": 33,
+      "weighted_engagement_rate_pct": 15.58,
+      "pattern": "Best reach engine; ties process discipline to production continuity."
+    },
+    {
+      "category": "Integrated OEM kits / supplier-risk reduction",
+      "posts": 1,
+      "impressions": 44,
+      "clicks": 9,
+      "weighted_ctr_pct": 20.45,
+      "reactions": 5,
+      "weighted_engagement_rate_pct": 31.82,
+      "pattern": "Highest intent density; strong handoff, traceability, and audit-risk framing."
+    },
+    {
+      "category": "Product engineering tradeoff",
+      "posts": 1,
+      "impressions": 128,
+      "clicks": 19,
+      "weighted_ctr_pct": 14.84,
+      "reactions": 8,
+      "weighted_engagement_rate_pct": 21.09,
+      "pattern": "Specific engineering choice performs better than generic education."
+    },
+    {
+      "category": "Dimensional validation / metrology",
+      "posts": 2,
+      "impressions": 398,
+      "clicks": 25,
+      "weighted_ctr_pct": 6.28,
+      "reactions": 12,
+      "weighted_engagement_rate_pct": 9.3,
+      "pattern": "Reliable but weaker; needs cost/risk hooks around NCs, receiving inspection, and lot release."
+    }
+  ]
+}

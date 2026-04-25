@@ -122,13 +122,15 @@ Remotion and older video-related assets may still exist in the repository. Treat
 
 1. `_bmad-output/project-context.md`
 2. `_bmad-output/planning-artifacts/*.md`
-3. `docs/bmad-standard-documentation-pt.md`
-4. `docs/sectors/*.md`
-5. specialized operational docs under `docs/`
+3. `docs/bmad-standard-documentation.md`
+4. `docs/bmad-standard-documentation-pt.md`
+5. `docs/sectors/*.md`
+6. specialized operational docs under `docs/`
 
 ### Documentation Shape
 
-- Keep one master standard document for the whole product.
+- Keep one English master standard for agents/internal work.
+- Keep one Portuguese master standard for stakeholder-facing sharing.
 - Keep separate sector docs for Approval, Blog, CRM, Analytics, Technical Drawing, and Social Support.
 - Old visual-first or video-first docs should be explicitly marked as support, legacy, or archived.
 

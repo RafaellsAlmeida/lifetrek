@@ -25,11 +25,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Resources() {
+    const { language } = useLanguage();
     const { data: resources, isLoading, error } = useResources(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("all");
+    const seo = language === "pt"
+        ? {
+            title: "Recursos Técnicos | Lifetrek Medical",
+            description: "Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical.",
+            locale: "pt_BR",
+        }
+        : {
+            title: "Technical Resources | Lifetrek Medical",
+            description: "Technical checklists, guides, and calculators for medical device manufacturing, supply chain, and engineering teams.",
+            locale: "en_US",
+        };
 
     const filteredResources = resources?.filter(resource => {
         const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,21 +73,21 @@ export default function Resources() {
     return (
         <div className="min-h-screen bg-slate-50">
             <Helmet>
-                <title>Recursos Técnicos | Lifetrek Medical</title>
-                <meta name="description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+                <title>{seo.title}</title>
+                <meta name="description" content={seo.description} />
                 <meta name="robots" content="index, follow" />
                 <link rel="canonical" href="https://lifetrek-medical.com/resources" />
 
-                <meta property="og:title" content="Recursos Técnicos | Lifetrek Medical" />
-                <meta property="og:description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+                <meta property="og:title" content={seo.title} />
+                <meta property="og:description" content={seo.description} />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://lifetrek-medical.com/resources" />
-                <meta property="og:locale" content="pt_BR" />
+                <meta property="og:locale" content={seo.locale} />
                 <meta property="og:site_name" content="Lifetrek Medical" />
 
                 <meta name="twitter:card" content="summary" />
-                <meta name="twitter:title" content="Recursos Técnicos | Lifetrek Medical" />
-                <meta name="twitter:description" content="Checklists, guias e calculadoras para fabricação de dispositivos médicos. Recursos técnicos gratuitos da Lifetrek Medical." />
+                <meta name="twitter:title" content={seo.title} />
+                <meta name="twitter:description" content={seo.description} />
             </Helmet>
 
             {/* Header Section */}

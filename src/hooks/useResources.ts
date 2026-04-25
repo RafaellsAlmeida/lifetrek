@@ -3,6 +3,19 @@ import { Resource, ResourceInsert, ResourceUpdate } from "@/types/resources";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const approvalQueryKeys = [
+    ["resources"],
+    ["content_approval_items"],
+    ["content-approval-items"],
+    ["approved_content_items"],
+] as const;
+
+function invalidateResourceQueries(queryClient: ReturnType<typeof useQueryClient>) {
+    return Promise.all(
+        approvalQueryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey: [...queryKey] })),
+    );
+}
+
 export function useResources(publishedOnly = true) {
     return useQuery({
         queryKey: ["resources", publishedOnly],
@@ -56,7 +69,7 @@ export function useCreateResource() {
             return data as Resource;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["resources"] });
+            void invalidateResourceQueries(queryClient);
             toast.success("Recurso criado com sucesso!");
         },
         onError: (error) => {
@@ -82,7 +95,7 @@ export function useUpdateResource() {
             return data as Resource;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["resources"] });
+            void invalidateResourceQueries(queryClient);
             toast.success("Recurso atualizado com sucesso!");
         },
         onError: (error) => {
@@ -105,12 +118,58 @@ export function useDeleteResource() {
             if (error) throw error;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["resources"] });
+            void invalidateResourceQueries(queryClient);
             toast.success("Recurso excluído com sucesso!");
         },
         onError: (error) => {
             console.error("Error deleting resource:", error);
             toast.error("Erro ao excluir recurso");
+        },
+    });
+}
+
+export function usePublishResource() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data: currentResource, error: fetchError } = await supabase
+                .from("resources")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+            if (fetchError) throw fetchError;
+            if (!currentResource?.content?.trim()) {
+                throw new Error("Preencha o conteúdo do recurso antes de publicar.");
+            }
+
+            const now = new Date().toISOString();
+            const metadata = ((currentResource as any)?.metadata || {}) as Record<string, unknown>;
+
+            const { data, error } = await supabase
+                .from("resources")
+                .update({
+                    status: "published",
+                    metadata: {
+                        ...metadata,
+                        published_at: now,
+                    },
+                } as any)
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data as Resource;
+        },
+        onSuccess: () => {
+            void invalidateResourceQueries(queryClient);
+            toast.success("Recurso publicado com sucesso!");
+        },
+        onError: (error) => {
+            console.error("Error publishing resource:", error);
+            toast.error("Erro ao publicar recurso");
         },
     });
 }

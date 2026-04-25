@@ -6,7 +6,7 @@ completedAt: '2026-04-23'
 inputDocuments:
   - _bmad-output/project-context.md
   - _bmad-output/planning-artifacts/prd.md
-  - docs/bmad-standard-documentation-pt.md
+  - docs/bmad-standard-documentation.md
   - docs/api-contracts.md
   - docs/data-models.md
 workflowType: 'architecture'

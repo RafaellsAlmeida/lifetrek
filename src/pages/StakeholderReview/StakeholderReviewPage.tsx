@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useParams, useSearchParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 
 import logo from "@/assets/logo-optimized.webp";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -63,6 +64,7 @@ type DraftState = {
   caption: string;
   title: string;
   excerpt: string;
+  content: string;
   slides: ReviewItemSlide[];
 };
 
@@ -75,6 +77,10 @@ type ActionResponse = {
     already_reviewed?: boolean;
   };
 };
+
+function isLikelyHtml(content: string): boolean {
+  return /<\/?[a-z][\s\S]*>/i.test(content);
+}
 
 class ReviewRequestError extends Error {
   status: number;
@@ -149,6 +155,7 @@ function createDefaultDraft(item: ReviewItem): DraftState {
     caption: item.content_type === "blog_post" ? "" : item.caption,
     title: item.content_type === "blog_post" ? item.title : "",
     excerpt: item.content_type === "blog_post" ? item.caption : "",
+    content: item.content_type === "blog_post" ? item.content ?? "" : "",
     slides: item.slides.map((slide) => ({ ...slide })),
   };
 }
@@ -356,6 +363,7 @@ export default function StakeholderReviewPage() {
           caption: "",
           title: "",
           excerpt: "",
+          content: "",
           slides: [],
         },
       ),
@@ -431,6 +439,8 @@ export default function StakeholderReviewPage() {
         ? {
             title: draft.title.trim(),
             excerpt: draft.excerpt.trim(),
+            content: draft.content.trim(),
+            comment: draft.comment.trim(),
           }
         : {
             caption: draft.caption.trim(),
@@ -608,6 +618,7 @@ export default function StakeholderReviewPage() {
               const isSubmitting = submittingItemId === item.item_id;
               const expandedMode = expandedModes[item.item_id] ?? "none";
               const draft = drafts[item.item_id] ?? createDefaultDraft(item);
+              const isBlogPost = item.content_type === "blog_post";
 
               return (
                 <section
@@ -622,7 +633,8 @@ export default function StakeholderReviewPage() {
                       : "border-white/70",
                   )}
                 >
-                  <div className="flex flex-col gap-5 lg:flex-row">
+                  <div className={cn("flex flex-col gap-5", isBlogPost ? "" : "lg:flex-row")}>
+                    {!isBlogPost ? (
                     <div className="w-full shrink-0 lg:w-[170px]">
                       {item.thumbnail_url ? (
                         <img
@@ -639,6 +651,7 @@ export default function StakeholderReviewPage() {
                         </div>
                       )}
                     </div>
+                    ) : null}
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
@@ -699,12 +712,18 @@ export default function StakeholderReviewPage() {
                       {item.content && item.content_type === "blog_post" ? (
                         <div className="mt-5 rounded-[24px] border border-[#E3ECF6] bg-[#FBFCFE] p-4">
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                            Conteúdo do Artigo
+                            Conteúdo completo do artigo
                           </p>
-                          <div
-                            className="prose prose-sm prose-slate mt-4 max-w-none break-words"
-                            dangerouslySetInnerHTML={{ __html: item.content }}
-                          />
+                          {isLikelyHtml(item.content) ? (
+                            <div
+                              className="prose prose-sm prose-slate mt-4 max-w-none break-words"
+                              dangerouslySetInnerHTML={{ __html: item.content }}
+                            />
+                          ) : (
+                            <div className="prose prose-sm prose-slate mt-4 max-w-none break-words">
+                              <ReactMarkdown>{item.content}</ReactMarkdown>
+                            </div>
+                          )}
                         </div>
                       ) : null}
 
@@ -752,7 +771,7 @@ export default function StakeholderReviewPage() {
                               onClick={() => toggleMode(item, "edit")}
                             >
                               <PencilLine className="h-4 w-4" />
-                              Editar cópia
+                              Sugerir ajustes
                             </Button>
                           </div>
 
@@ -797,13 +816,29 @@ export default function StakeholderReviewPage() {
 
                           {expandedMode === "edit" ? (
                             <div className="mt-5 rounded-[24px] border border-[#DCE6F5] bg-[#F8FBFF] p-4">
-                              <p className="text-sm font-semibold text-slate-900">Sugestão de cópia</p>
+                              <p className="text-sm font-semibold text-slate-900">Sugestão de ajustes</p>
                               <p className="mt-1 text-sm text-slate-600">
-                                Envie a versão sugerida. O item será travado como revisado depois do envio.
+                                Envie observações ou uma versão sugerida. O item será travado como revisado depois do envio.
                               </p>
 
                               {item.content_type === "blog_post" ? (
                                 <div className="mt-4 space-y-4">
+                                  <div>
+                                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                                      Comentário para Rafael
+                                    </label>
+                                    <Textarea
+                                      className="min-h-[96px] bg-white text-sm"
+                                      placeholder="Ex.: aprovo o tema, mas ajustaria a chamada inicial e removeria o trecho sobre..."
+                                      value={draft.comment}
+                                      onChange={(event) =>
+                                        updateDraft(item.item_id, (current) => ({
+                                          ...current,
+                                          comment: event.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
                                   <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700">
                                       Título sugerido
@@ -829,6 +864,21 @@ export default function StakeholderReviewPage() {
                                         updateDraft(item.item_id, (current) => ({
                                           ...current,
                                           excerpt: event.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                                      Conteúdo sugerido
+                                    </label>
+                                    <Textarea
+                                      className="min-h-[360px] bg-white font-mono text-xs leading-5"
+                                      value={draft.content}
+                                      onChange={(event) =>
+                                        updateDraft(item.item_id, (current) => ({
+                                          ...current,
+                                          content: event.target.value,
                                         }))
                                       }
                                     />

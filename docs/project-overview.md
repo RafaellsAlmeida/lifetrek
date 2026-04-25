@@ -1,73 +1,74 @@
-# Visão Geral do Projeto Lifetrek
+# Project Overview: Lifetrek
 
-## Resumo Executivo
+## Executive Summary
 
-O Lifetrek é uma aplicação interna para apoiar a operação comercial técnica da Lifetrek Medical. A plataforma concentra geração e aprovação de conteúdo, blog técnico, CRM de leads, analytics e desenho técnico em um painel administrativo único.
+Lifetrek is an internal platform that supports Lifetrek Medical's technical commercial operation. The application brings content generation and approval, technical blogging, lead CRM, analytics, and technical drawing into a single admin environment.
 
-A documentação antiga descrevia o produto com forte ênfase em edição de imagem e vídeo dentro do app. Essa não é mais a direção principal. Recursos visuais continuam existindo como apoio ao conteúdo e à marca, mas o foco atual é operação, aprovação, conteúdo técnico, inteligência comercial e documentação técnica.
+Older documentation framed the product with too much emphasis on in-app image and video editing. That is no longer the right product story. Visual capabilities still exist as support for content and brand consistency, but the current focus is operations, approval, technical content, commercial intelligence, and technical documentation.
 
-Referência padrão atual: [BMAD Standard Documentation - Lifetrek PT-BR](./bmad-standard-documentation-pt.md).
+Current internal reference: [BMAD Standard Documentation - Lifetrek](./bmad-standard-documentation.md).
+Current stakeholder-facing reference: [Documentação Padrão BMAD - Lifetrek PT-BR](./bmad-standard-documentation-pt.md).
 
-## Informações Centrais
+## Core Information
 
-- **Tipo:** React SPA monolítica.
-- **Linguagem principal:** TypeScript.
-- **Arquitetura:** frontend componentizado com Supabase Backend-as-a-Service.
-- **Status:** desenvolvimento ativo com Vite/React 18.
-- **Domínio:** `lifetrek-medical.com`.
+- **Type:** monolithic React SPA
+- **Primary language:** TypeScript
+- **Architecture:** component-based frontend with Supabase Backend-as-a-Service
+- **Status:** active development with Vite/React 18
+- **Domain:** `lifetrek-medical.com`
 
-## Stack Técnica
+## Technical Stack
 
-| Categoria | Tecnologia |
+| Category | Technology |
 | --- | --- |
 | Frontend | React 18, Vite, Tailwind CSS |
 | UI | Shadcn UI, Radix UI, Framer Motion |
 | Backend | Supabase Auth, Postgres, Storage |
 | Compute | Supabase Edge Functions (Deno) |
-| Estado | TanStack Query e hooks dedicados |
-| Testes | Playwright |
-| Gráficos e visualização | Three.js, Recharts, Konva |
-| CAD técnico | OpenCascade.js/WebAssembly |
+| State | TanStack Query and dedicated hooks |
+| Testing | Playwright |
+| Graphics and visualization | Three.js, Recharts, Konva |
+| Technical CAD | OpenCascade.js/WebAssembly |
 
-Remotion e fluxos de vídeo podem existir no repositório como legado ou suporte técnico, mas não devem ser apresentados como prioridade estratégica atual.
+Remotion and video-related flows may still exist in the repository as legacy or support assets, but they should not be presented as the current strategic product priority.
 
-## Usuários Principais
+## Primary User Groups
 
-1. **Representantes técnicos:** acompanham leads, conteúdo e oportunidades.
-2. **Marketing/conteúdo:** cria, edita e aprova materiais.
-3. **Stakeholders Lifetrek:** revisam conteúdo por email e página pública.
-4. **Engenharia/operação técnica:** usa o fluxo de desenho técnico.
-5. **Administradores:** gerenciam acessos, dados e integrações.
+1. **Technical sales representatives:** track leads, content, and opportunities.
+2. **Marketing/content operators:** create, edit, and approve materials.
+3. **Lifetrek stakeholders:** review content via email and public review pages.
+4. **Engineering/technical operators:** use the technical drawing workflow.
+5. **Administrators:** manage access, data, and integrations.
 
-## Módulos Administrativos
+## Main Admin Areas
 
-- `/admin/orchestrator`: orquestração de conteúdo.
-- `/admin/content-approval`: aprovação interna e envio para stakeholders.
-- `/admin/blog`: blog generator/editor.
-- `/admin/leads`: CRM de leads.
-- `/admin/analytics`: analytics unificado.
-- `/admin/desenho-tecnico`: desenho técnico.
-- `/admin/social`: social workspace e suporte visual.
-- `/review/:token`: página pública de aprovação por email.
+- `/admin/orchestrator`: content orchestration
+- `/admin/content-approval`: internal approval and stakeholder sends
+- `/admin/blog`: blog generator/editor
+- `/admin/leads`: lead CRM
+- `/admin/analytics`: unified analytics
+- `/admin/desenho-tecnico`: technical drawing
+- `/admin/social`: social workspace and visual support
+- `/review/:token`: public approval page
 
-## Capacidades Atuais
+## Current Capabilities
 
-### Aprovação por email
+### Email Approval
 
-O sistema envia lotes de conteúdo para stakeholders por email, com links públicos seguros. Os revisores podem aprovar, rejeitar ou sugerir edições sem acessar o painel administrativo.
+The system sends content batches to stakeholders by email through secure public links. Reviewers can approve, reject, or suggest edits without accessing the admin panel.
 
-Arquivos relevantes:
+Relevant files:
 
 - `src/components/admin/content/SendReviewModal.tsx`
 - `supabase/functions/send-stakeholder-review/index.ts`
 - `supabase/functions/stakeholder-review-action/index.ts`
 - `supabase/functions/_shared/stakeholderReviewEmail.ts`
 
-### Blog técnico
+### Technical Blog
 
-O blog combina geração assistida, edição, SEO, aprovação e publicação. O editor administra ICP, palavra-chave pilar, entity keywords, CTA, resumo, SEO title e SEO description.
+The blog combines assisted generation, editing, SEO, approval, and publication. The editor manages ICP, pillar keyword, entity keywords, CTA, summary, SEO title, and SEO description.
 
-Arquivos relevantes:
+Relevant files:
 
 - `src/pages/Admin/AdminBlog.tsx`
 - `src/hooks/useBlogPosts.ts`
@@ -76,9 +77,9 @@ Arquivos relevantes:
 
 ### CRM
 
-O CRM gerencia leads por status, prioridade, origem e empresa. Inclui importação/exportação CSV, atualização em tempo real e visão de pipeline.
+The CRM manages leads by status, priority, source, and company. It includes CSV import/export, realtime updates, and a pipeline view.
 
-Arquivos relevantes:
+Relevant files:
 
 - `src/pages/AdminLeads.tsx`
 - `src/components/admin/LeadsCRMBoard.tsx`
@@ -87,20 +88,20 @@ Arquivos relevantes:
 
 ### Analytics
 
-O analytics unificado consolida website, conteúdo LinkedIn, leads e relatórios mensais. A importação LinkedIn aceita CSV/XLS/XLSX e normaliza métricas para consulta no painel.
+Unified analytics consolidates website, LinkedIn content, leads, and monthly reporting. LinkedIn import accepts CSV/XLS/XLSX and normalizes metrics for admin reporting.
 
-Arquivos relevantes:
+Relevant files:
 
 - `src/pages/Admin/UnifiedAnalytics.tsx`
 - `src/components/admin/analytics/LinkedInCsvUploadPanel.tsx`
 - `src/components/admin/analytics/ImportedAnalyticsSummary.tsx`
 - `supabase/functions/ingest-linkedin-analytics/index.ts`
 
-### Desenho técnico
+### Technical Drawing
 
-O fluxo de desenho técnico permite avançar de croqui ou referência para documento normalizado, validação, desenho 2D, folha A3, visualização 3D e exportação STEP.
+The technical drawing flow allows users to move from sketch or reference input to a normalized document, validation, 2D drawing, A3 sheet, 3D preview, and STEP export.
 
-Arquivos relevantes:
+Relevant files:
 
 - `src/components/admin/engineering/TechnicalDrawingCore.tsx`
 - `src/components/admin/engineering/EngineeringDrawing3DPreview.tsx`
@@ -108,13 +109,13 @@ Arquivos relevantes:
 - `src/lib/engineering-drawing/svg-renderer.ts`
 - `supabase/functions/engineering-drawing/index.ts`
 
-### Conteúdo e visual de apoio
+### Content and Visual Support
 
-O social workspace e o orquestrador continuam importantes para criação e revisão de conteúdo. Recursos de imagem devem seguir templates aprovados, usar fotos reais da Lifetrek e preservar histórico de variantes. Eles não são o centro do produto.
+The social workspace and orchestrator remain relevant for content creation and review. Visual resources must follow approved templates, use real Lifetrek photos, and preserve variant history. They are not the center of the product.
 
-## Documentação BMAD
+## BMAD Documentation
 
-Para o ciclo atual, `_bmad-output/` segue como fonte canônica de planejamento e implementação. `docs/` funciona como navegação e documentação operacional.
+For the current cycle, `_bmad-output/` remains the canonical source for planning and implementation. `docs/` serves as navigation and operational documentation.
 
 - [Project Context AI Rules](../_bmad-output/project-context.md)
 - [BMAD PRD](../_bmad-output/planning-artifacts/prd.md)
@@ -122,9 +123,10 @@ Para o ciclo atual, `_bmad-output/` segue como fonte canônica de planejamento e
 - [BMAD UX Design Specification](../_bmad-output/planning-artifacts/ux-design-specification.md)
 - [BMAD Epics](../_bmad-output/planning-artifacts/epics.md)
 - [BMAD Sprint Status](../_bmad-output/implementation-artifacts/sprint-status.yaml)
-- [BMAD Standard Documentation - PT-BR](./bmad-standard-documentation-pt.md)
+- [BMAD Standard Documentation - Lifetrek](./bmad-standard-documentation.md)
+- [Documentação Padrão BMAD - PT-BR](./bmad-standard-documentation-pt.md)
 
-## Documentação por Setor
+## Stakeholder-Facing Sector Docs
 
 - [Aprovação e Publicação](./sectors/approval-and-publishing.md)
 - [Blog e Editorial](./sectors/blog-and-editorial.md)
@@ -133,14 +135,14 @@ Para o ciclo atual, `_bmad-output/` segue como fonte canônica de planejamento e
 - [Desenho Técnico](./sectors/technical-drawing.md)
 - [Suporte Social e Governança Visual](./sectors/social-content-support.md)
 
-## Acesso Administrativo
+## Admin Access
 
-Use as credenciais de teste documentadas no guia interno do projeto. Não replique senhas em documentação compartilhável fora do repositório.
+Use the test credentials documented in the internal project guide. Do not replicate passwords in shareable documentation outside the repository.
 
-## Prioridade Atual
+## Current Priority Order
 
-1. Consolidar aprovação por email como fluxo confiável.
-2. Evoluir o blog generator/editor para alta qualidade editorial e SEO técnico.
-3. Fortalecer CRM e analytics como base de decisões comerciais.
-4. Polir o desenho técnico como diferencial operacional.
-5. Manter geração visual como suporte controlado, não como promessa central.
+1. Consolidate email approval as a reliable workflow.
+2. Improve blog generator/editor quality and technical SEO.
+3. Strengthen CRM and analytics as decision systems.
+4. Polish technical drawing as an operational differentiator.
+5. Keep visual generation as controlled support, not as the central product promise.

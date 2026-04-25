@@ -8,10 +8,11 @@ Transformar o blog em um sistema editorial técnico, com geração assistida, ed
 
 1. Definir tema, ICP e palavra-chave pilar.
 2. Gerar rascunho com `generate-blog-post`.
-3. Editar artigo em `/admin/blog`.
-4. Ajustar SEO, CTA, entidades e tags.
-5. Passar por aprovação.
-6. Publicar com rastreabilidade.
+3. Editar artigo em `/admin/blog` no workspace editorial.
+4. Ajustar corpo do texto, SEO, CTA, entidades e tags no painel lateral.
+5. Validar o preview antes de salvar ou publicar.
+6. Passar por aprovação.
+7. Publicar com rastreabilidade.
 
 ## Rota principal
 
@@ -20,6 +21,7 @@ Transformar o blog em um sistema editorial técnico, com geração assistida, ed
 ## Componentes e funções principais
 
 - `src/pages/Admin/AdminBlog.tsx`
+- `src/components/admin/content/EditorialWorkspace.tsx`
 - `src/hooks/useBlogPosts.ts`
 - `src/types/blog.ts`
 - `supabase/functions/generate-blog-post/index.ts`
@@ -58,7 +60,17 @@ Organiza temas editoriais.
 - Tom técnico e direto.
 - Clareza antes de floreio.
 - SEO técnico sem parecer texto promocional vazio.
+- Conteúdo no centro do editor; metadados, SEO, ICP e CTA no painel lateral.
+- Preview obrigatório no workspace antes de publicação quando houver mudança significativa.
 - Revisão humana obrigatória antes de publicação.
+
+## Padrão do workspace editorial
+
+- Blog usa edição HTML visual porque a página pública renderiza `blog_posts.content` como HTML.
+- Recursos usam Markdown porque `/resources/:slug` renderiza `resources.content` com `ReactMarkdown`.
+- O workspace deve manter canvas de edição, toolbar, painel lateral de controle editorial, estatísticas de leitura e aba de preview.
+- As ações `Salvar` e `Publicar` devem persistir no Supabase e invalidar as queries de aprovação/listagem.
+- Deep links vindos da aprovação devem preservar `returnTo` e `stateKey` no retorno.
 
 ## Regras de aprovação
 

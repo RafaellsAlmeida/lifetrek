@@ -13,6 +13,7 @@ import { MobileNav } from "./components/MobileNav";
 import { PageTransition } from "./components/PageTransition";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { LoadingSpinner } from "./components/LoadingSpinner";
+import { SeoMetadata } from "./components/SeoMetadata";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AIChatbot } from "@/components/AIChatbot";
 import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
@@ -69,6 +70,7 @@ const queryClient = new QueryClient();
 // Main Layout Wrapper
 const MainLayout = () => (
   <div className="flex flex-col min-h-screen overflow-x-hidden">
+    <SeoMetadata />
     <Header />
     <main className="flex-1 w-full">
       <PageTransition>

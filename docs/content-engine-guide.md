@@ -1,14 +1,14 @@
-# Guia do Content Engine (LinkedIn & Instagram)
+# Content Engine Guide (LinkedIn & Instagram)
 
-Este documento descreve o pipeline de conteúdo e a lógica de seleção inteligente de fundo (asset real vs IA), além do fluxo de override manual no UI.
+This document describes the content pipeline, smart background selection logic (real asset vs AI), and the manual visual override flow in the UI.
 
-**Nota de escopo (2026-04-23):** este guia cobre suporte visual para conteúdo social. Ele não deve ser usado para posicionar o Lifetrek como editor avançado de imagem ou vídeo dentro do app. A prioridade atual do produto é aprovação por email, blog técnico, CRM, analytics e desenho técnico; imagem continua como apoio de marca e conteúdo.
+**Scope note (2026-04-23):** this guide covers visual support for social content. It should not be used to position Lifetrek as an advanced in-app image or video editor. The current product priority is email approval, technical blogging, CRM, analytics, and technical drawing; visuals remain a brand/content support layer.
 
-## Arquitetura do Pipeline
+## Pipeline Architecture
 
 ```mermaid
 graph TD
-    A[Usuário/Admin] -->|Tópico + Contexto| B(Strategist Agent)
+    A[User/Admin] -->|Topic + Context| B(Strategist Agent)
     B --> C(Copywriter Agent)
     C --> D(Designer Agent)
     D --> E(Compositor Agent)
@@ -16,125 +16,138 @@ graph TD
     F --> G[(linkedin_carousels / instagram_posts)]
 ```
 
-Resumo por agente:
-- `strategistAgent`: define narrativa e estrutura de slides.
-- `copywriterAgent`: gera headline e corpo.
-- `designerAgent`: decide imagem de fundo (real vs IA).
-- `compositorAgent`: aplica layout padrão Lifetrek (overlay, card, tipografia).
-- `brandAnalystAgent`: valida qualidade e status final (`draft`/`pending_approval`).
+Agent summary:
 
-## Playbook técnico (AI/LLM Search)
+- `strategistAgent`: defines slide narrative and structure.
+- `copywriterAgent`: generates headline and body copy.
+- `designerAgent`: chooses background direction (real vs AI).
+- `compositorAgent`: applies the standard Lifetrek layout (overlay, card, typography).
+- `brandAnalystAgent`: validates quality and final content status (`draft` / `pending_approval`).
 
-Para tópicos de infraestrutura de IA (LLM ranking, prefill-only, latência, throughput, serving), o pipeline agora injeta automaticamente um playbook baseado no case da engenharia do LinkedIn sobre SGLang (20/02/2026):
+## Technical Playbook (AI/LLM Search)
 
-- ativa no `strategistAgent` e `strategistPlansAgent` para organizar a narrativa em estágios de otimização;
-- ativa no `copywriterAgent` para reforçar tom técnico e uso responsável de métricas;
-- mantém guardrail de atribuição de benchmarks (dados reportados pela fonte, não pela Lifetrek).
+For AI infrastructure topics (LLM ranking, prefill-only, latency, throughput, serving), the pipeline now injects a playbook based on LinkedIn Engineering's SGLang case study (2026-02-20):
 
-## Decisão Inteligente de Fundo (`mode: "smart"`)
+- active in `strategistAgent` and `strategistPlansAgent` for stage-based narrative organization;
+- active in `copywriterAgent` to reinforce technical tone and responsible use of metrics;
+- preserves attribution guardrails for externally reported benchmarks.
 
-Implementado em `regenerate-carousel-images` para priorizar imagem real e usar IA somente quando necessário.
+## Smart Background Decision (`mode: "smart"`)
 
-### 1) Classificação de intenção por slide
+Implemented in `regenerate-carousel-images` to prioritize real images and use AI only when necessary.
+
+### 1) Slide Intent Classification
 
 Classes:
+
 - `company_trust`
 - `quality_machines_metrology`
 - `cleanroom_iso`
 - `vet_odonto_product`
 - `generic`
 
-### 2) Pool preferencial por intenção
+### 2) Preferred Pool by Intent
 
-- `company_trust`: facility (exterior, reception, production-overview, office).
-- `quality_machines_metrology`: equipment + facility de chão de fábrica/metrologia.
-- `cleanroom_iso`: clean-room-* + cleanroom-hero.
-- `vet_odonto_product`: product assets.
-- `generic`: todos elegíveis.
+- `company_trust`: facility (exterior, reception, production-overview, office)
+- `quality_machines_metrology`: equipment + production/metrology facility assets
+- `cleanroom_iso`: clean-room-* + cleanroom-hero
+- `vet_odonto_product`: product assets
+- `generic`: all eligible assets
 
-### 3) Score e thresholds
+### 3) Score and Thresholds
 
-Fórmula:
+Formula:
+
 - `score_final = cosine_similarity + keyword_boost + curated_boost`
-- Cap: `0.99`
-- `keyword_boost` inclui sinal lexical + alinhamento de pool por intenção (para funcionar mesmo quando embedding estiver indisponível).
+- cap: `0.99`
+- `keyword_boost` includes lexical signals and intent-pool alignment so the selector still works when embeddings are unavailable
 
-Thresholds default:
+Default thresholds:
+
 - `company_trust`: `0.68`
 - `quality_machines_metrology`: `0.66`
 - `cleanroom_iso`: `0.64`
 - `vet_odonto_product`: `0.62`
 - `generic`: `0.70`
 
-Regra:
-- se `score_final < threshold` e `allow_ai_fallback = true`, gera fundo com IA apenas para aquele slide.
+Rule:
 
-Observação operacional:
-- quando a geração de embedding falha (ex.: chave externa indisponível), o seletor continua operacional por scoring lexical/curated e ainda prioriza assets reais.
+- if `score_final < threshold` and `allow_ai_fallback = true`, AI is used only for that specific slide
 
-### 4) Anti-repetição
+Operational note:
 
-- evita repetir o mesmo fundo em slides consecutivos.
-- se o melhor candidato foi usado recentemente e há alternativa com diferença de score <= `0.03`, usa a alternativa.
+- when embedding generation fails (for example due to missing external credentials), the selector continues operating through lexical/curated scoring and still prioritizes real assets
 
-### 5) Curated overrides (hard rules)
+### 4) Anti-Repetition
 
-- `parceiro/solução completa` -> prioriza `exterior/reception/production-overview`.
-- `qualidade/máquinas/metrologia/ZEISS/CMM` -> prioriza metrologia/equipment.
-- `sala limpa/ISO 7/ANVISA/FDA` -> prioriza clean-room assets.
-- `vet/odonto` sem candidato forte -> product assets; sem product forte -> IA.
+- avoids repeating the same background in consecutive slides
+- if the best candidate was used recently and another candidate is within `0.03` score difference, the alternative is used
 
-## Ajuste Visual de Apoio no UI (Design Tab)
+### 5) Curated Overrides (Hard Rules)
 
-Tela:
+- `parceiro/solução completa` -> prioritize `exterior/reception/production-overview`
+- `qualidade/máquinas/metrologia/ZEISS/CMM` -> prioritize metrology/equipment
+- `sala limpa/ISO 7/ANVISA/FDA` -> prioritize clean-room assets
+- `vet/odonto` without a strong candidate -> use product assets; if no strong product match exists -> use AI
+
+## Visual Support in the UI (Design Tab)
+
+Screen:
+
 - `/admin/social?tab=design`
 
-Fluxo:
-1. clicar `Trocar Fundo`.
-2. usar aba `Sugestões` (rank por score/motivo) ou `Biblioteca` (filtros por categoria).
-3. clicar `Aplicar`.
-4. opcional: `Gerar com IA` somente quando não houver asset real adequado.
-5. consultar `Ver versões`.
+Flow:
 
-Persistência:
-- atualização do slide atual (`image_url` / `imageUrl`).
-- append em `image_variants` (histórico preservado).
-- atualização de `image_urls[slide_index]`.
-- metadados: `asset_source`, `selection_score`, `selection_reason`, `asset_id`.
+1. click `Trocar Fundo`
+2. use `Sugestões` (ranked by score/reason) or `Biblioteca` (category filters)
+3. click `Aplicar`
+4. optionally use `Gerar com IA` only when no real asset is good enough
+5. review `Ver versões`
 
-## APIs e Dados Novos
+Persistence:
+
+- updates the active slide (`image_url` / `imageUrl`)
+- appends into `image_variants` (history preserved)
+- updates `image_urls[slide_index]`
+- saves metadata: `asset_source`, `selection_score`, `selection_reason`, `asset_id`
+
+## New APIs and Data
 
 - Edge function `regenerate-carousel-images`:
   - `mode: "smart" | "hybrid" | "ai"`
   - `allow_ai_fallback: boolean`
-  - saída por slide: `asset_source`, `selection_score`, `selection_reason`.
-  - auth: validação manual de bearer token + permissão admin dentro da function.
+  - per-slide output: `asset_source`, `selection_score`, `selection_reason`
+  - auth: manual bearer token validation + admin permission inside the function
+
 - Edge function `set-slide-background`:
-  - override manual de 1 slide com histórico.
-  - auth: validação manual de bearer token + permissão admin dentro da function.
-- Tabela `asset_embeddings` + RPC `match_asset_candidates(...)`:
-  - índice vetorial para busca semântica de assets.
+  - single-slide manual override with history
+  - auth: manual bearer token validation + admin permission inside the function
 
-## Exemplo aplicado: "Um Parceiro. Solução Completa."
+- Table `asset_embeddings` + RPC `match_asset_candidates(...)`:
+  - vector index for semantic asset search
 
-Recomendação padrão:
+## Applied Example: "Um Parceiro. Solução Completa."
+
+Default recommendation:
+
 - slide 0: exterior/reception
 - slide 1: production-floor/water-treatment
 - slide 2: production-overview/machine context
-- slide final CTA: cleanroom-hero ou exterior institucional
+- final CTA slide: cleanroom-hero or institutional exterior
 
-Validação real (2026-03-05):
+Observed validation (2026-03-05):
+
 - Post: `instagram_posts.id = a31da9e2-367c-4c22-ba81-af7831d25976`
-- Slide 0 regenerado em `mode=smart` com `asset_source=rule_override`, `selection_score=0.81`
-- Asset escolhido: `clean-room-exterior.jpg`
-- Em seguida, override manual via `Trocar Fundo` para `reception.webp`, com histórico preservado em `image_variants`
+- Slide 0 regenerated in `mode=smart` with `asset_source=rule_override`, `selection_score=0.81`
+- Chosen asset: `clean-room-exterior.jpg`
+- Then manually overridden through `Trocar Fundo` to `reception.webp`, preserving history in `image_variants`
 
-## Referências
+## References
 
 - Decision tree (FigJam): `https://www.figma.com/online-whiteboard/create-diagram/da6acd52-9110-4a34-bc3b-0da23ad8cccd`
-- Arquitetura atual vs futura (FigJam): `https://www.figma.com/online-whiteboard/create-diagram/28be3680-b190-4c49-be27-0378f8e27656`
+- Current vs future architecture (FigJam): `https://www.figma.com/online-whiteboard/create-diagram/28be3680-b190-4c49-be27-0378f8e27656`
 
-## Arquivos-chave de implementação
+## Key Implementation Files
 
 - `supabase/functions/regenerate-carousel-images/index.ts`
 - `supabase/functions/regenerate-carousel-images/handlers/smart.ts`

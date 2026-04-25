@@ -6,13 +6,15 @@ This document tracks the lead magnets surfaced on the public `/resources` route 
 ## Where They Live
 - Data source: `public.resources` in Supabase.
 - Public routes: `/resources` (list) and `/resources/:slug` (detail).
+- Admin editor: `/admin/resources`.
 - Admin approval: `/admin/content-approval` (items with `status = pending_approval`).
 
 ## Workflow
-1. Create a new record in `public.resources` with `status = pending_approval`.
+1. Create or edit a resource in `/admin/resources` with `status = pending_approval`.
 2. The item appears in Content Approval under "Recursos".
-3. Approve to publish (status becomes `published`) or reject (status becomes `rejected`).
-4. Published items render on `/resources` and `/resources/:slug`.
+3. Review Markdown body, metadata, persona, thumbnail and preview in the editorial workspace.
+4. Approve to publish (status becomes `published`) or reject (status becomes `rejected`).
+5. Published items render on `/resources` and `/resources/:slug`.
 
 ## Current Approval Cycle (P0)
 - Cycle date: `2026-02-20`
@@ -49,6 +51,12 @@ This document tracks the lead magnets surfaced on the public `/resources` route 
 | `persona` | no | Example: `Supply Chain / CFO`. |
 | `thumbnail_url` | no | Optional card image. |
 | `metadata` | no | JSON for tags or flags. |
+
+## Editorial Workspace Standard
+- Resources use Markdown in the main canvas because the public detail page renders `resources.content` with `ReactMarkdown`.
+- Metadata stays in the right panel: type, status, persona, description, thumbnail URL and JSON metadata.
+- Use `Salvar` for draft/review persistence and `Publicar` only when the public page should become live.
+- Approval deep links must preserve `returnTo` and `stateKey` after save, publish or cancel.
 
 ## Metadata Contract (Approval Quality)
 Use this minimum `metadata` contract for resources in approval:

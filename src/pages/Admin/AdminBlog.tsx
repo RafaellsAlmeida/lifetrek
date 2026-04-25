@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -22,14 +21,6 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
     Plus,
@@ -42,6 +33,11 @@ import {
     Loader2,
     ArrowLeft,
 } from "lucide-react";
+import {
+    EditorialWorkspace,
+    MetadataField,
+    MetadataInput,
+} from "@/components/admin/content/EditorialWorkspace";
 import {
     useBlogPosts,
     useCreateBlogPost,
@@ -163,7 +159,7 @@ export default function AdminBlog() {
         const next = new URLSearchParams(searchParams);
         next.delete("edit");
         setSearchParams(next, { replace: true });
-    }, [searchParams, posts]);
+    }, [searchParams, posts, setSearchParams]);
 
     const openEditor = (post?: BlogPost) => {
         if (post) {
@@ -218,18 +214,18 @@ export default function AdminBlog() {
         }));
     };
 
-    const handleSaveEditor = async () => {
+    const buildEditorPayload = (forcedStatus?: BlogPost["status"]) => {
         if (!editor.title.trim() || !editor.content.trim()) {
             toast.error("Título e conteúdo são obrigatórios.");
-            return;
+            return null;
         }
 
-        const payload = {
+        return {
             title: editor.title.trim(),
             slug: editor.slug.trim() || generateSlug(editor.title),
             excerpt: editor.excerpt.trim() || null,
             content: editor.content,
-            status: editor.status,
+            status: forcedStatus || editor.status,
             seo_title: editor.seo_title.trim() || null,
             seo_description: editor.seo_description.trim() || null,
             keywords: splitCsv(editor.keywords_csv),
@@ -243,18 +239,66 @@ export default function AdminBlog() {
                 cta_mode: editor.cta_mode,
             },
         } as any;
+    };
 
+    const closeEditor = () => {
+        setEditorOpen(false);
+        setEditingPostId(null);
+        setEditor(initialEditorState);
+    };
+
+    const handleEditorCancel = () => {
+        if (returnTo) {
+            handleReturnToApproval();
+            return;
+        }
+        closeEditor();
+    };
+
+    const handleSaveEditor = async () => {
+        const payload = buildEditorPayload();
+        if (!payload) return;
         try {
             if (editingPostId) {
                 await updatePost.mutateAsync({ id: editingPostId, ...payload });
             } else {
                 await createPost.mutateAsync(payload);
             }
-            setEditorOpen(false);
-            setEditingPostId(null);
-            setEditor(initialEditorState);
+            if (returnTo) {
+                handleReturnToApproval();
+                return;
+            }
+            closeEditor();
         } catch (error) {
             console.error("Error saving blog post:", error);
+        }
+    };
+
+    const handlePublishEditor = async () => {
+        const payload = buildEditorPayload("published");
+        if (!payload) return;
+        if (!payload.metadata?.icp_primary || !payload.metadata?.pillar_keyword) {
+            toast.error("Preencha ICP primário e Pillar Keyword antes de publicar.");
+            return;
+        }
+
+        try {
+            let postId = editingPostId;
+            if (postId) {
+                await updatePost.mutateAsync({ id: postId, ...payload, status: editor.status });
+            } else {
+                const created = await createPost.mutateAsync({ ...payload, status: "draft" });
+                postId = (created as any)?.id;
+            }
+            if (!postId) throw new Error("Artigo salvo sem ID retornado.");
+            await publishPost.mutateAsync(postId);
+            if (returnTo) {
+                handleReturnToApproval();
+                return;
+            }
+            closeEditor();
+        } catch (error) {
+            console.error("Error publishing blog post:", error);
         }
     };
 
@@ -321,6 +365,160 @@ export default function AdminBlog() {
             default: return <Badge>{status}</Badge>;
         }
     };
+
+    const getStatusLabel = (status: BlogPost["status"]) => {
+        switch (status) {
+            case "published": return "Publicado";
+            case "scheduled": return "Agendado";
+            case "approved":
+            case "admin_approved": return "Aprovado";
+            case "draft": return "Rascunho";
+            case "pending_review": return "Revisão";
+            case "rejected": return "Rejeitado";
+            case "stakeholder_review_pending": return "Revisão stakeholder";
+            case "stakeholder_approved": return "Aprovado stakeholder";
+            case "stakeholder_rejected": return "Rejeitado stakeholder";
+            default: return status;
+        }
+    };
+
+    const getStatusTone = (status: BlogPost["status"]) => {
+        if (status === "published" || status === "stakeholder_approved") return "published";
+        if (status === "pending_review" || status === "approved" || status === "stakeholder_review_pending") return "review";
+        if (status === "draft") return "draft";
+        return "default";
+    };
+
+    if (editorOpen) {
+        return (
+            <div className="container mx-auto p-6">
+                <EditorialWorkspace
+                    mode="html"
+                    title={editingPostId ? "Editar artigo" : "Novo artigo"}
+                    subtitle="Editor visual para texto, SEO, ICP e publicação do blog."
+                    statusLabel={getStatusLabel(editor.status)}
+                    statusTone={getStatusTone(editor.status)}
+                    documentTitle={editor.title}
+                    documentSubtitle={editor.excerpt}
+                    content={editor.content}
+                    onContentChange={(content) => setEditor((prev) => ({ ...prev, content }))}
+                    onCancel={handleEditorCancel}
+                    onSave={handleSaveEditor}
+                    onPublish={handlePublishEditor}
+                    isSaving={isSavingEditor || publishPost.isPending}
+                    publishDisabled={!editor.title.trim() || !editor.content.trim()}
+                    metadata={
+                        <>
+                            <MetadataField label="Título">
+                                <MetadataInput id="blog-title" value={editor.title} onChange={(e) => handleEditorTitleChange(e.target.value)} />
+                            </MetadataField>
+                            <MetadataField label="Slug">
+                                <MetadataInput
+                                    id="blog-slug"
+                                    value={editor.slug}
+                                    onChange={(e) => setEditor((prev) => ({ ...prev, slug: generateSlug(e.target.value) }))}
+                                />
+                            </MetadataField>
+                            <MetadataField label="Status">
+                                <Select value={editor.status} onValueChange={(value: BlogPost["status"]) => setEditor((prev) => ({ ...prev, status: value }))}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="draft">Rascunho</SelectItem>
+                                        <SelectItem value="pending_review">Pendente revisão</SelectItem>
+                                        <SelectItem value="approved">Aprovado</SelectItem>
+                                        <SelectItem value="scheduled">Agendado</SelectItem>
+                                        <SelectItem value="published">Publicado</SelectItem>
+                                        <SelectItem value="rejected">Rejeitado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </MetadataField>
+                            <MetadataField label="Categoria">
+                                <Select value={editor.category_id || "none"} onValueChange={(value) => setEditor((prev) => ({ ...prev, category_id: value === "none" ? "" : value }))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Sem categoria" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Sem categoria</SelectItem>
+                                        {(categories || []).map((category) => (
+                                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </MetadataField>
+                            <MetadataField label="ICP Primário">
+                                <Select
+                                    value={editor.icp_primary || "none"}
+                                    onValueChange={(value) =>
+                                        setEditor((prev) => ({ ...prev, icp_primary: value === "none" ? "" : (value as BlogIcpCode) }))
+                                    }
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione o ICP primário" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Sem ICP</SelectItem>
+                                        <SelectItem value="MI">{ICP_LABELS.MI}</SelectItem>
+                                        <SelectItem value="OD">{ICP_LABELS.OD}</SelectItem>
+                                        <SelectItem value="VT">{ICP_LABELS.VT}</SelectItem>
+                                        <SelectItem value="HS">{ICP_LABELS.HS}</SelectItem>
+                                        <SelectItem value="CM">{ICP_LABELS.CM}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </MetadataField>
+                            <MetadataField label="Resumo">
+                                <Textarea id="blog-excerpt" rows={4} value={editor.excerpt} onChange={(e) => setEditor((prev) => ({ ...prev, excerpt: e.target.value }))} />
+                            </MetadataField>
+                            <MetadataField label="SEO Title">
+                                <MetadataInput id="blog-seo-title" value={editor.seo_title} onChange={(e) => setEditor((prev) => ({ ...prev, seo_title: e.target.value }))} />
+                            </MetadataField>
+                            <MetadataField label="SEO Description">
+                                <Textarea id="blog-seo-description" rows={4} value={editor.seo_description} onChange={(e) => setEditor((prev) => ({ ...prev, seo_description: e.target.value }))} />
+                            </MetadataField>
+                            <MetadataField label="Keywords (CSV)">
+                                <MetadataInput id="blog-keywords" value={editor.keywords_csv} onChange={(e) => setEditor((prev) => ({ ...prev, keywords_csv: e.target.value }))} />
+                            </MetadataField>
+                            <MetadataField label="Pillar Keyword">
+                                <MetadataInput
+                                    id="blog-pillar-keyword"
+                                    value={editor.pillar_keyword}
+                                    onChange={(e) => setEditor((prev) => ({ ...prev, pillar_keyword: e.target.value }))}
+                                    placeholder="Ex.: usinagem cnc para implantes"
+                                />
+                            </MetadataField>
+                            <MetadataField label="Entity Keywords (CSV)">
+                                <MetadataInput
+                                    id="blog-entity-keywords"
+                                    value={editor.entity_keywords_csv}
+                                    onChange={(e) => setEditor((prev) => ({ ...prev, entity_keywords_csv: e.target.value }))}
+                                    placeholder="Ex.: ISO 13485, sala limpa ISO 7, ZEISS CMM"
+                                />
+                            </MetadataField>
+                            <MetadataField label="CTA Mode">
+                                <Select
+                                    value={editor.cta_mode}
+                                    onValueChange={(value: BlogCtaMode) => setEditor((prev) => ({ ...prev, cta_mode: value }))}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="article_only">article_only</SelectItem>
+                                        <SelectItem value="diagnostico">diagnostico</SelectItem>
+                                        <SelectItem value="resource_optional">resource_optional</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </MetadataField>
+                            <MetadataField label="Tags (CSV)">
+                                <MetadataInput id="blog-tags" value={editor.tags_csv} onChange={(e) => setEditor((prev) => ({ ...prev, tags_csv: e.target.value }))} />
+                            </MetadataField>
+                        </>
+                    }
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto p-8 space-y-8">
@@ -526,166 +724,6 @@ export default function AdminBlog() {
                 </TabsContent>
             </Tabs>
 
-            <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>{editingPostId ? "Editar Artigo" : "Novo Artigo"}</DialogTitle>
-                        <DialogDescription>
-                            Edição humana de blog posts para revisão/aprovação.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="blog-title">Título</Label>
-                            <Input id="blog-title" value={editor.title} onChange={(e) => handleEditorTitleChange(e.target.value)} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-slug">Slug</Label>
-                            <Input
-                                id="blog-slug"
-                                value={editor.slug}
-                                onChange={(e) => setEditor((prev) => ({ ...prev, slug: generateSlug(e.target.value) }))}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Status</Label>
-                            <Select value={editor.status} onValueChange={(value: BlogPost["status"]) => setEditor((prev) => ({ ...prev, status: value }))}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="draft">Rascunho</SelectItem>
-                                    <SelectItem value="pending_review">Pendente revisão</SelectItem>
-                                    <SelectItem value="approved">Aprovado</SelectItem>
-                                    <SelectItem value="scheduled">Agendado</SelectItem>
-                                    <SelectItem value="published">Publicado</SelectItem>
-                                    <SelectItem value="rejected">Rejeitado</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Categoria</Label>
-                            <Select value={editor.category_id || "none"} onValueChange={(value) => setEditor((prev) => ({ ...prev, category_id: value === "none" ? "" : value }))}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Sem categoria" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Sem categoria</SelectItem>
-                                    {(categories || []).map((category) => (
-                                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>ICP Primário</Label>
-                            <Select
-                                value={editor.icp_primary || "none"}
-                                onValueChange={(value) =>
-                                    setEditor((prev) => ({ ...prev, icp_primary: value === "none" ? "" : (value as BlogIcpCode) }))
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione o ICP primário" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Sem ICP</SelectItem>
-                                    <SelectItem value="MI">{ICP_LABELS.MI}</SelectItem>
-                                    <SelectItem value="OD">{ICP_LABELS.OD}</SelectItem>
-                                    <SelectItem value="VT">{ICP_LABELS.VT}</SelectItem>
-                                    <SelectItem value="HS">{ICP_LABELS.HS}</SelectItem>
-                                    <SelectItem value="CM">{ICP_LABELS.CM}</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-excerpt">Resumo</Label>
-                            <Textarea id="blog-excerpt" rows={3} value={editor.excerpt} onChange={(e) => setEditor((prev) => ({ ...prev, excerpt: e.target.value }))} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-seo-title">SEO Title</Label>
-                            <Input id="blog-seo-title" value={editor.seo_title} onChange={(e) => setEditor((prev) => ({ ...prev, seo_title: e.target.value }))} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-seo-description">SEO Description</Label>
-                            <Textarea id="blog-seo-description" rows={3} value={editor.seo_description} onChange={(e) => setEditor((prev) => ({ ...prev, seo_description: e.target.value }))} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-keywords">Keywords (CSV)</Label>
-                            <Input id="blog-keywords" value={editor.keywords_csv} onChange={(e) => setEditor((prev) => ({ ...prev, keywords_csv: e.target.value }))} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-pillar-keyword">Pillar Keyword</Label>
-                            <Input
-                                id="blog-pillar-keyword"
-                                value={editor.pillar_keyword}
-                                onChange={(e) => setEditor((prev) => ({ ...prev, pillar_keyword: e.target.value }))}
-                                placeholder="Ex.: usinagem cnc para implantes"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-entity-keywords">Entity Keywords (CSV)</Label>
-                            <Input
-                                id="blog-entity-keywords"
-                                value={editor.entity_keywords_csv}
-                                onChange={(e) => setEditor((prev) => ({ ...prev, entity_keywords_csv: e.target.value }))}
-                                placeholder="Ex.: ISO 13485, sala limpa ISO 7, ZEISS CMM"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>CTA Mode</Label>
-                            <Select
-                                value={editor.cta_mode}
-                                onValueChange={(value: BlogCtaMode) => setEditor((prev) => ({ ...prev, cta_mode: value }))}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="article_only">article_only</SelectItem>
-                                    <SelectItem value="diagnostico">diagnostico</SelectItem>
-                                    <SelectItem value="resource_optional">resource_optional</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="blog-tags">Tags (CSV)</Label>
-                            <Input id="blog-tags" value={editor.tags_csv} onChange={(e) => setEditor((prev) => ({ ...prev, tags_csv: e.target.value }))} />
-                        </div>
-
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="blog-content">Conteúdo</Label>
-                            <Textarea
-                                id="blog-content"
-                                rows={16}
-                                value={editor.content}
-                                onChange={(e) => setEditor((prev) => ({ ...prev, content: e.target.value }))}
-                            />
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setEditorOpen(false)} disabled={isSavingEditor}>Cancelar</Button>
-                        <Button onClick={handleSaveEditor} disabled={isSavingEditor}>
-                            {isSavingEditor ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                            {editingPostId ? "Salvar alterações" : "Criar artigo"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

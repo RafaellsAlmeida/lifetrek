@@ -62,6 +62,13 @@ function truncate(value: string, maxLength: number): string {
 }
 
 function getReviewerName(email: string): string {
+  const normalizedEmail = email.trim().toLowerCase();
+  const knownNames: Record<string, string> = {
+    "njesus@lifetrek-medical.com": "Nelson",
+    "rbianchini@lifetrek-medical.com": "Rafael",
+  };
+  if (knownNames[normalizedEmail]) return knownNames[normalizedEmail];
+
   const rawName = email.split("@")[0]?.split(".")[0] || email;
   return rawName.charAt(0).toUpperCase() + rawName.slice(1);
 }

@@ -1,22 +1,22 @@
-# Modelos de Dados: Lifetrek
+# Data Models: Lifetrek
 
-Resumo dos modelos de dados mais relevantes do produto atual, organizado por setor.
+Summary of the most relevant current product data models, organized by sector.
 
-## 1. Aprovação e Publicação
+## 1. Approval and Publishing
 
-### Tabelas principais
+### Primary tables
 
 - `stakeholder_review_batches`
 - `stakeholder_review_tokens`
 - `stakeholder_review_items`
 
-### Função das tabelas
+### Table purpose
 
-- `stakeholder_review_batches`: representa um lote enviado para revisão.
-- `stakeholder_review_tokens`: armazena token, reviewer, expiração e vínculo com lote.
-- `stakeholder_review_items`: liga cada item de conteúdo do lote ao seu estado de revisão.
+- `stakeholder_review_batches`: represents a review batch sent to stakeholders.
+- `stakeholder_review_tokens`: stores token, reviewer, expiry, and batch linkage.
+- `stakeholder_review_items`: links each content item in the batch to its review state.
 
-### Campos importantes
+### Important fields
 
 - `status`
 - `reviewer_email`
@@ -26,14 +26,14 @@ Resumo dos modelos de dados mais relevantes do produto atual, organizado por set
 - `copy_edits`
 - `reviewed_at`
 
-## 2. Blog e Editorial
+## 2. Blog and Editorial
 
-### Tabelas principais
+### Primary tables
 
 - `blog_posts`
 - `blog_categories`
 
-### Campos importantes em `blog_posts`
+### Important fields in `blog_posts`
 
 - `title`
 - `slug`
@@ -49,22 +49,22 @@ Resumo dos modelos de dados mais relevantes do produto atual, organizado por set
 - `published_at`
 - `metadata`
 
-### Metadados editoriais esperados
+### Expected editorial metadata
 
 - `icp_primary`
 - `icp_secondary`
 - `pillar_keyword`
 - `entity_keywords`
 - `cta_mode`
-- campos auxiliares de aprovação/publicação
+- approval/publication helper fields
 
-## 3. CRM e Leads
+## 3. CRM and Leads
 
-### Tabela principal
+### Primary table
 
 - `contact_leads`
 
-### Campos típicos
+### Typical fields
 
 - `name`
 - `email`
@@ -78,9 +78,9 @@ Resumo dos modelos de dados mais relevantes do produto atual, organizado por set
 - `created_at`
 - `updated_at`
 
-## 4. Analytics e Relatórios
+## 4. Analytics and Reporting
 
-### Tabelas principais
+### Primary tables
 
 - `linkedin_analytics`
 - `linkedin_analytics_daily`
@@ -88,35 +88,35 @@ Resumo dos modelos de dados mais relevantes do produto atual, organizado por set
 - `blog_analytics`
 - `lead_behavior_logs`
 
-### Observações
+### Notes
 
-- `linkedin_analytics` representa a importação normalizada via CSV/XLS/XLSX.
-- `linkedin_analytics_daily` cobre snapshots ou integrações operacionais já existentes.
-- `blog_analytics` e `lead_behavior_logs` ajudam a conectar conteúdo e comportamento.
+- `linkedin_analytics` represents normalized CSV/XLS/XLSX imports.
+- `linkedin_analytics_daily` covers existing daily snapshots or operational integrations.
+- `blog_analytics` and `lead_behavior_logs` help connect content and behavior.
 
-## 5. Desenho Técnico
+## 5. Technical Drawing
 
-### Tabela principal
+### Primary table
 
 - `engineering_drawing_sessions`
 
-### Finalidade
+### Purpose
 
-Persistir sessão, documento normalizado, estado técnico e metadados necessários para renderização e exportação.
+Persist session state, normalized document state, and metadata required for rendering and export.
 
-### Campos esperados
+### Expected fields
 
-- identificador da sessão
+- session identifier
 - status
-- referência de entrada
-- documento normalizado
-- artefatos/exportações
+- source/reference input
+- normalized document
+- artifacts/exports
 - `created_by`
 - timestamps
 
-## 6. Suporte Social e Governança Visual
+## 6. Social Support and Visual Governance
 
-### Tabelas principais
+### Primary tables
 
 - `linkedin_carousels`
 - `instagram_posts`
@@ -124,14 +124,14 @@ Persistir sessão, documento normalizado, estado técnico e metadados necessári
 - `product_catalog`
 - `asset_embeddings`
 
-### Campos relevantes em `linkedin_carousels` / `instagram_posts`
+### Relevant fields in `linkedin_carousels` / `instagram_posts`
 
 - `slides` (jsonb)
 - `image_urls` (text[])
 - `caption`
 - `status`
 
-### Campos relevantes por slide (`slides[n]`)
+### Relevant fields per slide (`slides[n]`)
 
 - `image_url` / `imageUrl`
 - `image_variants`
@@ -141,31 +141,31 @@ Persistir sessão, documento normalizado, estado técnico e metadados necessári
 - `selection_reason`
 - `asset_id`
 
-### Regras
+### Rules
 
-- histórico de imagem é append-only;
-- assets reais vêm antes do fallback com IA;
-- templates visuais permanecem controlados.
+- image history is append-only;
+- real assets come before AI fallback;
+- visual templates remain controlled.
 
-## 7. Conhecimento e Busca
+## 7. Knowledge and Search
 
-### Tabelas auxiliares
+### Supporting tables
 
 - `knowledge_base`
 - `company_facts`
 - `ai_response_suggestions`
 - `carousels_embeddings`
 
-### Uso
+### Usage
 
-- RAG técnico;
-- fatos estruturados;
-- busca semântica para apoio ao conteúdo e atendimento.
+- technical RAG
+- structured facts
+- semantic search for content and support
 
-## 8. Convenções Gerais
+## 8. General Conventions
 
 - PK: UUID v4
-- timestamps: `created_at` / `updated_at` com `timestamptz`
-- tipagem da aplicação: `src/integrations/supabase/types.ts`
+- timestamps: `created_at` / `updated_at` with `timestamptz`
+- app typing source: `src/integrations/supabase/types.ts`
 
-> Para o schema completo e atualizado, use as migrations em `supabase/migrations/` e os tipos gerados da aplicação.
+> For the full and current schema, use the migrations under `supabase/migrations/` and the generated application types.

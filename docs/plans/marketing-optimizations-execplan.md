@@ -19,8 +19,8 @@ After this change, internal users can trace LinkedIn campaign performance throug
 
 ## Surprises & Discoveries
 
-- Observation: The Social Media Workspace testing doc already referenced `/admin/social`, so no URL change was needed.
-  Evidence: `docs/testing/SOCIAL_MEDIA_WORKSPACE_TESTING_PLAN.md` already lists `http://localhost:8080/admin/social`.
+- Observation: The Social Media Workspace route was already documented as `/admin/social`, so no route correction was needed.
+  Evidence: the current documentation already pointed to the `/admin/social` route.
 
 - Observation: The `/admin/analytics` route renders `UnifiedAnalytics`, so the post performance table needed to be placed in its LinkedIn tab to be visible.
   Evidence: `src/App.tsx` routes `path="analytics"` to `UnifiedAnalytics`.
@@ -45,13 +45,13 @@ The campaign tracking columns, analytics capture enrichment, and lead-score lang
 
 ## Context and Orientation
 
-The marketing workflow spans LinkedIn carousel generation in `src/pages/LinkedInCarousel.tsx`, analytics capture in `src/utils/trackAnalytics.ts`, and reporting in admin dashboards such as `src/pages/Admin/UnifiedAnalytics.tsx` (which now renders `src/components/admin/analytics/PostPerformanceTable.tsx` under the LinkedIn tab). The database schema lives under `supabase/migrations`. The Social Media Workspace route is `/admin/social` and its test plan is in `docs/testing/SOCIAL_MEDIA_WORKSPACE_TESTING_PLAN.md`. Lead scoring appears in admin UI components like `src/components/admin/LeadDetailsModal.tsx` and in onboarding documentation under `docs/onboarding`.
+The marketing workflow spans LinkedIn carousel generation in `src/pages/LinkedInCarousel.tsx`, analytics capture in `src/utils/trackAnalytics.ts`, and reporting in admin dashboards such as `src/pages/Admin/UnifiedAnalytics.tsx` (which now renders `src/components/admin/analytics/PostPerformanceTable.tsx` under the LinkedIn tab). The database schema lives under `supabase/migrations`. The Social Media Workspace route is `/admin/social`. Lead scoring appears in admin UI components like `src/components/admin/LeadDetailsModal.tsx` and in onboarding documentation under `docs/onboarding`.
 
 The key term “campaign linkage” means that LinkedIn carousel records include a campaign identifier, and analytics events record UTM parameters and campaign identifiers so reports can correlate content to traffic or leads.
 
 ## Plan of Work
 
-First, add campaign tracking columns to the database schema and update the Supabase types to include those fields. Then, update analytics tracking to capture UTM query parameters and campaign identifiers into explicit columns rather than only the metadata JSON. Next, wire campaign identifiers into the LinkedIn carousel generation flow used by batch campaign generation, so each generated carousel is labeled with a campaign id. After that, fix the Social Media Workspace testing plan URL references and align lead-score language in UI and onboarding docs to clarify the 0–100 scale. Then, surface the `PostPerformanceTable` in the Analytics page (LinkedIn tab) and ensure the empty state renders correctly for the new campaign column. Finally, verify behavior using the local dev server and capture screenshots that show the relevant screens.
+First, add campaign tracking columns to the database schema and update the Supabase types to include those fields. Then, update analytics tracking to capture UTM query parameters and campaign identifiers into explicit columns rather than only the metadata JSON. Next, wire campaign identifiers into the LinkedIn carousel generation flow used by batch campaign generation, so each generated carousel is labeled with a campaign id. After that, fix Social Media Workspace documentation URL references and align lead-score language in UI and onboarding docs to clarify the 0–100 scale. Then, surface the `PostPerformanceTable` in the Analytics page (LinkedIn tab) and ensure the empty state renders correctly for the new campaign column. Finally, verify behavior using the local dev server and capture screenshots that show the relevant screens.
 
 ## Concrete Steps
 
@@ -63,7 +63,7 @@ First, add campaign tracking columns to the database schema and update the Supab
 
 4) Update `src/pages/LinkedInCarousel.tsx` to accept optional `campaignId`/`utmCampaign` in `autoSaveCarousel`, and pass campaign identifiers during batch generation from `src/config/linkedinCampaign.ts`.
 
-5) Update `docs/testing/SOCIAL_MEDIA_WORKSPACE_TESTING_PLAN.md` to reference `/admin/social` instead of `/admin/social-workspace`.
+5) Update documentation references to use `/admin/social` instead of `/admin/social-workspace`.
 
 6) Update lead-score wording in `docs/onboarding/IMPLEMENTATION_PLAN.md`, `docs/onboarding/ONBOARDING_CHECKLIST.md`, and UI copy where needed to clarify “0–100” scale.
 
@@ -73,7 +73,7 @@ First, add campaign tracking columns to the database schema and update the Supab
 
 ## Validation and Acceptance
 
-Start the dev server with `npm run dev:web`. Log in at `http://localhost:8080/admin/login` (or the assigned port) and open `/admin/linkedin-carousel` to ensure the page loads. Generate or open a carousel and confirm that a `campaign_id` can be stored when batch generation runs. Confirm that `trackAnalyticsEvent` inserts `utm_campaign` and related fields by inspecting logs or the database if available. Open `/admin/analytics`, switch to the LinkedIn tab, and confirm the “Performance de Posts” table renders with the “Campanha” column. Verify that the Social Media Workspace testing doc references `/admin/social`. Acceptance is achieved when the UI loads, the new columns exist in schema and types, analytics capture uses UTM columns, and the post performance table renders.
+Start the dev server with `npm run dev:web`. Log in at `http://localhost:8080/admin/login` (or the assigned port) and open `/admin/linkedin-carousel` to ensure the page loads. Generate or open a carousel and confirm that a `campaign_id` can be stored when batch generation runs. Confirm that `trackAnalyticsEvent` inserts `utm_campaign` and related fields by inspecting logs or the database if available. Open `/admin/analytics`, switch to the LinkedIn tab, and confirm the “Performance de Posts” table renders with the “Campanha” column. Verify that current documentation references `/admin/social`. Acceptance is achieved when the UI loads, the new columns exist in schema and types, analytics capture uses UTM columns, and the post performance table renders.
 
 ## Idempotence and Recovery
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type Language = "en" | "pt";
 
@@ -1100,9 +1100,34 @@ const translations = {
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LANGUAGE_STORAGE_KEY = "lifetrek_language";
+
+const getInitialLanguage = (): Language => {
+  if (typeof window === "undefined") {
+    return "en";
+  }
+
+  const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  if (savedLanguage === "en" || savedLanguage === "pt") {
+    return savedLanguage;
+  }
+
+  return window.navigator.language.toLowerCase().startsWith("pt") ? "pt" : "en";
+};
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("pt");
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    }
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = language === "pt" ? "pt-BR" : "en-US";
+  }, [language]);
 
   const t = (key: string) => {
     return translations[language][key as keyof typeof translations.en] || key;

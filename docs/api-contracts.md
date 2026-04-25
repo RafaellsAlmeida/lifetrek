@@ -1,49 +1,49 @@
-# Contratos de API: Lifetrek Backend
+# API Contracts: Lifetrek Backend
 
-Lifetrek usa Supabase Edge Functions (Deno). Este documento resume os contratos ativos mais importantes do produto atual: aprovação por email, blog, CRM, analytics e desenho técnico.
+Lifetrek uses Supabase Edge Functions (Deno). This document summarizes the most important active contracts in the current product: email approval, blog, CRM, analytics, technical drawing, and visual support.
 
-A documentação antiga priorizava geração/edição visual no Social Media Workspace. Esse fluxo agora deve ser tratado como suporte ao conteúdo, não como prioridade estratégica do produto.
+Older documentation prioritized visual generation/editing inside the Social Media Workspace. That flow is now treated as content support rather than the strategic center of the product.
 
-## Padrões Gerais
+## General Standards
 
-- Auth: bearer token obrigatório para operações administrativas.
+- Auth: bearer token required for administrative operations.
 - Content-Type: `application/json`.
-- CORS: habilitado nas functions.
-- Operações sensíveis ficam em Edge Functions, nunca diretamente no frontend.
-- Tokens públicos devem ter escopo mínimo e expiração.
-- Erro padrão:
+- CORS: enabled in the functions.
+- Sensitive operations stay in Edge Functions, never directly in the frontend.
+- Public tokens should be minimally scoped and expiring.
+- Standard error shape:
 
 ```json
-{ "success": false, "error": "mensagem" }
+{ "success": false, "error": "message" }
 ```
 
-## Aprovação por Email
+## Email Approval
 
 ### `POST /functions/v1/send-stakeholder-review`
 
-Cria um lote de revisão por stakeholder e envia emails com links seguros.
+Creates a stakeholder review batch and sends secure review emails.
 
-Request típico:
+Typical request:
 
 ```json
 {
   "post_ids": ["uuid"],
-  "notes": "Comentário opcional para os revisores"
+  "notes": "Optional comment for reviewers"
 }
 ```
 
-Comportamento:
+Behavior:
 
-- Exige usuário autenticado com permissão administrativa.
-- Valida que os conteúdos estão aprovados internamente.
-- Cria registros em `stakeholder_review_batches`.
-- Cria tokens em `stakeholder_review_tokens`.
-- Cria itens em `stakeholder_review_items`.
-- Envia email com template Lifetrek.
-- Atualiza os conteúdos para `stakeholder_review_pending`.
-- Desfaz o lote se houver falha crítica de envio.
+- Requires authenticated user with admin permission.
+- Validates that content is already internally approved.
+- Creates records in `stakeholder_review_batches`.
+- Creates tokens in `stakeholder_review_tokens`.
+- Creates items in `stakeholder_review_items`.
+- Sends email through the Lifetrek template.
+- Updates content status to `stakeholder_review_pending`.
+- Rolls back the batch if a critical send failure occurs.
 
-Response típico:
+Typical response:
 
 ```json
 {
@@ -55,15 +55,15 @@ Response típico:
 
 ### `GET|POST /functions/v1/stakeholder-review-action`
 
-Endpoint público usado pela rota `/review/:token`.
+Public endpoint used by `/review/:token`.
 
-GET com `action=fetch`:
+GET with `action=fetch`:
 
 ```text
 /functions/v1/stakeholder-review-action?token=TOKEN&action=fetch
 ```
 
-POST para decisão:
+POST for decisions:
 
 ```json
 {
@@ -75,36 +75,36 @@ POST para decisão:
 
 Actions:
 
-- `fetch`: carrega lote, reviewer e itens.
-- `approve`: aprova um item.
-- `reject`: rejeita um item com comentário.
-- `edit_suggest`: registra sugestão de edição/copy.
+- `fetch`: loads batch, reviewer, and items.
+- `approve`: approves an item.
+- `reject`: rejects an item with a comment.
+- `edit_suggest`: records a copy-edit suggestion.
 
-Regras:
+Rules:
 
-- Não exige login administrativo.
-- Token expira.
-- Não deve expor dados administrativos além do necessário para revisão.
-- Registra reviewer, data e decisão.
+- No admin login required.
+- Token expires.
+- Must not expose unnecessary internal administrative data.
+- Records reviewer, timestamp, and decision.
 
 ## Blog
 
 ### `POST /functions/v1/generate-blog-post`
 
-Gera um rascunho técnico para o blog.
+Generates a technical blog draft.
 
-Request típico:
+Typical request:
 
 ```json
 {
-  "topic": "Fabricação local de implantes ortopédicos",
-  "keywords": ["implantes ortopédicos", "fabricação local"],
-  "category": "educacional",
+  "topic": "Local manufacturing of orthopedic implants",
+  "keywords": ["orthopedic implants", "local manufacturing"],
+  "category": "educational",
   "async": true
 }
 ```
 
-Saída esperada:
+Expected output:
 
 ```json
 {
@@ -122,16 +122,16 @@ Saída esperada:
 }
 ```
 
-Regras:
+Rules:
 
-- Conteúdo em português do Brasil.
-- Tom técnico e educacional.
-- Metadados de SEO devem ser editáveis no Admin Blog.
-- Conteúdo gerado precisa de revisão humana antes de aprovação/publicação.
+- Content should be in Brazilian Portuguese.
+- Tone should remain technical and educational.
+- SEO metadata must remain editable in the Admin Blog UI.
+- Generated content requires human review before approval/publication.
 
 ### `POST /functions/v1/generate-blog-images`
 
-Gera ou associa imagens de apoio para posts do blog.
+Generates or associates supporting images for blog posts.
 
 Request:
 
@@ -153,44 +153,44 @@ Response:
 }
 ```
 
-Observação: imagens de blog são suporte editorial. Elas não substituem revisão técnica, SEO ou aprovação.
+Note: blog images are editorial support. They do not replace technical review, SEO, or approval.
 
 ## CRM
 
 ### `POST /functions/v1/import-leads`
 
-Importa leads para o CRM.
+Imports leads into the CRM.
 
-Request típico:
+Typical request:
 
 ```json
 {
   "leads": [
     {
-      "name": "Nome",
-      "email": "contato@empresa.com",
-      "company": "Empresa",
+      "name": "Name",
+      "email": "contact@company.com",
+      "company": "Company",
       "score": 82
     }
   ]
 }
 ```
 
-Comportamento:
+Behavior:
 
-- Requer autenticação administrativa.
-- Normaliza campos principais.
-- Faz upsert por email quando aplicável.
-- Atribui status inicial `new`.
-- Calcula prioridade inicial quando há score.
+- Requires administrative authentication.
+- Normalizes core fields.
+- Upserts by email when applicable.
+- Assigns initial `new` status.
+- Derives initial priority when a score exists.
 
 ## Analytics
 
 ### `POST /functions/v1/ingest-linkedin-analytics`
 
-Validação e ingestão de CSV/XLS/XLSX do LinkedIn para tabela normalizada `linkedin_analytics`.
+Validates and ingests LinkedIn CSV/XLS/XLSX into normalized `linkedin_analytics`.
 
-Request de validação:
+Validation request:
 
 ```json
 {
@@ -200,7 +200,7 @@ Request de validação:
 }
 ```
 
-Request de ingestão:
+Ingest request:
 
 ```json
 {
@@ -213,8 +213,8 @@ Request de ingestão:
 
 `conflict_policy`:
 
-- `skip`: mantém linhas existentes e ignora hashes já importados.
-- `overwrite_period`: remove linhas do período detectado e reinsere o arquivo atual.
+- `skip`: keep existing rows and ignore already imported hashes.
+- `overwrite_period`: remove rows for the detected period and reinsert the current file.
 
 Response:
 
@@ -232,33 +232,33 @@ Response:
 
 ### `POST /functions/v1/sync-ga4-analytics`
 
-Sincroniza dados de Google Analytics quando a integração está configurada.
+Synchronizes Google Analytics data when the integration is configured.
 
 ### `POST /functions/v1/sync-linkedin-analytics`
 
-Sincroniza métricas LinkedIn quando a integração está configurada.
+Synchronizes LinkedIn metrics when the integration is configured.
 
-## Desenho Técnico
+## Technical Drawing
 
 ### `POST /functions/v1/engineering-drawing`
 
-Executa operações server-side relacionadas ao fluxo de desenho técnico.
+Executes server-side operations related to the technical drawing workflow.
 
-Responsabilidades esperadas:
+Expected responsibilities:
 
-- processar entrada técnica;
-- apoiar normalização do documento;
-- persistir artefatos quando necessário;
-- integrar com Storage e banco;
-- preservar validações e rastreabilidade.
+- process technical input;
+- support normalized-document generation;
+- persist artifacts when needed;
+- integrate with Storage and the database;
+- preserve validation and traceability.
 
-O fluxo completo é exposto pela rota `/admin/desenho-tecnico` e seus componentes React.
+The full flow is exposed through `/admin/desenho-tecnico` and its React components.
 
-## Contratos Visuais de Apoio
+## Visual Support Contracts
 
 ### `POST /functions/v1/regenerate-carousel-images`
 
-Gera novas variantes de imagem para carousel existente e salva no Supabase Storage.
+Generates new image variants for an existing carousel and stores them in Supabase Storage.
 
 Request:
 
@@ -285,11 +285,11 @@ Response:
 }
 ```
 
-Regra crítica: esta função deve adicionar variantes. Nunca sobrescrever imagens existentes.
+Critical rule: this function must add variants. It must never overwrite existing historical images.
 
 ### `POST /functions/v1/set-slide-background`
 
-Define manualmente o fundo de um slide, preservando histórico.
+Sets a slide background manually while preserving history.
 
 Request:
 
@@ -304,16 +304,16 @@ Request:
 }
 ```
 
-Comportamento:
+Behavior:
 
-- Atualiza `slides[slide_index].image_url` e `imageUrl`.
-- Adiciona entrada em `image_variants`.
-- Atualiza `image_urls[slide_index]`.
-- Salva metadados de seleção.
+- Updates `slides[slide_index].image_url` and `imageUrl`.
+- Appends a new entry into `image_variants`.
+- Updates `image_urls[slide_index]`.
+- Stores selection metadata.
 
-Observação: esses contratos visuais são suporte ao conteúdo. Eles não devem ser usados para posicionar o Lifetrek como editor avançado de imagem ou vídeo.
+Note: these visual contracts support content workflows. They should not be used to position Lifetrek as an advanced image/video editing platform.
 
-## Tabelas Relacionadas
+## Related Tables
 
 - `stakeholder_review_batches`
 - `stakeholder_review_tokens`
@@ -322,13 +322,13 @@ Observação: esses contratos visuais são suporte ao conteúdo. Eles não devem
 - `blog_categories`
 - `contact_leads`
 - `linkedin_analytics`
-- tabelas de conteúdo social
-- sessões e documentos normalizados de desenho técnico
+- social content tables
+- technical drawing sessions and normalized-document records
 
-## Princípios Gerais
+## General Principles
 
-- Funções administrativas exigem autenticação.
-- Funções públicas por token devem ter escopo mínimo.
-- Operações com segredo ou service role ficam em Edge Functions.
-- Imagens e variantes devem preservar histórico.
-- Aprovação e publicação devem ser rastreáveis.
+- Administrative functions require authentication.
+- Public token-based functions should have minimal scope.
+- Secret-bearing operations stay in Edge Functions.
+- Images and variants must preserve history.
+- Approval and publication actions must remain traceable.

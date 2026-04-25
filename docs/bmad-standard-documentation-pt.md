@@ -1,4 +1,4 @@
-# BMAD Standard Documentation - Lifetrek
+# Documentação Padrão BMAD - Lifetrek
 
 Data: 2026-04-23  
 Idioma: Português do Brasil  
@@ -181,7 +181,7 @@ Produzir artigos técnicos em português que ajudem representantes técnicos e c
 flowchart TD
   Topic["Tema / keyword / ICP"] --> Strategy["Estratégia e pesquisa"]
   Strategy --> Draft["Geração do artigo"]
-  Draft --> Editor["Editor Admin Blog"]
+  Draft --> Editor["Workspace editorial Admin Blog"]
   Editor --> SEO["SEO técnico e metadados"]
   SEO --> Approval["Aprovação"]
   Approval --> Publish["Publicação"]
@@ -193,7 +193,7 @@ flowchart TD
 - Uso de OpenRouter para estratégia, pesquisa e redação.
 - Suporte a RAG/contexto quando disponível.
 - Geração de título, SEO title, SEO description, resumo, slug, keywords e tags.
-- Editor administrativo em `/admin/blog`.
+- Workspace editorial em `/admin/blog`, com canvas de edição, toolbar, painel lateral de metadados, estatísticas de leitura e preview.
 - Campos de ICP primário, palavra-chave pilar, entity keywords e modo de CTA.
 - Aprovação e publicação com validação de metadados obrigatórios.
 - Sincronização de imagem destacada e imagem hero quando aplicável.
@@ -206,10 +206,13 @@ flowchart TD
 - Priorizar clareza, precisão e aplicabilidade.
 - Não mencionar clientes, automação comercial interna, IA ou CRM quando isso não for parte explícita do artigo.
 - Cada artigo deve ter ICP primário e palavra-chave pilar antes de aprovação.
+- O editor deve manter corpo do texto separado dos metadados, para evitar que SEO, ICP e status atrapalhem a revisão humana.
+- A publicação pelo editor deve persistir no Supabase e invalidar as listas administrativas/aprovação.
 
 ### Arquivos principais
 
 - `src/pages/Admin/AdminBlog.tsx`
+- `src/components/admin/content/EditorialWorkspace.tsx`
 - `src/hooks/useBlogPosts.ts`
 - `src/types/blog.ts`
 - `supabase/functions/generate-blog-post/index.ts`

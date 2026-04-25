@@ -1,6 +1,6 @@
 # Documentação por Setor
 
-Esta pasta complementa o documento mestre [BMAD Standard Documentation - Lifetrek PT-BR](../bmad-standard-documentation-pt.md).
+Esta pasta complementa o documento mestre [Documentação Padrão BMAD - Lifetrek PT-BR](../bmad-standard-documentation-pt.md).
 
 Use o documento mestre para alinhamento geral da equipe. Use os documentos abaixo quando o assunto exigir profundidade por área:
 

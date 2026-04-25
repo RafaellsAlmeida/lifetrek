@@ -82,6 +82,32 @@ function getThumbnail(item: ReviewableContentItem) {
   return null;
 }
 
+async function getFunctionErrorMessage(error: unknown, fallback: string) {
+  const context = (error as { context?: unknown } | null)?.context;
+  if (context instanceof Response) {
+    const statusLabel = `${context.status} ${context.statusText}`.trim();
+    try {
+      const payload = await context.clone().json();
+      const message = typeof payload?.error === "string"
+        ? payload.error
+        : typeof payload?.message === "string"
+          ? payload.message
+          : null;
+      return message ? `${statusLabel}: ${message}` : `${statusLabel}: ${fallback}`;
+    } catch {
+      try {
+        const text = await context.clone().text();
+        return text ? `${statusLabel}: ${text}` : `${statusLabel}: ${fallback}`;
+      } catch {
+        return `${statusLabel}: ${fallback}`;
+      }
+    }
+  }
+
+  const message = (error as { message?: string } | null)?.message;
+  return message || fallback;
+}
+
 export function SendReviewModal({
   open,
   onOpenChange,
@@ -147,7 +173,7 @@ export function SendReviewModal({
       if (error) {
         setPreviewRecipients([]);
         setPreviewSubject(null);
-        setPreviewError(error.message || "Não foi possível validar o email antes do envio.");
+        setPreviewError(await getFunctionErrorMessage(error, "Não foi possível validar o email antes do envio."));
         return;
       }
 
@@ -185,7 +211,7 @@ export function SendReviewModal({
     setIsSending(false);
 
     if (error) {
-      setErrorMessage(error.message || "Falha ao enviar o lote para aprovação.");
+      setErrorMessage(await getFunctionErrorMessage(error, "Falha ao enviar o lote para aprovação."));
       return;
     }
 

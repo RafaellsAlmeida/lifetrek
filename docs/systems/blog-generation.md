@@ -1,67 +1,67 @@
-# Sistema de Blog Generation
+# Blog Generation System
 
-## Visão Geral
+## Overview
 
-O blog é um canal estratégico para conteúdo técnico da Lifetrek. O sistema combina geração assistida, edição humana, SEO técnico e aprovação antes da publicação. A meta não é publicar automaticamente, mas acelerar a produção de artigos com qualidade suficiente para venda consultiva e educação técnica.
+The blog is a strategic channel for Lifetrek's technical content. The system combines assisted generation, human editing, technical SEO, and approval before publication. The goal is not auto-publishing, but speeding up article production while keeping quality high enough for consultative selling and technical education.
 
-## Fluxo Principal
+## Main Flow
 
-1. Definir tema, ICP e palavra-chave pilar.
-2. Gerar estratégia e rascunho técnico.
-3. Editar título, resumo, conteúdo, SEO e CTA no Admin Blog.
-4. Validar metadados obrigatórios.
-5. Aprovar internamente.
-6. Publicar.
+1. Define topic, ICP, and pillar keyword.
+2. Generate strategy and technical draft.
+3. Edit title, summary, content, SEO, and CTA in Admin Blog.
+4. Validate required metadata.
+5. Approve internally.
+6. Publish.
 
 ```mermaid
 flowchart TD
-  Topic["Tema / ICP / keyword"] --> Generate["generate-blog-post"]
+  Topic["Topic / ICP / keyword"] --> Generate["generate-blog-post"]
   Generate --> Editor["Admin Blog"]
-  Editor --> SEO["SEO e metadados"]
-  SEO --> Approval["Aprovação"]
-  Approval --> Publish["Publicação"]
+  Editor --> SEO["SEO and metadata"]
+  SEO --> Approval["Approval"]
+  Approval --> Publish["Publication"]
 ```
 
-## Componentes
+## Components
 
 ### Edge Function
 
 `supabase/functions/generate-blog-post`
 
-Responsabilidades:
+Responsibilities:
 
-- gerar estratégia de artigo;
-- executar pesquisa/contexto quando disponível;
-- produzir rascunho em português do Brasil;
-- criar título, slug, resumo, SEO title e SEO description;
-- retornar keywords, tags e referências;
-- salvar como rascunho ou `pending_review` quando usado em modo assíncrono.
+- generate article strategy;
+- execute research/context loading when available;
+- produce a Brazilian Portuguese draft;
+- create title, slug, summary, SEO title, and SEO description;
+- return keywords, tags, and references;
+- save as draft or `pending_review` in async flows.
 
 ### Admin Interface
 
 `src/pages/Admin/AdminBlog.tsx`
 
-Responsabilidades:
+Responsibilities:
 
-- listar e editar posts;
-- criar e atualizar artigos;
-- gerenciar status;
-- editar conteúdo;
-- configurar ICP, palavra-chave pilar, entity keywords, tags e CTA;
-- acessar post diretamente por query `?edit=`.
+- list and edit posts;
+- create and update articles;
+- manage status;
+- edit content;
+- configure ICP, pillar keyword, entity keywords, tags, and CTA;
+- open posts directly via `?edit=`.
 
-### Hooks e tipos
+### Hooks and Types
 
 - `src/hooks/useBlogPosts.ts`
 - `src/types/blog.ts`
 
-Esses arquivos concentram validações de aprovação/publicação, tipos de metadata e operações CRUD.
+These files centralize approval/publication validation, metadata types, and CRUD operations.
 
-## Modelo de Dados
+## Data Model
 
 ### `blog_posts`
 
-Campos importantes:
+Important fields:
 
 - `title`
 - `slug`
@@ -82,42 +82,42 @@ Campos importantes:
 
 ### `blog_categories`
 
-Usado para organizar temas editoriais e navegação.
+Used to organize editorial themes and navigation.
 
-## Regras de Aprovação
+## Approval Rules
 
-Antes de aprovar ou publicar, o artigo deve ter:
+Before approval or publication, the article must have:
 
-- conteúdo não vazio;
-- ICP primário;
-- palavra-chave pilar;
-- metadados mínimos de SEO;
-- revisão técnica humana.
+- non-empty content;
+- primary ICP;
+- pillar keyword;
+- minimum SEO metadata;
+- human technical review.
 
-## Diretrizes Editoriais
+## Editorial Guidelines
 
-- Português do Brasil.
-- Tom técnico e direto.
-- Linguagem engenheiro-para-engenheiro.
-- Evitar promessas comerciais vagas.
-- Evitar claims médicos não comprovados.
-- Usar exemplos de manufatura, qualidade e rastreabilidade quando fizer sentido.
-- Não mencionar automações internas, CRM, IA ou clientes sem necessidade explícita.
+- Brazilian Portuguese.
+- Direct, technical tone.
+- Engineer-to-engineer language.
+- Avoid vague commercial promises.
+- Avoid unsupported medical claims.
+- Use manufacturing, quality, and traceability examples when relevant.
+- Do not mention internal automation, CRM, AI, or clients unless explicitly necessary.
 
-## Imagens
+## Images
 
-Imagens de blog são suporte editorial. Elas podem usar assets existentes, fotos reais da Lifetrek ou geração assistida quando apropriado. A imagem não deve ser tratada como o diferencial principal do sistema.
+Blog images are editorial support. They may use existing assets, real Lifetrek photos, or assisted generation when appropriate. The image should not be treated as the system's main differentiator.
 
-## Legado
+## Legacy
 
-Fluxos antigos com scripts externos, automações e geração visual pesada devem ser considerados legados ou auxiliares. O caminho preferido é:
+Older workflows using external scripts, automations, and heavier visual generation should be treated as legacy or auxiliary. The preferred path is:
 
-`generate-blog-post` + revisão/edição no Admin Blog + aprovação + publicação.
+`generate-blog-post` + review/editing in Admin Blog + approval + publication.
 
-## Próximas Melhorias Recomendadas
+## Recommended Next Improvements
 
-1. Melhorar qualidade do prompt editorial por tipo de ICP.
-2. Adicionar checklist de revisão técnica dentro do editor.
-3. Conectar performance de analytics ao planejamento de novos artigos.
-4. Melhorar auditoria de fontes e referências.
-5. Criar visão editorial por cluster/pilar de SEO.
+1. Improve editorial prompt quality by ICP type.
+2. Add a technical review checklist inside the editor.
+3. Connect analytics performance to future article planning.
+4. Improve source and reference auditability.
+5. Add editorial views by SEO cluster/pillar.
