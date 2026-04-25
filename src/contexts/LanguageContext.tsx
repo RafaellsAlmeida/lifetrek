@@ -1104,7 +1104,7 @@ const LANGUAGE_STORAGE_KEY = "lifetrek_language";
 
 const getInitialLanguage = (): Language => {
   if (typeof window === "undefined") {
-    return "en";
+    return "pt";
   }
 
   const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
@@ -1112,7 +1112,7 @@ const getInitialLanguage = (): Language => {
     return savedLanguage;
   }
 
-  return window.navigator.language.toLowerCase().startsWith("pt") ? "pt" : "en";
+  return "pt";
 };
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
