@@ -73,6 +73,24 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lifetrek-medical.com/blog/como-qualificar-fornecedor-manufatura-medica-iso-13485</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lifetrek-medical.com/blog/o-que-primeiro-lote-controlado-deve-provar-antes-da-escala</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lifetrek-medical.com/blog/rastreabilidade-completa-lote-componentes-medicos</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lifetrek-medical.com/resources/checklist-auditoria-fornecedores</loc>
     <lastmod>2026-02-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -81,6 +99,18 @@
   <url>
     <loc>https://lifetrek-medical.com/resources/checklist-dfm-implantes</loc>
     <lastmod>2026-01-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lifetrek-medical.com/resources/checklist-rastreabilidade-serializacao</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lifetrek-medical.com/resources/checklist-transferencia-npi-producao</loc>
+    <lastmod>2026-04-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

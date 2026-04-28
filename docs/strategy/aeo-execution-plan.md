@@ -156,7 +156,7 @@ These can be produced from the existing topic and resource system without new ar
 | P0 | Medical machining tolerances: what is realistic and what drives cost | `guia-metrologia-3d-cnc-swiss` | MOFU |
 | P0 | ZEISS CMM inspection in medical manufacturing: what buyers should ask | `guia-metrologia-alta-precisao` | BOFU |
 | P1 | Titanium Ti-6Al-4V vs 316L for implants and instruments | evidence pack resource | MOFU |
-| P1 | How to transfer a medical SKU from NPI to production without surprises | `checklist-transferencia-npi-producao` | BOFU |
+| P1 | How to transfer a medical item or project from NPI to production without surprises | `checklist-transferencia-npi-producao` | BOFU |
 | P1 | Cost of poor quality in regulated machining: how to quantify supplier risk | `calculadora-custo-falha-qualidade` | BOFU |
 | P1 | Import vs local manufacturing in Brazil: how to evaluate risk and lead time | `roadmap-90-dias-migracao-skus` | MOFU/BOFU |
 | P1 | Internal ISO 13485 audit vs supplier audit: what is different | `checklist-auditoria-iso-13485` | MOFU |

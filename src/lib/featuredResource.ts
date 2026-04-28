@@ -7,6 +7,13 @@ export type FeaturedResource = {
 
 const FEATURED_RESOURCES: FeaturedResource[] = [
   {
+    slug: "checklist-auditoria-fornecedores",
+    title: "Checklist de Auditoria de Fornecedores",
+    description:
+      "Estruture a qualificacao de fornecedores medicos com perguntas de ISO 13485, rastreabilidade, CAPA, metrologia e controle documental.",
+    cta: "Abrir checklist de auditoria",
+  },
+  {
     slug: "scorecard-risco-supply-chain-2026",
     title: "Scorecard de Risco de Supply Chain 2026",
     description:
@@ -21,6 +28,13 @@ const FEATURED_RESOURCES: FeaturedResource[] = [
     cta: "Abrir checklist NPI",
   },
   {
+    slug: "checklist-rastreabilidade-serializacao",
+    title: "Checklist de Rastreabilidade e Serializacao",
+    description:
+      "Verifique se material, desenho, processo, inspecao, identificacao e liberacao fecham a mesma genealogia de lote.",
+    cta: "Abrir checklist de rastreabilidade",
+  },
+  {
     slug: "checklist-producao-local",
     title: "Checklist: Quando Faz Sentido Produzir Local",
     description:
@@ -30,6 +44,15 @@ const FEATURED_RESOURCES: FeaturedResource[] = [
 ];
 
 const RESOURCE_KEYWORDS: Record<string, string[]> = {
+  "checklist-auditoria-fornecedores": [
+    "qualificacao",
+    "fornecedor",
+    "fornecedores",
+    "auditoria",
+    "iso 13485",
+    "acordo de qualidade",
+    "capa",
+  ],
   "scorecard-risco-supply-chain-2026": [
     "supply chain",
     "fornecedor",
@@ -42,10 +65,23 @@ const RESOURCE_KEYWORDS: Record<string, string[]> = {
   "checklist-transferencia-npi-producao": [
     "npi",
     "transferencia",
+    "primeiro lote",
+    "lote controlado",
+    "lote piloto",
     "escala",
     "industrializacao",
     "producao",
     "ramp-up",
+  ],
+  "checklist-rastreabilidade-serializacao": [
+    "rastreabilidade",
+    "serializacao",
+    "udi",
+    "coc",
+    "certificado de material",
+    "lote",
+    "genealogia",
+    "liberacao",
   ],
   "checklist-producao-local": [
     "nearshore",

@@ -31,10 +31,10 @@ For each query, record weekly:
 | 4 | como escolher contract manufacturer para dispositivo medico | PT-BR | Supplier qualification | `como-qualificar-fornecedor-manufatura-medica-iso-13485` |
 | 5 | medical device supplier qualification ISO 13485 checklist | EN | Supplier qualification | English version pending |
 | 6 | what to ask a medical device contract manufacturer before approval | EN | Supplier qualification | English version pending |
-| 7 | o que lote piloto deve provar antes da producao medica | PT-BR | Transfer and scale-up | `o-que-lote-piloto-deve-provar-antes-da-escala` |
+| 7 | o que primeiro lote controlado deve provar antes da producao medica | PT-BR | Transfer and scale-up | `o-que-primeiro-lote-controlado-deve-provar-antes-da-escala` |
 | 8 | transferencia NPI para producao dispositivos medicos checklist | PT-BR | Transfer and scale-up | resource: NPI transfer checklist |
-| 9 | como transferir SKU medico para fornecedor sem risco | PT-BR | Transfer and scale-up | `o-que-lote-piloto-deve-provar-antes-da-escala` |
-| 10 | pilot lot medical device manufacturing what to verify | EN | Transfer and scale-up | English version pending |
+| 9 | como transferir item medico para fornecedor sem risco | PT-BR | Transfer and scale-up | `o-que-primeiro-lote-controlado-deve-provar-antes-da-escala` |
+| 10 | controlled first lot medical device manufacturing what to verify | EN | Transfer and scale-up | English version pending |
 | 11 | NPI to production transfer checklist medical device manufacturing | EN | Transfer and scale-up | English version pending |
 | 12 | o que e FAI em componentes medicos | PT-BR | FAI and inspection | future FAI/IQ/OQ/PQ page |
 | 13 | diferenca entre FAI IQ OQ PQ manufatura medica | PT-BR | FAI and inspection | future FAI/IQ/OQ/PQ page |
@@ -72,6 +72,5 @@ For each query, record weekly:
 
 - English answer pages are pending.
 - Public pages for FAI/IQ/OQ/PQ, UDI laser marking, drawing-revision control, change control, and containment/CAPA are still pending.
-- Stakeholder-approved Lifetrek-specific proof language is pending.
+- Stakeholder-approved Lifetrek-specific proof language for the first FAQ wave was logged on 2026-04-28 in `docs/strategy/stakeholder-claim-validation-faq-seo-aieo-2026-04-28.md`.
 - Resource pages now expose a public preview, but several resources still need deeper ungated summaries for stronger AIEO extraction.
-

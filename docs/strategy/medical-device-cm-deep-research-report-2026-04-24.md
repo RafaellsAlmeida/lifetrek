@@ -145,7 +145,7 @@ The safest way to reduce perceived risk in medtech B2B is not to promise “zero
 | Secure design-transfer workspace | “NDA, role-based access, transfer logs, and restricted export for design files.” | IP leakage during transfer | citeturn23search9turn24search5 |
 | Open-book change-order pricing | “Change orders are costed by material, labor, tooling, and validation impact, not just a lump-sum surcharge.” | Hidden costs, resentment after delay | citeturn23search9turn33view0 |
 
-If you want the strongest short-form proof language for a landing page, sales deck, or FAQ, the safest claims are things like: **documented change control**, **traceable lot release**, **shared audit readiness**, **pilot-first transfer**, **validated process summaries on request**, and **defined containment/CAPA response windows**. Those are strong enough to reduce buyer anxiety, but concrete enough to defend in an audit or legal review. citeturn32view0turn18view2turn24search3turn24search15turn21search6
+After Rafael Bianchini's 2026-04-28 stakeholder validation, the strongest short-form proof language for Lifetrek's first FAQ wave should be narrower: **documented change control**, **traceable lot release**, **revision-controlled drawing release**, **controlled first-lot transfer when applicable**, **project-scope evidence summaries on request**, and **prioritized containment under internal procedures**. Avoid public response-window promises, detailed hold/quarantine rules, and universal validation-summary claims until separately approved.
 
 ## Open questions and limitations
 

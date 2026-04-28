@@ -19,12 +19,12 @@
       "priority": "high"
     },
     {
-      "title": "O que um lote piloto precisa provar antes da escala",
+      "title": "O que um primeiro lote controlado precisa provar antes da escala",
       "platform": "blog",
-      "angle": "Mostrar que lote piloto nao e formalidade: ele reduz risco de capacidade, dimensional, validacao e documentacao.",
+      "angle": "Mostrar que primeiro lote controlado, ou lote piloto quando aplicavel, reduz risco de capacidade, dimensional, validacao e documentacao.",
       "targetAudience": "Engenharia de produto, qualidade e operacoes",
       "painPoint": "Escalar uma familia de pecas antes de confirmar capacidade real, criterios de aceitacao e estabilidade do processo.",
-      "desiredOutcome": "Definir o que deve sair de um lote piloto: medicoes, desvios, disposicao, gargalos e plano de escala.",
+      "desiredOutcome": "Definir o que deve sair de um primeiro lote controlado: medicoes, desvios, disposicao, gargalos e plano de escala.",
       "proofPoints": [
         "FAI",
         "desenho bubblado",
@@ -38,7 +38,7 @@
     {
       "title": "O que rastreabilidade completa de lote deve incluir em componentes medicos",
       "platform": "blog",
-      "angle": "Explicar rastreabilidade como ferramenta de recall, auditoria e contencao, nao como burocracia.",
+      "angle": "Explicar rastreabilidade como ferramenta de auditoria, contencao e resposta operacional, nao como burocracia.",
       "targetAudience": "Qualidade, regulatorio, supply chain e lideres de manufatura",
       "painPoint": "Descobrir tarde demais que CoC, certificados, inspecao e identificacao nao fecham a genealogia do lote.",
       "desiredOutcome": "Dar um mapa pratico dos campos e documentos que precisam conversar entre si.",
@@ -63,7 +63,7 @@
       "proofPoints": [
         "controle de mudancas",
         "qualidade acordada antes da liberacao",
-        "lote piloto",
+        "primeiro lote controlado",
         "rastreabilidade"
       ],
       "ctaAction": "Comentar 'checklist' para receber a lista de perguntas",
@@ -78,9 +78,9 @@
       "desiredOutcome": "Ajudar o leitor a pedir a evidencia certa para o risco certo.",
       "proofPoints": [
         "FAI",
-        "IQ/OQ/PQ",
+        "evidencia aplicavel ao escopo",
         "criterios de aceitacao",
-        "resumo de qualificacao sob solicitacao"
+        "resumo de qualificacao quando aprovado"
       ],
       "ctaAction": "Abrir conversa tecnica sobre pacote de transferencia",
       "priority": "medium"
@@ -90,12 +90,11 @@
       "platform": "linkedin",
       "angle": "Usar linguagem direta para explicar por que alteracoes em programa, site, subfornecedor ou processo critico precisam de aprovacao.",
       "targetAudience": "Qualidade, engenharia de manufatura e lideres de operacao",
-      "painPoint": "Tratar ajuste de chao de fabrica como detalhe e criar risco de quarentena, revalidacao ou nao conformidade.",
+      "painPoint": "Tratar ajuste de chao de fabrica como detalhe e criar risco de reavaliacao, retrabalho documental ou nao conformidade.",
       "desiredOutcome": "Gerar consciencia sobre controle de mudancas sem prometer risco zero.",
       "proofPoints": [
         "controle documentado de mudancas",
         "aprovacao antes de mudancas criticas",
-        "regras de quarentena",
         "disposicao documentada"
       ],
       "ctaAction": "Ler artigo completo sobre transferencia controlada",
@@ -104,7 +103,7 @@
     {
       "title": "UDI laser marking: o que validar antes de confiar na marcacao",
       "platform": "blog",
-      "angle": "Conectar UDI a rastreabilidade, legibilidade, esterilizacao/reprocessamento e recall.",
+      "angle": "Conectar UDI a rastreabilidade, legibilidade, esterilizacao/reprocessamento e resposta operacional.",
       "targetAudience": "Regulatorio, qualidade e engenharia de produto",
       "painPoint": "Descobrir problema de identificacao depois que o produto ja entrou em estoque, hospital ou campo.",
       "desiredOutcome": "Definir criterios de verificacao para marcacao humana e maquina-legivel.",
@@ -135,14 +134,14 @@
       "priority": "medium"
     },
     {
-      "title": "Quando uma nao conformidade deveria virar contencao em 24 horas",
+      "title": "Quando uma nao conformidade deveria virar contencao prioritaria",
       "platform": "linkedin",
       "angle": "Post educativo sobre diferenca entre detectar problema, conter lote suspeito e investigar causa raiz.",
       "targetAudience": "Qualidade, operacoes e lideres de supply chain",
       "painPoint": "CAPA lenta ou superficial que deixa o mesmo problema voltar e aumenta estresse de auditoria.",
       "desiredOutcome": "Mostrar um padrao operacional seguro: contencao, plano de causa raiz, evidencias e fechamento.",
       "proofPoints": [
-        "regras de hold/quarentena",
+        "procedimento interno de segregacao quando aplicavel",
         "plano de contencao",
         "acao corretiva com evidencia",
         "rastreamento de responsaveis"
@@ -189,8 +188,8 @@
       "platform": "linkedin",
       "angle": "Comparar riscos de prazo, auditoria, rastreabilidade e resposta a nao conformidade sem demonizar importacao.",
       "targetAudience": "Diretores industriais, supply chain e qualidade",
-      "painPoint": "Comparar apenas custo unitario e ignorar custo de atraso, estoque, recall e retrabalho documental.",
-      "desiredOutcome": "Levar o leitor a avaliar custo total de risco por SKU.",
+      "painPoint": "Comparar apenas custo unitario e ignorar custo de atraso, estoque e retrabalho documental.",
+      "desiredOutcome": "Levar o leitor a avaliar custo total de risco por item, projeto ou familia de pecas.",
       "proofPoints": [
         "lead time",
         "estoque de seguranca",

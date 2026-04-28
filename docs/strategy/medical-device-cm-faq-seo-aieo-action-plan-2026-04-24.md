@@ -21,8 +21,8 @@ The safest content strategy is to promise visibility, discipline, containment, a
 
 2. Publish 6 first-wave canonical answer pages.
    - How to qualify a medical-device manufacturing supplier under ISO 13485
-   - What to ask before transferring a medical SKU to a contract manufacturer
-   - What a pilot lot should prove before production scale-up
+   - What to ask before transferring a medical item or project to a contract manufacturer
+   - What a controlled first lot should prove before production scale-up
    - What full batch traceability should include for medical components
    - What to validate in UDI laser marking for reusable or traceable devices
    - How FAI, inspection records, and drawing revision control reduce supplier risk
@@ -50,9 +50,53 @@ The safest content strategy is to promise visibility, discipline, containment, a
    - Add an approval checklist for regulated claims, evidence claims, operational SLAs, and customer references.
    - Add a content type/tag for "FAQ/AIEO answer page."
 
-## FAQ Question Bank
+## FAQ Question Bank (PT-BR And EN)
 
-### Supplier Qualification
+### PT-BR Public Question Bank
+
+#### Qualificacao de fornecedores
+
+- Como qualificar um fornecedor de manufatura medica sob ISO 13485?
+- Quais documentos um OEM deve pedir antes de aprovar um fornecedor?
+- O que deve entrar em um acordo de qualidade antes da liberacao de producao?
+- Com que frequencia fornecedores criticos de dispositivos medicos devem ser auditados?
+- Quais sinais indicam que um fornecedor nao esta pronto para producao regulada?
+
+#### Transferencia e escala
+
+- O que deve acontecer antes de transferir um item ou projeto medico de NPI para producao?
+- Por que comecar com um primeiro lote controlado antes da escala?
+- O que deve entrar em um pacote de transferencia para producao?
+- Como evitar drift de revisao de desenho durante a transferencia?
+- Que evidencias o fornecedor deve apresentar antes de escalar uma familia de pecas?
+
+#### Validacao, FAI e inspecao
+
+- Qual e a diferenca entre FAI, IQ, OQ e PQ?
+- Quando um pacote de FAI completo e util para componentes medicos?
+- O que deve entrar em um pacote de inspecao de primeiro lote?
+- Como a inspecao CMM ajuda a reduzir risco de lancamento?
+- O que deve acontecer quando um processo aprovado muda?
+
+#### Rastreabilidade, UDI e identificacao
+
+- O que rastreabilidade completa de lote deve incluir em componentes medicos?
+- Que evidencias devem apoiar verificacao de marcacao UDI?
+- Como informacao UDI incorreta ou ausente afeta a resposta operacional?
+- O que conferir antes de liberar etiquetas ou pecas marcadas?
+- Como CoC, certificados de material e sumarios de inspecao se conectam?
+
+#### Limpeza, embalagem e contencao
+
+- Quando um componente medico precisa de manuseio em sala limpa?
+- Quais riscos de limpeza e embalagem devem ser discutidos com fornecedores?
+- O que deve acontecer quando um lote suspeito e encontrado?
+- Como descrever uma boa resposta de contencao sem prometer SLA publico?
+- Como fornecedores devem documentar avaliacao e disposicao de lote suspeito?
+
+### English Public Question Bank
+
+#### Supplier Qualification
 
 - How do you qualify a medical-device contract manufacturer under ISO 13485?
 - What documents should an OEM request before approving a manufacturing supplier?
@@ -60,15 +104,15 @@ The safest content strategy is to promise visibility, discipline, containment, a
 - How often should critical medical-device suppliers be audited?
 - What are warning signs that a supplier is not ready for regulated production?
 
-### Transfer And Scale-Up
+#### Transfer And Scale-Up
 
-- What should happen before transferring a SKU from NPI to production?
-- Why start with a pilot lot before full production transfer?
+- What should happen before transferring a medical item or project from NPI to production?
+- Why start with a controlled first lot before full production transfer?
 - What should a production transfer package include?
 - How do you prevent drawing-revision drift during supplier transfer?
 - What evidence should a supplier provide before scaling a family of parts?
 
-### Validation, FAI, And Inspection
+#### Validation, FAI, And Inspection
 
 - What is the difference between FAI, IQ, OQ, and PQ?
 - When is a full FAI package useful for medical components?
@@ -76,7 +120,7 @@ The safest content strategy is to promise visibility, discipline, containment, a
 - How does CMM inspection reduce launch risk?
 - What should happen if a validated machining program changes?
 
-### Traceability, UDI, And Labeling
+#### Traceability, UDI, And Labeling
 
 - What should full lot traceability include for medical components?
 - What evidence should support UDI laser marking validation?
@@ -84,13 +128,13 @@ The safest content strategy is to promise visibility, discipline, containment, a
 - What should be checked before releasing labels or marked parts?
 - How do CoC, material certs, and inspection summaries work together?
 
-### Cleanliness, Packaging, And Containment
+#### Cleanliness, Packaging, And Containment
 
 - When does a medical component need cleanroom handling?
 - What cleanliness and packaging risks should OEMs discuss with suppliers?
 - What should happen when a suspect lot is found?
 - What does a good containment response look like?
-- How should suppliers document quarantine and disposition decisions?
+- How should suppliers document suspect-lot evaluation and disposition decisions?
 
 ## Low-Risk Copy Patterns
 
@@ -98,11 +142,11 @@ Use these after confirming they match actual Lifetrek practice:
 
 - "documented change control"
 - "traceable lot release"
-- "pilot-first transfer"
+- "controlled first-lot transfer when applicable"
 - "revision-controlled drawing release"
 - "shared audit readiness"
-- "validated process summaries on request"
-- "defined containment response windows"
+- "project-scope evidence summaries on request"
+- "prioritized containment under internal procedures"
 - "lot genealogy package available for release review"
 
 Avoid:
@@ -114,6 +158,7 @@ Avoid:
 - "recall-proof"
 - "eliminates all supplier risk"
 - "validated for every device type" unless the exact scope is documented
+- "public CAPA/containment response windows" unless Quality approves exact timing
 
 ## Stakeholder Questions To Ask Before Publishing Claims
 
@@ -129,9 +174,9 @@ Ask quality/regulatory:
 Ask operations/manufacturing:
 
 1. Can we commit publicly to notifying customers before changes to site, sub-tier suppliers, validated programs, or critical processes?
-2. What pilot-lot or single-SKU transfer approach is standard enough to publish?
+2. What controlled first-lot transfer approach is standard enough to publish?
 3. What does a typical FAI package include today?
-4. Can we describe capacity review, bottleneck review, or run-at-rate evidence before scaling?
+4. Can we describe capacity review and bottleneck review before scaling? Should `run-at-rate` be avoided unless exact evidence is approved?
 5. Which raw-material risk reviews, alternates, or safety-stock practices are safe to mention?
 
 Ask sales/customer leadership:
@@ -173,16 +218,17 @@ Each answer page should use this structure:
 
 ## First Sprint Checklist
 
-- [ ] Confirm stakeholder answers for the public-claim questions above.
-- [ ] Draft the public FAQ question bank in Portuguese and English. PT-BR first pass is done; English localization is still pending.
+- [x] Confirm stakeholder answers for the public-claim questions above.
+- [x] Draft the public FAQ question bank in Portuguese and English.
 - [x] Add FAQ schema support wherever visible FAQ blocks are rendered.
 - [x] Add missing resource SEO metadata and structured data.
 - [x] Generate or update sitemap coverage for blogs and public resources.
 - [x] Add `llms.txt`.
 - [x] Update `robots.txt` AI crawler guidance.
-- [ ] Publish the first 3 canonical answer pages.
-- [ ] Pair each page with one CTA resource.
-- [ ] Run Search Console URL inspection and basic AI-crawler fetch checks.
+- [x] Publish the first 3 canonical answer pages.
+- [x] Pair each page with one CTA resource.
+- [ ] [blocked] Run Search Console URL inspection after deploy with authenticated Google Search Console access.
+- [x] Run basic AI-crawler fetch checks.
 - [x] Start a 30-query AIEO benchmark for ChatGPT, Perplexity, Google AI features, and classic SERP.
 
 Implementation notes as of 2026-04-24:
@@ -195,10 +241,21 @@ Implementation notes as of 2026-04-24:
 - Blog pages already support FAQ schema for visible FAQ sections; resource pages now support markdown FAQ schema when visible FAQ content is present.
 - `scripts/generate-sitemap.ts`, `public/llms.txt`, and `public/robots.txt` already exist in the repo and cover the core AIEO discovery foundation.
 
+Stakeholder validation update as of 2026-04-28:
+
+- Rafael Bianchini's responses were logged in `docs/strategy/stakeholder-claim-validation-faq-seo-aieo-2026-04-28.md`.
+- Use conservative Lifetrek-specific wording for Production/Quality approval, controlled drawing revision, capacity review, documented change control, and traceable lot release.
+- Avoid publishing detailed hold/quarantine rules, exact CAPA/containment timing, IQ/OQ/PQ availability, fixed FAI package contents, SKU-first language, or legal comparisons using recalls/warning letters until separately approved.
+- The first 3 canonical answer pages and the missing traceability CTA resource were seeded in `supabase/migrations/20260428103000_seed_faq_aieo_answer_pages.sql`.
+- CTA pairing is handled by `src/lib/featuredResource.ts`: supplier qualification -> supplier audit checklist, first-lot transfer -> NPI transfer checklist, traceability -> traceability/serialization checklist.
+- `public/sitemap.xml` and `public/llms.txt` now include the 3 answer pages and CTA resources.
+- Basic AI-crawler checks passed locally against `/robots.txt`, `/llms.txt`, `/sitemap.xml`, and the answer-page route. Google Search Console URL inspection remains blocked until deploy plus authenticated GSC access.
+- Full Vite build was attempted, but it is blocked by an existing unrelated `opencascade.js/dist/opencascade.wasm.wasm?url` resolution issue in `src/lib/engineering-drawing/renderStep.ts`.
+
 ## Recommended First 3 Pages
 
 1. How to qualify a medical-device manufacturing supplier under ISO 13485
-2. What a pilot lot should prove before production scale-up
+2. What a controlled first lot should prove before production scale-up
 3. What full batch traceability should include for medical components
 
 These map directly to the highest-frequency fears in the report and can be written conservatively without relying on hard guarantees.

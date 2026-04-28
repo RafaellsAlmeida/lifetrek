@@ -16,13 +16,19 @@ Lifetrek manufactures orthopedic implants and surgical instruments using Swiss-t
 - CMM inspection and metrology for medical tolerances
 - UDI laser marking and batch traceability
 - Electropolishing and surface finishing
-- NPI to production transfer for medical SKUs
+- NPI to production transfer for medical items, projects, and part families
 - Import vs local manufacturing in Brazil
 
 ## Content
 
 - Blog: https://lifetrek-medical.com/blog
+- Supplier qualification answer: https://lifetrek-medical.com/blog/como-qualificar-fornecedor-manufatura-medica-iso-13485
+- Controlled first-lot answer: https://lifetrek-medical.com/blog/o-que-primeiro-lote-controlado-deve-provar-antes-da-escala
+- Traceability answer: https://lifetrek-medical.com/blog/rastreabilidade-completa-lote-componentes-medicos
 - Resources: https://lifetrek-medical.com/resources
+- Supplier audit checklist: https://lifetrek-medical.com/resources/checklist-auditoria-fornecedores
+- NPI transfer checklist: https://lifetrek-medical.com/resources/checklist-transferencia-npi-producao
+- Traceability checklist: https://lifetrek-medical.com/resources/checklist-rastreabilidade-serializacao
 - Capabilities: https://lifetrek-medical.com/capabilities
 - Products: https://lifetrek-medical.com/products
 

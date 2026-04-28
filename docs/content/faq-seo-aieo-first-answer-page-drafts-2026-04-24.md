@@ -2,7 +2,7 @@
 
 Source plan: `docs/strategy/medical-device-cm-faq-seo-aieo-action-plan-2026-04-24.md`
 
-These drafts are conservative by design. Lifetrek-specific proof sections should be tightened after stakeholder confirmation.
+These drafts are conservative by design. Lifetrek-specific proof sections were tightened after Rafael Bianchini's 2026-04-28 stakeholder answers where the answer was explicit; unresolved claims remain conditional.
 
 ## 1. Como qualificar um fornecedor de manufatura medica sob ISO 13485
 
@@ -28,10 +28,10 @@ A certificacao ajuda, mas nao substitui evidencia operacional. Muitos riscos apa
 - Existe acordo de qualidade assinado antes da producao?
 - Como desenhos e revisoes sao liberados para producao?
 - O fornecedor notifica antes de mudar site, subfornecedor, programa validado ou processo critico?
-- O que entra no pacote de FAI ou lote piloto?
+- O que entra no pacote de FAI ou primeiro lote controlado?
 - Quais documentos acompanham a liberacao de lote?
-- Como lotes suspeitos sao colocados em hold/quarentena?
-- Qual e o fluxo de contencao e causa raiz?
+- Como desvios e lotes suspeitos sao avaliados e documentados, quando aplicavel?
+- Qual e o fluxo de contencao, causa raiz e acao corretiva?
 
 ### Evidence To Request
 
@@ -41,17 +41,23 @@ A certificacao ajuda, mas nao substitui evidencia operacional. Muitos riscos apa
 - Exemplo de FAI ou sumario dimensional.
 - Certificado de material, CoC e sumario de inspecao.
 - Fluxo de controle de mudancas.
-- Fluxo de contencao e disposicao de lote.
+- Evidencia de tratamento de desvios e disposicao, quando aplicavel.
 
-### Lifetrek Proof Section Pending Approval
+### Lifetrek Proof Section
 
-Use only after stakeholder confirmation:
+Use this conservative wording:
 
-- ISO 13485 and ANVISA wording.
-- Whether quality agreement is required before production release.
-- Which traceability documents are available per lot.
-- Which validation or qualification summaries can be shared on request.
-- Approved change-notification language.
+- A Lifetrek opera com sistema de qualidade ISO 13485 para manufatura medica.
+- Antes de seguir para producao ou liberacao, o produto passa por analise e aprovacao de Producao e Qualidade, conforme o escopo aprovado.
+- A Lifetrek trabalha com desenhos controlados na revisao vigente dentro do sistema de qualidade ISO 13485.
+- Evidencias aplicaveis ao escopo do servico podem ser discutidas sob solicitacao, incluindo desenho, processo, qualidade e entrega.
+- A contencao e tratada com prioridade e acoes corretivas seguem procedimentos internos definidos no sistema de qualidade.
+
+Do not state yet:
+
+- signed quality agreement, audit rights, or exact customer audit language as a universal Lifetrek release rule;
+- IQ/OQ/PQ, cleaning validation, marking validation, packaging validation, or process-specific qualification summaries as always available;
+- exact CAPA or containment response windows.
 
 ### FAQ
 
@@ -73,28 +79,28 @@ Sinais de risco incluem promessa de prazo sem plano de transferencia, respostas 
 
 #### Como reduzir risco sem exigir garantia impossivel?
 
-O caminho mais defensavel e exigir visibilidade e disciplina: lote piloto, FAI, rastreabilidade, controle de mudancas, criterio de aceitacao, contencao documentada e revisao de capacidade antes da escala.
+O caminho mais defensavel e exigir visibilidade e disciplina: primeiro lote controlado quando aplicavel, FAI, rastreabilidade, controle de mudancas, criterio de aceitacao, contencao documentada e revisao de capacidade antes da escala.
 
-## 2. O que um lote piloto precisa provar antes da escala
+## 2. O que um primeiro lote controlado precisa provar antes da escala
 
 ### SEO Metadata
 
-- Slug: `o-que-lote-piloto-deve-provar-antes-da-escala`
-- Title: `O que um lote piloto precisa provar antes da escala`
-- Meta description: `Entenda como um lote piloto reduz risco de transferencia em manufatura medica ao testar capacidade, FAI, controle dimensional, rastreabilidade e criterios de liberacao.`
-- Pillar keyword: `lote piloto manufatura medica`
-- Entity keywords: `lote piloto`, `NPI`, `transferencia para producao`, `FAI`, `rastreabilidade`, `validacao de processo`, `Lifetrek Medical`
+- Slug: `o-que-primeiro-lote-controlado-deve-provar-antes-da-escala`
+- Title: `O que um primeiro lote controlado precisa provar antes da escala`
+- Meta description: `Entenda como um primeiro lote controlado reduz risco de transferencia em manufatura medica ao testar capacidade, FAI, controle dimensional, rastreabilidade e criterios de liberacao.`
+- Pillar keyword: `primeiro lote controlado manufatura medica`
+- Entity keywords: `primeiro lote controlado`, `lote piloto quando aplicavel`, `NPI`, `transferencia para producao`, `FAI`, `rastreabilidade`, `validacao de processo`, `Lifetrek Medical`
 - CTA: `Solicitar diagnostico de transferencia NPI para producao`
 
 ### Direct Answer
 
-Um lote piloto deve provar que o processo consegue produzir a peca certa, na revisao certa, com medicoes aceitaveis, documentacao rastreavel, fluxo de liberacao claro e capacidade inicial realista. Ele tambem deve revelar gargalos, desvios e ajustes necessarios antes de transferir uma familia inteira para escala.
+Um primeiro lote controlado deve provar que o processo consegue produzir a peca certa, na revisao certa, com medicoes aceitaveis, documentacao rastreavel, fluxo de liberacao claro e capacidade inicial realista. Quando um lote piloto for aplicavel, ele tambem deve revelar gargalos, desvios e ajustes necessarios antes de transferir uma familia inteira para escala.
 
 ### Why It Matters
 
-Transferencias falham quando a organizacao pula do desenho para a producao como se capacidade, inspecao, documentacao e suprimentos ja estivessem resolvidos. O lote piloto cria uma etapa de aprendizado controlado antes que o risco vire atraso, retrabalho ou disputa de qualidade.
+Transferencias falham quando a organizacao pula do desenho para a producao como se capacidade, inspecao, documentacao e suprimentos ja estivessem resolvidos. O primeiro lote controlado cria uma etapa de aprendizado antes que o risco vire atraso, retrabalho ou disputa de qualidade.
 
-### What A Pilot Lot Should Prove
+### What A Controlled First Lot Should Prove
 
 - A revisao correta do desenho chegou ao chao de fabrica.
 - Caracteristicas criticas foram medidas e registradas.
@@ -102,31 +108,36 @@ Transferencias falham quando a organizacao pula do desenho para a producao como 
 - Materiais, fornecedores e certificados estao rastreaveis.
 - O fluxo de inspeccao e liberacao funciona.
 - Gargalos de maquina, setup, inspecao ou acabamento foram mapeados.
+- Ferramentas, disponibilidade, dispositivos, FMEA, mao de obra e recursos de medicao foram avaliados antes da producao.
 - A escala proposta e coerente com capacidade real.
 
 ### Common Failure Modes
 
-- Lote piloto aprovado sem FAI ou sumario dimensional suficiente.
+- Primeiro lote aprovado sem FAI ou sumario dimensional suficiente.
 - Mudancas de programa ou setup tratadas como ajustes informais.
 - Desenho revisado sem aceite controlado.
 - Prazo prometido sem revisao de capacidade.
-- Familia de pecas escalada antes de validar a primeira SKU.
+- Familia de pecas escalada antes de avaliar o primeiro item ou projeto.
+
+### Lifetrek Proof Section
+
+Antes da producao, a Lifetrek avalia capacidade e recursos criticos, incluindo ferramentas, disponibilidade, dispositivos, FMEA, mao de obra e recursos de medicao. Para projetos make-to-order, prefira linguagem de `item`, `peca`, `projeto` ou `familia de pecas`; evite tratar `SKU` como unidade padrao de transferencia.
 
 ### FAQ
 
-#### Lote piloto e a mesma coisa que validacao?
+#### Primeiro lote controlado e a mesma coisa que validacao?
 
-Nao necessariamente. O lote piloto pode gerar evidencia para transferencia e aprendizado de processo, mas validacao formal depende do risco, do processo, dos requisitos do produto e dos criterios definidos no sistema de qualidade.
+Nao necessariamente. Um primeiro lote controlado ou lote piloto, quando aplicavel, pode gerar evidencia para transferencia e aprendizado de processo, mas validacao formal depende do risco, do processo, dos requisitos do produto e dos criterios definidos no sistema de qualidade.
 
-#### Quantas pecas um lote piloto deve ter?
+#### Quantas pecas um primeiro lote controlado deve ter?
 
 Depende da geometria, risco, caracteristicas criticas, historico do processo e plano de aceitacao. O ponto principal e justificar o tamanho da amostra e ligar a amostra ao risco tecnico.
 
-#### O que deve sair do lote piloto?
+#### O que deve sair do primeiro lote controlado?
 
 O minimo pratico e: revisao de desenho usada, registros dimensionais, desvios e disposicao, certificados aplicaveis, rastreabilidade, observacoes de capacidade, gargalos e recomendacao para escala ou novo ajuste.
 
-#### Quando nao escalar depois do lote piloto?
+#### Quando nao escalar depois do primeiro lote?
 
 Nao escale se houver instabilidade dimensional, documentacao incompleta, gargalo sem plano, revisao errada, desvios sem causa definida ou mudanca de processo ainda nao avaliada.
 
@@ -167,7 +178,11 @@ Quando uma nao conformidade aparece tarde, rastreabilidade define se a empresa c
 - UDI ou etiqueta incorreta, ausente ou nao verificavel.
 - Desenho usado na producao diferente da revisao aprovada.
 - Registros de inspecao sem caracteristicas criticas.
-- Lote suspeito sem regra clara de hold e disposicao.
+- Lote suspeito sem avaliacao, segregacao ou disposicao documentada quando aplicavel.
+
+### Lifetrek Proof Section
+
+Use `liberacao de lote rastreavel` como linguagem aprovada. Para Lifetrek, mantenha a explicacao em nivel de sistema: a liberacao deve conectar desenho, processo, qualidade, entrega e rastreabilidade aplicavel ao projeto. Nao detalhe regras internas de hold/quarentena em pagina publica.
 
 ### FAQ
 

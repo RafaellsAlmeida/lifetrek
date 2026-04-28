@@ -95,18 +95,27 @@ const routeMetadata = {
 export const SeoMetadata = () => {
   const { language } = useLanguage();
   const { pathname } = useLocation();
-  const metadata = routeMetadata[language][pathname as keyof typeof routeMetadata.en] ?? routeMetadata[language]["/"];
-  const canonicalPath = pathname === "/" ? "" : pathname;
+  const pathLanguage = pathname.startsWith("/en") ? "en" : pathname.startsWith("/pt") ? "pt" : null;
+  const activeLanguage = pathLanguage ?? language;
+  const routePath = pathLanguage ? pathname.replace(/^\/(en|pt)/, "") || "/" : pathname;
+  const metadata = routeMetadata[activeLanguage][routePath as keyof typeof routeMetadata.en] ?? routeMetadata[activeLanguage]["/"];
+  const canonicalPrefix = pathLanguage ? `/${activeLanguage}` : "";
+  const canonicalPath = routePath === "/" ? canonicalPrefix : `${canonicalPrefix}${routePath}`;
   const canonicalUrl = `${SITE_URL}${canonicalPath}`;
-  const locale = language === "pt" ? "pt_BR" : "en_US";
-  const alternateLocale = language === "pt" ? "en_US" : "pt_BR";
+  const ptPath = routePath === "/" ? "/pt" : `/pt${routePath}`;
+  const enPath = routePath === "/" ? "/en" : `/en${routePath}`;
+  const locale = activeLanguage === "pt" ? "pt_BR" : "en_US";
+  const alternateLocale = activeLanguage === "pt" ? "en_US" : "pt_BR";
 
   return (
     <Helmet>
-      <html lang={language === "pt" ? "pt-BR" : "en-US"} />
+      <html lang={activeLanguage === "pt" ? "pt-BR" : "en-US"} />
       <title>{metadata.title}</title>
       <meta name="description" content={metadata.description} />
       <link rel="canonical" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="pt-BR" href={`${SITE_URL}${ptPath}`} />
+      <link rel="alternate" hrefLang="en-US" href={`${SITE_URL}${enPath}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}${ptPath}`} />
 
       <meta property="og:title" content={metadata.title} />
       <meta property="og:description" content={metadata.description} />

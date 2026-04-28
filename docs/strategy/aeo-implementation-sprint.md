@@ -100,7 +100,7 @@ Lifetrek manufactures orthopedic implants and surgical instruments using Swiss-t
 - CMM inspection and metrology for medical tolerances
 - UDI laser marking and batch traceability
 - Electropolishing and surface finishing
-- NPI to production transfer for medical SKUs
+- NPI to production transfer for medical items, projects, and part families
 - Import vs local manufacturing in Brazil
 
 ## Content

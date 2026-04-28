@@ -79,6 +79,8 @@ Use this minimum `metadata` contract for resources in approval:
 | Checklist de Auditoria Interna ISO 13485 | `checklist-auditoria-iso-13485` | checklist | Qualidade/Regulatory | published | `/resources/checklist-auditoria-iso-13485` |
 | Guia: Sala Limpa ISO 7 e Montagem de Kits | `guia-sala-limpa-iso-7` | guide | Producao/Ops | published | `/resources/guia-sala-limpa-iso-7` |
 | Manual de Metrologia e Inspecao de Alta Precisao | `guia-metrologia-alta-precisao` | guide | Qualidade/Engenharia | published | `/resources/guia-metrologia-alta-precisao` |
+| Checklist de Transferencia NPI para Producao | `checklist-transferencia-npi-producao` | checklist | Engenharia / Operacoes | published | `/resources/checklist-transferencia-npi-producao` |
+| Checklist de Rastreabilidade e Serializacao | `checklist-rastreabilidade-serializacao` | checklist | Qualidade / Supply Chain | published | `/resources/checklist-rastreabilidade-serializacao` |
 | Guia de Precisao: Metrologia 3D e CNC Swiss | `guia-metrologia-3d-cnc-swiss` | guide | Engenharia/Qualidade | pending_approval | `/resources/guia-metrologia-3d-cnc-swiss` |
 
 ## P0 Approval Backlog (Stakeholder Review)
