@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, Share2, Download, Printer } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -14,7 +15,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-// import remarkGfm from 'remark-gfm';
 import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
 import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 import { Helmet } from "react-helmet-async";
@@ -510,6 +510,7 @@ export default function ResourceDetail() {
                                 </div>
                                 <div className="prose prose-slate prose-lg max-w-none">
                                     <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
                                         components={{
                                             h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6" {...props} />,
                                             h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
@@ -517,6 +518,17 @@ export default function ResourceDetail() {
                                             ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
                                             li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
                                             p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
+                                            table: ({ node, ...props }) => (
+                                                <div className="overflow-x-auto my-8 border rounded-lg">
+                                                    <table className="min-w-full divide-y divide-slate-200" {...props} />
+                                                </div>
+                                            ),
+                                            thead: ({ node, ...props }) => <thead className="bg-slate-50" {...props} />,
+                                            tbody: ({ node, ...props }) => <tbody className="divide-y divide-slate-200 bg-white" {...props} />,
+                                            th: ({ node, ...props }) => (
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" {...props} />
+                                            ),
+                                            td: ({ node, ...props }) => <td className="px-6 py-4 text-sm text-slate-500 align-top" {...props} />,
                                         }}
                                     >
                                         {publicPreviewMarkdown}
@@ -539,6 +551,7 @@ export default function ResourceDetail() {
                     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border p-8 md:p-12">
                         <div className="prose prose-slate prose-lg max-w-none">
                             <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
                                 components={{
                                     h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6 mt-10" {...props} />,
                                     h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
@@ -567,7 +580,7 @@ export default function ResourceDetail() {
                                     th: ({ node, ...props }) => (
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" {...props} />
                                     ),
-                                    td: ({ node, ...props }) => <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500" {...props} />,
+                                    td: ({ node, ...props }) => <td className="px-6 py-4 text-sm text-slate-500 align-top" {...props} />,
                                     code: ({ className, children, ...props }) => {
                                         const language = className?.replace("language-", "");
                                         if (language === "mermaid") {
