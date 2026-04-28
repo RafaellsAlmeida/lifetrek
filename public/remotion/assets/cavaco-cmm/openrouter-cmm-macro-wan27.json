@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-04-23T11:12:03.232Z",
-  "refPath": "/Users/rafaelalmeida/lifetrek/public/remotion/assets/cavaco-cmm/ref-single-part-inspection.png",
-  "outPath": "/Users/rafaelalmeida/lifetrek/public/remotion/assets/cavaco-cmm/openrouter-cmm-macro-wan27.mp4",
+  "refPath": "public/remotion/assets/cavaco-cmm/ref-single-part-inspection.png",
+  "outPath": "public/remotion/assets/cavaco-cmm/openrouter-cmm-macro-wan27.mp4",
   "bytes": 2299508,
   "usage": {
     "cost": 0.5,
