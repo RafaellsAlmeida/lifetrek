@@ -35,6 +35,7 @@ export const Header = () => {
     { path: "/what-we-do", label: t("nav.whatWeDo") },
     { path: "/products", label: t("nav.products") },
     { path: "/resources", label: t("nav.resources") },
+    { path: "/blog", label: t("nav.blog") },
     { path: "/capabilities", label: t("nav.infrastructure") },
     { path: "/clients", label: t("nav.clients") },
     { path: "/contact", label: t("nav.contact") },
@@ -53,7 +54,7 @@ export const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden xl:flex items-center gap-5 2xl:gap-8">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -98,7 +99,7 @@ export const Header = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -108,7 +109,7 @@ export const Header = () => {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="lg:hidden border-t border-[#e5e7eb] bg-white">
+        <div className="xl:hidden border-t border-[#e5e7eb] bg-white">
           <div className="container mx-auto px-8 py-4 flex flex-col gap-2">
             {navItems.map((item) => (
               <Link

@@ -16,6 +16,7 @@ const translations = {
     "nav.whatWeDo": "What We Do",
     "nav.products": "Products",
     "nav.resources": "Resources",
+    "nav.blog": "Blog",
     "nav.quality": "Quality",
     "nav.infrastructure": "Infrastructure",
     "nav.culture": "Culture",
@@ -50,6 +51,9 @@ const translations = {
     "blog.subtitle": "Insights on medical manufacturing, supply chain and innovation.",
     "blog.readMore": "Read more",
     "blog.empty": "No published articles at the moment.",
+    "blog.latest.title": "Latest technical articles",
+    "blog.latest.subtitle": "Practical notes on quality, traceability, production transfer, and supplier risk in medical manufacturing.",
+    "blog.latest.cta": "View all articles",
 
     // About
     "about.title": "About Us",
@@ -560,6 +564,7 @@ const translations = {
     "nav.whatWeDo": "O que Fazemos",
     "nav.products": "Produtos",
     "nav.resources": "Recursos",
+    "nav.blog": "Blog",
     "nav.quality": "Qualidade",
     "nav.infrastructure": "Infraestrutura",
     "nav.culture": "Cultura",
@@ -594,6 +599,9 @@ const translations = {
     "blog.subtitle": "Insights sobre manufatura médica, supply chain e inovação.",
     "blog.readMore": "Ler mais",
     "blog.empty": "Nenhum artigo publicado no momento.",
+    "blog.latest.title": "Artigos técnicos recentes",
+    "blog.latest.subtitle": "Notas práticas sobre qualidade, rastreabilidade, transferência para produção e risco de fornecedores em manufatura médica.",
+    "blog.latest.cta": "Ver todos os artigos",
 
     // About
     "about.title": "Quem Somos",

@@ -1,0 +1,11 @@
+date,hook,impressions,reactions,post_format_clean,hook_category,awareness_stage,topic_group,caption_word_count,ctr_export_pct
+2026-04-20,"Na manufatura médica, capacidade produtiva não é só ter máquinas.",874.0,35.0,Image,Statement,Problem-aware,Operations / Capacity,82,11.43
+2026-02-16,"Em dispositivos médicos, “parece certo” não é suficiente.",681.0,22.0,Image,Statement,Product-aware,Metrology / Validation,147,0.95
+2026-04-02,"Em dispositivos médicos, o maior gargalo de qualidade nem sempre está na usinagem. Muitas vezes, ele aparece quando a amostra chega e falta evidência dimensional suficiente para sustentar a decisão técnica.",598.0,22.0,Image,Statement,Product-aware,Metrology / Validation,107,5.4290719
+2026-03-12,"Em implantes com geometria complexa, o problema muitas vezes não está no CAD, mas na quantidade de setups até a peça final.",498.0,15.0,Image,Statement,Problem-aware,Metrology / Validation,94,3.8297873
+2026-01-27,A Física por Trás da Validação de Implantes: Por que 3D + CNC?,359.0,10.0,Image,Question,Solution-aware,Prototype / DFM,283,3.1791907
+2026-03-18,Port-a-cath: Engenharia Nacional Atendendo a uma Demanda Crítica.,358.0,7.0,Image,Statement,Product-aware,Specialized Product,105,4.7210302
+2026-02-05,Você pode ter o melhor design e o material mais nobre.,339.0,9.0,Carousel,Statement,Problem-aware,Cleanroom,143,25.8899689
+2026-01-28,A transição do protótipo para a produção em escala é um dos momentos mais críticos no desenvolvimento de um dispositivo médico.,314.0,7.0,Image,Statement,Most aware,Prototype / DFM,147,2.0066889
+2026-01-21,"O CAD aceita tudo. A máquina, não.",294.0,6.0,Image,Statement,Product-aware,Prototype / DFM,178,2.8469751000000003
+2026-03-13,"Em dispositivos médicos, UDI não é só um código. É o que conecta um evento adverso de volta ao fabricante, ao lote e ao paciente certo.",268.0,9.0,Image,Statement,Product-aware,Other,149,5.3941909

@@ -1,0 +1,17 @@
+{
+  "post_id": "2026-05-05-T1-image",
+  "date": "2026-05-05",
+  "day": "terca",
+  "post_class": "editorial",
+  "topic": "Capacidade real em manufatura medica nao e numero de maquinas",
+  "topic_group": "Operations / Capacity",
+  "format_target": "Image",
+  "visual_treatment": "plain_hyperreal_no_overlay",
+  "hook": "Capacidade não é máquina. É hora usinável vezes confiabilidade vezes setup vezes metrologia em fluxo.",
+  "hook_length_chars": 101,
+  "caption_word_count": 102,
+  "image_dimensions": "1080x1350",
+  "background_source": "src/assets/facility/production-overview.jpg",
+  "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
+  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+}

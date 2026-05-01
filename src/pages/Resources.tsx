@@ -26,6 +26,12 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+    TRACEABILITY_CHECKLIST_DESCRIPTION,
+    TRACEABILITY_CHECKLIST_PERSONA,
+    TRACEABILITY_CHECKLIST_SLUG,
+    TRACEABILITY_CHECKLIST_TITLE,
+} from "@/constants/traceabilityChecklistFullContent";
 
 export default function Resources() {
     const { language } = useLanguage();
@@ -44,9 +50,22 @@ export default function Resources() {
             locale: "en_US",
         };
 
+    const getDisplayFields = (resource: NonNullable<typeof resources>[number]) => ({
+        title: resource.slug === TRACEABILITY_CHECKLIST_SLUG ? TRACEABILITY_CHECKLIST_TITLE : resource.title,
+        description:
+            resource.slug === TRACEABILITY_CHECKLIST_SLUG
+                ? TRACEABILITY_CHECKLIST_DESCRIPTION
+                : resource.description,
+        persona:
+            resource.slug === TRACEABILITY_CHECKLIST_SLUG
+                ? TRACEABILITY_CHECKLIST_PERSONA
+                : resource.persona,
+    });
+
     const filteredResources = resources?.filter(resource => {
-        const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const display = getDisplayFields(resource);
+        const matchesSearch = display.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            display.description.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = activeTab === "all" || resource.type === activeTab;
 
         return matchesSearch && matchesType;
@@ -149,43 +168,51 @@ export default function Resources() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredResources?.map((resource) => (
-                            <Card key={resource.id} className="group hover:shadow-xl transition-all duration-300 border-none shadow-md overflow-hidden flex flex-col h-full bg-white">
-                                <div className={`h-3 w-full ${resource.type === 'calculator' ? 'bg-green-500' : resource.type === 'checklist' ? 'bg-blue-500' : 'bg-orange-500'}`} />
-                                <CardHeader>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-200 gap-1.5 py-1.5">
-                                            {getIcon(resource.type)}
-                                            {getTypeLabel(resource.type)}
-                                        </Badge>
-                                        {resource.persona && (
-                                            <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
-                                                Para {resource.persona.split('/')[0]}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <CardTitle className="text-2xl font-bold text-slate-800 leading-tight group-hover:text-primary transition-colors">
-                                        {resource.title}
-                                    </CardTitle>
-                                    <CardDescription className="text-base mt-2 line-clamp-3">
-                                        {resource.description}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow">
-                                    {/* Placeholder for future specific metadata visualization */}
-                                </CardContent>
-                                <CardFooter className="pt-0 pb-6">
-                                    <div className="w-full flex gap-3">
-                                        <Link to={`/resources/${resource.slug}`} className="w-full">
-                                            <Button className="w-full py-6 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 group-hover:translate-y-[-2px] transition-all">
-                                                Acessar Recurso
-                                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </CardFooter>
-                            </Card>
-                        ))}
+                        {filteredResources?.map((resource) => {
+                            const {
+                                title: displayTitle,
+                                description: displayDescription,
+                                persona: displayPersona,
+                            } = getDisplayFields(resource);
+
+                            return (
+                                <Card key={resource.id} className="group hover:shadow-xl transition-all duration-300 border-none shadow-md overflow-hidden flex flex-col h-full bg-white">
+                                    <div className={`h-3 w-full ${resource.type === 'calculator' ? 'bg-green-500' : resource.type === 'checklist' ? 'bg-blue-500' : 'bg-orange-500'}`} />
+                                    <CardHeader>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <Badge variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-200 gap-1.5 py-1.5">
+                                                {getIcon(resource.type)}
+                                                {getTypeLabel(resource.type)}
+                                            </Badge>
+                                            {displayPersona && (
+                                                <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+                                                    Para {displayPersona.split('/')[0]}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <CardTitle className="text-2xl font-bold text-slate-800 leading-tight group-hover:text-primary transition-colors">
+                                            {displayTitle}
+                                        </CardTitle>
+                                        <CardDescription className="text-base mt-2 line-clamp-3">
+                                            {displayDescription}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="flex-grow">
+                                        {/* Placeholder for future specific metadata visualization */}
+                                    </CardContent>
+                                    <CardFooter className="pt-0 pb-6">
+                                        <div className="w-full flex gap-3">
+                                            <Link to={`/resources/${resource.slug}`} className="w-full">
+                                                <Button className="w-full py-6 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 group-hover:translate-y-[-2px] transition-all">
+                                                    Acessar Recurso
+                                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
 

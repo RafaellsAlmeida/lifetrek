@@ -1,0 +1,11 @@
+Validação não é inspeção final. É IQ, OQ e PQ documentados antes do primeiro lote comercial sair.
+
+O lote piloto costuma parecer suficiente porque tem relatório dimensional, peça aprovada e urgência comercial. Mas o auditor procura outra coisa: instalação, operação, desempenho, capabilidade e evidência de estabilidade antes da escala.
+
+Inspeção 100% ainda pode deixar aberta a pergunta sobre variabilidade entre operadores e repetibilidade do sistema de medição.
+
+A Lifetrek sustenta a discussão com ISO 13485, ANVISA e metrologia dimensional com ZEISS Contura.
+
+#ValidacaoDeProcesso #IQOQPQ #ANVISA #ISO13485
+
+Validação documenta o processo que o lote piloto só antecipa. ◆

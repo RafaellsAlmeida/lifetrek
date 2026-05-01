@@ -18,16 +18,120 @@ import { useToast } from "@/hooks/use-toast";
 import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
 import { flushPendingLeads, saveLeadWithCompat } from "@/utils/contactLeadCapture";
 import { Helmet } from "react-helmet-async";
+import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
     CHECKLIST_DFM_IMPLANTES_FULL_MARKDOWN,
     isChecklistDfmImplantesTeaserContent,
 } from "@/constants/checklistDfmImplantesFullContent";
+import {
+    TRACEABILITY_CHECKLIST_DESCRIPTION,
+    TRACEABILITY_CHECKLIST_FULL_MARKDOWN,
+    TRACEABILITY_CHECKLIST_SLUG,
+    TRACEABILITY_CHECKLIST_TITLE,
+    shouldUseTraceabilityChecklistOverride,
+} from "@/constants/traceabilityChecklistFullContent";
 
 const LEAD_MAGNET_PDF_SLUGS = new Set([
     "scorecard-risco-supply-chain-2026",
     "checklist-transferencia-npi-producao",
     "checklist-producao-local",
 ]);
+
+const RESOURCE_DETAIL_COPY = {
+    pt: {
+        notFound: "Recurso não encontrado.",
+        resourceBrief: "Resumo técnico",
+        resourceUnlockedTitle: "Recurso desbloqueado!",
+        resourceUnlockedDescription: "Boa leitura.",
+        pendingSyncDescription: "Sincronização do lead pendente. Vamos tentar novamente automaticamente.",
+        linkCopiedTitle: "Link copiado",
+        linkCopiedDescription: "O link do recurso foi copiado para a área de transferência.",
+        shareErrorTitle: "Não foi possível compartilhar",
+        shareErrorDescription: "Tente novamente em alguns instantes.",
+        downloadStartedTitle: "Download iniciado",
+        externalDownloadDescription: "O material foi aberto em uma nova aba.",
+        pdfDownloadDescription: "PDF gerado com identidade visual da Lifetrek.",
+        markdownDownloadDescription: "Markdown gerado com os itens de checklist em formato [ ].",
+        downloadErrorTitle: "Falha no download",
+        downloadErrorDescription: "Não foi possível gerar o arquivo.",
+        backToResources: "Voltar para Recursos",
+        categoryCalculator: "Ferramenta Interativa",
+        categoryChecklist: "Checklist",
+        categoryGuide: "Guia Prático",
+        readTime: "Tempo de leitura",
+        unavailableDate: "Data não disponível",
+        author: "Equipe Lifetrek",
+        share: "Compartilhar",
+        print: "Imprimir",
+        publicSummary: "Resumo público",
+        unlockTitle: "Desbloqueie o recurso completo",
+        unlockDescription: "Informe seu email corporativo para acessar o conteúdo completo. Nome e empresa são opcionais.",
+        unlockNow: "Desbloquear agora",
+        ctaTitle: "Gostou deste recurso?",
+        ctaDescription: "Nossa equipe de engenharia pode ajudar sua empresa a implementar essas estratégias na prática.",
+        contactSpecialist: "Falar com um Especialista",
+        downloadMaterial: "Baixar material",
+        unlockDialogTitle: "Desbloquear recurso",
+        unlockDialogDescription: "Insira seu email para acessar o conteúdo completo. Nome e empresa são opcionais.",
+        fullName: "Nome completo (opcional)",
+        fullNamePlaceholder: "Seu nome",
+        corporateEmail: "Email corporativo",
+        corporateEmailPlaceholder: "voce@empresa.com",
+        company: "Empresa (opcional)",
+        companyPlaceholder: "Nome da sua empresa",
+        unlocking: "Liberando...",
+        unlockResource: "Desbloquear recurso",
+        checkboxChecked: "Item marcado",
+        checkboxUnchecked: "Marcar item",
+    },
+    en: {
+        notFound: "Resource not found.",
+        resourceBrief: "Technical brief",
+        resourceUnlockedTitle: "Resource unlocked!",
+        resourceUnlockedDescription: "Good reading.",
+        pendingSyncDescription: "Lead sync is pending. We will retry automatically.",
+        linkCopiedTitle: "Link copied",
+        linkCopiedDescription: "The resource link was copied to the clipboard.",
+        shareErrorTitle: "Unable to share",
+        shareErrorDescription: "Please try again in a moment.",
+        downloadStartedTitle: "Download started",
+        externalDownloadDescription: "The material opened in a new tab.",
+        pdfDownloadDescription: "PDF generated with Lifetrek visual identity.",
+        markdownDownloadDescription: "Markdown generated with checklist items in [ ] format.",
+        downloadErrorTitle: "Download failed",
+        downloadErrorDescription: "Unable to generate the file.",
+        backToResources: "Back to Resources",
+        categoryCalculator: "Interactive Tool",
+        categoryChecklist: "Checklist",
+        categoryGuide: "Practical Guide",
+        readTime: "Reading time",
+        unavailableDate: "Date unavailable",
+        author: "Lifetrek Team",
+        share: "Share",
+        print: "Print",
+        publicSummary: "Public summary",
+        unlockTitle: "Unlock the full resource",
+        unlockDescription: "Enter your corporate email to access the full content. Name and company are optional.",
+        unlockNow: "Unlock now",
+        ctaTitle: "Was this resource useful?",
+        ctaDescription: "Our engineering team can help your company apply these practices.",
+        contactSpecialist: "Talk to a Specialist",
+        downloadMaterial: "Download material",
+        unlockDialogTitle: "Unlock resource",
+        unlockDialogDescription: "Enter your email to access the full content. Name and company are optional.",
+        fullName: "Full name (optional)",
+        fullNamePlaceholder: "Your name",
+        corporateEmail: "Corporate email",
+        corporateEmailPlaceholder: "you@company.com",
+        company: "Company (optional)",
+        companyPlaceholder: "Company name",
+        unlocking: "Unlocking...",
+        unlockResource: "Unlock resource",
+        checkboxChecked: "Checked item",
+        checkboxUnchecked: "Check item",
+    },
+} as const;
 
 const stripMarkdown = (value: string) =>
     value
@@ -95,10 +199,28 @@ const extractMarkdownFaqEntries = (content: string) => {
     return entries;
 };
 
+const triggerDownloadLink = (href: string, downloadName?: string, targetBlank = false) => {
+    const link = document.createElement("a");
+    link.href = href;
+    if (downloadName) {
+        link.download = downloadName;
+    }
+    if (targetBlank) {
+        link.target = "_blank";
+    }
+    link.style.display = "none";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+};
+
 export default function ResourceDetail() {
     const { slug } = useParams();
     const { data: resource, isLoading, error } = useResource(slug || "");
     const { toast } = useToast();
+    const { language } = useLanguage();
+    const copy = RESOURCE_DETAIL_COPY[language];
     const [hasAccess, setHasAccess] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUnlocking, setIsUnlocking] = useState(false);
@@ -113,8 +235,15 @@ export default function ResourceDetail() {
         resource?.slug === "checklist-dfm-implantes" &&
         isChecklistDfmImplantesTeaserContent(rawResourceContent)
             ? CHECKLIST_DFM_IMPLANTES_FULL_MARKDOWN
-            : rawResourceContent;
+            : shouldUseTraceabilityChecklistOverride(resource?.slug, rawResourceContent)
+              ? TRACEABILITY_CHECKLIST_FULL_MARKDOWN
+              : rawResourceContent;
     const resolvedSlug = resource?.slug ?? slug ?? "resource";
+    const resourceTitle = resolvedSlug === TRACEABILITY_CHECKLIST_SLUG ? TRACEABILITY_CHECKLIST_TITLE : resource?.title ?? "";
+    const resourceDescription =
+        resolvedSlug === TRACEABILITY_CHECKLIST_SLUG
+            ? TRACEABILITY_CHECKLIST_DESCRIPTION
+            : resource?.description ?? "";
     const metadata = (resource?.metadata ?? {}) as Record<string, unknown>;
     const downloadUrl = typeof metadata.download_url === "string" ? metadata.download_url : undefined;
     const publicPreviewMarkdown = buildPublicPreview(resourceContent);
@@ -140,8 +269,8 @@ export default function ResourceDetail() {
 
     useEffect(() => {
         if (!resource?.slug) return;
-        trackResourceView(resource.slug, resource.title);
-    }, [resource?.slug, resource?.title]);
+        trackResourceView(resource.slug, resourceTitle);
+    }, [resource?.slug, resourceTitle]);
 
     useEffect(() => {
         void flushPendingLeads();
@@ -154,11 +283,11 @@ export default function ResourceDetail() {
     }, []);
 
     if (isLoading) return <LoadingSpinner />;
-    if (error || !resource) return <div className="p-8 text-center">Recurso não encontrado.</div>;
+    if (error || !resource) return <div className="p-8 text-center">{copy.notFound}</div>;
 
     const SITE_URL = "https://lifetrek-medical.com";
     const canonicalUrl = `${SITE_URL}/resources/${resource.slug}`;
-    const metaDescription = resource.description || resource.title;
+    const metaDescription = resourceDescription || resourceTitle;
 
     const getStructuredData = () => {
         switch (resource.type) {
@@ -166,7 +295,7 @@ export default function ResourceDetail() {
                 return {
                     "@context": "https://schema.org",
                     "@type": "TechArticle",
-                    headline: resource.title,
+                    headline: resourceTitle,
                     description: metaDescription,
                     author: { "@type": "Organization", name: "Lifetrek Medical" },
                     publisher: {
@@ -189,7 +318,7 @@ export default function ResourceDetail() {
                 return {
                     "@context": "https://schema.org",
                     "@type": "HowTo",
-                    name: resource.title,
+                    name: resourceTitle,
                     description: metaDescription,
                     step: headings.map((text: string, i: number) => ({
                         "@type": "HowToStep",
@@ -204,7 +333,7 @@ export default function ResourceDetail() {
                 return {
                     "@context": "https://schema.org",
                     "@type": "WebApplication",
-                    name: resource.title,
+                    name: resourceTitle,
                     description: metaDescription,
                     url: canonicalUrl,
                     applicationCategory: "BusinessApplication",
@@ -215,7 +344,7 @@ export default function ResourceDetail() {
                 return {
                     "@context": "https://schema.org",
                     "@type": "Article",
-                    headline: resource.title,
+                    headline: resourceTitle,
                     description: metaDescription,
                     url: canonicalUrl,
                     inLanguage: "pt-BR",
@@ -229,7 +358,7 @@ export default function ResourceDetail() {
         itemListElement: [
             { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
             { "@type": "ListItem", position: 2, name: "Recursos", item: `${SITE_URL}/resources` },
-            { "@type": "ListItem", position: 3, name: resource.title, item: canonicalUrl },
+            { "@type": "ListItem", position: 3, name: resourceTitle, item: canonicalUrl },
         ],
     };
 
@@ -250,7 +379,7 @@ export default function ResourceDetail() {
                 name: formData.name?.trim() || "Lead de recurso",
                 email: formData.email,
                 company: formData.company || undefined,
-                phone: "Nao informado",
+                phone: "Não informado",
                 project_type: "other_medical",
                 project_types: ["other_medical"],
                 technical_requirements: `Resource unlock: ${resolvedSlug}`,
@@ -262,21 +391,21 @@ export default function ResourceDetail() {
 
             if (saveResult.status === "saved") {
                 toast({
-                    title: "Recurso desbloqueado!",
-                    description: "Boa leitura.",
+                    title: copy.resourceUnlockedTitle,
+                    description: copy.resourceUnlockedDescription,
                 });
             } else {
                 toast({
-                    title: "Recurso desbloqueado!",
-                    description: "Sincronizacao do lead pendente. Vamos tentar novamente automaticamente.",
+                    title: copy.resourceUnlockedTitle,
+                    description: copy.pendingSyncDescription,
                 });
             }
         } catch (error) {
             console.error("Unexpected error while unlocking resource:", error);
             unlockLocally();
             toast({
-                title: "Recurso desbloqueado!",
-                description: "Sincronizacao do lead pendente. Vamos tentar novamente automaticamente.",
+                title: copy.resourceUnlockedTitle,
+                description: copy.pendingSyncDescription,
             });
         } finally {
             setIsUnlocking(false);
@@ -289,23 +418,23 @@ export default function ResourceDetail() {
         try {
             if (navigator.share) {
                 await navigator.share({
-                    title: resource.title,
-                    text: resource.description,
+                    title: resourceTitle,
+                    text: resourceDescription,
                     url: currentUrl,
                 });
                 return;
             }
             await navigator.clipboard.writeText(currentUrl);
             toast({
-                title: "Link copiado",
-                description: "O link do recurso foi copiado para a area de transferencia.",
+                title: copy.linkCopiedTitle,
+                description: copy.linkCopiedDescription,
             });
         } catch (error) {
             console.error("Error sharing resource:", error);
             toast({
                 variant: "destructive",
-                title: "Nao foi possivel compartilhar",
-                description: "Tente novamente em alguns instantes.",
+                title: copy.shareErrorTitle,
+                description: copy.shareErrorDescription,
             });
         }
     };
@@ -319,12 +448,12 @@ export default function ResourceDetail() {
             const currentUrl = window.location.href;
 
             if (downloadUrl) {
-                const link = document.createElement("a");
-                link.href = downloadUrl;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                link.click();
-                await trackResourceDownload(resolvedSlug, resource.title, "external");
+                triggerDownloadLink(downloadUrl, undefined, true);
+                await trackResourceDownload(resolvedSlug, resourceTitle, "external");
+                toast({
+                    title: copy.downloadStartedTitle,
+                    description: copy.externalDownloadDescription,
+                });
                 return;
             }
 
@@ -345,12 +474,12 @@ export default function ResourceDetail() {
                 doc.text("Lifetrek Medical", margin, 34);
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
-                doc.text("Resource Brief", margin, 54);
+                doc.text(copy.resourceBrief, margin, 54);
 
                 doc.setTextColor(17, 24, 39);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(19);
-                doc.text(resource.title, margin, 128, { maxWidth });
+                doc.text(resourceTitle, margin, 128, { maxWidth });
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(71, 85, 105);
@@ -363,18 +492,18 @@ export default function ResourceDetail() {
                 });
 
                 doc.save(`${resolvedSlug}.pdf`);
-                await trackResourceDownload(resolvedSlug, resource.title, "pdf");
+                await trackResourceDownload(resolvedSlug, resourceTitle, "pdf");
                 toast({
-                    title: "Download iniciado",
-                    description: "PDF gerado com identidade visual da Lifetrek.",
+                    title: copy.downloadStartedTitle,
+                    description: copy.pdfDownloadDescription,
                 });
                 return;
             }
 
             const generatedFile = [
-                `# ${resource.title}`,
+                `# ${resourceTitle}`,
                 "",
-                resource.description,
+                resourceDescription,
                 "",
                 `Fonte: ${currentUrl}`,
                 "",
@@ -384,37 +513,134 @@ export default function ResourceDetail() {
 
             const blob = new Blob([generatedFile], { type: "text/markdown;charset=utf-8" });
             const blobUrl = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = `${resolvedSlug}.md`;
-            link.click();
-            URL.revokeObjectURL(blobUrl);
+            triggerDownloadLink(blobUrl, `${resolvedSlug}.md`);
+            window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
-            await trackResourceDownload(resolvedSlug, resource.title, "md");
+            await trackResourceDownload(resolvedSlug, resourceTitle, "md");
             toast({
-                title: "Download iniciado",
-                description: "Material exportado em formato Markdown.",
+                title: copy.downloadStartedTitle,
+                description: copy.markdownDownloadDescription,
             });
         } catch (error) {
             console.error("Error downloading resource:", error);
             toast({
                 variant: "destructive",
-                title: "Falha no download",
-                description: "Nao foi possivel gerar o arquivo.",
+                title: copy.downloadErrorTitle,
+                description: copy.downloadErrorDescription,
             });
         }
     };
 
+    const createMarkdownComponents = (mode: "preview" | "full") => ({
+        h1: ({ node, ...props }: any) => (
+            <h1
+                className={cn(
+                    "text-3xl font-bold text-slate-900 mb-6",
+                    mode === "full" && "mt-10",
+                )}
+                {...props}
+            />
+        ),
+        h2: ({ node, ...props }: any) => (
+            <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />
+        ),
+        h3: ({ node, ...props }: any) => (
+            <h3 className="text-xl font-semibold text-slate-800 mb-3 mt-6" {...props} />
+        ),
+        ul: ({ node, className, ...props }: any) => {
+            const isTaskList = typeof className === "string" && className.includes("contains-task-list");
+            return (
+                <ul
+                    className={cn(
+                        isTaskList ? "list-none pl-0 space-y-3 mb-6" : "list-disc pl-6 space-y-2 mb-6",
+                        className,
+                    )}
+                    {...props}
+                />
+            );
+        },
+        li: ({ node, className, ...props }: any) => {
+            const isTaskItem = typeof className === "string" && className.includes("task-list-item");
+            return (
+                <li
+                    className={cn(
+                        "text-slate-700 leading-relaxed",
+                        isTaskItem && "flex list-none items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2",
+                        className,
+                    )}
+                    {...props}
+                />
+            );
+        },
+        input: ({ node, type, checked, disabled, className, ...props }: any) => {
+            if (type === "checkbox") {
+                return (
+                    <input
+                        type="checkbox"
+                        defaultChecked={Boolean(checked)}
+                        aria-label={checked ? copy.checkboxChecked : copy.checkboxUnchecked}
+                        className={cn("mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary", className)}
+                        {...props}
+                    />
+                );
+            }
+
+            return <input type={type} disabled={disabled} className={className} {...props} />;
+        },
+        p: ({ node, ...props }: any) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
+        a: ({ href, children, ...props }: any) => (
+            <a
+                href={href}
+                className="text-primary font-medium underline underline-offset-2 hover:text-primary/90"
+                target={href?.startsWith("http") ? "_blank" : undefined}
+                rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                {...props}
+            >
+                {children}
+            </a>
+        ),
+        table: ({ node, ...props }: any) => (
+            <div className="overflow-x-auto my-8 border rounded-lg">
+                <table className="min-w-full divide-y divide-slate-200" {...props} />
+            </div>
+        ),
+        thead: ({ node, ...props }: any) => <thead className="bg-slate-50" {...props} />,
+        tbody: ({ node, ...props }: any) => <tbody className="divide-y divide-slate-200 bg-white" {...props} />,
+        tr: ({ node, ...props }: any) => <tr {...props} />,
+        th: ({ node, ...props }: any) => (
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" {...props} />
+        ),
+        td: ({ node, ...props }: any) => <td className="px-6 py-4 text-sm text-slate-500 align-top" {...props} />,
+        code: ({ className, children, ...props }: any) => {
+            const language = className?.replace("language-", "");
+            if (language === "mermaid") {
+                return (
+                    <div className="my-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <Mermaid chart={String(children).trim()} />
+                    </div>
+                );
+            }
+            return (
+                <code className="rounded bg-slate-100 px-1 py-0.5 text-sm text-slate-800" {...props}>
+                    {children}
+                </code>
+            );
+        },
+        blockquote: ({ node, ...props }: any) => (
+            <blockquote className="border-l-4 border-primary bg-slate-50 p-4 rounded-r italic text-slate-700 my-6" {...props} />
+        ),
+    });
+
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             <Helmet>
-                <title>{resource.title} | Lifetrek Medical</title>
+                <title>{resourceTitle} | Lifetrek Medical</title>
                 <meta name="description" content={metaDescription} />
                 <meta name="robots" content="index, follow" />
                 <meta httpEquiv="content-language" content="pt-BR" />
                 <link rel="canonical" href={canonicalUrl} />
 
-                <meta property="og:title" content={resource.title} />
+                <meta property="og:title" content={resourceTitle} />
                 <meta property="og:description" content={metaDescription} />
                 <meta property="og:type" content="article" />
                 <meta property="og:url" content={canonicalUrl} />
@@ -422,7 +648,7 @@ export default function ResourceDetail() {
                 <meta property="og:site_name" content="Lifetrek Medical" />
 
                 <meta name="twitter:card" content="summary" />
-                <meta name="twitter:title" content={resource.title} />
+                <meta name="twitter:title" content={resourceTitle} />
                 <meta name="twitter:description" content={metaDescription} />
 
                 <script type="application/ld+json">
@@ -454,44 +680,44 @@ export default function ResourceDetail() {
                 <div className="container mx-auto px-4 py-8">
                     <Link to="/resources" className="inline-flex items-center text-sm text-slate-500 hover:text-primary mb-6 transition-colors">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para Recursos
+                        {copy.backToResources}
                     </Link>
 
                     <div className="flex flex-wrap gap-3 mb-4">
                         <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-                            {resource.type === 'calculator' ? 'Ferramenta Interativa' :
-                                resource.type === 'checklist' ? 'Checklist' : 'Guia Prático'}
+                            {resource.type === 'calculator' ? copy.categoryCalculator :
+                                resource.type === 'checklist' ? copy.categoryChecklist : copy.categoryGuide}
                         </Badge>
                         <Badge variant="outline" className="text-slate-500 border-slate-200">
-                            Tempo de leitura: {resource.read_time_minutes || 5} min
+                            {copy.readTime}: {resource.read_time_minutes || 5} min
                         </Badge>
                     </div>
 
                     <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-                        {resource.title}
+                        {resourceTitle}
                     </h1>
 
                     <p className="text-lg text-slate-600 max-w-3xl mb-6 leading-relaxed">
-                        {resource.description}
+                        {resourceDescription}
                     </p>
 
                     <div className="flex items-center gap-6 text-sm text-slate-500 border-t border-slate-100 pt-6">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
-                            <span>{resource.created_at ? format(new Date(resource.created_at), "d 'de' MMMM, yyyy", { locale: ptBR }) : 'Data não disponível'}</span>
+                            <span>{resource.created_at ? format(new Date(resource.created_at), "d 'de' MMMM, yyyy", { locale: ptBR }) : copy.unavailableDate}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <User className="h-4 w-4" />
-                            <span>Equipe Lifetrek</span>
+                            <span>{copy.author}</span>
                         </div>
                         <div className="flex-1"></div>
                         <Button variant="ghost" size="sm" className="hidden md:flex" onClick={handleShare}>
                             <Share2 className="mr-2 h-4 w-4" />
-                            Compartilhar
+                            {copy.share}
                         </Button>
                         <Button variant="ghost" size="sm" className="hidden md:flex" onClick={handlePrint}>
                             <Printer className="mr-2 h-4 w-4" />
-                            Imprimir
+                            {copy.print}
                         </Button>
                     </div>
                 </div>
@@ -505,31 +731,13 @@ export default function ResourceDetail() {
                             <div className="bg-white rounded-xl shadow-sm border p-8 md:p-10">
                                 <div className="mb-6">
                                     <Badge variant="outline" className="border-primary/30 text-primary">
-                                        Resumo publico
+                                        {copy.publicSummary}
                                     </Badge>
                                 </div>
                                 <div className="prose prose-slate prose-lg max-w-none">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6" {...props} />,
-                                            h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
-                                            h3: ({ node, ...props }) => <h3 className="text-xl font-semibold text-slate-800 mb-3 mt-6" {...props} />,
-                                            ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
-                                            li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
-                                            p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
-                                            table: ({ node, ...props }) => (
-                                                <div className="overflow-x-auto my-8 border rounded-lg">
-                                                    <table className="min-w-full divide-y divide-slate-200" {...props} />
-                                                </div>
-                                            ),
-                                            thead: ({ node, ...props }) => <thead className="bg-slate-50" {...props} />,
-                                            tbody: ({ node, ...props }) => <tbody className="divide-y divide-slate-200 bg-white" {...props} />,
-                                            th: ({ node, ...props }) => (
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" {...props} />
-                                            ),
-                                            td: ({ node, ...props }) => <td className="px-6 py-4 text-sm text-slate-500 align-top" {...props} />,
-                                        }}
+                                        components={createMarkdownComponents("preview")}
                                     >
                                         {publicPreviewMarkdown}
                                     </ReactMarkdown>
@@ -538,12 +746,12 @@ export default function ResourceDetail() {
                         )}
 
                         <div className="bg-white rounded-xl shadow-sm border p-10 text-center">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-3">Desbloqueie o recurso completo</h2>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-3">{copy.unlockTitle}</h2>
                             <p className="text-slate-600 mb-6">
-                                Informe seu email corporativo para acessar o conteudo completo. Nome e empresa sao opcionais.
+                                {copy.unlockDescription}
                             </p>
                             <Button size="lg" onClick={() => setIsModalOpen(true)}>
-                                Desbloquear agora
+                                {copy.unlockNow}
                             </Button>
                         </div>
                     </div>
@@ -552,54 +760,7 @@ export default function ResourceDetail() {
                         <div className="prose prose-slate prose-lg max-w-none">
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
-                                components={{
-                                    h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6 mt-10" {...props} />,
-                                    h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
-                                    ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
-                                    li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
-                                    p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
-                                    a: ({ href, children, ...props }) => (
-                                        <a
-                                            href={href}
-                                            className="text-primary font-medium underline underline-offset-2 hover:text-primary/90"
-                                            target={href?.startsWith("http") ? "_blank" : undefined}
-                                            rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
-                                            {...props}
-                                        >
-                                            {children}
-                                        </a>
-                                    ),
-                                    table: ({ node, ...props }) => (
-                                        <div className="overflow-x-auto my-8 border rounded-lg">
-                                            <table className="min-w-full divide-y divide-slate-200" {...props} />
-                                        </div>
-                                    ),
-                                    thead: ({ node, ...props }) => <thead className="bg-slate-50" {...props} />,
-                                    tbody: ({ node, ...props }) => <tbody className="divide-y divide-slate-200 bg-white" {...props} />,
-                                    tr: ({ node, ...props }) => <tr {...props} />,
-                                    th: ({ node, ...props }) => (
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" {...props} />
-                                    ),
-                                    td: ({ node, ...props }) => <td className="px-6 py-4 text-sm text-slate-500 align-top" {...props} />,
-                                    code: ({ className, children, ...props }) => {
-                                        const language = className?.replace("language-", "");
-                                        if (language === "mermaid") {
-                                            return (
-                                                <div className="my-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                                    <Mermaid chart={String(children).trim()} />
-                                                </div>
-                                            );
-                                        }
-                                        return (
-                                            <code className="rounded bg-slate-100 px-1 py-0.5 text-sm text-slate-800" {...props}>
-                                                {children}
-                                            </code>
-                                        );
-                                    },
-                                    blockquote: ({ node, ...props }) => (
-                                        <blockquote className="border-l-4 border-primary bg-slate-50 p-4 rounded-r italic text-slate-700 my-6" {...props} />
-                                    )
-                                }}
+                                components={createMarkdownComponents("full")}
                             >
                                 {resourceContent}
                             </ReactMarkdown>
@@ -623,19 +784,19 @@ export default function ResourceDetail() {
 
                         {/* CTA Footer */}
                         <div className="mt-16 pt-8 border-t bg-slate-50 -mx-8 -mb-8 md:-mx-12 md:-mb-12 p-8 md:p-12 text-center rounded-b-xl">
-                            <h3 className="text-2xl font-bold text-slate-900 mb-4">Gostou deste recurso?</h3>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4">{copy.ctaTitle}</h3>
                             <p className="text-slate-600 mb-8 max-w-xl mx-auto">
-                                Nossa equipe de engenharia pode ajudar sua empresa a implementar essas estrategias na pratica.
+                                {copy.ctaDescription}
                             </p>
                             <div className="flex justify-center gap-4">
                                 <Link to="/contact">
                                     <Button size="lg" className="px-8">
-                                        Falar com um Especialista
+                                        {copy.contactSpecialist}
                                     </Button>
                                 </Link>
                                 <Button variant="outline" size="lg" onClick={handleDownload}>
                                     <Download className="mr-2 h-4 w-4" />
-                                    Baixar material
+                                    {copy.downloadMaterial}
                                 </Button>
                             </div>
                         </div>
@@ -646,44 +807,44 @@ export default function ResourceDetail() {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Desbloquear recurso</DialogTitle>
+                        <DialogTitle>{copy.unlockDialogTitle}</DialogTitle>
                         <DialogDescription>
-                            Insira seu email para acessar o conteudo completo. Nome e empresa sao opcionais.
+                            {copy.unlockDialogDescription}
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleUnlock} className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Nome completo (opcional)</Label>
+                            <Label htmlFor="name">{copy.fullName}</Label>
                             <Input
                                 id="name"
-                                placeholder="Seu nome"
+                                placeholder={copy.fullNamePlaceholder}
                                 value={formData.name}
                                 onChange={(event) => setFormData({ ...formData, name: event.target.value })}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email corporativo</Label>
+                            <Label htmlFor="email">{copy.corporateEmail}</Label>
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="voce@empresa.com"
+                                placeholder={copy.corporateEmailPlaceholder}
                                 value={formData.email}
                                 onChange={(event) => setFormData({ ...formData, email: event.target.value })}
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="company">Empresa (opcional)</Label>
+                            <Label htmlFor="company">{copy.company}</Label>
                             <Input
                                 id="company"
-                                placeholder="Nome da sua empresa"
+                                placeholder={copy.companyPlaceholder}
                                 value={formData.company}
                                 onChange={(event) => setFormData({ ...formData, company: event.target.value })}
                             />
                         </div>
                         <DialogFooter className="pt-4">
                             <Button type="submit" className="w-full" disabled={isUnlocking}>
-                                {isUnlocking ? "Liberando..." : "Desbloquear recurso"}
+                                {isUnlocking ? copy.unlocking : copy.unlockResource}
                             </Button>
                         </DialogFooter>
                     </form>

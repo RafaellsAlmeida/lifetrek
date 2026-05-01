@@ -327,6 +327,20 @@ All colors MUST be HSL.
     transform: translateY(0);
   }
 
+  .editorial-marquee {
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .editorial-marquee-track {
+    animation: editorial-marquee-roll 34s linear infinite;
+    will-change: transform;
+  }
+
+  .editorial-marquee:hover .editorial-marquee-track {
+    animation-play-state: paused;
+  }
+
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -367,5 +381,15 @@ All colors MUST be HSL.
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+
+    .editorial-marquee-track {
+      animation: none !important;
+    }
+  }
+}
+
+@keyframes editorial-marquee-roll {
+  to {
+    transform: translateX(-50%);
   }
 }

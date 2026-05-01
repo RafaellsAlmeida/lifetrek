@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useBlogPost } from "@/hooks/useBlogPosts";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, Share2, Printer, Clock } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
@@ -117,24 +116,6 @@ export default function BlogPostDetails() {
     const publishedAt = post.published_at || post.created_at;
     const headline = post.seo_title || post.title;
     const metaDescription = clampText(post.seo_description || post.excerpt || plainTextContent, 160);
-    const metadataEntityKeywords = Array.isArray((post as any)?.metadata?.entity_keywords)
-        ? ((post as any).metadata.entity_keywords as string[])
-        : [];
-    const metadataPillarKeyword = typeof (post as any)?.metadata?.pillar_keyword === "string"
-        ? (post as any).metadata.pillar_keyword
-        : "";
-    const articleKeywords = Array.from(
-        new Set(
-            [
-                ...((post.keywords || []) as string[]),
-                ...metadataEntityKeywords,
-                metadataPillarKeyword,
-            ]
-                .filter(Boolean)
-                .map((keyword) => String(keyword).trim())
-                .filter((keyword) => keyword.length > 0)
-        )
-    );
     const metadataSources = Array.isArray((post as any)?.metadata?.sources)
         ? (post as any).metadata.sources.filter((url: unknown) => typeof url === "string" && url.startsWith("http"))
         : [];
@@ -152,7 +133,6 @@ export default function BlogPostDetails() {
             <Helmet>
                 <title>{headline} | Lifetrek Medical Blog</title>
                 <meta name="description" content={metaDescription} />
-                {articleKeywords.length > 0 && <meta name="keywords" content={articleKeywords.join(", ")} />}
                 <meta name="author" content={displayAuthor} />
                 <meta httpEquiv="content-language" content="pt-BR" />
                 <meta name="robots" content="index, follow" />
@@ -167,9 +147,6 @@ export default function BlogPostDetails() {
                 <meta property="article:published_time" content={publishedAt} />
                 <meta property="article:modified_time" content={post.updated_at} />
                 {post.category?.name && <meta property="article:section" content={post.category.name} />}
-                {articleKeywords.map((keyword) => (
-                    <meta key={keyword} property="article:tag" content={keyword} />
-                ))}
                 {featuredImageUrl && <meta property="og:image" content={featuredImageUrl} />}
 
                 <meta name="twitter:card" content="summary_large_image" />
@@ -206,7 +183,6 @@ export default function BlogPostDetails() {
                         inLanguage: "pt-BR",
                         url: canonicalUrl,
                         articleSection: post.category?.name || "Blog",
-                        keywords: articleKeywords.join(", "),
                         wordCount: words,
                         timeRequired: `PT${readTime}M`,
                         citation: articleSources,
@@ -252,11 +228,6 @@ export default function BlogPostDetails() {
                     </Link>
 
                     <div className="flex gap-3 mb-6">
-                        {post.category && (
-                            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
-                                {post.category.name}
-                            </Badge>
-                        )}
                         <span className="flex items-center text-sm text-slate-500 gap-2">
                             <Clock className="w-4 h-4" />
                             {readTime} min de leitura
@@ -306,7 +277,6 @@ export default function BlogPostDetails() {
 
             {/* Content using Markdown */}
             <div className="container mx-auto px-4 max-w-3xl">
-                {featuredResource ? <FeaturedResourceInlineCard resource={featuredResource} /> : null}
                 {showHtmlContent ? (
                     <article
                         className="prose prose-slate prose-lg max-w-none
@@ -336,20 +306,7 @@ export default function BlogPostDetails() {
                         </ReactMarkdown>
                     </article>
                 )}
-
-                {/* Tags */}
-                {articleKeywords.length > 0 && (
-                    <div className="mt-12 pt-8 border-t">
-                        <p className="text-sm font-semibold text-slate-500 mb-3">Tags:</p>
-                        <div className="flex flex-wrap gap-2">
-                            {articleKeywords.map(tag => (
-                                <Badge key={tag} variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-200">
-                                    #{tag}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {featuredResource ? <FeaturedResourceInlineCard resource={featuredResource} /> : null}
             </div>
         </div>
     );

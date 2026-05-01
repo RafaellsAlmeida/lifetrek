@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, Share2, Download, Printer } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-// import remarkGfm from 'remark-gfm';
 import Mermaid from "@/components/agents/Mermaid";
 import ResourceInteractiveBlocks from "@/components/resources/ResourceInteractiveBlocks";
+import { cn } from "@/lib/utils";
 
 interface ResourceDetailPreviewContentProps {
     resource: {
@@ -40,6 +41,68 @@ export const ResourceDetailPreviewContent: React.FC<ResourceDetailPreviewContent
         name: "Stakeholder Preview",
         email: "preview@lifetrek.local",
         company: "Lifetrek",
+    };
+    const markdownComponents = {
+        h1: ({ node, ...props }: any) => <h1 className="text-3xl font-bold text-slate-900 mb-6 mt-10" {...props} />,
+        h2: ({ node, ...props }: any) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
+        ul: ({ node, className, ...props }: any) => {
+            const isTaskList = typeof className === "string" && className.includes("contains-task-list");
+            return (
+                <ul
+                    className={cn(
+                        isTaskList ? "list-none pl-0 space-y-3 mb-6" : "list-disc pl-6 space-y-2 mb-6",
+                        className,
+                    )}
+                    {...props}
+                />
+            );
+        },
+        li: ({ node, className, ...props }: any) => {
+            const isTaskItem = typeof className === "string" && className.includes("task-list-item");
+            return (
+                <li
+                    className={cn(
+                        "text-slate-700 leading-relaxed",
+                        isTaskItem && "flex list-none items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2",
+                        className,
+                    )}
+                    {...props}
+                />
+            );
+        },
+        input: ({ node, type, checked, disabled, className, ...props }: any) => {
+            if (type === "checkbox") {
+                return (
+                    <input
+                        type="checkbox"
+                        defaultChecked={Boolean(checked)}
+                        aria-label={checked ? "Item marcado" : "Marcar item"}
+                        className={cn("mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary", className)}
+                        {...props}
+                    />
+                );
+            }
+            return <input type={type} disabled={disabled} className={className} {...props} />;
+        },
+        p: ({ node, ...props }: any) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
+        code: ({ className, children, ...props }: any) => {
+            const language = className?.replace("language-", "");
+            if (language === "mermaid") {
+                return (
+                    <div className="my-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <Mermaid chart={String(children).trim()} />
+                    </div>
+                );
+            }
+            return (
+                <code className="rounded bg-slate-100 px-1 py-0.5 text-sm text-slate-800" {...props}>
+                    {children}
+                </code>
+            );
+        },
+        blockquote: ({ node, ...props }: any) => (
+            <blockquote className="border-l-4 border-primary bg-slate-50 p-4 rounded-r italic text-slate-700 my-6" {...props} />
+        ),
     };
 
     return (
@@ -107,32 +170,8 @@ export const ResourceDetailPreviewContent: React.FC<ResourceDetailPreviewContent
                 <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border p-8 md:p-12">
                     <div className="prose prose-slate prose-lg max-w-none">
                         <ReactMarkdown
-                            // remarkPlugins={[remarkGfm]}
-                            components={{
-                                h1: ({ node, ...props }) => <h1 className="text-3xl font-bold text-slate-900 mb-6 mt-10" {...props} />,
-                                h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold text-slate-800 mb-4 mt-8 pb-2 border-b" {...props} />,
-                                ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-6" {...props} />,
-                                li: ({ node, ...props }) => <li className="text-slate-700 leading-relaxed" {...props} />,
-                                p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-6" {...props} />,
-                                code: ({ className, children, ...props }) => {
-                                    const language = className?.replace("language-", "");
-                                    if (language === "mermaid") {
-                                        return (
-                                            <div className="my-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                                <Mermaid chart={String(children).trim()} />
-                                            </div>
-                                        );
-                                    }
-                                    return (
-                                        <code className="rounded bg-slate-100 px-1 py-0.5 text-sm text-slate-800" {...props}>
-                                            {children}
-                                        </code>
-                                    );
-                                },
-                                blockquote: ({ node, ...props }) => (
-                                    <blockquote className="border-l-4 border-primary bg-slate-50 p-4 rounded-r italic text-slate-700 my-6" {...props} />
-                                )
-                            }}
+                            remarkPlugins={[remarkGfm]}
+                            components={markdownComponents}
                         >
                             {(resource.content || '').replace(/\\n/g, '\n') || 'Nenhum conteúdo disponível.'}
                         </ReactMarkdown>
@@ -158,7 +197,7 @@ export const ResourceDetailPreviewContent: React.FC<ResourceDetailPreviewContent
                     <div className="mt-16 pt-8 border-t bg-slate-50 -mx-8 -mb-8 md:-mx-12 md:-mb-12 p-8 md:p-12 text-center rounded-b-xl">
                         <h3 className="text-2xl font-bold text-slate-900 mb-4">Gostou deste recurso?</h3>
                         <p className="text-slate-600 mb-8 max-w-xl mx-auto">
-                            Nossa equipe de engenharia pode ajudar sua empresa a implementar essas estrategias na pratica.
+                            Nossa equipe de engenharia pode ajudar sua empresa a implementar essas estratégias na prática.
                         </p>
                         <div className="flex justify-center gap-4">
                             <Button size="lg" className="px-8" disabled>
@@ -166,7 +205,7 @@ export const ResourceDetailPreviewContent: React.FC<ResourceDetailPreviewContent
                             </Button>
                             <Button variant="outline" size="lg" disabled>
                                 <Download className="mr-2 h-4 w-4" />
-                                Baixar PDF
+                                Baixar material
                             </Button>
                         </div>
                     </div>

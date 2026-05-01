@@ -180,6 +180,7 @@ Return markdown with these sections:
 - Never invent certifications, numerical performance, tolerances, inspection coverage, or regulatory status.
 - Never convert broad published language into narrow production guarantees.
 - Never use asset presence alone as proof of throughput, process sequence, or validation outcome.
+- Never publish internal claim-review guidance verbatim. Sections that describe "approved language", "how to speak publicly", or what should not be published must be rewritten as normal client-facing content or removed.
 - Treat `ANVISA`, `FDA`, `ISO 13485`, tolerance numbers, defect-rate claims, and setup-count claims as high-scrutiny areas.
 - Prefer the wording already used on the site when in doubt.
 - If a prompt or campaign file is stronger than the site, default to the site.

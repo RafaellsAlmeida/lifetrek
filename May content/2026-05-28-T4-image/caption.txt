@@ -1,0 +1,11 @@
+Sem MSA, sua tolerância é incerta. Cpk em sistema de medição não validado é número decorativo perigoso.
+
+Aprovar fornecedor pelo Cpk do lote piloto parece objetivo, mas pode esconder variação do instrumento, do operador e do método de medição. Quando a escala entra, a falsa precisão aparece como rejeição, retrabalho ou discussão de recebimento.
+
+MSA antes de Cpk muda a decisão: primeiro valida a régua, depois interpreta o processo.
+
+A Lifetrek apoia esse raciocínio com metrologia dimensional em ZEISS Contura e controle de qualidade alinhado à ISO 13485.
+
+#MSA #Cpk #Metrologia #Qualidade
+
+Cpk sem MSA mede confiança que talvez não exista. ◆

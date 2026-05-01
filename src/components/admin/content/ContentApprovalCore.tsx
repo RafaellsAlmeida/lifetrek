@@ -131,6 +131,81 @@ function buildSelectedItemFromUpdatedContent(item: any, updatedContent: any) {
     };
 }
 
+const newsletterDistributionSteps = [
+    {
+        title: "Fonte canônica",
+        label: "Blog ou recurso",
+        description: "A versão completa fica no site, com SEO, FAQ, checklist e referência para vendas.",
+    },
+    {
+        title: "Edição LinkedIn",
+        label: "Newsletter",
+        description: "Adaptar o tema para leitura editorial: risco real, 3 blocos narrativos e CTA único.",
+    },
+    {
+        title: "Distribuição",
+        label: "Feed",
+        description: "Publicar um post curto com uma ideia forte para puxar leitura e assinatura.",
+    },
+];
+
+function NewsletterDistributionSystemCard() {
+    return (
+        <Card className="overflow-hidden border-[#004F8F]/20 bg-gradient-to-br from-white via-blue-50/70 to-white shadow-sm">
+            <CardHeader className="pb-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#004F8F] text-white">
+                            <Linkedin className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                            <CardTitle className="text-lg text-slate-950">Sistema Boletim Lifetrek</CardTitle>
+                            <CardDescription className="max-w-3xl text-sm leading-relaxed text-slate-600">
+                                Aprove blogs e recursos pensando no sistema: site como fonte canônica, newsletter como adaptação editorial e feed como distribuição.
+                            </CardDescription>
+                        </div>
+                    </div>
+                    <Badge variant="secondary" className="w-fit border border-[#004F8F]/15 bg-white text-[#004F8F]">
+                        Cadência mensal
+                    </Badge>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-start">
+                    {newsletterDistributionSteps.map((step, index) => (
+                        <div key={step.title} className="contents">
+                            <div className="flex gap-3 rounded-lg bg-white/65 p-3 ring-1 ring-slate-200/70">
+                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#004F8F]/10 text-xs font-bold text-[#004F8F]">
+                                    {index + 1}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-950">{step.title}</p>
+                                    <p className="text-xs font-medium uppercase tracking-wide text-[#004F8F]">{step.label}</p>
+                                    <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.description}</p>
+                                </div>
+                            </div>
+                            {index < newsletterDistributionSteps.length - 1 && (
+                                <div className="hidden justify-center pt-5 text-slate-400 md:flex">
+                                    <ChevronRight className="h-5 w-5" />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                <div className="flex flex-col gap-2 border-t border-[#004F8F]/10 pt-4 text-sm text-slate-700 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-[#004F8F]" />
+                        <span>Primeira sequência: rastreabilidade, primeiro lote controlado e fornecedor ISO 13485.</span>
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Revisar antes de aprovar conteúdo
+                    </span>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export function ContentApprovalCore({ embedded = false }: ContentApprovalCoreProps) {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -1349,6 +1424,8 @@ export function ContentApprovalCore({ embedded = false }: ContentApprovalCorePro
             {errorPending && <ErrorBanner error={errorPending} context="itens pendentes" onRetry={() => refetchPending()} className="mb-6" />}
             {errorRejected && <ErrorBanner error={errorRejected} context="itens rejeitados" onRetry={() => refetchRejected()} className="mb-6" />}
             {errorApproved && <ErrorBanner error={errorApproved} context="itens aprovados" onRetry={() => refetchApproved()} className="mb-6" />}
+
+            {!embedded && <NewsletterDistributionSystemCard />}
 
             <div className="flex flex-col md:flex-row items-center gap-4 bg-white/50 p-4 rounded-xl border border-primary/5 shadow-sm">
                 <div className="relative flex-1 w-full">

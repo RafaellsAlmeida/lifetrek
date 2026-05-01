@@ -15,8 +15,9 @@ Use this skill as the IDE command center for the full content process.
 5. Quality analysis (`lifetrek-linkedin-analyst-agent`)
 6. Variant ranking (`lifetrek-linkedin-ranker-agent`)
 7. Human editing (`lifetrek-content-editor-agent`)
-18. Final approval package (JSON + publish notes)
-19. Local Execution (Optional via `lifetrek-local-carousel-generator`)
+8. Newsletter adaptation (`lifetrek-linkedin-newsletter-system-agent`) when a blog/resource should feed LinkedIn newsletter distribution
+9. Final approval package (JSON + publish notes)
+10. Local Execution (Optional via `lifetrek-local-carousel-generator`)
 
 ## Inputs
 - `campaign_goal`
@@ -31,7 +32,8 @@ Use this skill as the IDE command center for the full content process.
 3. Generate copy + design directives for each option.
 4. Score and rank outputs.
 5. Apply human editorial pass.
-6. Produce final package for `/admin/content-approval`.
+6. If the source is a blog or resource theme, adapt it into a LinkedIn newsletter edition + feed promo using `lifetrek-linkedin-newsletter-system-agent`.
+7. Produce final package for `/admin/content-approval`.
 
 ## Output Contract
 ```json
@@ -56,5 +58,8 @@ Use this skill as the IDE command center for the full content process.
 
 ## Guardrails
 - Use PT-BR output for user-facing text.
+- Keep ICP and persona fields internal to strategy/approval metadata; remove raw ICP labels or codes from any client-facing deliverable.
+- Strip internal editorial notes before approval handoff, including public-language guidance, claim-safety instructions, and "do not publish" notes.
+- Treat the site as the canonical source for blog/resource themes; LinkedIn newsletter and feed outputs are adapted distribution assets, not copies of the full article.
 - Respect Lifetrek template/brand constraints.
 - Keep variant history and non-destructive edits.

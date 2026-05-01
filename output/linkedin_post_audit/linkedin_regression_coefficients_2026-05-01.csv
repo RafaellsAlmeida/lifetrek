@@ -1,0 +1,32 @@
+model,target,feature,standardized_beta,abs_standardized_beta,raw_coefficient,direction
+impressions_content_time,impressions,topic_Operations / Capacity,0.7012871286321857,0.7012871286321857,484.39816923715676,positive
+impressions_content_time,impressions,days_since_start,-0.6860144740666232,0.6860144740666232,-4.357126149674617,negative
+impressions_content_time,impressions,topic_Metrology / Validation,0.4894277469124315,0.4894277469124315,201.06580479393403,positive
+impressions_content_time,impressions,caption_word_count,-0.3803433737075254,0.3803433737075254,-1.3565123579675902,negative
+impressions_content_time,impressions,is_carousel,-0.2053562922127496,0.2053562922127496,-95.38221227075621,negative
+impressions_content_time,impressions,hook_length_chars,0.17063311469124162,0.17063311469124162,0.7994888462097858,positive
+impressions_content_time,impressions,hook_is_question,0.1668523835388182,0.1668523835388182,95.96438409033364,positive
+impressions_content_time,impressions,awareness_Problem-aware,0.05225640919850208,0.05225640919850208,20.577275370000912,positive
+impressions_content_time,impressions,awareness_Product-aware,0.016595132761673487,0.016595132761673487,6.044609157766441,positive
+impressions_content_time,impressions,awareness_Solution-aware,-0.014106992266939955,0.014106992266939955,-6.552300474351654,negative
+reactions_content_time,reactions,topic_Operations / Capacity,0.7899295971497589,0.7899295971497589,20.177429763175418,positive
+reactions_content_time,reactions,days_since_start,-0.47922524191882854,0.47922524191882854,-0.11255826061312095,negative
+reactions_content_time,reactions,topic_Metrology / Validation,0.4331973652615629,0.4331973652615629,6.581217879479336,positive
+reactions_content_time,reactions,caption_word_count,-0.2934519704315048,0.2934519704315048,-0.03870399215121573,negative
+reactions_content_time,reactions,hook_is_question,0.2277031062687577,0.2277031062687577,4.843033277906077,positive
+reactions_content_time,reactions,hook_length_chars,0.19517248767911513,0.19517248767911513,0.03381726816315587,positive
+reactions_content_time,reactions,is_carousel,-0.13783720040268294,0.13783720040268294,-2.3675363363464754,negative
+reactions_content_time,reactions,awareness_Solution-aware,-0.0753082672857085,0.0753082672857085,-1.29351915669125,negative
+reactions_content_time,reactions,awareness_Product-aware,-0.042785608116935325,0.042785608116935325,-0.5763098408693365,negative
+reactions_content_time,reactions,awareness_Problem-aware,0.008310210567119808,0.008310210567119808,0.12101276010942286,positive
+reactions_with_impressions_exposure,reactions,impressions,0.8928317367875804,0.8928317367875804,0.03301721609711434,positive
+reactions_with_impressions_exposure,reactions,topic_Operations / Capacity,0.16379819210630936,0.16379819210630936,4.183950732428638,positive
+reactions_with_impressions_exposure,reactions,days_since_start,0.13327025242349239,0.13327025242349239,0.03130191503302866,positive
+reactions_with_impressions_exposure,reactions,hook_is_question,0.07873200288664656,0.07873200288664656,1.6745564707691938,positive
+reactions_with_impressions_exposure,reactions,awareness_Solution-aware,-0.06271309687916703,0.06271309687916703,-1.0771804359945847,negative
+reactions_with_impressions_exposure,reactions,awareness_Product-aware,-0.057602269322760594,0.057602269322760594,-0.775886007653502,negative
+reactions_with_impressions_exposure,reactions,caption_word_count,0.04613066449143257,0.04613066449143257,0.006084269510185383,positive
+reactions_with_impressions_exposure,reactions,is_carousel,0.04551141463388439,0.04551141463388439,0.7817187780176136,positive
+reactions_with_impressions_exposure,reactions,hook_length_chars,0.04282582753585933,0.04282582753585933,0.0074203721606122515,positive
+reactions_with_impressions_exposure,reactions,awareness_Problem-aware,-0.03834597001586101,0.03834597001586101,-0.5583915874711693,negative
+reactions_with_impressions_exposure,reactions,topic_Metrology / Validation,-0.003779260046295342,0.003779260046295342,-0.0574152471414191,negative

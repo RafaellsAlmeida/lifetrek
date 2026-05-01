@@ -1,0 +1,11 @@
+Capacidade não é máquina. É hora usinável vezes confiabilidade vezes setup vezes metrologia em fluxo.
+
+Contar tornos é simples. Prever lead time em manufatura médica exige olhar o que acontece entre troca de setup, manutenção, calibração, fila de CMM e liberação de qualidade.
+
+Quando esses pontos ficam fora do cálculo, o OEM descobre tarde que o pedido dobrou, mas a capacidade real não dobrou junto.
+
+A Lifetrek combina equipamentos Citizen, Doosan, FANUC e ZEISS Contura em um planejamento de fluxo, não em uma soma de máquinas.
+
+#CapacidadeProdutiva #ManufaturaMedica #Metrologia #OEM
+
+Capacidade efetiva é o tempo confiável que vira lote aprovado. ◆

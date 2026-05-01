@@ -1,0 +1,11 @@
+Sem MSA, sua tolerância é incerta. Cpk em sistema de medição não validado é número decorativo perigoso.
+
+Cpk alto não salva uma medição fraca. Se o instrumento, o operador ou o método variam demais, parte dessa variação entra no cálculo como se fosse processo.
+
+MSA existe para separar essas fontes antes que o OEM aprove um fornecedor com falsa precisão. Depois disso, a conversa sobre capabilidade fica defensável.
+
+A Lifetrek apoia controle dimensional com ZEISS Contura e metrologia complementar para features críticas.
+
+#MSA #Cpk #Metrologia #ISO13485
+
+Tolerância sem sistema de medição validado é aposta técnica. ◆

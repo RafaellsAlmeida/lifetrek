@@ -1,0 +1,11 @@
+Capacidade não é máquina. É hora usinável vezes confiabilidade vezes setup vezes metrologia em fluxo.
+
+OEM que homologa fornecedor pela lista de CNCs mede o indicador errado. O primeiro pico de demanda mostra outra coisa: setup, manutenção, fila de CMM e liberação de qualidade definem a capacidade efetiva.
+
+Na Lifetrek, o parque Citizen L20/M32, Doosan Lynx, FANUC Robodrill e ZEISS Contura é tratado como fluxo integrado, não como vitrine de máquinas.
+
+Para o OEM, isso muda a pergunta: não é quantos tornos existem, é quanto tempo confiável vira lote aprovado.
+
+#ManufaturaMedica #ISO13485 #Metrologia #OEM
+
+Capacidade real aparece no fluxo, não na planilha. ◆

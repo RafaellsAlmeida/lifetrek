@@ -1,0 +1,11 @@
+O gargalo nem sempre está na usinagem. Está em metrologia, embalagem, lote piloto ou ISO 13485.
+
+A máquina nova pode aumentar CAPEX e ainda não mexer no prazo. Em manufatura médica, o fluxo para onde falta CMM, sala limpa, marcação UDI, aprovação documental ou liberação de qualidade.
+
+Por isso, capacidade precisa ser modelada como cadeia, não como célula CNC isolada. O mapa só fica honesto quando metrologia e documentação entram no mesmo cronograma.
+
+Na Lifetrek, sala limpa ISO Classe 7, ZEISS Contura e laser UDI fazem parte do mesmo fluxo operacional.
+
+#ManufaturaMedica #LeadTime #ISO13485 #UDI
+
+Gargalo é onde o lote para. ◆

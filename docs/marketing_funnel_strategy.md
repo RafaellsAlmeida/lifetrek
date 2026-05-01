@@ -13,6 +13,8 @@ Este funil e exclusivamente sobre **Lifetrek Medical**.
 
 Cada conteudo precisa ter papel claro no caminho ate reuniao comercial.
 
+Para distribuição recorrente no LinkedIn, usar o sistema documentado em [Lifetrek LinkedIn Newsletter System](./strategy/lifetrek-linkedin-newsletter-system.md): blog/recurso como fonte canônica, newsletter como adaptação editorial e feed como peça curta de distribuição.
+
 ```mermaid
 graph TD
     TOF["TOFU: Awareness"]

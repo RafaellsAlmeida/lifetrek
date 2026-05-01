@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { useBlogPost } from "@/hooks/useBlogPosts";
 import { useBlogAnalytics } from "@/hooks/useBlogAnalytics";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react";
@@ -122,7 +121,6 @@ const BlogPost = () => {
   const metaDescription = clampText(post.seo_description || post.excerpt || plainTextContent, 160);
   const readTimeMinutes = estimateReadTime(plainTextContent);
   const wordCount = plainTextContent.split(/\s+/).filter(Boolean).length;
-  const articleKeywords = Array.from(new Set((post.keywords || []).filter(Boolean)));
   const featuredImageUrl = resolveAbsoluteUrl(post.featured_image);
   const metadataSources = Array.isArray((post as any)?.metadata?.sources)
     ? (post as any).metadata.sources.filter((url: unknown) => typeof url === "string" && url.startsWith("http"))
@@ -140,7 +138,6 @@ const BlogPost = () => {
       <Helmet>
         <title>{headline} | Lifetrek Medical Blog</title>
         <meta name="description" content={metaDescription} />
-        {articleKeywords.length > 0 && <meta name="keywords" content={articleKeywords.join(", ")} />}
         <meta name="author" content={displayAuthor} />
         <link rel="canonical" href={canonicalUrl} />
         
@@ -154,9 +151,6 @@ const BlogPost = () => {
         <meta property="article:published_time" content={publishedAt} />
         <meta property="article:modified_time" content={post.updated_at} />
         {post.category?.name && <meta property="article:section" content={post.category.name} />}
-        {articleKeywords.map((keyword) => (
-          <meta key={keyword} property="article:tag" content={keyword} />
-        ))}
         {featuredImageUrl && <meta property="og:image" content={featuredImageUrl} />}
         
         {/* Twitter Card */}
@@ -199,7 +193,6 @@ const BlogPost = () => {
             inLanguage: "pt-BR",
             url: canonicalUrl,
             articleSection: post.category?.name || "Blog",
-            keywords: articleKeywords.join(", "),
             wordCount,
             timeRequired: `PT${readTimeMinutes}M`,
             citation: articleSources,
@@ -263,12 +256,6 @@ const BlogPost = () => {
               <ArrowLeft className="h-4 w-4" />
               Voltar ao Blog
             </Link>
-
-            {post.category && (
-              <Badge variant="secondary" className="mb-6 w-fit bg-primary/10 text-primary border-primary/20">
-                {post.category.name}
-              </Badge>
-            )}
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-8 leading-tight">
               {post.title}

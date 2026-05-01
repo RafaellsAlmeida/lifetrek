@@ -1,0 +1,11 @@
+O gargalo nem sempre está na usinagem. Está em metrologia, embalagem, lote piloto ou ISO 13485.
+
+Dobrar CNC sem mapear o fluxo pode só deslocar a fila. O atraso aparece depois, na CMM, na sala limpa, na marcação UDI ou na liberação documental que o cronograma tratou como detalhe.
+
+Para o OEM, a pergunta certa é onde o lote espera, não onde a máquina é mais cara. Esse ponto define lead time real e prioridade de investimento.
+
+Na Lifetrek, sala limpa ISO Classe 7, ZEISS Contura e laser UDI entram no desenho do processo.
+
+#LeadTime #ManufaturaMedica #UDI #ISO13485
+
+Investimento certo começa no gargalo real. ◆

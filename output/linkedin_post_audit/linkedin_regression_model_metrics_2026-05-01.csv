@@ -1,0 +1,4 @@
+model,target,n,predictor_count,r2_in_sample,adjusted_r2,loocv_rmse
+impressions_content_time,impressions,28,10,0.43746130048291654,0.10655618311992632,308.5763986563641
+reactions_content_time,reactions,28,10,0.49393116619867083,0.19624361690377135,11.472012294170076
+reactions_with_impressions_exposure,reactions,28,11,0.9423580524570687,0.9027292135213034,3.7489428803401554

@@ -42,21 +42,21 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
   });
 
   const total = Object.values(scorecard).reduce((a, b) => a + b, 0);
-  const band = total < 10 ? "Baixo Risco" : total < 18 ? "Medio Risco" : "Alto Risco";
+  const band = total < 10 ? "Baixo Risco" : total < 18 ? "Médio Risco" : "Alto Risco";
   const recommendation =
     total < 10
-      ? "Cadeia estavel. Mantenha monitoramento mensal."
+      ? "Cadeia estável. Mantenha monitoramento mensal."
       : total < 18
-      ? "Risco moderado. Monte plano de contingencia por SKU critico."
-      : "Risco alto. Priorize migracao de itens e plano de mitigacao imediato.";
+      ? "Risco moderado. Monte plano de contingência por SKU crítico."
+      : "Risco alto. Priorize migração de itens e plano de mitigação imediato.";
 
   const handleSave = async () => {
     if (previewMode) {
       toast({
-        title: "Simulacao de preview",
-        description: "Em modo de aprovacao, os resultados nao sao enviados ao CRM.",
+        title: "Simulação de preview",
+        description: "Em modo de aprovação, os resultados não são enviados ao CRM.",
       });
-      setStatus("Simulacao concluida. Nenhum dado foi salvo.");
+      setStatus("Simulação concluída. Nenhum dado foi salvo.");
       return;
     }
 
@@ -64,8 +64,8 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
       setIsModalOpen(true);
       toast({
         variant: "destructive",
-        title: "Dados necessarios",
-        description: "Informe nome e email para salvar a avaliacao.",
+        title: "Dados necessários",
+        description: "Informe nome e email para salvar a avaliação.",
       });
       return;
     }
@@ -85,7 +85,7 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
         name: formData.name,
         email: formData.email,
         company: formData.company || undefined,
-        phone: "Nao informado",
+        phone: "Não informado",
         project_type: "other_medical",
         project_types: ["other_medical"],
         technical_requirements: `Supply chain scorecard: ${total}/25 (${band})`,
@@ -99,17 +99,17 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
       } else {
         toast({
           title: "Scorecard salvo",
-          description: "Resultados registrados localmente e serao sincronizados.",
+          description: "Resultados registrados localmente e serão sincronizados.",
         });
-        setStatus("Scorecard salvo localmente. Sincronizacao pendente.");
+        setStatus("Scorecard salvo localmente. Sincronização pendente.");
       }
     } catch (error) {
       console.error("Error saving supply chain scorecard:", error);
       toast({
         title: "Scorecard salvo",
-        description: "Resultados registrados localmente e serao sincronizados.",
+        description: "Resultados registrados localmente e serão sincronizados.",
       });
-      setStatus("Scorecard salvo localmente. Sincronizacao pendente.");
+      setStatus("Scorecard salvo localmente. Sincronização pendente.");
     } finally {
       setIsSaving(false);
     }
@@ -120,9 +120,9 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
       <h3 className="text-xl font-semibold text-slate-900 mb-4">Scorecard de Risco de Supply Chain</h3>
       <div className="space-y-4">
         {[
-          { id: "dependency", label: "Dependencia geografica" },
-          { id: "volatility", label: "Volatilidade cambial/materia-prima" },
-          { id: "leadTime", label: "Lead time e logistica" },
+          { id: "dependency", label: "Dependência geográfica" },
+          { id: "volatility", label: "Volatilidade cambial/matéria-prima" },
+          { id: "leadTime", label: "Lead time e logística" },
           { id: "quality", label: "Qualidade/compliance fornecedor" },
           { id: "capital", label: "Capital preso em estoque" },
         ].map((item) => (
@@ -159,7 +159,7 @@ function SupplyChainRiskScorecard({ formData, setIsModalOpen, previewMode }: Sav
 
       <div className="mt-4 flex items-center gap-3">
         <Button onClick={handleSave} disabled={isSaving}>
-          {previewMode ? "Salvar (Simulacao)" : isSaving ? "Salvando..." : "Salvar Scorecard"}
+          {previewMode ? "Salvar (Simulação)" : isSaving ? "Salvando..." : "Salvar Scorecard"}
         </Button>
         {status && <p className="text-sm text-slate-600">{status}</p>}
       </div>
@@ -184,16 +184,16 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
     yesCount >= 4
       ? "Prioridade alta para piloto local."
       : yesCount >= 3
-      ? "Viabilidade relevante. Avance para analise tecnico-financeira."
-      : "Mantenha importacao e acompanhe indicadores por 90 dias.";
+      ? "Viabilidade relevante. Avance para análise técnico-financeira."
+      : "Mantenha importação e acompanhe indicadores por 90 dias.";
 
   const handleSave = async () => {
     if (previewMode) {
       toast({
-        title: "Simulacao de preview",
-        description: "Em modo de aprovacao, os resultados nao sao enviados ao CRM.",
+        title: "Simulação de preview",
+        description: "Em modo de aprovação, os resultados não são enviados ao CRM.",
       });
-      setStatus("Simulacao concluida. Nenhum dado foi salvo.");
+      setStatus("Simulação concluída. Nenhum dado foi salvo.");
       return;
     }
 
@@ -201,8 +201,8 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
       setIsModalOpen(true);
       toast({
         variant: "destructive",
-        title: "Dados necessarios",
-        description: "Informe nome e email para salvar a avaliacao.",
+        title: "Dados necessários",
+        description: "Informe nome e email para salvar a avaliação.",
       });
       return;
     }
@@ -221,7 +221,7 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
         name: formData.name,
         email: formData.email,
         company: formData.company || undefined,
-        phone: "Nao informado",
+        phone: "Não informado",
         project_type: "other_medical",
         project_types: ["other_medical"],
         technical_requirements: `Local production checklist: ${yesCount}/5`,
@@ -235,17 +235,17 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
       } else {
         toast({
           title: "Checklist salvo",
-          description: "Resultados registrados localmente e serao sincronizados.",
+          description: "Resultados registrados localmente e serão sincronizados.",
         });
-        setStatus("Checklist salvo localmente. Sincronizacao pendente.");
+        setStatus("Checklist salvo localmente. Sincronização pendente.");
       }
     } catch (error) {
       console.error("Error saving local production checklist:", error);
       toast({
         title: "Checklist salvo",
-        description: "Resultados registrados localmente e serao sincronizados.",
+        description: "Resultados registrados localmente e serão sincronizados.",
       });
-      setStatus("Checklist salvo localmente. Sincronizacao pendente.");
+      setStatus("Checklist salvo localmente. Sincronização pendente.");
     } finally {
       setIsSaving(false);
     }
@@ -257,10 +257,10 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
       <div className="space-y-3">
         {[
           { id: "volume", label: "Volume anual relevante" },
-          { id: "leadTime", label: "Lead time de importacao acima do alvo" },
+          { id: "leadTime", label: "Lead time de importação acima do alvo" },
           { id: "impact", label: "Parada de linha em caso de ruptura" },
           { id: "quality", label: "NC recorrente no fornecimento atual" },
-          { id: "capital", label: "Capital elevado em estoque de seguranca" },
+          { id: "capital", label: "Capital elevado em estoque de segurança" },
         ].map((item) => (
           <label key={item.id} className="flex items-center gap-3 text-sm text-slate-700">
             <input
@@ -289,7 +289,7 @@ function LocalProductionChecklistTool({ formData, setIsModalOpen, previewMode }:
 
       <div className="mt-4 flex items-center gap-3">
         <Button onClick={handleSave} disabled={isSaving}>
-          {previewMode ? "Salvar (Simulacao)" : isSaving ? "Salvando..." : "Salvar Checklist"}
+          {previewMode ? "Salvar (Simulação)" : isSaving ? "Salvando..." : "Salvar Checklist"}
         </Button>
         {status && <p className="text-sm text-slate-600">{status}</p>}
       </div>

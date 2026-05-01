@@ -66,6 +66,19 @@ Use this minimum `metadata` contract for resources in approval:
 - `estimated_read_minutes`
 - `review_version`
 - `review_owner`
+- `icp_primary` using one of the website ICP codes: `MI`, `OD`, `VT`, `HS`, `CM`
+- `icp_secondary` when the resource has legitimate secondary audiences
+- `icp_specificity_scores` for all five ICPs
+- `locale` using `pt-BR` for Portuguese resources
+- `translation_ready` as `true` only when the resource avoids hard-coded assumptions that block translation
+
+## ICP, Language and Download Rules
+- Every resource must target one primary ICP from the website taxonomy before publication.
+- Priority ICPs for content planning: `MI` Fabricantes de Implantes e Instrumentais, `OD` Empresas Odontológicas, and `VT` Empresas Veterinárias.
+- PT-BR resources must use proper accents in visible titles, descriptions, body text, CTAs and metadata values.
+- Translation-ready content should keep business logic in metadata and avoid embedding one-off UI instructions that cannot be localized later.
+- Checklist resources should use Markdown task-list syntax (`- [ ]`) so the website can render clickable items and the downloaded material keeps the bracket format for Notion/Docs/internal review.
+- Download copy must say what file format the user receives; do not show a success toast unless a file/open action was actually triggered.
 
 ## Current Lead Magnets
 | Title | Slug | Type | Persona | Status | Route |
@@ -77,11 +90,11 @@ Use this minimum `metadata` contract for resources in approval:
 | Roadmap de 90 Dias para Migrar 1-3 SKUs | `roadmap-90-dias-migracao-skus` | guide | Supply Chain / Operacoes | published | `/resources/roadmap-90-dias-migracao-skus` |
 | Checklist: Quando Faz Sentido Produzir Local | `checklist-producao-local` | checklist | CFO / Compras | published | `/resources/checklist-producao-local` |
 | Checklist de Auditoria Interna ISO 13485 | `checklist-auditoria-iso-13485` | checklist | Qualidade/Regulatory | published | `/resources/checklist-auditoria-iso-13485` |
-| Guia: Sala Limpa ISO 7 e Montagem de Kits | `guia-sala-limpa-iso-7` | guide | Producao/Ops | published | `/resources/guia-sala-limpa-iso-7` |
-| Manual de Metrologia e Inspecao de Alta Precisao | `guia-metrologia-alta-precisao` | guide | Qualidade/Engenharia | published | `/resources/guia-metrologia-alta-precisao` |
-| Checklist de Transferencia NPI para Producao | `checklist-transferencia-npi-producao` | checklist | Engenharia / Operacoes | published | `/resources/checklist-transferencia-npi-producao` |
-| Checklist de Rastreabilidade e Serializacao | `checklist-rastreabilidade-serializacao` | checklist | Qualidade / Supply Chain | published | `/resources/checklist-rastreabilidade-serializacao` |
-| Guia de Precisao: Metrologia 3D e CNC Swiss | `guia-metrologia-3d-cnc-swiss` | guide | Engenharia/Qualidade | pending_approval | `/resources/guia-metrologia-3d-cnc-swiss` |
+| Guia: Sala Limpa ISO 7 e Montagem de Kits | `guia-sala-limpa-iso-7` | guide | Produção/Ops | published | `/resources/guia-sala-limpa-iso-7` |
+| Manual de Metrologia e Inspeção de Alta Precisão | `guia-metrologia-alta-precisao` | guide | Qualidade/Engenharia | published | `/resources/guia-metrologia-alta-precisao` |
+| Checklist de Transferência NPI para Produção | `checklist-transferencia-npi-producao` | checklist | Engenharia / Operações | published | `/resources/checklist-transferencia-npi-producao` |
+| Checklist de Rastreabilidade e Serialização para Implantes e Instrumentais | `checklist-rastreabilidade-serializacao` | checklist | Qualidade / Engenharia (MI) | published | `/resources/checklist-rastreabilidade-serializacao` |
+| Guia de Precisão: Metrologia 3D e CNC Swiss | `guia-metrologia-3d-cnc-swiss` | guide | Engenharia/Qualidade | pending_approval | `/resources/guia-metrologia-3d-cnc-swiss` |
 
 ## P0 Approval Backlog (Stakeholder Review)
 All items below are expected to remain `pending_approval` during this cycle:

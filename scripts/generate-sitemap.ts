@@ -63,7 +63,9 @@ async function main() {
       .from("blog_posts")
       .select("slug, updated_at")
       .eq("status", "published")
-      .not("slug", "is", null),
+      .not("slug", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(3),
     supabase
       .from("resources")
       .select("slug, updated_at")

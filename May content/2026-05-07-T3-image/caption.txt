@@ -1,0 +1,11 @@
+Validação não é inspeção final. É IQ, OQ e PQ documentados antes do primeiro lote comercial sair.
+
+Relatório dimensional do lote piloto aprova peças, mas não prova estabilidade de processo. Quando a auditoria olha protocolo, capabilidade e variabilidade entre operadores, inspeção final não fecha a lacuna antes de escalar.
+
+A base segura é tratar validação como sistema: equipamento instalado, operação controlada, desempenho acompanhado e metrologia capaz de sustentar decisão técnica.
+
+A Lifetrek ancora esse fluxo em ISO 13485, ANVISA e metrologia com ZEISS Contura.
+
+#ValidacaoDeProcesso #ISO13485 #ANVISA #Metrologia
+
+Validação aprova processo antes de aprovar volume. ◆

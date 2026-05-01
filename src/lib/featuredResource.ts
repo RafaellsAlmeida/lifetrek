@@ -10,7 +10,7 @@ const FEATURED_RESOURCES: FeaturedResource[] = [
     slug: "checklist-auditoria-fornecedores",
     title: "Checklist de Auditoria de Fornecedores",
     description:
-      "Estruture a qualificacao de fornecedores medicos com perguntas de ISO 13485, rastreabilidade, CAPA, metrologia e controle documental.",
+      "Estruture a qualificação de fornecedores médicos com perguntas de ISO 13485, rastreabilidade, CAPA, metrologia e controle documental.",
     cta: "Abrir checklist de auditoria",
   },
   {
@@ -29,9 +29,9 @@ const FEATURED_RESOURCES: FeaturedResource[] = [
   },
   {
     slug: "checklist-rastreabilidade-serializacao",
-    title: "Checklist de Rastreabilidade e Serializacao",
+    title: "Checklist de Rastreabilidade e Serialização para Implantes e Instrumentais",
     description:
-      "Verifique se material, desenho, processo, inspecao, identificacao e liberacao fecham a mesma genealogia de lote.",
+      "Verifique se material, desenho, processo, inspeção, identificação e liberação fecham a mesma genealogia de lote.",
     cta: "Abrir checklist de rastreabilidade",
   },
   {
@@ -70,23 +70,23 @@ const RESOURCE_KEYWORDS: Record<string, string[]> = {
     "lote piloto",
     "escala",
     "industrializacao",
-    "producao",
+    "produção",
     "ramp-up",
   ],
   "checklist-rastreabilidade-serializacao": [
     "rastreabilidade",
-    "serializacao",
+    "serialização",
     "udi",
     "coc",
     "certificado de material",
     "lote",
     "genealogia",
-    "liberacao",
+    "liberação",
   ],
   "checklist-producao-local": [
     "nearshore",
     "importacao",
-    "producao local",
+    "produção local",
     "oem",
     "compliance",
     "risco regulatorio",

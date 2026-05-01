@@ -1,17 +1,19 @@
 # Lifetrek Intentional Content Strategy
 
-## Escopo e regra inegociavel
+## Escopo e regra inegociável
 
-Este funil e exclusivamente sobre **Lifetrek Medical**.
+Este funil é exclusivamente sobre **Lifetrek Medical**.
 
-- Nao usar nomes de outros clientes/consultorias (ex: ASC, Amorim Stout Consulting).
-- Nao usar exemplos que desviem da proposta de valor da Lifetrek.
-- Todo conteudo deve reforcar: manufatura de precisao, qualidade, metrologia, compliance quando relevante e reducao de risco na cadeia.
-- Regra regulatoria obrigatoria (ANVISA): para materiais de "migracao para producao local", o ICP elegivel e empresa com atividade fabril no Brasil (propria ou etapa controlada). Distribuidores/importadores sem fabrica local nao sao ICP.
+- Não usar nomes de outros clientes/consultorias (ex: ASC, Amorim Stout Consulting).
+- Não usar exemplos que desviem da proposta de valor da Lifetrek.
+- Todo conteúdo deve reforçar: manufatura de precisão, qualidade, metrologia, compliance quando relevante e redução de risco na cadeia.
+- Regra regulatória obrigatória (ANVISA): para materiais de "migração para produção local", o ICP elegível é empresa com atividade fabril no Brasil (própria ou etapa controlada). Distribuidores/importadores sem fábrica local não são ICP.
 
 ## Marketing Funnel (com blogs como pilar central)
 
-Cada conteudo precisa ter papel claro no caminho ate reuniao comercial.
+Cada conteúdo precisa ter papel claro no caminho até reunião comercial.
+
+Para distribuição recorrente no LinkedIn, usar o sistema documentado em [Lifetrek LinkedIn Newsletter System](./lifetrek-linkedin-newsletter-system.md): blog/recurso como fonte canônica, newsletter como adaptação editorial e feed como peça curta de distribuição.
 
 ```mermaid
 graph TD
@@ -23,8 +25,8 @@ graph TD
     IG["Instagram Visuals"]
     BLOG["Blog Posts (24)"]
     RES["Resources Hub"]
-    CASE["Case + Provas Tecnicas"]
-    MEET["Diagnostico Tecnico / Reuniao Comercial"]
+    CASE["Case + Provas Técnicas"]
+    MEET["Diagnóstico Técnico / Reunião Comercial"]
 
     LI --> TOF
     IG --> TOF
@@ -41,68 +43,73 @@ graph TD
     style BOF fill:#e8f5e9,stroke:#2e7d32
 ```
 
-## Distribuicao dos 24 blogs (ate 31/05/2026)
+## Distribuição dos 24 blogs (até 31/05/2026)
 
-Para evitar saturacao regulatoria, o mix editorial deve ser:
+Para evitar saturação regulatória, o mix editorial deve ser:
 
 - 8 posts: engenharia de manufatura e processo
 - 6 posts: qualidade e metrologia
 - 4 posts: supply chain, risco e mercado
-- 4 posts: regulatorio (ANVISA/ISO, apenas quando tema pedir)
+- 4 posts: regulatório (ANVISA/ISO, apenas quando tema pedir)
 - 2 posts: prova social / casos / capacidades Lifetrek
 
-Regra de sequencia:
+Regra de sequência:
 
-- **Maximo 2 posts regulatorios seguidos**.
+- **Máximo 2 posts regulatórios seguidos**.
 - Sempre alternar com processo, qualidade, metrologia ou supply chain.
 
 ## ICP-First (Quem Atendemos)
 
-Cada blog deve declarar ICP primario e ICP secundario no metadata:
+Cada blog deve declarar ICP primário e ICP secundário no metadata:
 
-- `MI`: Fabricantes de Implantes e Instrumentos Cirurgicos
-- `OD`: Empresas de Equipamentos Odontologicos
-- `VT`: Empresas Veterinarias
-- `HS`: Instituicoes de Saude
+- `MI`: Fabricantes de Implantes e Instrumentais Cirúrgicos
+- `OD`: Empresas de Equipamentos Odontológicos
+- `VT`: Empresas Veterinárias
+- `HS`: Instituições de Saúde
 - `CM`: Parceiros de Manufatura Contratada / OEM
 
-Campos obrigatorios no `metadata` de `blog_posts`:
+Campos obrigatórios no `metadata` de `blog_posts` e `resources`:
 
 - `icp_primary`
 - `icp_secondary`
 - `icp_specificity_scores` (MI/OD/VT/HS/CM)
-- `cta_mode` (`article_only`, `diagnostico`, `resource_optional`)
+- `cta_mode` (`article_only`, `diagnostico`, `resource_optional`) — `diagnostico` é o valor técnico do enum para "diagnóstico"
 - `pillar_keyword`
 - `entity_keywords`
+- `locale` (`pt-BR` para conteúdo público em português)
+- `translation_ready`
 
-Regra de publicacao:
+Regra de publicação:
 
-- Bloquear publicacao sem `icp_primary` e `pillar_keyword`.
+- Bloquear publicação sem `icp_primary` e `pillar_keyword`.
+- Todo conteúdo público em português deve ser acentuado em título, descrição, corpo, CTA e metadados visíveis.
+- Checklists de recursos devem usar `- [ ]` no Markdown para renderizar itens clicáveis no site e manter o material baixável em formato compatível com Notion/Docs.
+- Priorizar `MI`, `OD` e `VT` quando o tema envolver implantes, instrumentais, lote, rastreabilidade, metrologia, DFM ou transferência técnica.
 
 ## Mapeamento por etapa do funil
 
-| Funnel Stage | Conteudo | Objetivo | CTA |
+| Funnel Stage | Conteúdo | Objetivo | CTA |
 | :--- | :--- | :--- | :--- |
-| **TOFU** | Carrossel LinkedIn + blog tecnico introdutorio | Gerar descoberta e interesse tecnico | "Acesse o artigo completo" |
-| **MOFU** | Blog tecnico aprofundado | Educar e qualificar lead | "Aprofundar criterios tecnicos com a Lifetrek" |
-| **BOFU** | Blog de decisao (risco, ROI, validacao, transicao de fornecedor) | Reduzir risco percebido e acelerar decisao | "Agendar diagnostico tecnico com a Lifetrek" |
+| **TOFU** | Carrossel LinkedIn + blog técnico introdutório | Gerar descoberta e interesse técnico | "Acesse o artigo completo" |
+| **MOFU** | Blog técnico aprofundado | Educar e qualificar lead | "Aprofundar critérios técnicos com a Lifetrek" |
+| **BOFU** | Blog de decisão (risco, ROI, validação, transição de fornecedor) | Reduzir risco percebido e acelerar decisão | "Agendar diagnóstico técnico com a Lifetrek" |
 
-## Politica de lead magnet
+## Política de lead magnet
 
-- Regra padrao: o proprio blog e o lead magnet.
-- Material complementar (checklist/guia) e opcional, apenas quando houver ganho claro de conversao.
-- Priorizar `resource_optional` em temas BOFU de alta friccao tecnica.
+- Regra padrão: o próprio blog é o lead magnet.
+- Material complementar (checklist/guia) é opcional, apenas quando houver ganho claro de conversão.
+- Priorizar `resource_optional` em temas BOFU de alta fricção técnica.
 
 ## Regras de qualidade editorial dos blogs
 
-- Linguagem tecnica, objetiva, sem hype.
-- Conteudo orientado a problema real de OEM/engenharia/qualidade.
-- Abertura do artigo com dor real do ICP primario.
-- Encerramento com CTA tecnico de decisao (nao CTA generico de marketing).
-- Nao forcar ANVISA em temas que nao sao regulatorios.
-- Quando citar ANVISA em tema de producao local, incluir disclaimer de elegibilidade (excluir distribuidores/escritorio comercial sem etapa fabril local).
-- Incluir secoes de referencia com fontes validas.
-- Nunca citar clientes externos nao aprovados.
+- Linguagem técnica, objetiva, sem hype.
+- Conteúdo orientado a problema real de OEM/engenharia/qualidade.
+- Abertura do artigo com dor real do ICP primário.
+- Encerramento com CTA técnico de decisão (não CTA genérico de marketing).
+- Não forçar ANVISA em temas que não são regulatórios.
+- Quando citar ANVISA em tema de produção local, incluir disclaimer de elegibilidade (excluir distribuidores/escritório comercial sem etapa fabril local).
+- Incluir seções de referência com fontes válidas.
+- Nunca citar clientes externos não aprovados.
 
 ## Regras SEO/AIO por blog
 
@@ -111,15 +118,15 @@ Regra de publicacao:
 - 3+ keywords relevantes.
 - Capa horizontal em `featured_image`.
 - 4+ fontes em `metadata.sources`.
-- Secao `Referencias` no conteudo.
-- FAQ (3+ perguntas) quando aplicavel.
+- Seção `Referências` no conteúdo.
+- FAQ (3+ perguntas) quando aplicável.
 
-## Execucao operacional
+## Execução operacional
 
-O fluxo de execucao deve:
+O fluxo de execução deve:
 
-1. Gerar tema e angulo com intencao de funil (TOFU/MOFU/BOFU).
-2. Produzir rascunho tecnico com foco em Lifetrek.
+1. Gerar tema e ângulo com intenção de funil (TOFU/MOFU/BOFU).
+2. Produzir rascunho técnico com foco em Lifetrek.
 3. Validar SEO/AIO + fontes.
-4. Submeter para aprovacao interna (stakeholders).
-5. Publicar/agendar conforme calendario ate 31/05/2026.
+4. Submeter para aprovação interna (stakeholders).
+5. Publicar/agendar conforme calendário até 31/05/2026.

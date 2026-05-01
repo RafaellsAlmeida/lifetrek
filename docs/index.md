@@ -30,6 +30,7 @@ Use this set for implementation, planning, testing, contracts, and internal tech
 - [Data Models](./data-models.md)
 - [API Contracts](./api-contracts.md)
 - [Content Engine Guide](./content-engine-guide.md)
+- [Lifetrek LinkedIn Newsletter System](./strategy/lifetrek-linkedin-newsletter-system.md)
 - [Smart Regen Architecture](./architecture/SMART_REGEN_ARCHITECTURE.md)
 - [LinkedIn SGLang Prefill Playbook](./content/LINKEDIN_SGLANG_PREFILL_PLAYBOOK.md)
 - [Source Tree Analysis](./source-tree-analysis.md)

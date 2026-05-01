@@ -1,0 +1,212 @@
+{
+  "posts_in_model": 28,
+  "posts_excluded_as_outliers": 3,
+  "posts_without_current_impressions": 2,
+  "impression_cluster_centers": {
+    "Low impressions": 173.75,
+    "Mid impressions": 302.5,
+    "High impressions": 662.75
+  },
+  "top_cluster_size": 4,
+  "top_cluster_avg_impressions": 662.75,
+  "top_cluster_avg_reactions": 23.5,
+  "trend_models": [
+    {
+      "target": "impressions",
+      "n": 28,
+      "slope_per_day": 0.7256341756490237,
+      "slope_per_week": 5.079439229543166,
+      "intercept": 249.47565815895155,
+      "r2": 0.013052741802190737,
+      "first_date": "2026-01-21",
+      "last_date": "2026-04-24"
+    },
+    {
+      "target": "reactions",
+      "n": 28,
+      "slope_per_day": 0.06556630694410664,
+      "slope_per_week": 0.4589641486087465,
+      "intercept": 6.492121279131397,
+      "r2": 0.07792666120060221,
+      "first_date": "2026-01-21",
+      "last_date": "2026-04-24"
+    }
+  ],
+  "regression_metrics": [
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "n": 28,
+      "predictor_count": 10,
+      "r2_in_sample": 0.43746130048291654,
+      "adjusted_r2": 0.10655618311992632,
+      "loocv_rmse": 308.5763986563641
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "n": 28,
+      "predictor_count": 10,
+      "r2_in_sample": 0.49393116619867083,
+      "adjusted_r2": 0.19624361690377135,
+      "loocv_rmse": 11.472012294170076
+    },
+    {
+      "model": "reactions_with_impressions_exposure",
+      "target": "reactions",
+      "n": 28,
+      "predictor_count": 11,
+      "r2_in_sample": 0.9423580524570687,
+      "adjusted_r2": 0.9027292135213034,
+      "loocv_rmse": 3.7489428803401554
+    }
+  ],
+  "top_impression_regression_factors": [
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "topic_Operations / Capacity",
+      "standardized_beta": 0.7012871286321857,
+      "abs_standardized_beta": 0.7012871286321857,
+      "raw_coefficient": 484.39816923715676,
+      "direction": "positive"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "days_since_start",
+      "standardized_beta": -0.6860144740666232,
+      "abs_standardized_beta": 0.6860144740666232,
+      "raw_coefficient": -4.357126149674617,
+      "direction": "negative"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "topic_Metrology / Validation",
+      "standardized_beta": 0.4894277469124315,
+      "abs_standardized_beta": 0.4894277469124315,
+      "raw_coefficient": 201.06580479393403,
+      "direction": "positive"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "caption_word_count",
+      "standardized_beta": -0.3803433737075254,
+      "abs_standardized_beta": 0.3803433737075254,
+      "raw_coefficient": -1.3565123579675902,
+      "direction": "negative"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "is_carousel",
+      "standardized_beta": -0.2053562922127496,
+      "abs_standardized_beta": 0.2053562922127496,
+      "raw_coefficient": -95.38221227075621,
+      "direction": "negative"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "hook_length_chars",
+      "standardized_beta": 0.17063311469124162,
+      "abs_standardized_beta": 0.17063311469124162,
+      "raw_coefficient": 0.7994888462097858,
+      "direction": "positive"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "hook_is_question",
+      "standardized_beta": 0.1668523835388182,
+      "abs_standardized_beta": 0.1668523835388182,
+      "raw_coefficient": 95.96438409033364,
+      "direction": "positive"
+    },
+    {
+      "model": "impressions_content_time",
+      "target": "impressions",
+      "feature": "awareness_Problem-aware",
+      "standardized_beta": 0.05225640919850208,
+      "abs_standardized_beta": 0.05225640919850208,
+      "raw_coefficient": 20.577275370000912,
+      "direction": "positive"
+    }
+  ],
+  "top_reaction_regression_factors": [
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "topic_Operations / Capacity",
+      "standardized_beta": 0.7899295971497589,
+      "abs_standardized_beta": 0.7899295971497589,
+      "raw_coefficient": 20.177429763175418,
+      "direction": "positive"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "days_since_start",
+      "standardized_beta": -0.47922524191882854,
+      "abs_standardized_beta": 0.47922524191882854,
+      "raw_coefficient": -0.11255826061312095,
+      "direction": "negative"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "topic_Metrology / Validation",
+      "standardized_beta": 0.4331973652615629,
+      "abs_standardized_beta": 0.4331973652615629,
+      "raw_coefficient": 6.581217879479336,
+      "direction": "positive"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "caption_word_count",
+      "standardized_beta": -0.2934519704315048,
+      "abs_standardized_beta": 0.2934519704315048,
+      "raw_coefficient": -0.03870399215121573,
+      "direction": "negative"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "hook_is_question",
+      "standardized_beta": 0.2277031062687577,
+      "abs_standardized_beta": 0.2277031062687577,
+      "raw_coefficient": 4.843033277906077,
+      "direction": "positive"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "hook_length_chars",
+      "standardized_beta": 0.19517248767911513,
+      "abs_standardized_beta": 0.19517248767911513,
+      "raw_coefficient": 0.03381726816315587,
+      "direction": "positive"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "is_carousel",
+      "standardized_beta": -0.13783720040268294,
+      "abs_standardized_beta": 0.13783720040268294,
+      "raw_coefficient": -2.3675363363464754,
+      "direction": "negative"
+    },
+    {
+      "model": "reactions_content_time",
+      "target": "reactions",
+      "feature": "awareness_Solution-aware",
+      "standardized_beta": -0.0753082672857085,
+      "abs_standardized_beta": 0.0753082672857085,
+      "raw_coefficient": -1.29351915669125,
+      "direction": "negative"
+    }
+  ]
+}

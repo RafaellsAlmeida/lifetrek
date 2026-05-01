@@ -39,5 +39,7 @@ Use this skill to revise draft content before approval/publishing.
 
 ## Guardrails
 - Never invent certifications, numbers, or legal claims.
+- Keep ICP/persona labels as internal planning metadata only; never publish client-facing headings or copy such as "ICP deste conteúdo", "ICP primário", "MI", "OD", or "VT".
+- Keep editorial/publication guidance internal; never publish sections like "Como falar disso publicamente", "linguagem aprovada", "não devem ser publicados", or instructions about what can/cannot be said publicly.
 - Keep changes auditable (summarize what changed).
 - Prefer concise language and concrete proof.

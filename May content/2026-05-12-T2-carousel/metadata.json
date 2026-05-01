@@ -1,0 +1,17 @@
+{
+  "post_id": "2026-05-12-T2-carousel",
+  "date": "2026-05-12",
+  "day": "terca",
+  "post_class": "editorial",
+  "topic": "O gargalo de producao medica raramente esta na usinagem",
+  "topic_group": "Operations / Capacity",
+  "format_target": "Carousel",
+  "visual_treatment": "minimal_overlay_text",
+  "hook": "O gargalo nem sempre está na usinagem. Está em metrologia, embalagem, lote piloto ou ISO 13485.",
+  "hook_length_chars": 95,
+  "caption_word_count": 101,
+  "image_dimensions": "1080x1350",
+  "background_source": "src/assets/facility/production-floor.jpg",
+  "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
+  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+}

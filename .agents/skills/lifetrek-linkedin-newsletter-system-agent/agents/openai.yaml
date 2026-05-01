@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lifetrek Newsletter System"
+  short_description: "Adapt blogs into LinkedIn newsletter editions."
+  default_prompt: "Use $lifetrek-linkedin-newsletter-system-agent to adapt this Lifetrek blog or resource into a newsletter edition, feed promo, and approval notes."

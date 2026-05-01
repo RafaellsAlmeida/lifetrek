@@ -1,0 +1,17 @@
+{
+  "post_id": "2026-05-14-T4-carousel",
+  "date": "2026-05-14",
+  "day": "quinta",
+  "post_class": "editorial",
+  "topic": "MSA antes de Cpk: por que sua tolerancia pode ser incerta",
+  "topic_group": "Metrology / Validation",
+  "format_target": "Carousel",
+  "visual_treatment": "minimal_overlay_text",
+  "hook": "Sem MSA, sua tolerância é incerta. Cpk em sistema de medição não validado é número decorativo perigoso.",
+  "hook_length_chars": 103,
+  "caption_word_count": 95,
+  "image_dimensions": "1080x1350",
+  "background_source": "Stakeholder_Review_Assets/Quality/zeiss-contura.webp",
+  "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
+  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+}

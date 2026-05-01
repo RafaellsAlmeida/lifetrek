@@ -42,4 +42,5 @@ Use this skill when you need ideation before writing copy or generating assets.
 ## Guardrails
 - No generic marketing clichés.
 - Include operational proof in each idea.
+- Treat `target_icp` as internal strategy context, not user-facing copy. Do not include raw ICP labels or codes in blog, resource, LinkedIn, or Instagram text.
 - Keep CTA concrete and low-friction.

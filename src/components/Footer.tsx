@@ -47,6 +47,12 @@ export const Footer = () => {
                 >
                   Recursos técnicos (link in bio)
                 </a>
+                <Link
+                  to="/blog#top"
+                  className="flex items-center gap-2 hover:text-primary transition-colors text-foreground font-medium mt-2"
+                >
+                  {t("nav.blog")}
+                </Link>
                 <a
                   href="https://www.linkedin.com/company/109570674/"
                   target="_blank"
