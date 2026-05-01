@@ -22,6 +22,10 @@ const translations = {
     "nav.culture": "Culture",
     "nav.clients": "Who We Work With",
     "nav.contact": "Contact",
+    "nav.short.about": "About",
+    "nav.short.whatWeDo": "Services",
+    "nav.short.infrastructure": "Facility",
+    "nav.short.clients": "Clients",
 
     // Home
     "home.hero.title": "Accelerate Your Product Development",
@@ -570,6 +574,10 @@ const translations = {
     "nav.culture": "Cultura",
     "nav.clients": "Quem Atendemos",
     "nav.contact": "Contato",
+    "nav.short.about": "Sobre",
+    "nav.short.whatWeDo": "Serviços",
+    "nav.short.infrastructure": "Estrutura",
+    "nav.short.clients": "Clientes",
 
     // Home
     "home.hero.title": "Acelere o Desenvolvimento do Seu Produto",

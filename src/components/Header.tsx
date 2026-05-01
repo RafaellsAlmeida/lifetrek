@@ -31,35 +31,35 @@ export const Header = () => {
 
   const navItems = [
     { path: "/", label: t("nav.home") },
-    { path: "/about", label: t("nav.about") },
-    { path: "/what-we-do", label: t("nav.whatWeDo") },
+    { path: "/about", label: t("nav.short.about") },
+    { path: "/what-we-do", label: t("nav.short.whatWeDo") },
     { path: "/products", label: t("nav.products") },
     { path: "/resources", label: t("nav.resources") },
     { path: "/blog", label: t("nav.blog") },
-    { path: "/capabilities", label: t("nav.infrastructure") },
-    { path: "/clients", label: t("nav.clients") },
+    { path: "/capabilities", label: t("nav.short.infrastructure") },
+    { path: "/clients", label: t("nav.short.clients") },
     { path: "/contact", label: t("nav.contact") },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#e5e7eb] bg-white">
-      <nav className="container mx-auto flex h-[80px] items-center justify-between px-8">
+      <nav className="container mx-auto flex h-[72px] items-center justify-between gap-5 px-5 lg:px-6 2xl:px-8">
         <Link to={`${withLocalePrefix("/")}#top`} className="flex items-center flex-shrink-0">
           <img 
             src={logo} 
             alt="Lifetrek Medical - ISO 13485 Certified Medical Device Manufacturer" 
-            className="h-[64px]"
-            style={{ width: '193px', height: '64px' }}
+            className="h-[56px]"
+            style={{ width: '169px', height: '56px' }}
           />
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden xl:flex items-center gap-5 2xl:gap-8">
+        <div className="hidden xl:flex min-w-0 flex-1 items-center justify-center gap-4 2xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={`${withLocalePrefix(item.path)}#top`}
-              className={`text-sm font-medium transition-colors hover:text-[#003366] ${
+              className={`whitespace-nowrap text-[13px] font-medium transition-colors hover:text-[#003366] 2xl:text-sm ${
                 normalizedPathname === item.path
                   ? "text-[#003366]"
                   : "text-[#003366]/70"
@@ -70,12 +70,12 @@ export const Header = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-shrink-0 items-center gap-3">
           {/* Language Toggle */}
-          <div className="flex items-center gap-2 bg-[#f5f7fa] rounded-full p-1">
+          <div className="flex items-center gap-1 rounded-full bg-[#f5f7fa] p-1">
             <button
               onClick={() => switchLanguage("en")}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all 2xl:text-sm ${
                 language === "en"
                   ? "bg-[#003366] text-white"
                   : "text-[#003366]/60 hover:text-[#003366]"
@@ -85,7 +85,7 @@ export const Header = () => {
             </button>
             <button
               onClick={() => switchLanguage("pt")}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all 2xl:text-sm ${
                 language === "pt"
                   ? "bg-[#003366] text-white"
                   : "text-[#003366]/60 hover:text-[#003366]"

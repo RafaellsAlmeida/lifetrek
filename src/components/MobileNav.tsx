@@ -26,7 +26,7 @@ export const MobileNav = () => {
 
   const navItems = [
     { path: "/", icon: Home, label: t("nav.home") },
-    { path: "/capabilities", icon: Building2, label: t("nav.infrastructure") },
+    { path: "/capabilities", icon: Building2, label: t("nav.short.infrastructure") },
     { path: "/products", icon: Package, label: t("nav.products") },
     { path: "/resources", icon: BookOpen, label: t("nav.resources") },
     { path: "/blog", icon: Newspaper, label: t("nav.blog") },
