@@ -13,5 +13,25 @@
   "image_dimensions": "1080x1350",
   "background_source": "Stakeholder_Review_Assets/Quality/metrology-overview.png",
   "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+  "visual_revision": "2026-05 soft_ai_reference_photo_system",
+  "visual_system": "AI-generated native PT-BR typography over soft Lifetrek reference-photo gradient",
+  "square_variant_dimensions": "1080x1080",
+  "on_image_text": [
+    "Validação não é inspeção",
+    "lote piloto não basta",
+    "estabilidade vem antes",
+    "IQ/OQ/PQ no fluxo",
+    "documentação sem susto"
+  ],
+  "assets": [
+    "image.png",
+    "image-square.png",
+    "slide-01.png",
+    "slide-02.png",
+    "slide-03.png",
+    "slide-04.png",
+    "slide-05.png",
+    "caption.txt"
+  ]
 }

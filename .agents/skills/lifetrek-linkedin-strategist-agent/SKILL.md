@@ -15,6 +15,7 @@ Load these files **in order** before generating any strategy:
 - [BRAND_BOOK.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/BRAND_BOOK.md) — positioning, tone, core values
 - [COMPANY_CONTEXT.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/COMPANY_CONTEXT.md) — machinery, products, client portfolio, value props
 - [SOCIAL_MEDIA_GUIDELINES.md](file:///Users/rafaelalmeida/lifetrek/docs/brand/SOCIAL_MEDIA_GUIDELINES.md) — base families (A/B/C/D), approved variants, CTA rules, typography
+- [lifetrek-anti-ai-slop-writing/SKILL.md](file:///Users/rafaelalmeida/lifetrek/.agents/skills/lifetrek-anti-ai-slop-writing/SKILL.md) — apply to `hook` and `key_messages` fields. Strategist owns the hook, which is the most-detected sentence in the pipeline.
 
 ### Tier 2 — Winning Patterns (RECOMMENDED)
 - [GoodPostExemples/](file:///Users/rafaelalmeida/lifetrek/GoodPostExemples/) — reference carousels that performed well
@@ -111,10 +112,13 @@ IF audience is Regulatory/Quality:
 - ❌ Never use "mande DM", "comente aqui", "clique no link" in non-lead-magnet posts
 - ❌ Never use English in strategy output — all PT-BR
 - ❌ Never invent certifications or specs not in `COMPANY_CONTEXT.md`
-- ❌ Never use marketing clichés ("somos os melhores", "revolucionário", "disruptivo")
+- ❌ Never use marketing clichés or any banned PT-BR token from `lifetrek-anti-ai-slop-writing/references/banned-words-pt.md` ("revolucionário", "disruptivo", "transformador", "alavancar", "potencializar", "destrave", "no atual cenário", "vale destacar", "tradição e inovação", "padrão de excelência", "soluções sob medida", "excelência em manufatura")
 - ❌ Never create more than 7 slides for a carousel
 - ❌ Never skip the hook slide — it determines scroll-stopping power
-- ❌ Never make generic hooks ("Você sabia que...?" or "Descubra como...")
+- ❌ Never make generic hooks ("Você sabia que...?", "Já parou pra pensar...?", "Descubra como...", "Aqui está tudo que você precisa saber sobre...")
+- ❌ Never start the hook with banned openers ("Certamente,", "Adicionalmente,", "Ademais,", "Outrossim,", "No mundo atual,", "No atual cenário,")
+- ❌ Never use em-dashes (—) in the hook unless absolutely required and there is none elsewhere in `key_messages`
+- ❌ Never default to three `key_messages` if the strategy is not genuinely three points; use 2, 4, or 5 when appropriate
 
 ## Guardrails
 
@@ -122,5 +126,6 @@ IF audience is Regulatory/Quality:
 - Engineer-to-engineer tone — pragmatic, technical, no hype.
 - Return **JSON only** — no markdown fences, no preamble.
 - Every key message must be traceable to a proof point in `COMPANY_CONTEXT.md` or `BRAND_BOOK.md`.
-- Hook must be specific and data-driven, not vague.
+- Hook must be specific and data-driven, not vague. Validate against `lifetrek-anti-ai-slop-writing/references/banned-words-pt.md` before returning.
+- `key_messages` count must reflect content, not the AI default of three. Pick 2, 4, or 5 if that is what the topic genuinely needs.
 - Strategy must align with one of the 4 base visual families (A/B/C/D) and should reference the closest approved variant from `GoodPostExemples/` when choosing the angle.

@@ -30,7 +30,6 @@ import medicalScrewHero from "@/assets/products/medical-screw-hero.webp";
 import dentalInstrumentsHero from "@/assets/products/dental-instruments-hero.webp";
 import surgicalInstruments from "@/assets/products/surgical-instruments-new.webp";
 import veterinaryImplant from "@/assets/products/veterinary-implant-2.jpg";
-import productionFloor from "@/assets/facility/production-floor.jpg";
 
 type Language = "en" | "pt";
 
@@ -42,34 +41,10 @@ type ClientLogo = {
 
 const pageCopy = {
   en: {
-    heroMeta: ["OEM supply file", "ISO 13485 partner", "Brazil / Global reach"],
-    heroTitle: ["For teams where", "supplier risk becomes", "product risk."],
-    heroLead:
-      "Lifetrek works with medical device companies that need a manufacturing partner who understands drawings, audits, transfers, and the consequences of getting a critical component wrong.",
-    heroCta: "Start supplier assessment",
-    heroPanelTitle: "When we fit",
-    heroPanelRows: [
-      ["Need", "validated manufacturing capacity"],
-      ["Parts", "implants, instruments, precision components"],
-      ["Expectation", "traceability, repeatability, technical response"],
-    ],
-    marquee: [
-      "Orthopedic OEMs",
-      "Dental systems",
-      "Veterinary implants",
-      "Surgical instruments",
-      "Spine and trauma",
-      "Design transfer",
-      "ISO 13485",
-      "Export-ready supply",
-    ],
-    statement:
-      "The right partner is not just a machine park. It is the operating system that keeps the drawing, process, batch, and audit trail connected.",
-    statementLabel: "Partner fit observation",
     fitKicker: "Who we serve",
-    fitTitle: "Four customer situations where Lifetrek is built to help.",
+    fitTitle: "Four customer situations where Lifetrek helps best.",
     fitIntro:
-      "The page should make buyer fit obvious before the logo wall appears. These are the operating contexts where Lifetrek has the strongest strategic value.",
+      "We support medical device teams when supplier selection depends on technical fit, production discipline, and a clear path from drawings to repeatable supply.",
     customerFits: [
       {
         image: medicalScrewHero,
@@ -155,34 +130,10 @@ const pageCopy = {
     finalCta: "Schedule an assessment",
   },
   pt: {
-    heroMeta: ["Arquivo de fornecimento OEM", "Parceiro ISO 13485", "Brasil / Alcance global"],
-    heroTitle: ["Para times onde", "risco de fornecedor vira", "risco de produto."],
-    heroLead:
-      "A Lifetrek trabalha com empresas de dispositivos médicos que precisam de um parceiro de manufatura que entende desenhos, auditorias, transferências e as consequências de errar um componente crítico.",
-    heroCta: "Iniciar avaliação de fornecedor",
-    heroPanelTitle: "Quando fazemos sentido",
-    heroPanelRows: [
-      ["Necessidade", "capacidade de manufatura validada"],
-      ["Peças", "implantes, instrumentais, componentes de precisão"],
-      ["Expectativa", "rastreabilidade, repetibilidade, resposta técnica"],
-    ],
-    marquee: [
-      "OEMs ortopédicos",
-      "Sistemas odontológicos",
-      "Implantes veterinários",
-      "Instrumentais cirúrgicos",
-      "Coluna e trauma",
-      "Transferência de projeto",
-      "ISO 13485",
-      "Fornecimento para exportação",
-    ],
-    statement:
-      "O parceiro certo não é apenas um parque de máquinas. É o sistema operacional que mantém desenho, processo, lote e trilha de auditoria conectados.",
-    statementLabel: "Observação de aderência",
     fitKicker: "Quem atendemos",
-    fitTitle: "Quatro situações de cliente onde a Lifetrek ajuda melhor.",
+    fitTitle: "Quatro situações em que a Lifetrek ajuda melhor.",
     fitIntro:
-      "A página deve deixar claro o encaixe antes da parede de logos. Estes são os contextos operacionais onde a Lifetrek entrega mais valor estratégico.",
+      "Apoiamos empresas de dispositivos médicos quando a escolha do fornecedor depende de aderência técnica, disciplina produtiva e um caminho claro do desenho ao fornecimento repetível.",
     customerFits: [
       {
         image: medicalScrewHero,
@@ -268,15 +219,6 @@ const pageCopy = {
     finalCta: "Agendar avaliação",
   },
 } satisfies Record<Language, {
-  heroMeta: string[];
-  heroTitle: string[];
-  heroLead: string;
-  heroCta: string;
-  heroPanelTitle: string;
-  heroPanelRows: string[][];
-  marquee: string[];
-  statement: string;
-  statementLabel: string;
   fitKicker: string;
   fitTitle: string;
   fitIntro: string;
@@ -338,7 +280,6 @@ const clientLogos: ClientLogo[] = [
 export default function Clients() {
   const { language, t } = useLanguage();
   const copy = pageCopy[language as Language] ?? pageCopy.en;
-  const marqueeItems = [...copy.marquee, ...copy.marquee];
   const industries = [
     t("clients.industries.orthopedic"),
     t("clients.industries.spinal"),
@@ -349,104 +290,21 @@ export default function Clients() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f8f8] text-[#101820]">
+    <div className="min-h-screen bg-background text-foreground">
       <div id="top" />
 
-      <section className="relative overflow-hidden bg-[#101820] text-white">
-        <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.32)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.32)_1px,transparent_1px)] [background-size:72px_72px]" />
-        <div className="relative mx-auto grid min-h-[calc(100dvh-80px)] max-w-[1400px] grid-cols-1 gap-12 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_.95fr] lg:px-12 lg:py-20">
-          <div className="flex flex-col justify-start">
-            <div className="mb-10 grid gap-3 border-y border-white/15 py-4 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-white/50 sm:grid-cols-3">
-              {copy.heroMeta.map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
-
-            <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-[#7bcf9a]">
-              {t("clients.title")}
-            </p>
-            <h1 className="max-w-4xl text-[clamp(2.55rem,5.8vw,5.35rem)] font-semibold leading-[0.94] tracking-[-0.052em] text-white">
-              {copy.heroTitle[0]}
-              <br />
-              {copy.heroTitle[1]}
-              <br />
-              <span className="font-normal italic text-[#7bcf9a]">{copy.heroTitle[2]}</span>
-            </h1>
-            <p className="mt-8 max-w-[62ch] text-base leading-8 text-white/68 sm:text-lg">
-              {copy.heroLead}
-            </p>
-            <div className="mt-10">
-              <Link to="/assessment#top">
-                <Button className="h-12 rounded-md bg-[#7bcf9a] px-5 text-[#101820] shadow-none transition-transform hover:-translate-y-0.5 hover:bg-[#8cdda8] active:translate-y-0">
-                  {copy.heroCta}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid content-center gap-5 lg:pl-6">
-            <div className="overflow-hidden rounded-lg border border-white/15 bg-white/[0.04] p-2 shadow-[0_28px_80px_-42px_rgba(0,0,0,.85)]">
-              <img
-                src={productionFloor}
-                alt="Lifetrek production floor for medical device manufacturing"
-                className="aspect-[4/5] w-full rounded-md object-cover"
-                loading="eager"
-              />
-            </div>
-            <div className="rounded-lg border border-white/15 bg-white/[0.04] p-5">
-              <div className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[#7bcf9a]">
-                {copy.heroPanelTitle}
-              </div>
-              <div className="divide-y divide-white/12">
-                {copy.heroPanelRows.map(([label, value]) => (
-                  <div key={label} className="grid grid-cols-[112px_1fr] gap-4 py-3 text-sm">
-                    <span className="font-mono uppercase tracking-[0.14em] text-white/38">{label}</span>
-                    <span className="text-white/78">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-y border-white/15 py-5">
-          <div className="editorial-marquee overflow-hidden">
-            <div className="editorial-marquee-track flex min-w-max gap-10 font-mono text-xs uppercase tracking-[0.18em] text-white/55">
-              {marqueeItems.map((item, index) => (
-                <span key={`${item}-${index}`} className="flex items-center gap-10">
-                  {item}
-                  <span className="text-[#7bcf9a]">/</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-[#d8dee4] bg-[#eef2f3] px-4 py-20 sm:px-6 lg:py-28">
-        <div className="mx-auto max-w-[1040px] text-center">
-          <p className="text-[clamp(2rem,5vw,4.6rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-[#101820]">
-            {copy.statement}
-          </p>
-          <div className="mx-auto mt-10 flex max-w-max items-center gap-4 font-mono text-xs uppercase tracking-[0.18em] text-[#667085] before:h-px before:w-10 before:bg-[#aeb7bf] after:h-px after:w-10 after:bg-[#aeb7bf]">
-            {copy.statementLabel}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#f7f8f8] px-4 py-20 sm:px-6 lg:py-28">
+      <section className="border-b border-primary/10 bg-[#f7fbff] px-4 py-20 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-16 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
             <div>
-              <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-[#247a4d]">
+              <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-accent">
                 {copy.fitKicker}
               </p>
-              <h2 className="max-w-3xl text-[clamp(2.25rem,5vw,4.75rem)] font-semibold leading-[0.98] tracking-[-0.045em] text-[#101820]">
+              <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-primary sm:text-5xl lg:text-6xl">
                 {copy.fitTitle}
-              </h2>
+              </h1>
             </div>
-            <p className="max-w-[58ch] text-base leading-8 text-[#5b6670] lg:justify-self-end">
+            <p className="max-w-[58ch] text-base leading-8 text-slate-600 lg:justify-self-end">
               {copy.fitIntro}
             </p>
           </div>
@@ -455,10 +313,10 @@ export default function Clients() {
             {copy.customerFits.map((client) => (
               <article
                 key={client.number}
-                className="group overflow-hidden rounded-lg border border-[#d8dee4] bg-white transition-transform duration-300 hover:-translate-y-1"
+                className="group overflow-hidden rounded-xl border border-primary/10 bg-white shadow-[var(--shadow-soft)] transition-transform duration-300 hover:-translate-y-1"
               >
                 <div className="grid min-h-full grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative min-h-[260px] overflow-hidden bg-[#dfe6ea]">
+                  <div className="relative min-h-[260px] overflow-hidden bg-secondary">
                     <img
                       src={client.image}
                       alt={client.alt}
@@ -467,16 +325,16 @@ export default function Clients() {
                     />
                   </div>
                   <div className="flex flex-col p-6 sm:p-8">
-                    <div className="mb-8 font-mono text-[clamp(2.5rem,5vw,4.25rem)] italic leading-none text-[#247a4d]">
+                    <div className="mb-8 font-mono text-5xl italic leading-none text-accent sm:text-6xl">
                       {client.number}
                     </div>
-                    <h3 className="text-2xl font-semibold leading-tight tracking-[-0.025em] text-[#101820]">
+                    <h3 className="text-2xl font-semibold leading-tight text-primary">
                       {client.title}
                     </h3>
-                    <p className="mt-4 text-sm leading-7 text-[#5b6670]">
+                    <p className="mt-4 text-sm leading-7 text-slate-600">
                       {client.body}
                     </p>
-                    <div className="mt-auto border-t border-[#e2e8f0] pt-5 font-mono text-xs uppercase tracking-[0.14em] text-[#667085]">
+                    <div className="mt-auto border-t border-primary/10 pt-5 font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
                       {client.meta}
                     </div>
                   </div>
@@ -487,34 +345,34 @@ export default function Clients() {
         </div>
       </section>
 
-      <section className="bg-[#101820] px-4 py-20 text-white sm:px-6 lg:py-28">
+      <section className="bg-white px-4 py-24 text-primary sm:px-6 lg:py-32">
         <div className="mx-auto max-w-[1280px]">
           <div className="mb-16 max-w-4xl">
-            <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-[#7bcf9a]">
+            <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-accent">
               {copy.flowKicker}
             </p>
-            <h2 className="text-[clamp(2.25rem,5vw,4.75rem)] font-semibold leading-[0.98] tracking-[-0.045em]">
+            <h2 className="text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
               {copy.flowTitle}
             </h2>
           </div>
 
-          <div className="border-t border-white/15">
+          <div className="border-t border-primary/15">
             {copy.flowRows.map((row) => (
               <article
                 key={row.label}
-                className="grid gap-5 border-b border-white/15 py-9 md:grid-cols-[160px_1fr]"
+                className="grid gap-5 border-b border-primary/15 py-10 md:grid-cols-[160px_1fr]"
               >
-                <div className="font-mono text-[clamp(2.25rem,5vw,4rem)] italic leading-none text-[#7bcf9a]">
+                <div className="font-mono text-5xl italic leading-none text-accent sm:text-6xl">
                   {row.label}
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold tracking-[-0.025em] text-white">
+                  <h3 className="text-2xl font-semibold text-primary">
                     {row.title}
                   </h3>
-                  <p className="mt-4 max-w-[70ch] text-base leading-8 text-white/62">
+                  <p className="mt-4 max-w-[70ch] text-base leading-8 text-slate-600">
                     {row.body}
                   </p>
-                  <div className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-white/35">
+                  <div className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-primary/45">
                     {row.meta}
                   </div>
                 </div>
@@ -530,23 +388,23 @@ export default function Clients() {
             className="mb-14 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end"
           >
             <div>
-              <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-[#247a4d]">
+              <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-accent">
                 {copy.proofKicker}
               </p>
-              <h2 className="max-w-3xl text-[clamp(2.25rem,5vw,4.5rem)] font-semibold leading-[1] tracking-[-0.045em] text-[#101820]">
+              <h2 className="max-w-3xl text-4xl font-semibold leading-tight text-primary sm:text-5xl lg:text-6xl">
                 {copy.proofTitle}
               </h2>
             </div>
-            <p className="max-w-[62ch] text-base leading-8 text-[#5b6670] lg:justify-self-end">
+            <p className="max-w-[62ch] text-base leading-8 text-slate-600 lg:justify-self-end">
               {copy.proofLead}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 border-l border-t border-[#d8dee4] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 border-l border-t border-primary/15 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {clientLogos.map((logo) => (
               <div
                 key={logo.alt}
-                className="flex min-h-[128px] items-center justify-center border-b border-r border-[#d8dee4] bg-white p-5 transition-colors duration-300 hover:bg-[#f4f7f6]"
+                className="flex min-h-[128px] items-center justify-center border-b border-r border-primary/15 bg-white p-5 transition-colors duration-300 hover:bg-[#f7fbff]"
               >
                 <img
                   src={logo.src}
@@ -561,21 +419,21 @@ export default function Clients() {
         </div>
       </section>
 
-      <section className="border-y border-[#d8dee4] bg-[#eef2f3] px-4 py-20 sm:px-6 lg:py-24">
+      <section className="border-y border-primary/10 bg-[#f7fbff] px-4 py-24 sm:px-6 lg:py-28">
         <div className="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
-            <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-[#247a4d]">
+            <p className="mb-5 font-mono text-xs uppercase tracking-[0.22em] text-accent">
               {copy.industryKicker}
             </p>
-            <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-[#101820]">
+            <h2 className="text-3xl font-semibold leading-tight text-primary sm:text-4xl lg:text-5xl">
               {copy.industryTitle}
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-0 border-t border-[#cfd7de] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-0 border-t border-primary/15 sm:grid-cols-2">
             {industries.map((industry) => (
               <div
                 key={industry}
-                className="border-b border-[#cfd7de] py-5 font-mono text-sm uppercase tracking-[0.12em] text-[#344054] sm:odd:border-r sm:odd:pr-6 sm:even:pl-6"
+                className="border-b border-primary/15 py-5 font-mono text-sm uppercase tracking-[0.12em] text-primary/75 sm:odd:border-r sm:odd:pr-6 sm:even:pl-6"
               >
                 {industry}
               </div>
@@ -584,33 +442,33 @@ export default function Clients() {
         </div>
       </section>
 
-      <section className="bg-[#f7f8f8] px-4 py-20 sm:px-6 lg:py-28">
+      <section className="bg-white px-4 py-24 sm:px-6 lg:py-32">
         <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[1fr_1fr]">
-          <div className="rounded-lg border border-[#d8dee4] bg-white p-8 sm:p-10">
-            <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-[#247a4d]">
+          <div className="rounded-xl border border-primary/10 bg-white p-8 shadow-[var(--shadow-soft)] sm:p-10">
+            <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-accent">
               {t("clients.reach.title")}
             </p>
-            <h2 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#101820] sm:text-4xl">
+            <h2 className="text-3xl font-semibold leading-tight text-primary sm:text-4xl">
               {copy.reachTitle}
             </h2>
-            <p className="mt-5 text-base leading-8 text-[#5b6670]">
+            <p className="mt-5 text-base leading-8 text-slate-600">
               {copy.reachText}
             </p>
           </div>
           <div className="grid gap-4">
-            <div className="rounded-lg border border-[#d8dee4] bg-white p-6">
-              <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#247a4d]">
+            <div className="rounded-xl border border-primary/10 bg-[#f7fbff] p-6">
+              <div className="font-mono text-xs uppercase tracking-[0.16em] text-accent">
                 {t("clients.reach.certifications.title")}
               </div>
-              <p className="mt-3 text-sm leading-7 text-[#5b6670]">
+              <p className="mt-3 text-sm leading-7 text-slate-600">
                 {t("clients.reach.certifications.text")}
               </p>
             </div>
-            <div className="rounded-lg border border-[#d8dee4] bg-white p-6">
-              <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#247a4d]">
+            <div className="rounded-xl border border-primary/10 bg-[#f7fbff] p-6">
+              <div className="font-mono text-xs uppercase tracking-[0.16em] text-accent">
                 {t("clients.reach.global.title")}
               </div>
-              <p className="mt-3 text-sm leading-7 text-[#5b6670]">
+              <p className="mt-3 text-sm leading-7 text-slate-600">
                 {t("clients.reach.global.text")}
               </p>
             </div>
@@ -618,17 +476,17 @@ export default function Clients() {
         </div>
       </section>
 
-      <section className="bg-[#101820] px-4 py-20 text-white sm:px-6 lg:py-28">
+      <section className="bg-primary px-4 py-24 text-primary-foreground sm:px-6 lg:py-32">
         <div className="mx-auto max-w-[980px] text-center">
-          <h2 className="text-[clamp(2.25rem,5vw,4.75rem)] font-semibold leading-[1] tracking-[-0.045em]">
+          <h2 className="text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
             {copy.finalTitle}
           </h2>
-          <p className="mx-auto mt-6 max-w-[58ch] text-base leading-8 text-white/65 sm:text-lg">
+          <p className="mx-auto mt-6 max-w-[58ch] text-base leading-8 text-primary-foreground/75 sm:text-lg">
             {copy.finalText}
           </p>
           <div className="mt-10">
             <Link to="/assessment#top">
-              <Button className="h-12 rounded-md bg-[#7bcf9a] px-5 text-[#101820] shadow-none transition-transform hover:-translate-y-0.5 hover:bg-[#8cdda8] active:translate-y-0">
+              <Button className="h-12 rounded-md bg-accent px-5 text-accent-foreground shadow-none transition-transform hover:-translate-y-0.5 hover:bg-accent/90 active:translate-y-0">
                 {copy.finalCta}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

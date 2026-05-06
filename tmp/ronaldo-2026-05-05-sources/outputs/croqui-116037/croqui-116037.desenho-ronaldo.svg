@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040">
+      <defs>
+        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M10 0 L0 5 L10 10 z" fill="#f97316"/>
+        </marker>
+        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M10 0 L0 5 L10 10 z" fill="#0ea5e9"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="white"/>
+      <text x="1420" y="70" text-anchor="middle" font-size="34" font-weight="700">Croqui 116.037</text>
+      <line x1="60" y1="470" x2="1460" y2="470" stroke="#94a3b8" stroke-width="1" stroke-dasharray="8 6"/>
+      <polygon points="80,311.73 704.8648648648648,311.73 704.8648648648648,375 892.3243243243243,375 892.3243243243243,337 1440,337 1440,603 892.3243243243243,603 892.3243243243243,565 704.8648648648648,565 704.8648648648648,628.27 80,628.27" fill="none" stroke="#083344" stroke-width="3"/>
+      <line x1="80" y1="300" x2="80" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="704.8648648648648" y1="300" x2="704.8648648648648" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="892.3243243243243" y1="300" x2="892.3243243243243" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+      
+    <line x1="80" y1="670" x2="80" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="704.8648648648648" y1="670" x2="704.8648648648648" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="80" y1="690" x2="704.8648648648648" y2="690" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="392.4324324324324" y="682" text-anchor="middle" font-size="20" fill="#111827">1,70*</text>
+  
+
+    <line x1="704.8648648648648" y1="714" x2="704.8648648648648" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="892.3243243243243" y1="714" x2="892.3243243243243" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="704.8648648648648" y1="734" x2="892.3243243243243" y2="734" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="798.5945945945946" y="726" text-anchor="middle" font-size="20" fill="#111827">0,51</text>
+  
+
+    <line x1="892.3243243243243" y1="758" x2="892.3243243243243" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1440" y1="758" x2="1440" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="892.3243243243243" y1="778" x2="1440" y2="778" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="1166.162162162162" y="770" text-anchor="middle" font-size="20" fill="#111827">1,49</text>
+  
+      
+    <line x1="80" y1="820" x2="80" y2="860" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1440" y1="820" x2="1440" y2="860" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="80" y1="840" x2="1440" y2="840" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="760" y="832" text-anchor="middle" font-size="20" fill="#111827">3,70</text>
+  
+      
+    <line x1="392.4324324324324" y1="250" x2="392.4324324324324" y2="303.73" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="392.4324324324324" y="242" text-anchor="middle" font-size="20" fill="#111827">Ø 1,67</text>
+  
+
+    <line x1="798.5945945945946" y1="292" x2="798.5945945945946" y2="367" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="798.5945945945946" y="284" text-anchor="middle" font-size="20" fill="#111827">Ø 1</text>
+  
+
+    <line x1="1166.162162162162" y1="334" x2="1166.162162162162" y2="329" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="1166.162162162162" y="326" text-anchor="middle" font-size="20" fill="#111827">Rosca M1,4x0,3</text>
+  
+      <text x="1420" y="970" text-anchor="middle" font-size="28" font-weight="700">D = superficie diamantada quando indicado</text>
+      <text x="70" y="895" font-size="16" fill="#92400e">- Preliminar extraido do croqui 116.037.</text>
+<text x="70" y="917" font-size="16" fill="#92400e">- Hexagono 1,2 e broca 1,2 aparecem no croqui, mas a profundidade da broca esta marcada como pergunta.</text>
+<text x="70" y="939" font-size="16" fill="#92400e">- Nao liberar STEP sem Ronaldo confirmar profundidade do furo/hexagono.</text>
+<text x="70" y="961" font-size="16" fill="#92400e">- Validar: Confirmar se 116.037 e o codigo/desenho da peça.</text>
+<text x="70" y="983" font-size="16" fill="#92400e">- Validar: Confirmar profundidade da broca Ø1,2 e do hexagono interno 1,2.</text>
+<text x="70" y="1005" font-size="16" fill="#92400e">- Validar: Confirmar comprimento da rosca direita: o croqui parece mostrar 1,5/1,8, mas o total 3,7 com 1,7 + 0,51 deixa 1,49.</text>
+    </svg>

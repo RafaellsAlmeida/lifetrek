@@ -13,7 +13,17 @@ import type {
 
 const LOCAL_STORAGE_KEY = "engineering-drawing-sessions-v1";
 const STORAGE_BUCKET = "engineering-drawings";
-type EngineeringDrawingExportType = "svg" | "png" | "pdf" | "glb" | "step" | "a3_svg" | "a3_png" | "a3_pdf";
+type EngineeringDrawingExportType =
+  | "svg"
+  | "png"
+  | "pdf"
+  | "pptx"
+  | "glb"
+  | "step"
+  | "a3_svg"
+  | "a3_png"
+  | "a3_pdf"
+  | "a3_pptx";
 
 type PersistedLocalSession = EngineeringDrawingSessionRecord;
 
@@ -420,11 +430,13 @@ export async function persistEngineeringDrawingExport(args: {
     svg: "image/svg+xml;charset=utf-8",
     png: "image/png",
     pdf: "application/pdf",
+    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     glb: "model/gltf-binary",
     step: "model/step",
     a3_svg: "image/svg+xml;charset=utf-8",
     a3_png: "image/png",
     a3_pdf: "application/pdf",
+    a3_pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   };
   const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(filePath, args.blob, {
     contentType: contentTypeByExport[args.exportType],

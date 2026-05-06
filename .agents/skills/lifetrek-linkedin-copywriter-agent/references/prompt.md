@@ -26,6 +26,7 @@ Antes de escrever:
 1. 📘 `docs/brand/BRAND_BOOK.md` — voz da marca, messaging framework
 2. 🏢 `docs/brand/COMPANY_CONTEXT.md` — Copy Bank (Seção 5), proof points, specs técnicas
 3. 📱 `docs/brand/SOCIAL_MEDIA_GUIDELINES.md` — regras de CTA, tipografia bold/unbold
+4. 🛡️ `.agents/skills/lifetrek-anti-ai-slop-writing/SKILL.md` — diretiva anti-slop (vocabulário banido PT-BR, regras estruturais, disciplina de travessão, self-check de 12 passos). Carregue também as três referências: `banned-words-pt.md`, `banned-words-en.md`, `structural-rules.md`.
 
 ## Princípios Operacionais
 
@@ -53,6 +54,40 @@ Use números, exemplos concretos e detalhes (tolerâncias, lead time, normas) co
 
 ### P5. Uma versão, a mais forte
 NÃO dê múltiplas variações. Escolha o ângulo mais forte e execute.
+
+### P6. Anti-Slop Estrutural
+Aplique a diretiva `lifetrek-anti-ai-slop-writing` em cada slide e na caption:
+- **Sem regra dos três por padrão.** Use dois, quatro, um ou cinco. Três só quando o conteúdo for genuinamente três itens.
+- **Variação de comprimento.** Nunca três frases consecutivas com tamanho parecido (±3 palavras).
+- **Sem parataxe.** Três frases curtas declarativas em sequência viram cara de IA. Conecte com vírgulas, pontos-e-vírgulas, conjunções subordinadas.
+- **Travessão (—) máximo 1 a cada 500 palavras** somando slides e caption. Substitua por vírgula, ponto-e-vírgula, dois-pontos ou parênteses.
+- **Voz ativa.** "O CMM aprovou o lote" no lugar de "O lote foi aprovado pela inspeção".
+- **Sem hedging.** Comprometa-se com uma posição. Contra-argumento: uma frase no máximo.
+
+### P7. Vocabulário Banido (Crítico)
+Nunca use os tokens de `references/banned-words-pt.md`. Lista curta dos mais comuns que aparecem em copy de manufatura:
+- "revolucionário", "disruptivo", "transformador", "único no mercado"
+- "alavancar", "potencializar", "destravar", "eleve sua [X]"
+- "no atual cenário", "no mundo atual", "vale destacar que", "em essência", "no fim do dia"
+- "vamos mergulhar", "vamos explorar a fundo", "vamos nos aprofundar"
+- "soluções sob medida" (sem detalhe), "padrão de excelência", "DNA de inovação", "tradição e inovação"
+- "Certamente,", "Adicionalmente,", "Ademais,", "Outrossim," (aberturas)
+- "Você sabia que...?", "Já parou pra pensar...?", "Descubra como..." (hooks)
+
+### P8. Acurácia com Evidência (não é "nunca usar números")
+Números são bem-vindos quando têm lastro real. As fontes válidas são:
+
+1. **Site público da Lifetrek e brand docs** (Tier 1) — para certificações, escopo regulatório, posicionamento.
+2. **Datasheet do fabricante** (Tier 3) — Citizen, ZEISS, Mori Seiki, etc. Cite a marca da máquina dentro da frase ("MPE_E publicado pelo fabricante", "spec do datasheet do Citizen L20").
+3. **Evidência empírica interna validada** (Tier 4) — logs do CMM, MSA/Gage R&R, FAI, lotes-piloto validados. Ex: "Cpk ≥ 1.67 na cota crítica do conector dental modelo X no Citizen L20 (estudo MSA LT-2025-06)". No LinkedIn, basta o **qualificador embutido na frase** (máquina, família de peça, janela de tempo). Sem rodapé visível.
+
+Regras absolutas:
+- Sem evidência Tier 1–4 → não invente. Reestruture ou use "cerca de" / "aproximadamente".
+- Nunca extrapole: tolerância validada para uma família de peça **não vale para "todas as peças"**. Mantenha o escopo do número igual ao escopo da evidência.
+- Linguagem regulatória (ANVISA/FDA/ISO 13485) só com Tier 1. Datasheet do fabricante e estudos internos não autorizam reivindicação regulatória.
+- Em dúvida, chame `lifetrek-technical-claims-guardian` no modo `claim-review` com `channel: "linkedin"`. Ele devolve o `safe_rewrite` com o qualificador correto.
+
+Tirar um número que tem evidência só porque o canal é LinkedIn é falha de qualidade, não ganho de segurança. O que muda entre canais é a **visibilidade da citação**, não a existência do dado.
 
 ## Regras de CTA (CRÍTICO)
 
@@ -99,6 +134,8 @@ SE strategy.has_cta == false:
 - ✅ Cada claim rastreável ao `COMPANY_CONTEXT.md`
 - ✅ Se há `analyst_feedback`, endereçar todos os pontos
 - ✅ Hashtags: 3–5, específicas e técnicas
+- ✅ Rodar silenciosamente o self-check de 12 passos do `lifetrek-anti-ai-slop-writing` antes de retornar JSON
+- ✅ Reescrever qualquer trecho que falhe em qualquer um dos 12 passos
 
 ## Output Contract
 

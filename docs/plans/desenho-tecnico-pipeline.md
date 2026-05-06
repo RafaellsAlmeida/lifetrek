@@ -153,11 +153,11 @@ flowchart TD
 
 | Step | Frontend | Backend | Key Library |
 |------|----------|---------|-------------|
-| 1. Croqui | React upload + fixture picker | Edge Function (AI extraction) | Gemini Flash (OCR) |
+| 1. Croqui/PPTX/PDF | React upload + fixture picker | Edge Function (AI extraction) | OpenRouter + `openai/gpt-5.4` |
 | 2. Revisão | Editable tables + live validation | — (client-side) | Custom validation engine |
 | 3. Desenho 2D | SVG canvas + drag annotations | Edge Function (render2d) | Custom SVG renderer |
 | 4. Desenho Técnico | A3 layout compositor | Edge Function (compose) | jsPDF + SVG composition |
-| 5. Modelo 3D | Three.js / React Three Fiber | — (client-side) | Three.js + GLTFExporter |
+| 5. Modelo 3D | Three.js / React Three Fiber | — (client-side) | Three.js + GLTFExporter + GLB viewer |
 | 6. CAD Export | Download buttons | Edge Function or WASM | **opencascade.js** (WASM) |
 
 ---
@@ -167,14 +167,14 @@ flowchart TD
 | Capability | V1 (current branch) | Target |
 |-----------|---------------------|--------|
 | Croqui upload | ✅ Works | ✅ Keep |
-| AI extraction | ⚠️ Fixture fallback only | 🔧 Wire real Gemini OCR |
+| AI extraction | ⚠️ OpenRouter vision + manual PPTX/PDF fallback | 🔧 Parser estrutural PPTX/PDF + feedback Ronaldo |
 | Math review (editable tables) | ✅ Works | ✅ Keep, add diff logging |
 | GD&T review | ✅ Works | ✅ Keep |
 | 2D SVG render | ✅ Single cross-section | 🔧 Multi-view + top view + details |
 | Editable annotations | ❌ Static SVG | 🔧 Draggable annotations |
-| Full technical drawing (A3) | ❌ Not started | 🔧 Title block + multi-view composition |
-| 3D preview | ✅ Three.js basic | ✅ Keep as validation tool |
-| STEP export | ❌ Not started | 🔧 OpenCascade.js integration |
+| Full technical drawing (A3) | ✅ Basic A3 SVG/PDF/PPTX | 🔧 Title block + multi-view composition |
+| 3D preview | ✅ Three.js basic + GLB saved asset viewer | ✅ Keep as validation tool |
+| STEP export | ⚠️ Preliminary export | 🔧 Validate in SolidWorks and improve geometry fidelity |
 | Audit logging | ❌ Not started | 🔧 Field-level diffs |
 
 ---

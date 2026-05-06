@@ -19,17 +19,19 @@ Carousel Copy (slides[])
 
 ## Key Files
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Satori Compositor** | `supabase/functions/regenerate-carousel-images/generators/satori.ts` | Renders text overlay + logo + ISO badge as PNG |
-| **Hybrid Handler** | `supabase/functions/regenerate-carousel-images/handlers/hybrid.ts` | Orchestrates: photo selection → Satori → upload |
-| **Smart Handler** | `supabase/functions/regenerate-carousel-images/handlers/smart.ts` | Semantic selection with AI fallback (legacy) |
-| **Asset Loader** | `supabase/functions/regenerate-carousel-images/utils/assets.ts` | Loads assets, generates embeddings, scores matches |
-| **Vision QA** | `supabase/functions/regenerate-carousel-images/qa/vision-scorer.ts` | Scores final image quality via vision model |
-| **Storage Utils** | `supabase/functions/regenerate-carousel-images/utils/storage.ts` | Upload to Supabase Storage |
-| **Brand Prompt** | `supabase/functions/regenerate-carousel-images/prompts/brand-prompt.ts` | Brand colors and visual guidelines |
-| **Types** | `supabase/functions/regenerate-carousel-images/types.ts` | SlideData, PlatformConfig interfaces |
-| **Cost Tracking** | `supabase/functions/_shared/costTracking.ts` | Per-request cost logging |
+
+| Component             | File                                                                    | Purpose                                            |
+| --------------------- | ----------------------------------------------------------------------- | -------------------------------------------------- |
+| **Satori Compositor** | `supabase/functions/regenerate-carousel-images/generators/satori.ts`    | Renders text overlay + logo + ISO badge as PNG     |
+| **Hybrid Handler**    | `supabase/functions/regenerate-carousel-images/handlers/hybrid.ts`      | Orchestrates: photo selection → Satori → upload    |
+| **Smart Handler**     | `supabase/functions/regenerate-carousel-images/handlers/smart.ts`       | Semantic selection with AI fallback (legacy)       |
+| **Asset Loader**      | `supabase/functions/regenerate-carousel-images/utils/assets.ts`         | Loads assets, generates embeddings, scores matches |
+| **Vision QA**         | `supabase/functions/regenerate-carousel-images/qa/vision-scorer.ts`     | Scores final image quality via vision model        |
+| **Storage Utils**     | `supabase/functions/regenerate-carousel-images/utils/storage.ts`        | Upload to Supabase Storage                         |
+| **Brand Prompt**      | `supabase/functions/regenerate-carousel-images/prompts/brand-prompt.ts` | Brand colors and visual guidelines                 |
+| **Types**             | `supabase/functions/regenerate-carousel-images/types.ts`                | SlideData, PlatformConfig interfaces               |
+| **Cost Tracking**     | `supabase/functions/_shared/costTracking.ts`                            | Per-request cost logging                           |
+
 
 ## Image Selection (RAG)
 
@@ -41,10 +43,12 @@ Carousel Copy (slides[])
 
 ### Embedding Models
 
-| Model | Dimensions | Type | Status |
-|-------|-----------|------|--------|
-| `openai/text-embedding-3-small` | 1536 | Text-only | Legacy (via OpenRouter) |
-| `gemini-embedding-exp-03-07` | 768 (MRL) | Multimodal (text+image) | New — stored in `embedding_v2` column |
+
+| Model                           | Dimensions | Type                    | Status                                |
+| ------------------------------- | ---------- | ----------------------- | ------------------------------------- |
+| `openai/text-embedding-3-small` | 1536       | Text-only               | Legacy (via OpenRouter)               |
+| `gemini-embedding-exp-03-07`    | 768 (MRL)  | Multimodal (text+image) | New — stored in `embedding_v2` column |
+
 
 Gemini Embedding 2 is the preferred model because it embeds **actual photos** into the same vector space as text queries, enabling true visual semantic matching.
 
@@ -62,13 +66,15 @@ finalScore = cosineSimilarity(0-1) + keywordBoost(0-0.78) + curatedBoost(0-0.22)
 
 Each slide is classified into one of 5 intents with different asset pools and thresholds:
 
-| Intent | Threshold | Asset Pool |
-|--------|-----------|------------|
-| `company_trust` | 0.68 | exterior, reception, production-overview |
-| `quality_machines_metrology` | 0.66 | equipment, production floor |
-| `cleanroom_iso` | 0.64 | clean-room photos |
-| `vet_odonto_product` | 0.62 | product photos, clean facilities |
-| `generic` | 0.70 | all eligible assets |
+
+| Intent                       | Threshold | Asset Pool                               |
+| ---------------------------- | --------- | ---------------------------------------- |
+| `company_trust`              | 0.68      | exterior, reception, production-overview |
+| `quality_machines_metrology` | 0.66      | equipment, production floor              |
+| `cleanroom_iso`              | 0.64      | clean-room photos                        |
+| `vet_odonto_product`         | 0.62      | product photos, clean facilities         |
+| `generic`                    | 0.70      | all eligible assets                      |
+
 
 ### Non-Repetition Logic
 
@@ -95,18 +101,22 @@ Outer Container (facility photo as CSS backgroundImage)
 
 Prevents text overflow (the "Manufaturabilida de" bug):
 
-| Headline Length | Font Size |
-|----------------|-----------|
-| ≤ 35 chars | 48px |
-| 36-55 chars | 42px |
-| 56-80 chars | 36px |
-| > 80 chars | 32px |
 
-| Body Length | Font Size |
-|-------------|-----------|
-| ≤ 200 chars | 24px |
-| 201-300 chars | 20px |
-| > 300 chars | 18px |
+| Headline Length | Font Size |
+| --------------- | --------- |
+| ≤ 35 chars      | 48px      |
+| 36-55 chars     | 42px      |
+| 56-80 chars     | 36px      |
+| > 80 chars      | 32px      |
+
+
+
+| Body Length   | Font Size |
+| ------------- | --------- |
+| ≤ 200 chars   | 24px      |
+| 201-300 chars | 20px      |
+| > 300 chars   | 18px      |
+
 
 ### Logo & ISO Badge Rendering
 
@@ -142,6 +152,7 @@ lightGray: "#E0E0E0"        // Body text
 ## Hybrid Handler Workflow
 
 For each slide:
+
 1. Set metadata: `showLogo` (first + last), `showISOBadge` (last + CTA)
 2. Load logo URL (`getLogo()`) and ISO badge URL (`getIsoBadge("iso 13485")`)
 3. Select facility photo via keyword map or semantic matching
@@ -226,25 +237,29 @@ Base URL: `https://dlflpvmdzkeouhgqwqba.supabase.co/storage/v1/object/public/con
 
 ## Visual Templates (4 approved)
 
-| Template | Use Case | Key Features |
-|----------|----------|-------------|
-| **A — Glassmorphism Card** | Body/CTA slides (default) | Dark overlay + glass card left + green label + bold headline + logo top-right |
-| **B — Full-Bleed Dark Text** | Hook/cover slides | No card, full-bleed, huge headline, accent line bottom, slide counter |
-| **C — Split Comparison** | Before/after comparisons | 50/50 vertical split, different tint each half |
-| **D — Pure Photo** | Equipment/facility showcase | Minimal text overlay |
+
+| Template                     | Use Case                    | Key Features                                                                  |
+| ---------------------------- | --------------------------- | ----------------------------------------------------------------------------- |
+| **A — Glassmorphism Card**   | Body/CTA slides (default)   | Dark overlay + glass card left + green label + bold headline + logo top-right |
+| **B — Full-Bleed Dark Text** | Hook/cover slides           | No card, full-bleed, huge headline, accent line bottom, slide counter         |
+| **C — Split Comparison**     | Before/after comparisons    | 50/50 vertical split, different tint each half                                |
+| **D — Pure Photo**           | Equipment/facility showcase | Minimal text overlay                                                          |
+
 
 Reference images in `GoodPostExemples/`.
 
 ## Cost Tracking
 
-| Operation | Model | Cost |
-|-----------|-------|------|
-| Text embedding (OpenRouter) | text-embedding-3-small | $0.00002 |
-| Text embedding (Gemini) | gemini-embedding-exp-03-07 | ~$0.0001 |
-| Image embedding (Gemini) | gemini-embedding-exp-03-07 | ~$0.0001 |
-| Vision QA scoring | gemini-2.5-flash-preview | ~$0.003 |
-| Satori rendering | N/A (local) | $0.00 |
-| Image upload | Supabase Storage | $0.00 |
+
+| Operation                   | Model                      | Cost     |
+| --------------------------- | -------------------------- | -------- |
+| Text embedding (OpenRouter) | text-embedding-3-small     | $0.00002 |
+| Text embedding (Gemini)     | gemini-embedding-exp-03-07 | ~$0.0001 |
+| Image embedding (Gemini)    | gemini-embedding-exp-03-07 | ~$0.0001 |
+| Vision QA scoring           | gemini-2.5-flash-preview   | ~$0.003  |
+| Satori rendering            | N/A (local)                | $0.00    |
+| Image upload                | Supabase Storage           | $0.00    |
+
 
 All AI calls use `executeWithCostTracking` from `_shared/costTracking.ts`.
 

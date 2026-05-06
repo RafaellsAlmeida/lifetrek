@@ -22,6 +22,8 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseAnonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY")!;
 const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+const engineeringDrawingVisionModel =
+  Deno.env.get("ENGINEERING_DRAWING_VISION_MODEL") || "openai/gpt-5.4";
 
 async function verifyAdmin(authHeader: string | null): Promise<boolean> {
   if (!authHeader) return false;
@@ -162,7 +164,7 @@ async function extractWithAi(payload: ExtractRequest): Promise<ExtractionResult>
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: engineeringDrawingVisionModel,
       response_format: { type: "json_object" },
       messages: [
         {
@@ -175,6 +177,15 @@ Regras obrigatórias:
 - Suporte apenas: trechos cilíndricos, taper simples, rosca métrica externa, sextavado/quadrado, furo axial simples, chanfros e raios básicos.
 - Qualquer feature fora desse escopo deve ir para unsupportedFeatures.
 - Todas as unidades são mm.
+- A entrada pode ser croqui manual, print de desenho 2D, PDF exportado ou desenho em padrão PowerPoint interno.
+- Use a linha inferior de comprimentos como base principal para segmentar a peça no eixo.
+- Textos com "Ø", "diam.", "diametro" ou "diâmetro" devem ser interpretados como diâmetros, não como cotas lineares.
+- Não classifique um trecho como rosca só por textura ou linhas internas. Só use kind="thread" quando houver chamada explícita como "Rosca", "M", "UNC", "UNF" ou equivalente apontando para aquele trecho.
+- Quando o desenho interno usa setas inclinadas para diâmetros, extraia o valor como diâmetro do trecho apontado e registre a origem no note.
+- Se as cotas parciais não fecharem com o comprimento total, mantenha os valores lidos, coloque totalLengthMm quando legível e crie ambiguityFlags/ambiguities explicando a divergência.
+- Quando houver duas leituras possíveis, prefira null + ambiguidade em vez de escolher uma sem evidência.
+- Para padrões internos Lifetrek/Ronaldo, preserve notas como "D = superfície diamantada", "facetado 3x", "chato largura" e "centro ao facetado" em notes ou unsupportedFeatures quando a geometria exata não couber no schema.
+- ISO 13485 é requisito de controle e rastreabilidade do processo; não invente uma norma de desenho quando ela não aparece no arquivo.
 - Retorne JSON puro com este formato:
 {
   "geometryDraft": {

@@ -13,5 +13,14 @@
   "image_dimensions": "1080x1350",
   "background_source": "Product Images/1767376335649-sala-limpa.png",
   "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+  "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+  "visual_revision": "2026-05 soft_ai_reference_photo_system",
+  "visual_system": "AI-enhanced Lifetrek reference photo without text overlay",
+  "square_variant_dimensions": "1080x1080",
+  "on_image_text": [],
+  "assets": [
+    "image.png",
+    "image-square.png",
+    "caption.txt"
+  ]
 }

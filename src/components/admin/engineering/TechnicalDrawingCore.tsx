@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { jsPDF } from "jspdf";
+import PptxGenJS from "pptxgenjs";
 import {
   AlertTriangle,
   Boxes,
@@ -30,6 +31,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 
 import { EngineeringDrawing3DPreview } from "@/components/admin/engineering/EngineeringDrawing3DPreview";
+import { EngineeringDrawingGlbPreview } from "@/components/admin/engineering/EngineeringDrawingGlbPreview";
+import { RonaldoBatchReport } from "@/components/admin/engineering/RonaldoBatchReport";
 import {
   createManualExtraction,
   findFixtureByFileName,
@@ -83,12 +86,42 @@ const SAVED_EXPORT_LABELS: Record<string, string> = {
   svg: "2D SVG",
   png: "2D PNG",
   pdf: "2D PDF",
+  pptx: "2D PPTX",
   step: "STEP",
   glb: "GLB",
   a3_svg: "A3 SVG",
   a3_png: "A3 PNG",
   a3_pdf: "A3 PDF",
+  a3_pptx: "A3 PPTX",
 };
+
+const PPTX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+const DRAWING_SOURCE_ACCEPT =
+  [
+    "image/*",
+    "application/pdf",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".pdf",
+    ".ppt",
+    ".pptx",
+  ].join(",");
+
+function isImageFile(fileName: string, mimeType?: string) {
+  if (mimeType?.startsWith("image/")) return true;
+  return /\.(png|jpe?g|webp|svg)$/i.test(fileName);
+}
+
+function isStructured2DSource(fileName: string, mimeType?: string) {
+  const normalizedMime = mimeType?.toLowerCase() ?? "";
+  return (
+    normalizedMime === "application/pdf" ||
+    normalizedMime === "application/vnd.ms-powerpoint" ||
+    normalizedMime === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    /\.(pdf|ppt|pptx)$/i.test(fileName)
+  );
+}
 
 function downloadDataUrl(dataUrl: string, fileName: string) {
   const anchor = document.createElement("a");
@@ -125,7 +158,7 @@ function svgMarkupToBlob(svgMarkup: string) {
 }
 
 function buildSavedExports(exports: Record<string, unknown> | null | undefined): StoredDrawingExport[] {
-  const order = ["svg", "png", "pdf", "a3_svg", "a3_png", "a3_pdf", "step", "glb"];
+  const order = ["svg", "png", "pdf", "pptx", "a3_svg", "a3_png", "a3_pdf", "a3_pptx", "step", "glb"];
 
   return Object.entries(exports ?? {})
     .map(([key, value]) => {
@@ -221,6 +254,29 @@ async function svgMarkupToPngDataUrl(svgMarkup: string, pixelRatio = 2) {
   } finally {
     URL.revokeObjectURL(blobUrl);
   }
+}
+
+async function svgMarkupToPptxBlob(svgMarkup: string, title: string, pngDataUrl?: string) {
+  const imageDataUrl = pngDataUrl ?? (await svgMarkupToPngDataUrl(svgMarkup, 3));
+  const { width, height } = getSvgCanvasSize(svgMarkup);
+  const aspectRatio = width / height;
+  const slideWidth = 13.333;
+  const slideHeight = slideWidth / aspectRatio;
+  const pptx = new PptxGenJS();
+
+  pptx.defineLayout({ name: "ENGINEERING_DRAWING", width: slideWidth, height: slideHeight });
+  pptx.layout = "ENGINEERING_DRAWING";
+  pptx.author = "Lifetrek Medical";
+  pptx.company = "Lifetrek Medical";
+  pptx.subject = "Desenho tecnico 2D";
+  pptx.title = title;
+
+  const slide = pptx.addSlide();
+  slide.background = { color: "FFFFFF" };
+  slide.addImage({ data: imageDataUrl, x: 0, y: 0, w: slideWidth, h: slideHeight });
+
+  const output = await pptx.write({ outputType: "blob" });
+  return output instanceof Blob ? output : new Blob([output], { type: PPTX_CONTENT_TYPE });
 }
 
 function extractionToReviewState(
@@ -547,10 +603,18 @@ export function TechnicalDrawingCore() {
     return updated;
   };
 
-  const runExtraction = async (session: EngineeringDrawingSessionRecord, imageUrl: string, fileName: string) => {
+  const runExtraction = async (session: EngineeringDrawingSessionRecord, imageUrl: string, fileName: string, mimeType?: string) => {
     const fixture = findFixtureByFileName(sanitizeFilename(fileName));
     if (fixture) {
       return applyExtraction(session, fixture.extractionResult);
+    }
+
+    if (!isImageFile(fileName, mimeType) && isStructured2DSource(fileName, mimeType)) {
+      const manualFallback = createManualExtraction(
+        session.title,
+        "Arquivo 2D/PDF/PPTX recebido como fonte de referência. O parser automático de PowerPoint/PDF ainda não está habilitado; use esta sessão para revisão manual e para validar o padrão Ronaldo.",
+      );
+      return applyExtraction(session, manualFallback);
     }
 
     try {
@@ -585,7 +649,7 @@ export function TechnicalDrawingCore() {
       });
       setActiveSession(session);
       await refreshSessions(session.id);
-      await runExtraction(session, session.sourceImageUrl ?? "", file.name);
+      await runExtraction(session, session.sourceImageUrl ?? "", file.name, file.type);
     } catch (error) {
       console.error(error);
       toast.error(error instanceof Error ? error.message : "Falha ao criar sessão a partir do upload.");
@@ -901,7 +965,7 @@ export function TechnicalDrawingCore() {
     }
   };
 
-  const handleExportA3 = async (exportType: "png" | "pdf") => {
+  const handleExportA3 = async (exportType: "png" | "pdf" | "pptx") => {
     if (!a3Svg) return;
     setIsBusy(true);
     try {
@@ -920,7 +984,7 @@ export function TechnicalDrawingCore() {
           setActiveSession(persisted);
           await refreshSessions(persisted.id);
         }
-      } else {
+      } else if (exportType === "pdf") {
         const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.pdf`;
         const { width: svgW, height: svgH } = getSvgCanvasSize(a3Svg);
         const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [svgW, svgH] });
@@ -933,6 +997,21 @@ export function TechnicalDrawingCore() {
             blob: pdf.output("blob"),
             exportType: "a3_pdf",
             storageKey: "latest/desenho-a3.pdf",
+          });
+          setActiveSession(persisted);
+          await refreshSessions(persisted.id);
+        }
+      } else {
+        const fileName = `${sanitizeFilename(activeSession?.title || "desenho-tecnico")}-A3.pptx`;
+        const blob = await svgMarkupToPptxBlob(a3Svg, `${activeSession?.title || "Desenho tecnico"} - A3`, pngDataUrl);
+        downloadBlob(blob, fileName);
+        if (activeSession) {
+          const persisted = await persistEngineeringDrawingExport({
+            session: activeSession,
+            fileName,
+            blob,
+            exportType: "a3_pptx",
+            storageKey: "latest/desenho-a3.pptx",
           });
           setActiveSession(persisted);
           await refreshSessions(persisted.id);
@@ -951,7 +1030,7 @@ export function TechnicalDrawingCore() {
     !activeSession?.drawingSvg || !reviewReady || !(activeSession.validationReport?.canExport ?? false);
   const stepExportDisabled = !activeSession || !reviewReady || !currentValidation.canExport;
 
-  const handleExport = async (exportType: "png" | "pdf") => {
+  const handleExport = async (exportType: "png" | "pdf" | "pptx") => {
     if (!activeSession?.drawingSvg) return;
     if (exportDisabled) {
       toast.error("Corrija os conflitos e confirme a revisão antes de exportar.");
@@ -973,7 +1052,7 @@ export function TechnicalDrawingCore() {
           exportType: "png",
         });
         setActiveSession(updated);
-      } else {
+      } else if (exportType === "pdf") {
         const pdf = new jsPDF({
           orientation: "landscape",
           unit: "pt",
@@ -991,6 +1070,17 @@ export function TechnicalDrawingCore() {
           fileName,
           blob,
           exportType: "pdf",
+        });
+        setActiveSession(updated);
+      } else {
+        const fileName = `${sanitizeFilename(activeSession.title || "desenho-tecnico")}.pptx`;
+        const blob = await svgMarkupToPptxBlob(activeSession.drawingSvg, activeSession.title || "Desenho tecnico", pngDataUrl);
+        downloadBlob(blob, fileName);
+        const updated = await persistEngineeringDrawingExport({
+          session: activeSession,
+          fileName,
+          blob,
+          exportType: "pptx",
         });
         setActiveSession(updated);
       }
@@ -1125,7 +1215,7 @@ export function TechnicalDrawingCore() {
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Desenho Técnico 2D</h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-600">
             V1 interna para ir do croqui ao desenho técnico preliminar, com revisão humana obrigatória e mesma arquitetura já
-            preparada para um preview 3D futuro.
+            preparada para preview 3D e exportacao STEP preliminar.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -1141,6 +1231,8 @@ export function TechnicalDrawingCore() {
       </div>
 
       <div className="space-y-6">
+        <RonaldoBatchReport />
+
         <Card className="border-slate-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1194,9 +1286,9 @@ export function TechnicalDrawingCore() {
 
                   <div className="space-y-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
                     <div>
-                      <p className="font-medium text-slate-900">Upload do croqui</p>
+                      <p className="font-medium text-slate-900">Upload da fonte técnica</p>
                       <p className="text-xs text-slate-500">
-                        Se a edge function ainda não estiver publicada, a tela cai para modo manual ou fixture.
+                        Aceita croqui/imagem para extração IA e PDF/PPTX como fonte 2D para revisão do padrão Ronaldo.
                       </p>
                     </div>
                     <Button
@@ -1206,12 +1298,12 @@ export function TechnicalDrawingCore() {
                       className="w-full gap-2"
                     >
                       {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileImage className="h-4 w-4" />}
-                      Enviar sketch
+                      Enviar fonte
                     </Button>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept={DRAWING_SOURCE_ACCEPT}
                       className="hidden"
                       onChange={(event) => {
                         const file = event.target.files?.[0];
@@ -2110,7 +2202,7 @@ export function TechnicalDrawingCore() {
               <Boxes className="h-5 w-5 text-violet-600" />
               Desenho 2D
             </CardTitle>
-            <CardDescription>Preview SVG, validação, export PNG/PDF e arquitetura pronta para 3D.</CardDescription>
+            <CardDescription>Preview SVG, validação, export PNG/PDF/PPTX e arquitetura pronta para 3D.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -2145,6 +2237,15 @@ export function TechnicalDrawingCore() {
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Exportar PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void handleExport("pptx")}
+                  disabled={exportDisabled || isBusy}
+                  data-testid="export-pptx-button"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportar PPTX
                 </Button>
                 <Button
                   variant="outline"
@@ -2326,10 +2427,13 @@ export function TechnicalDrawingCore() {
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <h3 className="text-sm font-semibold text-slate-900">Preview 3D</h3>
                   <p className="mt-2 text-sm text-slate-600">
-                    O sólido 3D é gerado apenas a partir do spec axisimétrico revisado. GD&T permanece como camada de revisão e validação.
+                    O preview usa o GLB salvo quando existir; caso contrario, usa o spec axisimetrico revisado. GD&T permanece
+                    como camada de revisao e validacao.
                   </p>
                   <div className="mt-4" data-testid="engineering-drawing-3d-preview">
-                    {planned3DModel.readyForImplementation ? (
+                    {activeSession?.threeDAsset?.url ? (
+                      <EngineeringDrawingGlbPreview url={activeSession.threeDAsset.url} />
+                    ) : planned3DModel.readyForImplementation ? (
                       <EngineeringDrawing3DPreview spec={spec} />
                     ) : (
                       <div className="flex h-[420px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white text-sm text-slate-500">
@@ -2380,6 +2484,15 @@ export function TechnicalDrawingCore() {
               >
                 <Download className="mr-2 h-4 w-4" />
                 Exportar A3 PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void handleExportA3("pptx")}
+                disabled={!a3Svg || isBusy}
+                data-testid="export-a3-pptx-button"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar A3 PPTX
               </Button>
             </div>
 

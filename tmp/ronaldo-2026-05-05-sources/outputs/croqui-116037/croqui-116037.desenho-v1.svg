@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Desenho técnico preliminar">
+      <defs>
+        
+    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2563eb" />
+    </marker>
+  
+        
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c" />
+    </marker>
+  
+      </defs>
+      <rect x="0" y="0" width="1200" height="760" fill="#ffffff" />
+      <rect x="24" y="24" width="1152" height="712" rx="20" fill="none" stroke="#cbd5e1" stroke-width="1.4" />
+      <text x="40" y="60" font-size="28" fill="#0f172a" font-weight="700">Croqui 116.037</text>
+      <text x="40" y="88" font-size="13" fill="#475569">Unidade: MM • Status: preliminar • Renderer determinístico 2D</text>
+      <line x1="96" y1="320" x2="721.4309723889556" y2="320" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6 6" />
+      <line x1="120" y1="180" x2="120" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="385.3061224489796" y1="180" x2="385.3061224489796" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="385.3061224489796" y1="180" x2="385.3061224489796" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="464.8979591836735" y1="180" x2="464.8979591836735" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="464.8979591836735" y1="180" x2="464.8979591836735" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+<line x1="697.4309723889556" y1="180" x2="697.4309723889556" y2="460" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <polygon points="120,190 385.3061224489796,190 385.3061224489796,450 120,450" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="385.3061224489796,241.968787515006 464.8979591836735,241.968787515006 464.8979591836735,398.031212484994 385.3061224489796,398.031212484994" fill="none" stroke="#0f172a" stroke-width="2.4" />
+<polygon points="464.8979591836735,210.75630252100842 697.4309723889556,210.75630252100842 697.4309723889556,429.2436974789916 464.8979591836735,429.2436974789916" fill="none" stroke="#0f172a" stroke-width="2.4" />
+    <polyline points="464.8979591836735,218.75630252100842 476.5246098439376,212.75630252100842 488.15126050420173,218.75630252100842 488.15126050420173,218.75630252100842 499.7779111644659,212.75630252100842 511.40456182472997,218.75630252100842 511.40456182472997,218.75630252100842 523.0312124849941,212.75630252100842 534.6578631452581,218.75630252100842 534.6578631452581,218.75630252100842 546.2845138055222,212.75630252100842 557.9111644657863,218.75630252100842 557.9111644657863,218.75630252100842 569.5378151260504,212.75630252100842 581.1644657863145,218.75630252100842 581.1644657863145,218.75630252100842 592.7911164465786,212.75630252100842 604.4177671068427,218.75630252100842 604.4177671068427,218.75630252100842 616.0444177671068,212.75630252100842 627.6710684273709,218.75630252100842 627.6710684273709,218.75630252100842 639.297719087635,212.75630252100842 650.924369747899,218.75630252100842 650.924369747899,218.75630252100842 662.5510204081631,212.75630252100842 674.1776710684272,218.75630252100842 674.1776710684272,218.75630252100842 685.8043217286913,212.75630252100842 697.4309723889554,218.75630252100842 697.4309723889554,218.75630252100842 697.4309723889555,212.75630252100842 697.4309723889556,218.75630252100842" fill="none" stroke="#0f172a" stroke-width="1.2" />
+    <polyline points="464.8979591836735,421.2436974789916 476.5246098439376,427.2436974789916 488.15126050420173,421.2436974789916 488.15126050420173,421.2436974789916 499.7779111644659,427.2436974789916 511.40456182472997,421.2436974789916 511.40456182472997,421.2436974789916 523.0312124849941,427.2436974789916 534.6578631452581,421.2436974789916 534.6578631452581,421.2436974789916 546.2845138055222,427.2436974789916 557.9111644657863,421.2436974789916 557.9111644657863,421.2436974789916 569.5378151260504,427.2436974789916 581.1644657863145,421.2436974789916 581.1644657863145,421.2436974789916 592.7911164465786,427.2436974789916 604.4177671068427,421.2436974789916 604.4177671068427,421.2436974789916 616.0444177671068,427.2436974789916 627.6710684273709,421.2436974789916 627.6710684273709,421.2436974789916 639.297719087635,427.2436974789916 650.924369747899,421.2436974789916 650.924369747899,421.2436974789916 662.5510204081631,427.2436974789916 674.1776710684272,421.2436974789916 674.1776710684272,421.2436974789916 685.8043217286913,427.2436974789916 697.4309723889554,421.2436974789916 697.4309723889554,421.2436974789916 697.4309723889555,427.2436974789916 697.4309723889556,421.2436974789916" fill="none" stroke="#0f172a" stroke-width="1.2" />
+  
+      
+    <line x1="120" y1="504" x2="120" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="385.3061224489796" y1="504" x2="385.3061224489796" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="520" x2="385.3061224489796" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="252.6530612244898" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">1,70 mm</text>
+  
+
+    <line x1="385.3061224489796" y1="538" x2="385.3061224489796" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="464.8979591836735" y1="538" x2="464.8979591836735" y2="570" stroke="#2563eb" stroke-width="1" />
+    <line x1="385.3061224489796" y1="554" x2="464.8979591836735" y2="554" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="425.1020408163265" y="544" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">0,51 mm</text>
+  
+
+    <line x1="464.8979591836735" y1="504" x2="464.8979591836735" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="697.4309723889556" y1="504" x2="697.4309723889556" y2="536" stroke="#2563eb" stroke-width="1" />
+    <line x1="464.8979591836735" y1="520" x2="697.4309723889556" y2="520" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="581.1644657863146" y="510" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">1,49 mm</text>
+  
+      
+    <line x1="120" y1="604" x2="120" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="697.4309723889556" y1="604" x2="697.4309723889556" y2="636" stroke="#2563eb" stroke-width="1" />
+    <line x1="120" y1="620" x2="697.4309723889556" y2="620" stroke="#2563eb" stroke-width="1.2" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)" />
+    <text x="408.7154861944778" y="610" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="600">3,70 mm</text>
+  
+      
+        <line x1="252.6530612244898" y1="190" x2="252.6530612244898" y2="118" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="252.6530612244898" y="110" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø1,67</text>
+      
+
+        <line x1="425.1020408163265" y1="241.968787515006" x2="425.1020408163265" y2="156" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="425.1020408163265" y="148" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">Ø1</text>
+      
+
+        <line x1="581.1644657863145" y1="210.75630252100842" x2="581.1644657863145" y2="194" stroke="#ea580c" stroke-width="1.2" marker-end="url(#arrow-orange)" />
+        <text x="581.1644657863145" y="186" text-anchor="middle" font-size="14" fill="#c2410c" font-weight="600">M1,4 x 0,30</text>
+      
+      
+      
+      <g transform="translate(820 360)">
+        <rect x="0" y="0" width="320" height="170" rx="16" fill="#fff7ed" stroke="#fdba74" />
+        <text x="20" y="30" font-size="18" fill="#9a3412" font-weight="700">Validação</text>
+        <text x="20" y="58" font-size="13" fill="#7c2d12">Aviso: Feature fora do escopo da V1: Hexagono interno 1,2. Vista frontal indica hexagono 1,2 com tolerancias +0,025/+0,010; profundidade nao legivel.</text><text x="20" y="78" font-size="13" fill="#7c2d12">Aviso: Feature fora do escopo da V1: Broca Ø1,2 com profundidade indefinida. Croqui pergunta &apos;prof. broca?&apos;. Deve bloquear liberacao de fabricacao.</text>
+      </g>
+    
+      
+      <g transform="translate(820 550)">
+        <rect x="0" y="0" width="320" height="116" rx="16" fill="#fefce8" stroke="#fde047" />
+        <text x="20" y="30" font-size="18" fill="#854d0e" font-weight="700">Features fora do escopo</text>
+        <text x="20" y="58" font-size="13" fill="#854d0e">Hexagono interno 1,2: Vista frontal indica hexagono 1,2 com tolerancias +0,025/+0,010; profundidade nao legivel.</text><text x="20" y="78" font-size="13" fill="#854d0e">Broca Ø1,2 com profundidade indefinida: Croqui pergunta &apos;prof. broca?&apos;. Deve bloquear liberacao de fabricacao.</text>
+      </g>
+    
+      
+      <g transform="translate(120 680)">
+        <text x="0" y="0" font-size="16" fill="#0f172a" font-weight="700">Notas</text>
+        <text x="0" y="24" font-size="13" fill="#334155">• Preliminar extraido do croqui 116.037.</text><text x="0" y="42" font-size="13" fill="#334155">• Hexagono 1,2 e broca 1,2 aparecem no croqui, mas a profundidade da broca esta marcada como pergunta.</text><text x="0" y="60" font-size="13" fill="#334155">• Nao liberar STEP sem Ronaldo confirmar profundidade do furo/hexagono.</text><text x="0" y="78" font-size="13" fill="#334155">• Trecho 1: Croqui tambem indica hexagono/furo interno; profundidade nao definida.</text>
+      </g>
+    
+      <g transform="translate(820 120)">
+        <rect x="0" y="0" width="320" height="160" rx="16" fill="#f8fafc" stroke="#cbd5e1" />
+        <text x="20" y="34" font-size="18" fill="#0f172a" font-weight="700">Legenda rápida</text>
+        <text x="20" y="64" font-size="13" fill="#334155">Linha azul: cotas</text>
+        <text x="20" y="84" font-size="13" fill="#334155">Líder laranja: diâmetros e rosca</text>
+        <text x="20" y="104" font-size="13" fill="#334155">Linhas cinza tracejadas: limites de trecho</text>
+        <text x="20" y="124" font-size="13" fill="#334155">Perfis não suportados são sinalizados, nunca inventados.</text>
+      </g>
+    </svg>

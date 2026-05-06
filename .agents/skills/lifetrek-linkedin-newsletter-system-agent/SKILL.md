@@ -15,6 +15,7 @@ Load these before producing the final package:
 2. `docs/brand/BRAND_BOOK.md`
 3. `docs/brand/COMPANY_CONTEXT.md`
 4. `docs/brand/SOCIAL_MEDIA_GUIDELINES.md`
+5. `.agents/skills/lifetrek-anti-ai-slop-writing/SKILL.md` — anti-AI-slop directive (REQUIRED). Newsletter editions are 650–1,000 words of long-form prose, which is exactly where banned tokens, em-dash overuse, parataxis, and rule-of-three defaults are most visible. Load all three references: `banned-words-pt.md`, `banned-words-en.md`, `structural-rules.md`.
 
 When writing copy, also load `references/prompt.md`.
 
@@ -108,3 +109,27 @@ Create one short LinkedIn post:
 - Avoid hype, generic marketing language, and unsupported claims.
 - Use serious Lifetrek technical imagery or a clear photo/inspection/product direction; avoid generic stock-style visuals.
 - Always emit `post_class` in `approval_notes`. Refuse to produce a newsletter package for inputs whose canonical source is institutional or a recruiting/announcement note.
+
+## Anti-AI-Slop (Required for newsletter body and feed promo)
+
+Before returning the package, run the 12-step self-check from `lifetrek-anti-ai-slop-writing/SKILL.md` over `newsletter.body_markdown` and `feed_promo.post_text`. Newsletter prose at 650–1,000 words is the highest-risk surface in the pipeline; apply these constraints strictly:
+
+- **Banned PT-BR tokens.** Never use "revolucionário", "transformador", "alavancar", "potencializar", "destravar", "no atual cenário", "no mundo atual", "vale destacar que", "é importante notar que", "em essência", "no fim do dia", "vamos mergulhar", "vamos explorar a fundo", "vamos nos aprofundar", "tradição e inovação", "padrão de excelência", "DNA de inovação", "soluções sob medida" (sem detalhe), "experiência única". Full list in `references/banned-words-pt.md`.
+- **Banned openers.** Never start a paragraph with "Certamente,", "Adicionalmente,", "Ademais,", "Outrossim,", "Notavelmente,", "Importantemente,", "Curiosamente,", "Interessantemente,", "De fato,", "No geral,".
+- **Em-dash limit.** Maximum 1 em-dash (—) per 500 words across the full edition. Replace extras with commas, semicolons, colons, or new sentences.
+- **No rule of three by default.** The newsletter format calls for "three narrative sections" because the operational arc genuinely has three (what breaks → what changes the outcome → how to review without bureaucracy). Inside each section, do not default to three sub-points or three examples.
+- **No parataxis.** Three or more short consecutive declarative sentences must be connected with subordinate clauses, conjunctions, semicolons, or commas.
+- **Sentence-length variance.** Mix short fragments with long sentences. Never three consecutive sentences within ±3 words of each other.
+- **Active voice.** Prefer "A auditoria pegou o desvio no segundo lote" over "O desvio foi identificado pela auditoria".
+- **Quantitative claims are allowed when evidenced and cited.** Newsletter editions are 650–1,000 words of editorial prose where real numbers carry the argument. Quantitative claims (tolerances, Cpk, cycle times, lead times, accuracy figures) are encouraged when:
+  - the evidence exists in a vendor datasheet (Citizen, ZEISS, etc.) **or** in internal validated evidence (CMM logs, MSA, FAI reports, pilot-lot data); AND
+  - the claim is **qualified** (specific machine, part family, time window); AND
+  - the source is **cited inline**. Newsletter style: "segundo o datasheet do fabricante", "no FAI de junho de 2025", "no estudo MSA LT-2025-06", "ISO 13485:2016 §8.5.1". Footnotes are optional; inline attribution is the default.
+  - Defer to `lifetrek-technical-claims-guardian` (mode `claim-review`, channel `newsletter`) for any claim that is not already in the canonical source. The guardian returns the qualified rewrite plus the citation format.
+  - Never invent a number, client name, date, audit finding, or quote that has no Tier 1–4 evidence. If a real number is missing, restructure the sentence or use "cerca de" / "aproximadamente".
+- **Never extrapolate** a validated tolerance/Cpk to broader scope than the underlying trial covered.
+- **Regulatory pathway language (ANVISA/FDA/ISO 13485 scope) stays Tier 1** — match the public site, do not sharpen.
+- **No corporate pep talk.** Include the friction: what broke, what didn't work the first time, what the engineer almost did wrong before the audit caught it.
+- **Hook of the feed promo first line.** Specific, data-anchored, not a question. Never "Você sabia...?", "Já pensou em...?", "Descubra...".
+
+Add `"anti_slop_passed: true"` to `approval_notes` once the self-check passes.

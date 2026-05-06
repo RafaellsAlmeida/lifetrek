@@ -1,5 +1,7 @@
 {
-  "generated_at": "2026-05-01T18:34:54.598Z",
+  "generated_at": "2026-05-02T01:20:56.149Z",
+  "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
+  "visual_revision": "2026-05 soft_ai_reference_photo_system",
   "posts": [
     {
       "post_id": "2026-05-05-T1-image",
@@ -16,7 +18,16 @@
       "image_dimensions": "1080x1350",
       "background_source": "src/assets/facility/production-overview.jpg",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-enhanced Lifetrek reference photo without text overlay",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-07-T3-image",
@@ -33,7 +44,16 @@
       "image_dimensions": "1080x1350",
       "background_source": "Stakeholder_Review_Assets/Quality/metrology-overview.png",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-enhanced Lifetrek reference photo without text overlay",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-12-T2-carousel",
@@ -50,7 +70,27 @@
       "image_dimensions": "1080x1350",
       "background_source": "src/assets/facility/production-floor.jpg",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-generated native PT-BR typography over soft Lifetrek reference-photo gradient",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [
+        "O gargalo não é o CNC",
+        "capacidade também espera",
+        "CMM entra no prazo",
+        "sala limpa é fluxo",
+        "o lote para no detalhe"
+      ],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "slide-01.png",
+        "slide-02.png",
+        "slide-03.png",
+        "slide-04.png",
+        "slide-05.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-14-T4-carousel",
@@ -67,7 +107,27 @@
       "image_dimensions": "1080x1350",
       "background_source": "Stakeholder_Review_Assets/Quality/zeiss-contura.webp",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-generated native PT-BR typography over soft Lifetrek reference-photo gradient",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [
+        "Sem MSA, o Cpk engana",
+        "a régua também varia",
+        "operador entra na conta",
+        "Gage R&R antes do aceite",
+        "confiança antes do lote"
+      ],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "slide-01.png",
+        "slide-02.png",
+        "slide-03.png",
+        "slide-04.png",
+        "slide-05.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-19-T1-carousel",
@@ -84,7 +144,27 @@
       "image_dimensions": "1080x1350",
       "background_source": "src/assets/facility/production-overview.jpg",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-generated native PT-BR typography over soft Lifetrek reference-photo gradient",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [
+        "Capacidade não é máquina",
+        "tempo útil é o começo",
+        "setup também produz",
+        "metrologia conta junto",
+        "prazo nasce no fluxo"
+      ],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "slide-01.png",
+        "slide-02.png",
+        "slide-03.png",
+        "slide-04.png",
+        "slide-05.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-21-T3-carousel",
@@ -101,7 +181,27 @@
       "image_dimensions": "1080x1350",
       "background_source": "Stakeholder_Review_Assets/Quality/metrology-overview.png",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-generated native PT-BR typography over soft Lifetrek reference-photo gradient",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [
+        "Validação não é inspeção",
+        "lote piloto não basta",
+        "estabilidade vem antes",
+        "IQ/OQ/PQ no fluxo",
+        "documentação sem susto"
+      ],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "slide-01.png",
+        "slide-02.png",
+        "slide-03.png",
+        "slide-04.png",
+        "slide-05.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-26-T2-image",
@@ -118,7 +218,16 @@
       "image_dimensions": "1080x1350",
       "background_source": "Product Images/1767376335649-sala-limpa.png",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-enhanced Lifetrek reference photo without text overlay",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "caption.txt"
+      ]
     },
     {
       "post_id": "2026-05-28-T4-image",
@@ -135,7 +244,16 @@
       "image_dimensions": "1080x1350",
       "background_source": "Stakeholder_Review_Assets/Quality/lab-overview.png",
       "source_plan": "docs/strategy/linkedin-test-may-2026-execution-plan.md",
-      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened."
+      "claim_guardian_note": "Claims were kept to approved public language where possible; quantified or guarantee-style outcomes were softened.",
+      "visual_revision": "2026-05 soft_ai_reference_photo_system",
+      "visual_system": "AI-enhanced Lifetrek reference photo without text overlay",
+      "square_variant_dimensions": "1080x1080",
+      "on_image_text": [],
+      "assets": [
+        "image.png",
+        "image-square.png",
+        "caption.txt"
+      ]
     }
   ]
 }

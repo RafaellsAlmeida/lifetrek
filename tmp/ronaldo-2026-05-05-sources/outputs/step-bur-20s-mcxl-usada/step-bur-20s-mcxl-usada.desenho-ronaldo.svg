@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040">
+      <defs>
+        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M10 0 L0 5 L10 10 z" fill="#f97316"/>
+        </marker>
+        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M10 0 L0 5 L10 10 z" fill="#0ea5e9"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="white"/>
+      <text x="1420" y="70" text-anchor="middle" font-size="34" font-weight="700">Step Bur 20s MCXL usada</text>
+      <line x1="60" y1="470" x2="1460" y2="470" stroke="#94a3b8" stroke-width="1" stroke-dasharray="8 6"/>
+      <polygon points="80,333.5 213.04347826086956,333.5 213.04347826086956,333.5 532.3478260869565,333.5 532.3478260869565,325.7 745.2173913043479,216.5 745.2173913043479,216.5 757.0434782608695,216.5 757.0434782608695,216.5 768.8695652173913,216.5 768.8695652173913,275 804.3478260869564,275 804.3478260869564,378.35 966.9565217391304,378.35 966.9565217391304,386.15 1085.217391304348,386.15 1085.217391304348,401.75 1203.4782608695652,401.75 1203.4782608695652,417.35 1321.7391304347825,417.35 1321.7391304347825,431 1440,431 1440,509 1321.7391304347825,509 1321.7391304347825,522.65 1203.4782608695652,522.65 1203.4782608695652,538.25 1085.217391304348,538.25 1085.217391304348,553.85 966.9565217391304,553.85 966.9565217391304,561.65 804.3478260869564,561.65 804.3478260869564,665 768.8695652173913,665 768.8695652173913,723.5 757.0434782608695,723.5 757.0434782608695,723.5 745.2173913043479,723.5 745.2173913043479,723.5 532.3478260869565,614.3 532.3478260869565,606.5 213.04347826086956,606.5 213.04347826086956,606.5 80,606.5" fill="none" stroke="#083344" stroke-width="3"/>
+      <line x1="80" y1="300" x2="80" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="213.04347826086956" y1="300" x2="213.04347826086956" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="532.3478260869565" y1="300" x2="532.3478260869565" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="745.2173913043479" y1="300" x2="745.2173913043479" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="757.0434782608695" y1="300" x2="757.0434782608695" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="768.8695652173913" y1="300" x2="768.8695652173913" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="804.3478260869564" y1="300" x2="804.3478260869564" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="966.9565217391304" y1="300" x2="966.9565217391304" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="1085.217391304348" y1="300" x2="1085.217391304348" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="1203.4782608695652" y1="300" x2="1203.4782608695652" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+<line x1="1321.7391304347825" y1="300" x2="1321.7391304347825" y2="820" stroke="#e5e7eb" stroke-width="0.7" stroke-dasharray="5 5"/>
+      
+    <line x1="80" y1="670" x2="80" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="213.04347826086956" y1="670" x2="213.04347826086956" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="80" y1="690" x2="213.04347826086956" y2="690" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="146.52173913043478" y="682" text-anchor="middle" font-size="20" fill="#111827">4,50</text>
+  
+
+    <line x1="213.04347826086956" y1="714" x2="213.04347826086956" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="532.3478260869565" y1="714" x2="532.3478260869565" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="213.04347826086956" y1="734" x2="532.3478260869565" y2="734" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="372.695652173913" y="726" text-anchor="middle" font-size="20" fill="#111827">10,80</text>
+  
+
+    <line x1="532.3478260869565" y1="758" x2="532.3478260869565" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="745.2173913043479" y1="758" x2="745.2173913043479" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="532.3478260869565" y1="778" x2="745.2173913043479" y2="778" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="638.7826086956522" y="770" text-anchor="middle" font-size="20" fill="#111827">7,20</text>
+  
+
+    <line x1="745.2173913043479" y1="670" x2="745.2173913043479" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="757.0434782608695" y1="670" x2="757.0434782608695" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="745.2173913043479" y1="690" x2="757.0434782608695" y2="690" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="751.1304347826087" y="682" text-anchor="middle" font-size="20" fill="#111827">0,40</text>
+  
+
+    <line x1="757.0434782608695" y1="714" x2="757.0434782608695" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="768.8695652173913" y1="714" x2="768.8695652173913" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="757.0434782608695" y1="734" x2="768.8695652173913" y2="734" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="762.9565217391304" y="726" text-anchor="middle" font-size="20" fill="#111827">0,40*</text>
+  
+
+    <line x1="768.8695652173913" y1="758" x2="768.8695652173913" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="804.3478260869564" y1="758" x2="804.3478260869564" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="768.8695652173913" y1="778" x2="804.3478260869564" y2="778" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="786.6086956521738" y="770" text-anchor="middle" font-size="20" fill="#111827">1,20</text>
+  
+
+    <line x1="804.3478260869564" y1="670" x2="804.3478260869564" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="966.9565217391304" y1="670" x2="966.9565217391304" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="804.3478260869564" y1="690" x2="966.9565217391304" y2="690" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="885.6521739130434" y="682" text-anchor="middle" font-size="20" fill="#111827">5,50</text>
+  
+
+    <line x1="966.9565217391304" y1="714" x2="966.9565217391304" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1085.217391304348" y1="714" x2="1085.217391304348" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="966.9565217391304" y1="734" x2="1085.217391304348" y2="734" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="1026.0869565217392" y="726" text-anchor="middle" font-size="20" fill="#111827">4,00</text>
+  
+
+    <line x1="1085.217391304348" y1="758" x2="1085.217391304348" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1203.4782608695652" y1="758" x2="1203.4782608695652" y2="798" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1085.217391304348" y1="778" x2="1203.4782608695652" y2="778" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="1144.3478260869565" y="770" text-anchor="middle" font-size="20" fill="#111827">4,00</text>
+  
+
+    <line x1="1203.4782608695652" y1="670" x2="1203.4782608695652" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1321.7391304347825" y1="670" x2="1321.7391304347825" y2="710" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1203.4782608695652" y1="690" x2="1321.7391304347825" y2="690" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="1262.608695652174" y="682" text-anchor="middle" font-size="20" fill="#111827">4,00</text>
+  
+
+    <line x1="1321.7391304347825" y1="714" x2="1321.7391304347825" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1440" y1="714" x2="1440" y2="754" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1321.7391304347825" y1="734" x2="1440" y2="734" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="1380.8695652173913" y="726" text-anchor="middle" font-size="20" fill="#111827">4,00</text>
+  
+      
+    <line x1="80" y1="820" x2="80" y2="860" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="1440" y1="820" x2="1440" y2="860" stroke="#f97316" stroke-width="1.2"/>
+    <line x1="80" y1="840" x2="1440" y2="840" stroke="#f97316" stroke-width="1.4" marker-start="url(#arrow-orange)" marker-end="url(#arrow-orange)"/>
+    <text x="760" y="832" text-anchor="middle" font-size="20" fill="#111827">46,00</text>
+  
+      
+    <line x1="146.52173913043478" y1="250" x2="146.52173913043478" y2="325.5" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="146.52173913043478" y="242" text-anchor="middle" font-size="20" fill="#111827">Rosca M3,5x0,35</text>
+  
+
+    <line x1="638.7826086956522" y1="292" x2="638.7826086956522" y2="208.5" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="638.7826086956522" y="284" text-anchor="middle" font-size="20" fill="#111827">Ø 3,70</text>
+  
+
+    <line x1="786.6086956521738" y1="334" x2="786.6086956521738" y2="267" stroke="#0ea5e9" stroke-width="1.6" marker-end="url(#arrow-blue)"/>
+    <text x="786.6086956521738" y="326" text-anchor="middle" font-size="20" fill="#111827">Ø 5</text>
+  
+
+    <line x1="885.6521739130434" y1="376" x2="885.6521739130434" y2="370.35" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="885.6521739130434" y="368" text-anchor="middle" font-size="20" fill="#111827">Ø 2,35</text>
+  
+
+    <line x1="1026.0869565217392" y1="250" x2="1026.0869565217392" y2="378.15" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="1026.0869565217392" y="242" text-anchor="middle" font-size="20" fill="#111827">Ø 2,15</text>
+  
+
+    <line x1="1144.3478260869565" y1="292" x2="1144.3478260869565" y2="393.75" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="1144.3478260869565" y="284" text-anchor="middle" font-size="20" fill="#111827">Ø 1,75</text>
+  
+
+    <line x1="1262.608695652174" y1="334" x2="1262.608695652174" y2="409.35" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="1262.608695652174" y="326" text-anchor="middle" font-size="20" fill="#111827">Ø 1,35</text>
+  
+
+    <line x1="1380.8695652173913" y1="376" x2="1380.8695652173913" y2="423" stroke="#f97316" stroke-width="1.6" marker-end="url(#arrow-orange)"/>
+    <text x="1380.8695652173913" y="368" text-anchor="middle" font-size="20" fill="#111827">Ø 1</text>
+  
+      <text x="1420" y="970" text-anchor="middle" font-size="28" font-weight="700">D = superficie diamantada quando indicado</text>
+      <text x="70" y="895" font-size="16" fill="#92400e">- Preliminar gerado do PDF/PPTX padrao Ronaldo.</text>
+<text x="70" y="917" font-size="16" fill="#92400e">- Cotas inferiores somam 45,60 mm; total informado e 46,00 mm. Residuo de 0,40 mm marcado como validacao.</text>
+<text x="70" y="939" font-size="16" fill="#92400e">- D = superficie diamantada.</text>
+<text x="70" y="961" font-size="16" fill="#92400e">- Validar: Confirmar onde entra o residuo de 0,40 mm entre as cotas inferiores e o total 46,00.</text>
+<text x="70" y="983" font-size="16" fill="#92400e">- Validar: Confirmar se o furo Ø0,50 e transversal e se deve ser modelado no STEP.</text>
+<text x="70" y="1005" font-size="16" fill="#92400e">- Validar: Confirmar se o ultimo trecho Ø1,0 D tem exatamente 4,00 mm.</text>
+    </svg>
